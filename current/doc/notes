@@ -1,0 +1,15 @@
+Directory structure
+===================
+
+current/boards - loosely arranged by processor family
+e.g.
+current/boards/arm/raspberry-pi
+current/board/arm/sabre
+etc.
+
+Each board directory contains at least:
+dv-hardware.h - selects all the hardware that's defined on this board.
+At least:   DV_FAMILY     DV_FAMILY_ARM, DV_FAMILY_MIPS etc.
+            DV_CPU        DV_CPU_ARM1136 etc.
+
+
