@@ -258,4 +258,8 @@ typedef DV_STATUS_T			dv_status_t;
 
 #endif
 
+/* Null pointer
+*/
+#define DV_NULL				0
+
 #endif

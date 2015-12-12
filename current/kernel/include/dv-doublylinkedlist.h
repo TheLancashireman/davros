@@ -23,6 +23,7 @@
 #include <kernel/include/dv-kernel-types.h>
 
 typedef dv_int32_t dv_dllkey_t;
+#define DV_DLLMINKEY	((dv_dllkey_t)0x80000000)
 
 enum dv_dlltype_e
 {

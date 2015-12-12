@@ -34,7 +34,7 @@ include make/dv-defs.make
 
 .PHONY:		default all help klib ulib clean
 
-default:	help
+default:	all
 
 all:		klib
 
@@ -42,34 +42,7 @@ klib:		$(DV_LIB_D)/lib$(DV_KLIB_NAME).$(DV_A)
 
 uib:		$(DV_LIB_D)/lib$(DV_ULIB_NAME).$(DV_A)
 
-clean:
-	-rm	$(DV_LIB_D)/*.$(DV_A)
-	-rm	$(DV_OBJ_D)/*.$(DV_O)
-	
-
-help:
-	@echo ""
-	@echo "Make targets:"
-	@echo "  default:         show this message"
-	@echo "  all:             make everything"
-	@echo "  klib:            make the kernel library"
-	@echo "  ulib:            make the userland library"
-	@echo ""
-	@echo "Settings:"
-	@echo "  DV_ROOT = $(DV_ROOT)"
-	@echo "  DV_BOARD_D = $(DV_BOARD_D)"
-	@echo "  DV_O = $(DV_O)"
-	@echo "  DV_C = $(DV_C)"
-	@echo "  DV_S = $(DV_S)"
-	@echo "  DV_A = $(DV_A)"
-	@echo "  DV_KLIB_NAME = $(DV_KLIB_NAME)"
-	@echo "  DV_ULIB_NAME = $(DV_ULIB_NAME)"
-	@echo "  DV_OBJ_D = $(DV_OBJ_D)"
-	@echo "  DV_LIB_D = $(DV_LIB_D)"
-	@echo "  DV_KSRC_D = $(DV_KSRC_D)"
-	@echo "  DV_USRC_D = $(DV_USRC_D)"
-	@echo ""
-
+include make/dv-commontargets.make
 include make/$(DV_FAMILY)/dv-$(DV_FAMILY)-$(DV_COMPILER).make
 include make/dv-rules.make
 include make/dv-klib.make
