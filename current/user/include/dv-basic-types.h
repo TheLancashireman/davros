@@ -20,6 +20,10 @@
 #ifndef dv_basic_types_h
 #define dv_basic_types_h	1
 
+#ifndef DV_ASM
+#define DV_ASM	0
+#endif
+
 /* This file defines the basic data types for davros
  *
  * The types are defined using macros to permit the processor families to define their own
@@ -172,6 +176,16 @@
 #define DV_ADDRESS_T			dv_uint32_t
 #endif
 
+/* Quantities and identifiers/indexes of objects
+*/
+#ifndef DV_QUANTITY_T
+#define DV_QUANTITY_T			dv_int32_t
+#endif
+
+#ifndef DV_IDENTITY_T
+#define DV_IDENTITY_T			dv_int32_t
+#endif
+
 
 /* Stack elements
 */
@@ -212,7 +226,7 @@
  *
  * The types are defined using the macros defined above and/or in the CPU files
 */
-#ifndef DV_ASM
+#if !DV_ASM
 
 typedef DV_CHAR_T			dv_char_t;
 typedef DV_SHORT_T			dv_short_t;
@@ -255,6 +269,8 @@ typedef DV_ADDRESS_T		dv_address_t;
 typedef DV_STACKELEMENT_T	dv_stackelement_t;
 typedef DV_BOOLEAN_T		dv_boolean_t;
 typedef DV_STATUS_T			dv_status_t;
+typedef DV_QUANTITY_T		dv_quantity_t;
+typedef DV_IDENTITY_T		dv_identity_t;
 
 #endif
 

@@ -1,4 +1,4 @@
-/*	dv-template.c - template C source file for davros
+/*	dv-activateexecutable.c - activate an instance of an executable object
  *
  *	Copyright 2015 David Haworth
  *
@@ -19,15 +19,16 @@
 */
 #include <kernel/include/dv-kconfig.h>
 #include <user/include/dv-basic-types.h>
+#include <kernel/include/dv-kernel-types.h>
+#include <kernel/include/dv-executable.h>
 #include <kernel/include/dv-coverage.h>
+#include <user/include/dv-error.h>
 
-DV_COVDEF(function);
+DV_COVDEF(activateexecutable);
 
-/* dv_function() - short description
- *
- * Long description
+/* dv_activateexecutable() - activate an instance of an executable
 */
-void dv_function(void)
+dv_errorid_t dv_activateexecutable(dv_kernel_t *kvars, dv_executable_t *executable)
 {
 }
 

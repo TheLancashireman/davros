@@ -1,4 +1,4 @@
-/*	dv-template.c - template C source file for davros
+/*	dv-error.h - error codes for davros
  *
  *	Copyright 2015 David Haworth
  *
@@ -17,19 +17,18 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <kernel/include/dv-kconfig.h>
-#include <user/include/dv-basic-types.h>
-#include <kernel/include/dv-coverage.h>
+#ifndef dv_error_h
+#define dv_error_h	1
 
-DV_COVDEF(function);
-
-/* dv_function() - short description
- *
- * Long description
-*/
-void dv_function(void)
+enum dv_errorid_e
 {
-}
+	dv_eid_none,		/* No error - all ok */
+	dv_eid_tryagain,	/* Try the operation again - not an error */
 
-/* man-page-generation - to be defined
-*/
+	dv_eid_unknown		/* Unknown error - MUST BE LAST! */
+};
+
+typedef enum dv_errorid_e dv_errorid_t;
+
+
+#endif

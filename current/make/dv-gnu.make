@@ -20,6 +20,12 @@
 CC_INC	?=	$(addprefix -I,$(DV_INCLUDE_PATH))
 AS_INC	?=	$(addprefix -I,$(DV_INCLUDE_PATH))
 
+CC_OPTS += -std=c99
+CC_OPTS += -Wall
+CC_OPTS += -Wextra
+CC_OPTS += -g
+CC_OPTS += -fcommon
+
 # Make an object file from a C source file
 ifndef dv_cc
 define dv_cc

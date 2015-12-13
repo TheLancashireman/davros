@@ -1,4 +1,4 @@
-/*	dv-template.c - template C source file for davros
+/*	dv-kernel.h - kernel variables for davros
  *
  *	Copyright 2015 David Haworth
  *
@@ -17,19 +17,21 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
+#ifndef dv_kernel_h
+#define dv_kernel_h	1
+
 #include <kernel/include/dv-kconfig.h>
 #include <user/include/dv-basic-types.h>
-#include <kernel/include/dv-coverage.h>
+#include <kernel/include/dv-kernel-types.h>
+#include <kernel/include/dv-doublylinkedlist.h>
 
-DV_COVDEF(function);
+#if !DV_ASM
 
-/* dv_function() - short description
- *
- * Long description
-*/
-void dv_function(void)
+struct dv_kernel_s
 {
-}
+	dv_doublylinkedlist_t threadqueue;
+};
 
-/* man-page-generation - to be defined
-*/
+#endif
+
+#endif

@@ -26,6 +26,10 @@
 #ifndef dv_kconfig_h
 #define dv_kconfig_h	1
 
+#ifndef DV_ASM
+#define DV_ASM	0
+#endif
+
 #include <user/include/dv-defs.h>
 
 /* Include the configuration selections from the board.
