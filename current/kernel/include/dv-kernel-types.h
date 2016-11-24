@@ -29,6 +29,8 @@ typedef struct dv_executable_s dv_executable_t;
 typedef struct dv_kernel_s dv_kernel_t;
 typedef struct dv_registers_s dv_registers_t;
 typedef struct dv_thread_s dv_thread_t;
+typedef struct dv_jobqueue_s dv_jobqueue_t;
+typedef struct dv_lock_s dv_lock_t;
 
 typedef void (*dv_function_t)(void);
 #endif

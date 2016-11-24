@@ -29,7 +29,7 @@
 
 struct dv_kernel_s
 {
-	dv_doublylinkedlist_t threadqueue;
+	dv_doublylinkedlist_t thread_queue;
 };
 
 #endif

@@ -1,4 +1,4 @@
-/*	dv-activateexecutable.c - activate an instance of an executable object
+/*	dv-spawnexecutable.c - spawn an instance of an executable object
  *
  *	Copyright 2015 David Haworth
  *
@@ -20,16 +20,46 @@
 #include <kernel/include/dv-kconfig.h>
 #include <user/include/dv-basic-types.h>
 #include <kernel/include/dv-kernel-types.h>
+#include <kernel/include/dv-kernel.h>
 #include <kernel/include/dv-executable.h>
+#include <kernel/include/dv-thread.h>
+#include <kernel/include/dv-event.h>
 #include <kernel/include/dv-coverage.h>
 #include <user/include/dv-error.h>
 
-DV_COVDEF(activateexecutable);
+DV_COVDEF(spawnexecutable);
 
-/* dv_activateexecutable() - activate an instance of an executable
+/* dv_spawnexecutable() - spawn an instance of an executable
 */
-dv_errorid_t dv_activateexecutable(dv_kernel_t *kvars, dv_executable_t *executable)
+dv_errorid_t dv_spawnexecutable(dv_kernel_t *kvars, dv_executable_t *executable)
 {
+	dv_errorid_t ecode = dv_eid_UnknownError;
+
+	if ( executable->enabled )
+	{
+		if ( executable->n_instances < executable->maxinstances )
+		{
+			executable->n_instances++;
+
+			if ( executable->events != DV_NULL )
+			{
+				executable->events->pending_events = DV_NO_EVENTS;
+				executable->events->awaited_events = DV_NO_EVENTS;
+			}
+
+			ecode = dv_spawnexecutableinthread(&kvars->thread_queue, executable->thread, executable);
+		}
+		else
+		{
+			ecode = dv_eid_MaxInstancesExceeded;
+		}
+	}
+	else
+	{
+		ecode = dv_eid_ExecutableQuarantined;
+	}
+
+	return ecode;
 }
 
 /* man-page-generation - to be defined

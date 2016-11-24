@@ -22,7 +22,7 @@
 DV_KLIST_C	+=	dv-dllinsertaftersame
 DV_KLIST_C	+=	dv-dllinsertbeforesame
 DV_KLIST_C	+=	dv-dllinit
-DV_KLIST_C	+=	dv-activateexecutable
+DV_KLIST_C	+=	dv-spawnexecutable
 
 # DV_KLIST_S is a list of all the assembler source files that are in the kernel library.
 # Without the .s suffix.

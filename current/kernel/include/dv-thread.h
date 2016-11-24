@@ -49,6 +49,7 @@ struct dv_thread_s
 	dv_jobqueue_t *jobqueue;			/* Job queue (if any) */
 	dv_lock_t *locktaken;				/* Innermost lock occupied by thread. */
 	dv_dllkey_t prio;					/* Current priority */
+	dv_threadstate_t state;				/* Current state */
 };
 
 #endif

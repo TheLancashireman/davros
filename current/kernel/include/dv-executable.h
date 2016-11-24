@@ -47,10 +47,11 @@ struct dv_executable_s
 	dv_dllkey_t baseprio;
 	dv_dllkey_t runprio;
 	dv_dllkey_t maxprio;
-	dv_quantity_t maxactivations;
+	dv_quantity_t maxinstances;
 	dv_uint32_t flags;
 
-	dv_quantity_t nactivations;
+	dv_boolean_t enabled;
+	dv_quantity_t n_instances;
 };
 
 #define DV_EXEFLAG_SYNCHRONOUS		0x00000001		/* Can be activated synchronously */
@@ -58,7 +59,8 @@ struct dv_executable_s
 #define DV_EXEFLAG_CALL				0x00000004		/* Activations have "call" semantics */ 
 #define DV_EXEFLAG_BLOCKING			0x00000008		/* Can use "blocking" APIs */
 
-dv_errorid_t dv_activateexecutable(dv_kernel_t *kvars, dv_executable_t *executable);
+dv_errorid_t dv_spawnexecutable(dv_kernel_t *kvars, dv_executable_t *executable);
+dv_errorid_t dv_spawnexecutableinthread(dv_doublylinkedlist_t *list, dv_thread_t *thread, dv_executable_t *executable);
 
 #endif
 

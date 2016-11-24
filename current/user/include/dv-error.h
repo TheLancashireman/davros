@@ -22,10 +22,15 @@
 
 enum dv_errorid_e
 {
-	dv_eid_none,		/* No error - all ok */
-	dv_eid_tryagain,	/* Try the operation again - not an error */
+	dv_eid_UnknownError = 0x7fffffff,	/* Used as default; should never occur in practice */
+	dv_eid_None = 0,					/* No error - all ok */
+	dv_eid_TryAgain,					/* Try the operation again - not an error */
 
-	dv_eid_unknown		/* Unknown error - MUST BE LAST! */
+	dv_eid_UnknownExecutable,
+	dv_eid_ExecutableQuarantined,
+	dv_eid_MaxInstancesExceeded,
+
+	dv_nerrors							/* Not used as an error code */
 };
 
 typedef enum dv_errorid_e dv_errorid_t;
