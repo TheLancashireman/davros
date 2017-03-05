@@ -28,8 +28,8 @@ DV_BOARD_D 	?=	board/arm/qemu
 DV_COMPILER	?=	gnu
 DV_GNU_D	?=	/data1/gnu/gcc-linaro-6.3.1-2017.02-x86_64_arm-eabi
 
-# Include the board Make selections
-include $(DV_BOARD_D)/dv-board.make
+# Include the board's make selections
+include $(DV_BOARD_D)/make/dv-board.make
 
 include make/dv-defs.make
 
@@ -44,6 +44,6 @@ klib:		$(DV_LIB_D)/lib$(DV_KLIB_NAME).$(DV_A)
 uib:		$(DV_LIB_D)/lib$(DV_ULIB_NAME).$(DV_A)
 
 include make/dv-commontargets.make
-include make/cpufamily/$(DV_FAMILY)/dv-$(DV_FAMILY)-$(DV_COMPILER).make
+include cpufamily/$(DV_FAMILY)/make/dv-$(DV_FAMILY)-$(DV_COMPILER).make
 include make/dv-rules.make
 include make/dv-klib.make

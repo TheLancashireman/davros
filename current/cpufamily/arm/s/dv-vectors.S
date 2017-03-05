@@ -17,7 +17,7 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <kernel/include/dv-asm.h>
+#include <kernel/h/dv-asm.h>
 
 	.globl	dv_vectortable
 	.extern	dv_trap_reset

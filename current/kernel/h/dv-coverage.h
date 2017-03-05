@@ -20,7 +20,7 @@
 #ifndef dv_coverage_h
 #define dv_coverage_h	1
 
-#include <kernel/include/dv-kernel-types.h>
+#include <kernel/h/dv-kernel-types.h>
 
 /* Macros to help tracing test coverage.
  *

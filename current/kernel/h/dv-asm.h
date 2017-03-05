@@ -26,4 +26,6 @@
 
 #define DV_ASM		1
 
+#include <kernel/h/dv-kconfig.h>
+
 #endif

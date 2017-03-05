@@ -17,10 +17,10 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <kernel/include/dv-kconfig.h>
-#include <user/include/dv-basic-types.h>
-#include <kernel/include/dv-doublylinkedlist.h>
-#include <kernel/include/dv-coverage.h>
+#include <kernel/h/dv-kconfig.h>
+#include <kernel/h/dv-types.h>
+#include <kernel/h/dv-doublylinkedlist.h>
+#include <kernel/h/dv-coverage.h>
 
 #define DV_COVNAME	dllinsertbeforesame
 DV_COVDEF(DV_COVNAME);

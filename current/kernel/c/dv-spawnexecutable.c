@@ -17,15 +17,15 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <kernel/include/dv-kconfig.h>
-#include <user/include/dv-basic-types.h>
-#include <kernel/include/dv-kernel-types.h>
-#include <kernel/include/dv-kernel.h>
-#include <kernel/include/dv-executable.h>
-#include <kernel/include/dv-thread.h>
-#include <kernel/include/dv-event.h>
-#include <kernel/include/dv-coverage.h>
-#include <user/include/dv-error.h>
+#include <kernel/h/dv-kconfig.h>
+#include <kernel/h/dv-types.h>
+#include <kernel/h/dv-kernel-types.h>
+#include <kernel/h/dv-kernel.h>
+#include <kernel/h/dv-executable.h>
+#include <kernel/h/dv-thread.h>
+#include <kernel/h/dv-event.h>
+#include <kernel/h/dv-coverage.h>
+#include <kernel/h/dv-error.h>
 
 DV_COVDEF(spawnexecutable);
 

@@ -17,10 +17,10 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <kernel/include/dv-asm.h>
-#include <kernel/include/dv-kernel.h>
-#include <kernel/include/dv-thread.h>
-#include <kernel/cpufamily/arm/include/dv-registers.h>
+#include <kernel/h/dv-asm.h>
+#include <kernel/h/dv-kernel.h>
+#include <kernel/h/dv-thread.h>
+#include <cpufamily/arm/h/dv-registers.h>
 
 	.globl	dv_trap_sbreak
 

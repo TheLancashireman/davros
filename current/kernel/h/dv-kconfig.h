@@ -30,29 +30,25 @@
 #define DV_ASM	0
 #endif
 
-#include <user/include/dv-defs.h>
+#include <kernel/h/dv-defs.h>
 
 /* Include the configuration selections from the board.
  *
  * The included file MUST define
  *	- DV_FAMILY
  *	- DV_CPU
- *	- DV_HEADERSEL
  *	- DV_COMPILER
 */
-#include <dv-kernelconfig.h>
+#include <dv-boardconfig.h>
 
 #ifndef DV_FAMILY
-#error "dv_kernelconfig.h does not define DV_FAMILY. Please fix it."
+#error "dv_boardconfig.h does not define DV_FAMILY. Please fix it."
 #endif
 #ifndef DV_CPU
-#error "dv_kernelconfig.h does not define DV_CPU. Please fix it."
-#endif
-#ifndef DV_HEADERSEL
-#error "dv_kernelconfig.h does not define DV_HEADERSEL. Please fix it."
+#error "dv_boardconfig.h does not define DV_CPU. Please fix it."
 #endif
 #ifndef DV_COMPILER
-#error "dv_kernelconfig.h does not define DV_COMPILER. Please fix it."
+#error "dv_boardconfig.h does not define DV_COMPILER. Please fix it."
 #endif
 
 /* Default values for other kernel configuration options.

@@ -33,18 +33,20 @@ DV_ULIB_NAME	?=	davrosuser
 
 # Standard directories
 # The top level makefile defines DV_BOARD_D.
-DV_OBJ_D	?= obj
-DV_LIB_D	?= lib
-DV_KSRC_D	?= kernel/src
-DV_USRC_D	?= user/src
+DV_OBJ_D	?= bin/obj
+DV_LIB_D	?= bin
+DV_BIN_D	?= bin
 
-DV_CPUFAMSRC_D	?= kernel/cpufamily/$(DV_FAMILY)/src
+DV_CPUFAM_D	?= cpufamily/$(DV_FAMILY)
+DV_CPUFAM_D	?= cpufamily/$(DV_FAMILY)
 
 # Add source directories to the search path
-VPATH += $(DV_BOARD_D)
-VPATH += $(DV_KSRC_D)
-VPATH += $(DV_USRC_D)
-VPATH += $(DV_CPUFAMSRC_D)
+VPATH += $(DV_BOARD_D)/c
+VPATH += $(DV_BOARD_D)/s
+VPATH += $(DV_CPUFAM_D)/c
+VPATH += $(DV_CPUFAM_D)/s
+VPATH += kernel/c
+VPATH += user/c
 
 # Files to put into the include path
-DV_INCLUDE_PATH	+=	$(DV_BOARD_D) .
+DV_INCLUDE_PATH	+= $(DV_BOARD_D)/h .

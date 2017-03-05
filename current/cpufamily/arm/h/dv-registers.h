@@ -20,8 +20,7 @@
 #ifndef dv_registers_h
 #define dv_registers_h	1
 
-#include <kernel/include/dv-kconfig.h>
-#include <user/include/dv-basic-types.h>
+#include <kernel/h/dv-types.h>
 
 #if !DV_ASM
 

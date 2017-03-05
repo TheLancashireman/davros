@@ -20,9 +20,9 @@
 #ifndef dv_doublylinkedlist_h
 #define dv_doublylinkedlist_h	1
 
-#include <kernel/include/dv-kernel-types.h>
+#include <kernel/h/dv-kernel-types.h>
 
-#ifndef DV_ASM
+#if !DV_ASM
 
 typedef dv_int32_t dv_dllkey_t;
 #define DV_DLLMINKEY	((dv_dllkey_t)0x80000000)

@@ -27,4 +27,4 @@ DV_KLIST_C	+=	dv-spawnexecutable
 # DV_KLIST_S is a list of all the assembler source files that are in the kernel library.
 # Without the .s suffix.
 
-include make/cpufamily/$(DV_FAMILY)/dv-klist.make
+include cpufamily/$(DV_FAMILY)/make/dv-klist.make

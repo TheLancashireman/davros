@@ -31,5 +31,13 @@ davros/bin/obj
 -----
 
 Top level Makefile is in davros/
+
 Makefile puts object files into davros/bin/obj/, libraries and linked binaries into bin/
-Makefile sets include path to board/$(FAMILY)/$(BOARD)/h
+
+Makefile sets include path to board/$(FAMILY)/$(BOARD)/h. This directory contains dv-boardconfig.h
+which is included by dv-kconfig.h. dv-kconfig.h is included first by *all* C files and by dv-asm.h
+
+dv-asm.h is included by all .S files.
+
+All other header files are included via path relative to davros/ (e.g. kernel/h/dv-foo.h)
+CPU-family files are included from common files using a macro.

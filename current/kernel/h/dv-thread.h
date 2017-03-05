@@ -20,10 +20,10 @@
 #ifndef dv_thread_h
 #define dv_thread_h	1
 
-#include <kernel/include/dv-kconfig.h>
-#include <user/include/dv-basic-types.h>
-#include <kernel/include/dv-kernel-types.h>
-#include <kernel/include/dv-doublylinkedlist.h>
+#include <kernel/h/dv-kconfig.h>
+#include <kernel/h/dv-types.h>
+#include <kernel/h/dv-kernel-types.h>
+#include <kernel/h/dv-doublylinkedlist.h>
 
 #if !DV_ASM
 
