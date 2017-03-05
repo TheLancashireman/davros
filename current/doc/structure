@@ -1,0 +1,35 @@
+Directory structure:
+
+davros/doc
+davros/make
+
+davros/kernel
+davros/kernel/h
+davros/kernel/c
+
+davros/cpufamily
+davros/cpufamily/arm
+davros/cpufamily/arm/make
+davros/cpufamily/arm/h
+davros/cpufamily/arm/c
+davros/cpufamily/arm/s
+
+davros/board
+davros/board/arm
+davros/board/arm/qemu
+davros/board/arm/qemu/make
+davros/board/arm/qemu/h
+davros/board/arm/raspberry-pi
+
+davros/user
+davros/user/h
+davros/user/c
+
+davros/bin
+davros/bin/obj
+
+-----
+
+Top level Makefile is in davros/
+Makefile puts object files into davros/bin/obj/, libraries and linked binaries into bin/
+Makefile sets include path to board/$(FAMILY)/$(BOARD)/h
