@@ -1,6 +1,6 @@
-#	dv-klist.make - davros kernel library files
+#	dv-klist.make - davros kernel library files for ARM
 #
-#	Copyright 2015 David Haworth
+#	Copyright 2017 David Haworth
 #
 #	This file is part of davros.
 #
@@ -19,12 +19,8 @@
 
 # DV_KLIST_C is a list of all the C source files that are in the kernel library.
 # Without the .c suffix.
-DV_KLIST_C	+=	dv-dllinsertaftersame
-DV_KLIST_C	+=	dv-dllinsertbeforesame
-DV_KLIST_C	+=	dv-dllinit
-DV_KLIST_C	+=	dv-spawnexecutable
 
 # DV_KLIST_S is a list of all the assembler source files that are in the kernel library.
 # Without the .s suffix.
-
-include make/cpufamily/$(DV_FAMILY)/dv-klist.make
+DV_KLIST_S	+= dv-vectors
+DV_KLIST_S	+= dv-sbreak

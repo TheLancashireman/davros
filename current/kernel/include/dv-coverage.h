@@ -27,9 +27,8 @@
  * How to use this file:
  *	1.	Include this header file into your C source file
  *	2.	After all includes, add a line
- *			DV_COVDEF(name,n);
+ *			DV_COVDEF(name);
  *		The name can be anything, but usually a base name of the file.
- *		The n is the number of coverage points associated with this name.
  *	3.	At the start of the function, after the variable declarations, add a line
  *			dv_fcov(n)
  *		where n is the index of the coverage point.
@@ -68,10 +67,10 @@
 
 /* Empty versions of the coverage macros if coverage tracing is turned off
 */
-#define DV_COVDEF(x,n)	void dv_nothing(void)
+#define DV_COVDEF(x)	void dv_nothing(void)
 
-#define dv_fcov(p)		do{}while(0)
-#define dv_ccov(p,c)	(c)
+#define dv_fcov(p)			do{}while(0)
+#define dv_ccov(pt,pf,c)	(c)
 
 #endif
 

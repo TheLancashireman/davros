@@ -21,11 +21,12 @@
 DV_ROOT		?= $(shell pwd)
 
 # Select your board directory here
-DV_BOARD_D 	?=	board/arm/raspberry-pi
+#DV_BOARD_D 	?=	board/arm/raspberry-pi
+DV_BOARD_D 	?=	board/arm/qemu
 
 # Select your compiler here
 DV_COMPILER	?=	gnu
-DV_GNU_D	?=	/usr/local/gcc
+DV_GNU_D	?=	/data1/gnu/gcc-linaro-6.3.1-2017.02-x86_64_arm-eabi
 
 # Include the board Make selections
 include $(DV_BOARD_D)/dv-board.make
@@ -43,6 +44,6 @@ klib:		$(DV_LIB_D)/lib$(DV_KLIB_NAME).$(DV_A)
 uib:		$(DV_LIB_D)/lib$(DV_ULIB_NAME).$(DV_A)
 
 include make/dv-commontargets.make
-include make/$(DV_FAMILY)/dv-$(DV_FAMILY)-$(DV_COMPILER).make
+include make/cpufamily/$(DV_FAMILY)/dv-$(DV_FAMILY)-$(DV_COMPILER).make
 include make/dv-rules.make
 include make/dv-klib.make

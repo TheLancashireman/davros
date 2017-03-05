@@ -1,6 +1,6 @@
-/*	dv-kernel.h - kernel variables for davros
+/*	dv-registers.h - ARM registers structure for davros
  *
- *	Copyright 2015 David Haworth
+ *	Copyright 2017 David Haworth
  *
  *	This file is part of davros.
  *
@@ -17,26 +17,32 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef dv_kernel_h
-#define dv_kernel_h	1
+#ifndef dv_registers_h
+#define dv_registers_h	1
 
 #include <kernel/include/dv-kconfig.h>
 #include <user/include/dv-basic-types.h>
-#include <kernel/include/dv-kernel-types.h>
-#include <kernel/include/dv-doublylinkedlist.h>
 
 #if !DV_ASM
 
-struct dv_kernel_s
+/* The structure holding an executable's registers while it isn't running
+*/
+struct dv_registers_s
 {
-	dv_thread_t *current_thread;
-	dv_stackword_t *kernel_sp;
-	dv_doublylinkedlist_t thread_queue;
+	dv_uint32_t gpr[13];
+	dv_uint32_t pc;
+	dv_uint32_t cpsr;
+	dv_uint32_t sp;
+	dv_uint32_t lr;
+/* Todo: floating point registers */
 };
 
 #endif
 
-#define DV_OFFSET_kvars_current_thread		0
-#define DV_OFFSET_kvars_kernelsp			DV_SIZE_PTR
+#define DV_OFFSET_regs_gpr0		0
+#define DV_OFFSET_regs_gpr8		32		/* (8*4)	*/
+#define DV_OFFSET_regs_pc		52		/* (13*4)	*/
+#define DV_OFFSET_regs_cpsr		56
+#define DV_OFFSET_regs_sp		60
 
 #endif

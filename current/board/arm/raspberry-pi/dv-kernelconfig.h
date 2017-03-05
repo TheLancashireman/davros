@@ -37,6 +37,6 @@
  *	0		- don't trace code coverage
  *	other	- trace code coverage
 */
-#define DV_COVERAGE		1
+#define DV_COVERAGE		0
 
 #endif

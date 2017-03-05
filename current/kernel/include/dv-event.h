@@ -1,6 +1,6 @@
-/*	dv-kernel.h - kernel variables for davros
+/*	dv-event.h - event status structure
  *
- *	Copyright 2015 David Haworth
+ *	Copyright 2016 David Haworth
  *
  *	This file is part of davros.
  *
@@ -17,26 +17,19 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef dv_kernel_h
-#define dv_kernel_h	1
-
-#include <kernel/include/dv-kconfig.h>
-#include <user/include/dv-basic-types.h>
-#include <kernel/include/dv-kernel-types.h>
-#include <kernel/include/dv-doublylinkedlist.h>
+#ifndef dv_event_h
+#define dv_event_h	1
 
 #if !DV_ASM
 
-struct dv_kernel_s
+struct dv_eventstatus_s
 {
-	dv_thread_t *current_thread;
-	dv_stackword_t *kernel_sp;
-	dv_doublylinkedlist_t thread_queue;
+	dv_uint64_t pending_events;
+	dv_uint64_t awaited_events;
 };
 
-#endif
+#define DV_NO_EVENTS	0LL
 
-#define DV_OFFSET_kvars_current_thread		0
-#define DV_OFFSET_kvars_kernelsp			DV_SIZE_PTR
+#endif
 
 #endif

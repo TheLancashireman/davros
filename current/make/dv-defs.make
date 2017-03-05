@@ -20,7 +20,7 @@
 # Default file suffixes: object (.o), c source (.c), assembler source (.s) library (.a)
 DV_O		?= o
 DV_C		?= c
-DV_S		?= s
+DV_S		?= S
 DV_A		?= a
 
 # The name of the kernel library (stuff that hides behind the system call)
@@ -38,10 +38,13 @@ DV_LIB_D	?= lib
 DV_KSRC_D	?= kernel/src
 DV_USRC_D	?= user/src
 
+DV_CPUFAMSRC_D	?= kernel/cpufamily/$(DV_FAMILY)/src
+
 # Add source directories to the search path
 VPATH += $(DV_BOARD_D)
 VPATH += $(DV_KSRC_D)
 VPATH += $(DV_USRC_D)
+VPATH += $(DV_CPUFAMSRC_D)
 
 # Files to put into the include path
 DV_INCLUDE_PATH	+=	$(DV_BOARD_D) .

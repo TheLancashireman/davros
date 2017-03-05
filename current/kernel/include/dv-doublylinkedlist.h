@@ -22,6 +22,8 @@
 
 #include <kernel/include/dv-kernel-types.h>
 
+#ifndef DV_ASM
+
 typedef dv_int32_t dv_dllkey_t;
 #define DV_DLLMINKEY	((dv_dllkey_t)0x80000000)
 
@@ -62,6 +64,6 @@ void dv_dllinit(dv_doublylinkedlist_t *, dv_dlltype_t);
 void dv_dllinsertbeforesame(dv_doublylinkedlist_t *, dv_dllelement_t *);
 void dv_dllinsertaftersame(dv_doublylinkedlist_t *, dv_dllelement_t *);
 
-
+#endif
 
 #endif

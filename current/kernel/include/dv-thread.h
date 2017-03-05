@@ -54,4 +54,6 @@ struct dv_thread_s
 
 #endif
 
+#define DV_OFFSET_thr_regs		0
+
 #endif
