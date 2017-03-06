@@ -38,6 +38,6 @@
 */
 #define DV_COVERAGE		0
 
-#include <cpufamily/arm/h/dv-includes.h>
+#include <cpufamily/arm/h/dv-arm-kconfig.h>
 
 #endif

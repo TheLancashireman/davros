@@ -20,21 +20,35 @@
 #ifndef dv_types_h
 #define dv_types_h	1
 
-#include DV_CPU_CHARACTERISTICS
+#if	!DV_ASM
 
 typedef DV_I8_T				dv_i8_t;
 typedef DV_I16_T			dv_i16_t;
 typedef DV_I32_T			dv_i32_t;
 typedef DV_I64_T			dv_i64_t;
 
-typedef DV_U8_T				dv_uint8_t;
-typedef DV_U16_T			dv_uint16_t;
-typedef DV_U32_T			dv_uint32_t;
-typedef DV_U64_T			dv_uint64_t;
+typedef DV_U8_T				dv_u8_t;
+typedef DV_U16_T			dv_u16_t;
+typedef DV_U32_T			dv_u32_t;
+typedef DV_U64_T			dv_u64_t;
 
 typedef DV_ADDRESS_T		dv_address_t;
 typedef DV_MACHINEWORD_T	dv_machineword_t;
 typedef DV_SIZE_T			dv_size_t;
 typedef DV_STACKWORD_T		dv_stackword_t;
+
+typedef DV_BOOLEAN_T		dv_boolean_t;
+
+typedef dv_i32_t			dv_identity_t;
+typedef dv_i32_t			dv_quantity_t;
+
+typedef volatile dv_u8_t	dv_reg8_t;
+typedef volatile dv_u16_t	dv_reg16_t;
+typedef volatile dv_u32_t	dv_reg32_t;
+typedef volatile dv_u64_t	dv_reg64_t;
+
+#endif
+
+#define	DV_NULL				0
 
 #endif

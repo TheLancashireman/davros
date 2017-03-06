@@ -20,12 +20,14 @@
 #ifndef dv_event_h
 #define dv_event_h	1
 
+#include <kernel/h/dv-types.h>
+
 #if !DV_ASM
 
 struct dv_eventstatus_s
 {
-	dv_uint64_t pending_events;
-	dv_uint64_t awaited_events;
+	dv_u64_t pending_events;
+	dv_u64_t awaited_events;
 };
 
 #define DV_NO_EVENTS	0LL

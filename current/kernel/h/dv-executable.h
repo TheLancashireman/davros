@@ -36,19 +36,19 @@
 */
 struct dv_executable_s
 {
-	const dv_char_t *name;
+	const char *name;
 	dv_function_t function;
 	dv_thread_t *thread;
 	dv_registers_t *registers;
 	dv_eventstatus_t *events;
-	dv_stackelement_t *stack;
+	dv_stackword_t *stack;
 	dv_quantity_t nstack;
 	dv_identity_t id;
 	dv_dllkey_t baseprio;
 	dv_dllkey_t runprio;
 	dv_dllkey_t maxprio;
 	dv_quantity_t maxinstances;
-	dv_uint32_t flags;
+	dv_u32_t flags;
 
 	dv_boolean_t enabled;
 	dv_quantity_t n_instances;

@@ -34,6 +34,11 @@ struct dv_kernel_s
 	dv_doublylinkedlist_t thread_queue;
 };
 
+static inline dv_thread_t *dv_threadqueuehead(dv_kernel_t *kvars)
+{
+	return (kvars->thread_queue.headtail.successor->payload);
+}
+
 #endif
 
 #define DV_OFFSET_kvars_current_thread		0

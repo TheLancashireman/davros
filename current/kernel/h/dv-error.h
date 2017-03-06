@@ -20,6 +20,8 @@
 #ifndef dv_error_h
 #define dv_error_h	1
 
+/* API error handling.
+*/
 enum dv_errorid_e
 {
 	dv_eid_UnknownError = 0x7fffffff,	/* Used as default; should never occur in practice */
@@ -34,6 +36,21 @@ enum dv_errorid_e
 };
 
 typedef enum dv_errorid_e dv_errorid_t;
+
+/* Panic handling.
+*/
+enum dv_panic_e
+{
+	dv_panic_none = 0,
+	dv_panic_unknownqueuetype,
+	dv_panic_threadqueueempty,
+	dv_panic_currentthreadnotqueuehead,
+	dv_panic_last
+};
+
+typedef enum dv_panic_e dv_panic_t;
+
+void dv_panic(dv_panic_t, char *, char *) __attribute__((noreturn));
 
 
 #endif

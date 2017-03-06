@@ -1,6 +1,6 @@
-/*	dv-template.h - template header file for davros
+/*	dv-arm-kconfig.h - kernel configuration for ARM processors
  *
- *	Copyright 2017 David Haworth
+ *	Copyright 2015 David Haworth
  *
  *	This file is part of davros.
  *
@@ -17,8 +17,11 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef dv_template_h
-#define dv_template_h	1
+#ifndef dv_arm_kconfig_h
+#define dv_arm_kconfig_h	1
 
+/* 32-bit processori with no oddities.
+*/
+#include <kernel/h/dv-types-32.h>
 
 #endif

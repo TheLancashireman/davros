@@ -24,7 +24,7 @@
 
 #if !DV_ASM
 
-typedef dv_int32_t dv_dllkey_t;
+typedef dv_i32_t dv_dllkey_t;
 #define DV_DLLMINKEY	((dv_dllkey_t)0x80000000)
 
 enum dv_dlltype_e
@@ -63,6 +63,11 @@ struct dv_doublylinkedlist_s
 void dv_dllinit(dv_doublylinkedlist_t *, dv_dlltype_t);
 void dv_dllinsertbeforesame(dv_doublylinkedlist_t *, dv_dllelement_t *);
 void dv_dllinsertaftersame(dv_doublylinkedlist_t *, dv_dllelement_t *);
+
+static inline dv_boolean_t dv_dllisempty(dv_doublylinkedlist_t *list)
+{
+	return (list->headtail.successor == list->headtail.predecessor);
+}
 
 #endif
 

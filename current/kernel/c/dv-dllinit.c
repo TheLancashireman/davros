@@ -21,6 +21,7 @@
 #include <kernel/h/dv-types.h>
 #include <kernel/h/dv-doublylinkedlist.h>
 #include <kernel/h/dv-coverage.h>
+#include <kernel/h/dv-error.h>
 
 DV_COVDEF(dllinit);
 
@@ -48,9 +49,8 @@ void dv_dllinit(dv_doublylinkedlist_t *list, dv_dlltype_t type)
 		break;
 
 	default:		/* Unreachable! */
-#if 0
-		dv_panic(dv_panic_unknownqueuetype, "Unknown queue type in dv_dllinit()");
-#endif
+		dv_fcov(3);
+		dv_panic(dv_panic_unknownqueuetype, "dv_dllinit", "Unknown queue type");
 		break;
 	}
 }

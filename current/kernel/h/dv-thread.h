@@ -52,6 +52,8 @@ struct dv_thread_s
 	dv_threadstate_t state;				/* Current state */
 };
 
+void dv_dispatch(dv_kernel_t *kvars) __attribute__((noreturn));
+
 #endif
 
 #define DV_OFFSET_thr_regs		0

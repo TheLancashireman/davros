@@ -76,12 +76,12 @@
 
 struct dv_coverage_s
 {
-	dv_char_t *functionname;
-	dv_int_t npoints;
-	dv_uint8_t *counters;
+	char *functionname;
+	int npoints;
+	dv_u8_t *counters;
 };
 
-void dv_functioncovered(dv_coverage_t *, dv_int_t);
-dv_boolean_t dv_conditioncovered(dv_coverage_t *, dv_int_t, dv_int_t, dv_boolean_t);
+void dv_functioncovered(dv_coverage_t *, int);
+dv_boolean_t dv_conditioncovered(dv_coverage_t *, int, int, dv_boolean_t);
 
 #endif
