@@ -61,29 +61,65 @@ enum dv_sc_e
 	dv_sc_n_syscall
 };
 
+#define DV_SYSCALLTABLE \
+	dv_sys_exit,			\
+	dv_sys_unknown,			\
+	dv_sys_unknown,			\
+	dv_sys_unknown,			\
+	dv_sys_unknown,			\
+	dv_sys_unknown,			\
+	dv_sys_unknown,			\
+	dv_sys_unknown,			\
+	dv_sys_unknown,			\
+	dv_sys_unknown,			\
+	dv_sys_unknown,			\
+	dv_sys_unknown,			\
+	dv_sys_unknown,			\
+	dv_sys_unknown,			\
+	dv_sys_unknown
+
+#if 0
+#define DV_SYSCALLTABLE \
+	dv_sys_exit,			\
+	dv_sys_yield,			\
+	dv_sys_activate,		\
+	dv_sys_activate_async,	\
+	dv_sys_chain,			\
+	dv_sys_acquire,			\
+	dv_sys_drop,			\
+	dv_sys_event_wait,		\
+	dv_sys_event_wgc,		\
+	dv_sys_event_wgc_all,	\
+	dv_sys_event_clear,		\
+	dv_sys_event_set,		\
+	dv_sys_event_set_async,	\
+	dv_sys_event_get,		\
+	dv_sys_unknown
+#endif
+
 typedef enum dv_sc_t dv_sc_e;
 
 void dv_syscall(dv_kernel_t *, dv_machineword_t) __attribute__((noreturn));
 
-typedef void (*dv_sc_function_t)(dv_kernel_t *);
+typedef void (*dv_sc_function_t)(dv_kernel_t *, dv_identity_t);
 
 extern dv_sc_function_t const dv_syscalltable[DV_N_SYSCALL+1];
 
-void dv_sys_unknown(dv_kernel_t *);
-void dv_sys_exit(dv_kernel_t *);
-void dv_sys_yield(dv_kernel_t *);
-void dv_sys_activate(dv_kernel_t *);
-void dv_sys_activate_async(dv_kernel_t *);
-void dv_sys_chain(dv_kernel_t *);
-void dv_sys_acquire(dv_kernel_t *);
-void dv_sys_drop(dv_kernel_t *);
-void dv_sys_event_wait(dv_kernel_t *);
-void dv_sys_event_wgc(dv_kernel_t *);
-void dv_sys_event_wgc_all(dv_kernel_t *);
-void dv_sys_event_clear(dv_kernel_t *);
-void dv_sys_event_set(dv_kernel_t *);
-void dv_sys_event_set_async(dv_kernel_t *);
-void dv_sys_event_get(dv_kernel_t *);
+void dv_sys_exit(dv_kernel_t *, dv_identity_t);
+void dv_sys_yield(dv_kernel_t *, dv_identity_t);
+void dv_sys_activate(dv_kernel_t *, dv_identity_t);
+void dv_sys_activate_async(dv_kernel_t *, dv_identity_t);
+void dv_sys_chain(dv_kernel_t *, dv_identity_t);
+void dv_sys_acquire(dv_kernel_t *, dv_identity_t);
+void dv_sys_drop(dv_kernel_t *, dv_identity_t);
+void dv_sys_event_wait(dv_kernel_t *, dv_identity_t);
+void dv_sys_event_wgc(dv_kernel_t *, dv_identity_t);
+void dv_sys_event_wgc_all(dv_kernel_t *, dv_identity_t);
+void dv_sys_event_clear(dv_kernel_t *, dv_identity_t);
+void dv_sys_event_set(dv_kernel_t *, dv_identity_t);
+void dv_sys_event_set_async(dv_kernel_t *, dv_identity_t);
+void dv_sys_event_get(dv_kernel_t *, dv_identity_t);
+void dv_sys_unknown(dv_kernel_t *, dv_identity_t);
 
 #endif
 

@@ -1,4 +1,4 @@
-#	dv-make.make - board make definitions for davros
+#	dv-board.make - board make definitions for davros
 #
 #	Copyright 2015 David Haworth
 #
