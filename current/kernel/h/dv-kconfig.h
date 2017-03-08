@@ -51,10 +51,24 @@
 #error "dv_boardconfig.h does not define DV_COMPILER. Please fix it."
 #endif
 
+#include <project/h/dv-projectconfig.h>
+
 /* Default values for other kernel configuration options.
 */
 #ifndef DV_COVERAGE
 #define DV_COVERAGE		0
+#endif
+
+/* Assume single core unless told otherwise.
+*/
+#ifndef DV_NCORES
+#define DV_NCORES		1
+#endif
+
+/* Assume no extra stack unless told otherwise.
+*/
+#ifndef DV_STACKEXTRA
+#define DV_STACKEXTRA	0
 #endif
 
 #endif

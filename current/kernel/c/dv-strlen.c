@@ -1,6 +1,6 @@
-/*	dv-arm-kconfig.h - kernel configuration for ARM processors
+/*	dv-strlen.c - strlen function for davros
  *
- *	Copyright 2015 David Haworth
+ *	Copyright 2017 David Haworth
  *
  *	This file is part of davros.
  *
@@ -17,19 +17,20 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef dv_arm_kconfig_h
-#define dv_arm_kconfig_h	1
+#include <kernel/h/dv-kconfig.h>
+#include <kernel/h/dv-types.h>
 
-/* 32-bit processor with no oddities.
+/* dv_strlen() - returns length of a string
 */
-#include <kernel/h/dv-types-32.h>
+int dv_strlen(const char *str)
+{
+	const char *s = str;
+	while ( *s != '\0' )
+	{
+		s++;
+	}
+	return (s-str);
+}
 
-/* Size of kernel stack in stackwords.
+/* man-page-generation - to be defined
 */
-#define DV_KSTACK_WORDS		200
-
-/* Include files for ARM.
-*/
-#define DV_REGISTERS			<cpufamily/arm/h/dv-arm-registers.h>
-
-#endif

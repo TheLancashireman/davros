@@ -1,4 +1,4 @@
-/*	dv-qemu-board.c - QEMU board start for davros
+/*	dv-start.c - start davros
  *
  *	Copyright 2017 David Haworth
  *
@@ -18,15 +18,28 @@
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <kernel/h/dv-kconfig.h>
+#include <kernel/h/dv-types.h>
+#include <kernel/h/dv-coverage.h>
 #include <kernel/h/dv-kernel.h>
-#include <board/arm/qemu/h/dv-qemu-uart.h>
-#include <kernel/h/dv-stdio.h>
+#include <kernel/h/dv-doublylinkedlist.h>
+#include <kernel/h/dv-error.h>
 
-void dv_board_start(int core_index)
+DV_COVDEF(start);
+
+/* dv_start() - start Davros on one core
+*/
+void dv_start(dv_identity_t ci)
 {
-	dv_uart0_init();
+	dv_kernel_t *kvars = dv_kernelvars[ci];
 
-	dv_kprintf("Davros starting on QEMU, core %d\n", core_index);
+	kvars->current_thread = DV_NULL;
+	kvars->kernel_sp = dv_kernelstacktop[ci];
+	kvars->core_index = ci;
+	dv_dllinit(&kvars->thread_queue, dv_dll_priority);
+	kvars->panic_reason[0] = kvars->panic_reason[1] = dv_panic_none;
 
-	dv_start(core_index);
+	dv_panic(dv_panic_unimplemented, "dv_start", "function isn't complete");
 }
+
+/* man-page-generation - to be defined
+*/

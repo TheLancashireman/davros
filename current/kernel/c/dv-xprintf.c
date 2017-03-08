@@ -22,27 +22,35 @@
  *	the whole family of *printf functions.
  *
 */
-#include <common/h/ctype.h>
-#include <common/h/stdarg.h>
-#include <common/h/string.h>
+#include <kernel/h/dv-kconfig.h>
+#include <kernel/h/dv-types.h>
 
-#define __STDIO_PRIVATE
-#include "stdio.h"
+#include <user/h/ctype.h>
+#include <user/h/string.h>
+#include <user/h/stdio.h>
 
-#define __XPRT_MAXSTR 15
-static char *_prt10(unsigned long val, char *str);
-static char *_prt16(unsigned long val, char *str, char *hexdgt);
+#include <kernel/h/dv-stdio.h>
 
-int __xprintf
-(	int (*__putc)(int, void *),
+#include <stdarg.h>
+
+/* We need to be able to print 64-bit numbers in decimal and hex.
+ * 31 characters should be enough for that ;-)
+*/
+#define XPRINT_MAXSTR 31
+
+static char *prt10(unsigned long val, char *str);
+static char *prt16(unsigned long val, char *str, char *hexdgt);
+
+int dv_xprintf
+(	int (*xputc)(int, void *),
 	void *dev,
 	const char *fmt,
 	va_list ap
 )
 {
-	char ch, fill, string[__XPRT_MAXSTR+1], *str;
-	uint8_t fmin, fmax, len, sign, ljust, longarg;
-	uint8_t i, leading;
+	char ch, fill, string[XPRINT_MAXSTR+1], *str;
+	int fmin, fmax, len, sign, ljust, longarg;
+	int i, leading;
 	int nprinted;
 	long num;
 
@@ -52,7 +60,7 @@ int __xprintf
 	{
 		if ( ch != '%' )
 		{
-			(*__putc)(ch, dev);
+			(*xputc)(ch, dev);
 			nprinted++;
 		}
 		else
@@ -112,7 +120,7 @@ int __xprintf
 			switch (ch)
 			{
 			case '\0':
-				(*__putc)('%', dev);
+				(*xputc)('%', dev);
 				nprinted++;
 				return(nprinted);
 				break;
@@ -143,11 +151,11 @@ int __xprintf
 					num = -num;
 				}
 				if ( !longarg )
-					num &= LONGtoINT;
+					num &= DV_LONG_TO_INT;
 				if ( ch == 'd' || ch == 'u' )
-					str = _prt10(num, str);
+					str = prt10(num, str);
 				else
-					str = _prt16(num, str, ch=='x' ? "abcdef" : "ABCDEF");
+					str = prt16(num, str, ch=='x' ? "abcdef" : "ABCDEF");
 				break;
 
 			default:
@@ -155,7 +163,7 @@ int __xprintf
 				break;
 			}
 			leading = 0;
-			len = strlen(str);
+			len = dv_strlen(str);
 			if ( len > fmax )
 				len = fmax;
 			if ( len < fmin )
@@ -164,28 +172,28 @@ int __xprintf
 			if ( sign && ( fill == '0' ) )
 			{
 				sign = 0;
-				(*__putc)('-', dev);
+				(*xputc)('-', dev);
 			}
 			if ( !ljust )
 				for ( i=leading; i>0; i-- )
-					(*__putc)(fill, dev);
+					(*xputc)(fill, dev);
 			if ( sign )
-				(*__putc)('-', dev);
+				(*xputc)('-', dev);
 			for ( i=len; i>0; i-- )
-				(*__putc)(*str++, dev);
+				(*xputc)(*str++, dev);
 			if ( ljust )
 				for ( i=leading; i>0; i-- )
-					(*__putc)(fill, dev);
+					(*xputc)(fill, dev);
 		}
 	}
 	return(nprinted);
 }
 
-static char *_prt10(unsigned long val, char *str)
+static char *prt10(unsigned long val, char *str)
 {
 	unsigned long tmp;
 
-	str += __XPRT_MAXSTR;
+	str += XPRINT_MAXSTR;
 	*str = '\0';
 	do
 	{
@@ -196,15 +204,15 @@ static char *_prt10(unsigned long val, char *str)
 	return(str);
 }
 
-static char *_prt16(unsigned long val, char *str, char *hexdgt)
+static char *prt16(unsigned long val, char *str, char *hexdgt)
 {
-	uint8_t tmp;
+	unsigned tmp;
 
-	str += __XPRT_MAXSTR;
+	str += XPRINT_MAXSTR;
 	*str = '\0';
 	do
 	{
-		tmp = ((uint8_t)val) & 0xF;
+		tmp = ((unsigned)val) & 0xF;
 		if ( tmp < 10 )
 			tmp += '0';
 		else

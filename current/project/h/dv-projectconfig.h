@@ -1,6 +1,6 @@
-/*	dv-arm-includes.h - list of ARM header files for davros
+/*	dv-projectconfig.h - davros configuration for xxx project
  *
- *	Copyright 2015 David Haworth
+ *	Copyright 2017 David Haworth
  *
  *	This file is part of davros.
  *
@@ -17,9 +17,12 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef dv_arm_includes_h
-#define dv_arm_includes_h	1
+#ifndef dv_projectconfig_h
+#define dv_projectconfig_h	1
 
-#define DV_REGISTERS			<cpufamily/arm/h/dv-arm-registers.h>
+#define DV_C0_NEXECUTABLES		20
+#define DV_C0_NTHREADS			20
+#define DV_C0_NREGISTERS		20
+#define DV_C0_NEVENTSTATUS		5
 
 #endif

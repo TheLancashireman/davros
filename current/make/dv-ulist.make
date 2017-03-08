@@ -24,13 +24,11 @@ DV_KLIST_C	+=	dv-dllinsertbeforesame
 DV_KLIST_C	+=	dv-dllinit
 DV_KLIST_C	+=	dv-spawnexecutable
 DV_KLIST_C	+=	dv-syscall
-DV_KLIST_C	+=	dv-start
-DV_KLIST_C	+=	dv-cores
-
-DV_KLIST_C	+=	dv-c0
 
 DV_KLIST_C	+=	dv-xprintf
 DV_KLIST_C	+=	dv-kprintf
-DV_KLIST_C	+=	dv-strlen
+
+# DV_KLIST_S is a list of all the assembler source files that are in the kernel library.
+# Without the .s suffix.
 
 include cpufamily/$(DV_FAMILY)/make/dv-klist.make

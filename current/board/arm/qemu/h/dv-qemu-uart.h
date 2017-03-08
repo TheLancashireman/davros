@@ -20,7 +20,9 @@
 #ifndef dv_qemu_uart_h
 #define dv_qemu_uart_h	1
 
+#if !DV_ASM
 void dv_uart0_init(void);
 void dv_uart0_putc(char);
+#endif
 
 #endif

@@ -20,6 +20,7 @@
 #ifndef dv_error_h
 #define dv_error_h	1
 
+#if !DV_ASM
 /* API error handling.
 */
 enum dv_errorid_e
@@ -42,6 +43,7 @@ typedef enum dv_errorid_e dv_errorid_t;
 enum dv_panic_e
 {
 	dv_panic_none = 0,
+	dv_panic_unimplemented,
 	dv_panic_unknownqueuetype,
 	dv_panic_threadqueueempty,
 	dv_panic_currentthreadnotqueuehead,
@@ -52,5 +54,6 @@ typedef enum dv_panic_e dv_panic_t;
 
 void dv_panic(dv_panic_t, char *, char *) __attribute__((noreturn));
 
+#endif
 
 #endif

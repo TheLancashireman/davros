@@ -54,4 +54,8 @@
 #define DV_SIZE_PTR			4
 #endif
 
+#ifndef DV_LONG_TO_INT
+#define DV_LONG_TO_INT		0xffffffff
+#endif
+
 #endif

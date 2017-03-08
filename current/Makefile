@@ -36,7 +36,7 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/dv-dummy.$(DV_O)
 
 LD_OPT		+= -e dv_trap_reset
 
-#VPATH += .
+VPATH 		+= project/c
 
 
 # Include the board's make selections
@@ -54,9 +54,9 @@ klib:		$(DV_LIB_D)/lib$(DV_KLIB_NAME).$(DV_A)
 
 ulib:		$(DV_LIB_D)/lib$(DV_ULIB_NAME).$(DV_A)
 
-bin:		davros.elf
+bin:		$(DV_BIN_D)/davros.elf
 
-davros.elf:	$(DV_LD_OBJS)
+$(DV_BIN_D)/davros.elf:	$(DV_LD_OBJS)
 	$(dv_ld)
 
 include make/dv-commontargets.make

@@ -26,6 +26,8 @@
 #ifndef dv_kernelconfig_h
 #define dv_kernelconfig_h	1
 
+#include <board/arm/qemu/h/dv-qemu-uart.h>
+
 /* Select the family, CPU and compiler
 */
 #define DV_FAMILY		DV_ARM
@@ -37,6 +39,10 @@
  *	other	- trace code coverage
 */
 #define DV_COVERAGE		0
+
+/* The "kputc" function for this board.
+*/
+#define DV_KPUTC(c)	dv_uart0_putc(c)
 
 #include <cpufamily/arm/h/dv-arm-kconfig.h>
 
