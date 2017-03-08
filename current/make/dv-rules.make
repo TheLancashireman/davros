@@ -20,7 +20,7 @@
 # Make an object file from a C source file
 ifndef dv_cc
 define dv_cc
-	$(CC) $(CC_OPTS) $(CC_O) $@ $<
+	$(CC) $(CC_OPT) $(CC_O) $@ $<
 endef
 endif
 
@@ -30,7 +30,7 @@ $(DV_OBJ_D)/%.$(DV_O):	%.$(DV_C)
 # Make an object file from an assembler source file
 ifndef dv_as
 define dv_as
-	$(AS) $(AS_OPTS) $(AS_O) $@ $<
+	$(AS) $(AS_OPT) $(AS_O) $@ $<
 endef
 endif
 
@@ -49,6 +49,6 @@ endif
 # No rule can be given for this
 ifndef dv_ld
 define dv_ld
-    $(LD) $(LD_LIB) $(LD_OPT) $(LD_O) $@ $^
+    $(LD) $(LD_LIB) $@ $^ $(LD_OPT) $(LD_O)
 endef
 endif

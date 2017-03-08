@@ -33,7 +33,7 @@
  *     
  * Each vector loads the handler address directly into the PC using PC-relative addressing
 */
-	.section	"dv_vectors","a"
+	.text
 
 dv_vectortable:
 	ldr		pc, dv_hndlraddr_reset
@@ -44,7 +44,6 @@ dv_vectortable:
 	ldr		pc, dv_hndlraddr_reserved
 	ldr		pc, dv_hndlraddr_irq
 	ldr		pc, dv_hndlraddr_fiq
-    
 
 dv_hndlraddr_reset:				.word		dv_trap_reset
 dv_hndlraddr_undef:				.word		dv_trap_undef
@@ -54,8 +53,6 @@ dv_hndlraddr_data_abort:		.word		dv_trap_data_abort
 dv_hndlraddr_reserved:			.word		dv_trap_reserved
 dv_hndlraddr_irq:				.word		dv_trap_irq
 dv_hndlraddr_fiq:				.word		dv_trap_fiq
-
-	.text
 
 /* Temporary vectors for stuff that isn't handled yet
 */
@@ -67,5 +64,3 @@ dv_trap_irq:
 dv_trap_fiq:
 dv_trap_stop:
 	b		dv_trap_stop   
-
-

@@ -20,8 +20,12 @@
 #ifndef dv_arm_kconfig_h
 #define dv_arm_kconfig_h	1
 
-/* 32-bit processori with no oddities.
+/* 32-bit processor with no oddities.
 */
 #include <kernel/h/dv-types-32.h>
+
+/* Size of kernel stack in stackwords.
+*/
+#define DV_KSTACK_WORDS		200
 
 #endif

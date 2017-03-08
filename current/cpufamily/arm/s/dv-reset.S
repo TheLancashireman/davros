@@ -25,13 +25,13 @@
  * Reset vector jumps here.
  * Initialise processor then call dv_board_start.
 */
-	.globl	dv_reset
+	.globl	dv_trap_reset
 	.extern	dv_board_start
 	.extern dv_c0kernstacktop
 
 	.text
 
-dv_reset:
+dv_trap_reset:
 
 /* Go to supervisor mode, disable IRQ and FIQ.
 */

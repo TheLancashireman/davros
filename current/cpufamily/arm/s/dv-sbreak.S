@@ -23,6 +23,7 @@
 #include <cpufamily/arm/h/dv-arm-registers.h>
 
 	.globl	dv_trap_sbreak
+	.extern	dv_syscall
 
 	.text
 
@@ -54,4 +55,4 @@ dv_trap_sbreak:
 	ldr		sp, [r0, #DV_OFFSET_kvars_kernelsp]			/* kernel stack pointer */
 	ldr		r1, [lr, #-4]								/* get the swi instruction */
 	and		r1, r1, #0xff								/* 2nd param = syscall index */
-	b		dv_systemcall								/* go to system-call handler */
+	b		dv_syscall									/* go to system-call handler */

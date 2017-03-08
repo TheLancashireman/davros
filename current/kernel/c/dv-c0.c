@@ -1,4 +1,4 @@
-/*	dv-qemu-board.c - QEMU board start for davros
+/*	dv-c0.c - core 0 data
  *
  *	Copyright 2017 David Haworth
  *
@@ -18,19 +18,9 @@
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <kernel/h/dv-kconfig.h>
-#include <board/arm/qemu/h/dv-qemu-uart.h>
+#include <kernel/h/dv-types.h>
 
-void dv_board_start(int core_index)
-{
-	int i;
+dv_stackword_t dv_c0_stack[DV_KSTACK_WORDS];
 
-	dv_uart0_init();
+const dv_stackword_t *dv_c0_kernstacktop = &dv_c0_stack[DV_KSTACK_WORDS];
 
-	for ( i = 0; i < 10; i++ )
-	{
-		dv_uart0_putc('*');
-		dv_uart0_putc('0' + i);
-	}
-
-	for (;;) {}
-}

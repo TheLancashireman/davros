@@ -1,0 +1,9 @@
+#!/bin/sh
+qemu-system-arm \
+	-machine integratorcp \
+	-cpu cortex-a9 \
+	-s -S \
+	-kernel davros.elf \
+	-hda /dev/zero \
+	-monitor stdio \
+	-serial pty

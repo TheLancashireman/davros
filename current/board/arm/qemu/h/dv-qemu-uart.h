@@ -1,4 +1,4 @@
-/*	dv-qemu-board.c - QEMU board start for davros
+/*	dv-qemu-uart.h - QEMU uart functions
  *
  *	Copyright 2017 David Haworth
  *
@@ -17,20 +17,10 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <kernel/h/dv-kconfig.h>
-#include <board/arm/qemu/h/dv-qemu-uart.h>
+#ifndef dv_qemu_uart_h
+#define dv_qemu_uart_h	1
 
-void dv_board_start(int core_index)
-{
-	int i;
+void dv_uart0_init(void);
+void dv_uart0_putc(char);
 
-	dv_uart0_init();
-
-	for ( i = 0; i < 10; i++ )
-	{
-		dv_uart0_putc('*');
-		dv_uart0_putc('0' + i);
-	}
-
-	for (;;) {}
-}
+#endif

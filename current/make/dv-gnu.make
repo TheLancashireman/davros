@@ -20,23 +20,26 @@
 CC_INC	?=	$(addprefix -I,$(DV_INCLUDE_PATH))
 AS_INC	?=	$(addprefix -I,$(DV_INCLUDE_PATH))
 
-CC_OPTS += -std=c99
-CC_OPTS += -Wall
-CC_OPTS += -Wextra
-CC_OPTS += -g
-CC_OPTS += -fcommon
+CC_OPT	+= -std=c99
+CC_OPT	+= -Wall
+CC_OPT	+= -Wextra
+CC_OPT	+= -g
+CC_OPT	+= -fcommon
+
+LD_OPT	+= -L $(DV_LIB_D)
+LD_LIB	+= -ldavroskernel
 
 # Make an object file from a C source file
 ifndef dv_cc
 define dv_cc
-	$(DV_GNU_D)/bin/$(DV_GNU_PRE)gcc $(CC_OPTS) $(CC_INC) -c -o $@ $<
+	$(DV_GNU_D)/bin/$(DV_GNU_PRE)gcc $(CC_OPT) $(CC_INC) -c -o $@ $<
 endef
 endif
 
 # Make an object file from an assembler source file
 ifndef dv_as
 define dv_as
-	$(DV_GNU_D)/bin/$(DV_GNU_PRE)gcc $(AS_OPTS) $(AS_INC) -c -o $@ $<
+	$(DV_GNU_D)/bin/$(DV_GNU_PRE)gcc $(AS_OPT) $(AS_INC) -c -o $@ $<
 endef
 endif
 
@@ -51,6 +54,6 @@ endif
 # Make a binary from a list of object files.
 ifndef dv_ld
 define dv_ld
-    $(DV_GNU_D)/bin/$(DV_GNU_PRE)ld $(LD_LIB) $(LD_OPT) -o $@ $^
+    $(DV_GNU_D)/bin/$(DV_GNU_PRE)ld -o $@ $^ $(LD_LIB) $(LD_OPT)
 endef
 endif
