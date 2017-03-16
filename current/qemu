@@ -3,7 +3,8 @@ qemu-system-arm \
 	-machine integratorcp \
 	-cpu cortex-a9 \
 	-s -S \
-	-kernel davros.elf \
+	-kernel bin/davros.elf \
 	-hda /dev/zero \
 	-monitor stdio \
-	-serial pty
+	-nographic \
+	-serial pty 

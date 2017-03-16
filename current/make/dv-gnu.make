@@ -25,9 +25,12 @@ CC_OPT	+= -Wall
 CC_OPT	+= -Wextra
 CC_OPT	+= -g
 CC_OPT	+= -fcommon
+CC_OPT	+= -mcpu=$(DV_GNU_CPU)
+
+AS_OPT	+= -mcpu=$(DV_GNU_CPU)
 
 LD_OPT	+= -L $(DV_LIB_D)
-LD_LIB	+= -ldavroskernel
+LD_LIB	+= -ldavroskernel -ldavrosuser
 
 # Make an object file from a C source file
 ifndef dv_cc

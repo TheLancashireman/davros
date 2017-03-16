@@ -22,15 +22,19 @@
 
 #if !DV_ASM
 typedef struct dv_coverage_s dv_coverage_t;
+typedef struct dv_coreconfig_s dv_coreconfig_t;
 typedef struct dv_dllelement_s dv_dllelement_t;
 typedef struct dv_doublylinkedlist_s dv_doublylinkedlist_t;
 typedef struct dv_eventstatus_s dv_eventstatus_t;
 typedef struct dv_executable_s dv_executable_t;
+typedef struct dv_execonfig_s dv_execonfig_t;
 typedef struct dv_kernel_s dv_kernel_t;
 typedef struct dv_registers_s dv_registers_t;
 typedef struct dv_thread_s dv_thread_t;
 typedef struct dv_jobqueue_s dv_jobqueue_t;
 typedef struct dv_lock_s dv_lock_t;
+typedef struct dv_page_s dv_page_t;
+typedef struct dv_mempage_s dv_mempage_t;
 
 typedef void (*dv_function_t)(void);
 #endif

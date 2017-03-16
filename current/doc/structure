@@ -25,6 +25,10 @@ davros/user
 davros/user/h
 davros/user/c
 
+davros/project
+davros/project/c
+davros/project/h
+
 davros/bin
 davros/bin/obj
 
@@ -41,8 +45,9 @@ dv-asm.h is included by all .S files.
 All other header files are included via path relative to davros/ (e.g. kernel/h/dv-foo.h)
 CPU-family files are included from common files using a macro.
 
-dv-boardconfig.h is responsible for setting up the entire kernel configuration for the board.
+dv-boardconfig.h is responsible for setting up the kernel configuration for the board.
 Usually, much of the configuration is delegated to the CPU family by means of
 cpufamily/XXX/h/dv-XXX-kconfig.h
 
-Todo: user-side configuration (feature selection)
+Project configuration (feature selection, array sizes) in project/h/dv-projectconfig.h
+

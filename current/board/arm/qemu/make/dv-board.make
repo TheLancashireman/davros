@@ -17,4 +17,6 @@
 #	You should have received a copy of the GNU General Public License
 #	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 
-DV_FAMILY ?=	arm
+DV_FAMILY	?=	arm
+DV_CPU		?=	cortex_a9
+DV_GNU_CPU	?=	cortex-a9

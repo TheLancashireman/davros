@@ -1,4 +1,4 @@
-#	dv-klist.make - davros kernel library files
+#	dv-ulist.make - davros kernel library files
 #
 #	Copyright 2015 David Haworth
 #
@@ -17,18 +17,8 @@
 #	You should have received a copy of the GNU General Public License
 #	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 
-# DV_KLIST_C is a list of all the C source files that are in the kernel library.
+# DV_ULIST_C is a list of all the C source files that are in the user library.
 # Without the .c suffix.
-DV_KLIST_C	+=	dv-dllinsertaftersame
-DV_KLIST_C	+=	dv-dllinsertbeforesame
-DV_KLIST_C	+=	dv-dllinit
-DV_KLIST_C	+=	dv-spawnexecutable
-DV_KLIST_C	+=	dv-syscall
+DV_ULIST_C	+=	dv-idle
 
-DV_KLIST_C	+=	dv-xprintf
-DV_KLIST_C	+=	dv-kprintf
-
-# DV_KLIST_S is a list of all the assembler source files that are in the kernel library.
-# Without the .s suffix.
-
-include cpufamily/$(DV_FAMILY)/make/dv-klist.make
+-include cpufamily/$(DV_FAMILY)/make/dv-ulist.make

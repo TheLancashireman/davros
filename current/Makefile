@@ -48,7 +48,7 @@ include make/dv-defs.make
 
 default:	all
 
-all:		klib bin
+all:		klib ulib bin
 
 klib:		$(DV_LIB_D)/lib$(DV_KLIB_NAME).$(DV_A)
 
@@ -63,3 +63,4 @@ include make/dv-commontargets.make
 include cpufamily/$(DV_FAMILY)/make/dv-$(DV_FAMILY)-$(DV_COMPILER).make
 include make/dv-rules.make
 include make/dv-klib.make
+include make/dv-ulib.make

@@ -19,13 +19,20 @@
 
 # DV_KLIST_C is a list of all the C source files that are in the kernel library.
 # Without the .c suffix.
+DV_KLIST_C	+=	dv-allocatethread
+DV_KLIST_C	+=	dv-allocateobj
+DV_KLIST_C	+=	dv-allocateregisters
+DV_KLIST_C	+=	dv-allocatestack
+DV_KLIST_C	+=	dv-cores
+DV_KLIST_C	+=	dv-createexecutable
+DV_KLIST_C	+=	dv-dispatch
+DV_KLIST_C	+=	dv-dllinit
 DV_KLIST_C	+=	dv-dllinsertaftersame
 DV_KLIST_C	+=	dv-dllinsertbeforesame
-DV_KLIST_C	+=	dv-dllinit
+DV_KLIST_C	+=	dv-initkvars
 DV_KLIST_C	+=	dv-spawnexecutable
-DV_KLIST_C	+=	dv-syscall
 DV_KLIST_C	+=	dv-start
-DV_KLIST_C	+=	dv-cores
+DV_KLIST_C	+=	dv-syscall
 
 DV_KLIST_C	+=	dv-c0
 

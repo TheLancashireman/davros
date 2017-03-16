@@ -47,12 +47,12 @@ void dv_syscall(dv_kernel_t *kvars, dv_machineword_t sc_index)
 	{
 		if ( dv_ccov(5, 6, (sc_index < (dv_machineword_t)DV_N_SYSCALL)) )
 		{
-			dv_identity_t sci = (dv_identity_t)sc_index;
+			dv_index_t sci = (dv_index_t)sc_index;
 			(*dv_syscalltable[sci])(kvars, sci);
 		}
 		else
 		{
-			dv_sys_unknown(kvars, (dv_identity_t)sc_index);
+			dv_sys_unknown(kvars, (dv_index_t)sc_index);
 		}
 
 		dv_dispatch(kvars);

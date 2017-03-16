@@ -29,9 +29,9 @@
 
 DV_COVDEF(spawnexecutable);
 
-/* dv_spawnexecutable() - spawn an instance of an executable
+/* dv_spawn_executable() - spawn an instance of an executable
 */
-dv_errorid_t dv_spawnexecutable(dv_kernel_t *kvars, dv_executable_t *executable)
+dv_errorid_t dv_spawn_executable(dv_kernel_t *kvars, dv_executable_t *executable)
 {
 	dv_errorid_t ecode = dv_eid_UnknownError;
 
@@ -47,7 +47,7 @@ dv_errorid_t dv_spawnexecutable(dv_kernel_t *kvars, dv_executable_t *executable)
 				executable->events->awaited_events = DV_NO_EVENTS;
 			}
 
-			ecode = dv_spawnexecutableinthread(&kvars->thread_queue, executable->thread, executable);
+			ecode = dv_spawn_executable_in_thread(&kvars->thread_queue, executable->thread, executable);
 		}
 		else
 		{

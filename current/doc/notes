@@ -12,4 +12,27 @@ dv-hardware.h - selects all the hardware that's defined on this board.
 At least:   DV_FAMILY     DV_FAMILY_ARM, DV_FAMILY_MIPS etc.
             DV_CPU        DV_CPU_ARM1136 etc.
 
+core configuration:
+  constant core config structure for each core --> see dv-coreconfig.h
+  array of N_CORES pointers to these structures in dv-cores.c
+  each core provides its own config via source file dv-cX.c (and dv-cX.h)
+  configuration comes from various places: board, cpufamily, project. Collected by dv-kconfig.h
 
+  dv-start()
+   - picks up core configuration for the core (param), initialises kvars.
+   - does other initialisation
+   - sets up idle thread  --> current thread.
+   - sets up "main" thread --> head of queue
+
+Stack allocation
+  when memory protection has a large block granularity (e.g. on a system with an MMU) the stack of most tasks
+  will probably fit into a single block.
+  With this in mind, the first method of allocation will be to have a configurable number of stack pages
+  available and to allocate stacks from these. The pages will be managed by means of a structure
+  containing elements for base_address and use_count. Stacks will be allocated using
+  a similar method as used for executables, threads etc.
+  If an executable needs more than one page we'll have to ty to get two adjacent pages. Fragmentation might be
+  a problem.
+  The MMU could be used to glue non-contiguous pages together again, but this virtualization will
+  blow away the global address space concept. Think about that later.
+  

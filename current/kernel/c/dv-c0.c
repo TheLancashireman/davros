@@ -19,24 +19,30 @@
 */
 #include <kernel/h/dv-kconfig.h>
 
-#if DV_NCORES > 0
+#if DV_N_CORES > 0
 
 #include <kernel/h/dv-types.h>
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-executable.h>
 #include <kernel/h/dv-thread.h>
 #include <kernel/h/dv-event.h>
+#include <kernel/h/dv-mempage.h>
 #include DV_REGISTERS
 #include <kernel/h/dv-c0.h>
+#include <kernel/h/dv-coreconfig.h>
+
+/* Memory pages. Here temporarily until memory protection.
+*/
+dv_page_t dv_c0_pages[DV_C0_N_PAGES] __attribute__((aligned(DV_MEM_PAGESIZE)));
+
+/* The kernel stack.
+ * The stack is here temporarily until memory protection. We should use one of the pages eventually.
+*/
+dv_stackword_t dv_c0_kernelstack[DV_KSTACK_WORDS+DV_STACKEXTRA] __attribute__((aligned(DV_MEM_PAGESIZE)));
 
 /* Kernel variables.
 */
 dv_kernel_t dv_c0_kvars;
-
-/* The kernel stack.
- * The stack is here temporarily until memory protection.
-*/
-dv_stackword_t dv_c0_kernelstack[DV_KSTACK_WORDS+DV_STACKEXTRA];
 
 /* Top of kernel stack. Used by assembly-language startup code.
 */
@@ -47,19 +53,71 @@ dv_stackword_t *const dv_c0_kernstacktop = &dv_c0_kernelstack[DV_KSTACK_WORDS];
  * Executables will need to be uniquely identifiable across all cores.
  * So either a global mapping table or a global "const" table and core-local state.
 */
-dv_executable_t dv_c0_executables[DV_C0_NEXECUTABLES];
+dv_executable_t dv_c0_executables[DV_C0_N_EXECUTABLES];
 
 /* Thread table.
 */
-dv_thread_t dv_c0_threads[DV_C0_NTHREADS];
+dv_thread_t dv_c0_threads[DV_C0_N_THREADS];
 
 /* Registers table.
 */
-dv_registers_t dv_c0_registers[DV_C0_NREGISTERS];
+dv_registers_t dv_c0_registers[DV_C0_N_REGISTERS];
 
 /* Event status table.
 */
-dv_eventstatus_t dv_c0_eventstatus[DV_C0_NEVENTSTATUS];
+dv_eventstatus_t dv_c0_eventstatus[DV_C0_N_EVENTSTATUS];
+
+/* Page management array.
+*/
+dv_mempage_t dv_c0_mempage[DV_C0_N_PAGES];
+
+
+/* Configuration for idle executable.
+*/
+const dv_execonfig_t dv_c0_cfg_idle =
+{	"c0_idle",
+	DV_IDLE_FUNC,
+	0,
+	DV_IDLE_STACK,
+	DV_MIN_PRIORITY,
+	1,
+	0
+};
+
+/* Configuration for init/main executable.
+*/
+const dv_execonfig_t dv_c0_cfg_init =
+{	"c0_init",
+	DV_C0_INIT_FUNC,
+	0,
+	DV_C0_INIT_STACK,
+	DV_MAX_PRIORITY,
+	1,
+	DV_EXEFLAG_AUTODESTROY
+};
+
+const dv_coreconfig_t dv_c0_coreconfig =
+{
+	&dv_c0_kvars,
+	dv_c0_kernelstack,
+	&dv_c0_kernelstack[DV_KSTACK_WORDS],
+	dv_c0_executables,
+	dv_c0_threads,
+	dv_c0_registers,
+	dv_c0_eventstatus,
+	dv_c0_pages,
+	dv_c0_mempage,
+	&dv_c0_cfg_idle,
+	&dv_c0_cfg_init,
+
+	0,
+	DV_KSTACK_WORDS+DV_STACKEXTRA,
+	DV_C0_N_EXECUTABLES,
+	DV_C0_N_THREADS,
+	DV_C0_N_REGISTERS,
+	DV_C0_N_EVENTSTATUS,
+	DV_C0_N_PAGES
+};
 
 #else
 const char *dv_c0_dummy = "dv-c0.c";

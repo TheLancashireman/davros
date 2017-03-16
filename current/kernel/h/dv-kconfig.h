@@ -61,14 +61,30 @@
 
 /* Assume single core unless told otherwise.
 */
-#ifndef DV_NCORES
-#define DV_NCORES		1
+#ifndef DV_N_CORES
+#define DV_N_CORES		1
 #endif
 
 /* Assume no extra stack unless told otherwise.
 */
 #ifndef DV_STACKEXTRA
 #define DV_STACKEXTRA	0
+#endif
+
+/* Assume no execution budgets unless told otherwise.
+*/
+#ifndef DV_EXECUTIONBUDGET
+#define DV_EXECUTIONBUDGET	0
+#endif
+
+/* Assume standard idle function unless told otherwise.
+*/
+#ifndef DV_IDLE_FUNC
+#define DV_IDLE_FUNC	dv_idle
+#define DV_IDLE_STACK	16
+#if !DV_ASM
+void dv_idle(void);
+#endif
 #endif
 
 #endif

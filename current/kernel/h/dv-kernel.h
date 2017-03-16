@@ -28,13 +28,34 @@
 
 #if !DV_ASM
 
+/* struct dv_kobjallocator_s
+ *
+ * Used for allocating kernel objects during configuration - e.g. executables, locks etc.
+ *
+ * If n_free is 0 there are none left --> error.
+ * If n_free is non-zero, start the search at index "next". When the index reaches "n", go back to 0.
+ * When searching use a for loop ( i=0; i<n; i++ ). If the loop completes without finding a slot --> panic.
+ * If free object found, decrement n_free and set next to the object after the one found (modulo n).
+ * When an object is freed, increment n_free and (optionally) if the object at index "next" is in use, set next
+ * to the index of the freed object.
+*/
+typedef struct dv_kobjallocator_s
+{
+	dv_quantity_t n_free;			/* No. of free objects remaining */
+	dv_index_t next;				/* Next object to begin search for a free object */
+} dv_kobjallocator_t;
+
 struct dv_kernel_s
 {
 	dv_thread_t *current_thread;
 	dv_stackword_t *kernel_sp;
-	dv_identity_t core_index;
+	dv_index_t core_index;
 	dv_doublylinkedlist_t thread_queue;
 	dv_panic_t panic_reason[2];
+	dv_kobjallocator_t exe_allocator;
+	dv_kobjallocator_t thr_allocator;
+	dv_kobjallocator_t reg_allocator;
+	dv_kobjallocator_t page_allocator;
 };
 
 static inline dv_thread_t *dv_threadqueuehead(dv_kernel_t *kvars)
@@ -42,37 +63,21 @@ static inline dv_thread_t *dv_threadqueuehead(dv_kernel_t *kvars)
 	return (kvars->thread_queue.headtail.successor->payload);
 }
 
-void dv_start(dv_identity_t);
+void dv_start(dv_index_t) __attribute__((noreturn));
+void dv_init_kvars(dv_kernel_t *, const dv_coreconfig_t *);
+void dv_dispatch(dv_kernel_t *kvars) __attribute__((noreturn));
 
-extern dv_kernel_t *const dv_kernelvars[DV_NCORES];
-extern dv_stackword_t *const dv_kernelstack[DV_NCORES];
-extern dv_stackword_t *const dv_kernelstacktop[DV_NCORES];
+dv_index_t dv_allocate_obj(dv_kobjallocator_t *, dv_quantity_t,
+												dv_boolean_t (*is_free)(dv_index_t, const void *), const void *);
+dv_thread_t *dv_allocate_thread(dv_kernel_t *, const dv_executable_t *);
+dv_registers_t *dv_allocate_registers(dv_kernel_t *, const dv_executable_t *);
+dv_mempage_t *dv_allocate_stack(dv_kernel_t *, const dv_executable_t *);
+
+
 
 #endif
 
 #define DV_OFFSET_kvars_current_thread		0
 #define DV_OFFSET_kvars_kernelsp			DV_SIZE_PTR
-
-/* DV_CORELIST() creates a list of initialisers for an array with one entry per core.
- *
- * Currently up to 8 cores are supported.
-*/
-#if DV_NCORES == 1
-#define DV_CORELIST(c0, c1, c2, c3, c4, c5, c6, c7)	c0
-#elif DV_NCORES == 2
-#define DV_CORELIST(c0, c1, c2, c3, c4, c5, c6, c7)	c0, c1
-#elif DV_NCORES == 3
-#define DV_CORELIST(c0, c1, c2, c3, c4, c5, c6, c7)	c0, c1, c2
-#elif DV_NCORES == 4
-#define DV_CORELIST(c0, c1, c2, c3, c4, c5, c6, c7)	c0, c1, c2, c3
-#elif DV_NCORES == 5
-#define DV_CORELIST(c0, c1, c2, c3, c4, c5, c6, c7)	c0, c1, c2, c3, c4
-#elif DV_NCORES == 6
-#define DV_CORELIST(c0, c1, c2, c3, c4, c5, c6, c7)	c0, c1, c2, c3, c4, c5
-#elif DV_NCORES == 7
-#define DV_CORELIST(c0, c1, c2, c3, c4, c5, c6, c7)	c0, c1, c2, c3, c4, c5, c6
-#elif DV_NCORES == 8
-#define DV_CORELIST(c0, c1, c2, c3, c4, c5, c6, c7)	c0, c1, c2, c3, c4, c5, c6, c7
-#endif
 
 #endif

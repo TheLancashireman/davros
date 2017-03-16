@@ -24,6 +24,11 @@
 #include <kernel/h/dv-types.h>
 #include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-doublylinkedlist.h>
+#include <kernel/h/dv-executable.h>
+#include DV_REGISTERS
+
+#define DV_MIN_PRIORITY		(DV_DLLMINKEY+1)
+#define DV_MAX_PRIORITY		(0x7fffffff)
 
 #if !DV_ASM
 
@@ -31,7 +36,7 @@
 */
 enum dv_threadstate_e
 {
-	dv_thread_idle	= 0,
+	dv_thread_idle = 0,
 	dv_thread_running,
 	dv_thread_ready,
 	dv_thread_new
@@ -48,11 +53,35 @@ struct dv_thread_s
 	dv_thread_t *parent;				/* Parent thread (for synchronous threads) */
 	dv_jobqueue_t *jobqueue;			/* Job queue (if any) */
 	dv_lock_t *locktaken;				/* Innermost lock occupied by thread. */
-	dv_dllkey_t prio;					/* Current priority */
 	dv_threadstate_t state;				/* Current state */
+	int n_exe;							/* No. of executables using this thread. */
 };
 
-void dv_dispatch(dv_kernel_t *kvars) __attribute__((noreturn));
+/* dv_set_runprio() - set a thread's running priority
+ *
+ * Set the thread's priority to the executable's running priority, unless already greater.
+*/
+static inline void dv_set_runprio(dv_thread_t *thr)
+{
+	if ( thr->link.key < thr->executable->runprio )
+	{
+		thr->link.key = thr->executable->runprio;
+	}
+}
+
+/* dv_get_prio() - get a thread's priority
+*/
+static inline dv_dllkey_t dv_get_prio(dv_thread_t *thr)
+{
+	return (thr->link.key);
+}
+
+/* dv_set_prio() - set a thread's priority
+*/
+static inline void dv_set_prio(dv_thread_t *thr, dv_dllkey_t p)
+{
+	thr->link.key = p;
+}
 
 #endif
 

@@ -20,7 +20,9 @@
 #ifndef dv_arm_registers_h
 #define dv_arm_registers_h	1
 
+#include <kernel/h/dv-kconfig.h>
 #include <kernel/h/dv-types.h>
+#include <kernel/h/dv-thread.h>
 
 #if !DV_ASM
 
@@ -34,6 +36,7 @@ struct dv_registers_s
 	dv_u32_t sp;
 	dv_u32_t lr;
 /* Todo: floating point registers */
+	int n_exe;
 };
 
 #endif

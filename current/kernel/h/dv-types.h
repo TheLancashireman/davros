@@ -39,7 +39,7 @@ typedef DV_STACKWORD_T		dv_stackword_t;
 
 typedef DV_BOOLEAN_T		dv_boolean_t;
 
-typedef dv_i32_t			dv_identity_t;
+typedef dv_i32_t			dv_index_t;
 typedef dv_i32_t			dv_quantity_t;
 
 typedef volatile dv_u8_t	dv_reg8_t;

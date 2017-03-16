@@ -1,4 +1,4 @@
-/*	dv-start.c - start davros
+/*	dv-initkvars.c - initialise kernel variables for davros
  *
  *	Copyright 2017 David Haworth
  *
@@ -24,28 +24,28 @@
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-doublylinkedlist.h>
 #include <kernel/h/dv-error.h>
-#include <kernel/h/dv-executable.h>
 
-DV_COVDEF(start);
+DV_COVDEF(initkvars);
 
-/* dv_start() - start Davros on one core
+/* dv_init_kvars() - initialise the kernel variables
 */
-void dv_start(dv_index_t ci)
+void dv_init_kvars(dv_kernel_t *kvars, const dv_coreconfig_t * ccfg)
 {
-	const dv_coreconfig_t *ccfg = dv_coreconfigs[ci];
-	dv_kernel_t *kvars = ccfg->kernelvars;
-	dv_index_t e;
+	kvars->current_thread = DV_NULL;
+	kvars->kernel_sp = ccfg->kernelstacktop;
+	kvars->core_index = ccfg->core_index;
 
-	dv_init_kvars(kvars, ccfg);
+	dv_dllinit(&kvars->thread_queue, dv_dll_priority);
+	kvars->panic_reason[0] = kvars->panic_reason[1] = dv_panic_none;
 
-	e = dv_create_executable(kvars, ccfg->idle_cfg);
-	if ( e >= 0 )
-		dv_activate_executable(e);
-	e = dv_create_executable(kvars, ccfg->init_cfg);
-	if ( e >= 0 )
-		dv_activate_executable(e);
-
-	dv_dispatch(kvars);
+	kvars->exe_allocator.n_free = ccfg->n_executables;
+	kvars->exe_allocator.next = 0;
+	kvars->thr_allocator.n_free = ccfg->n_threads;
+	kvars->thr_allocator.next = 0;
+	kvars->reg_allocator.n_free = ccfg->n_registers;
+	kvars->reg_allocator.next = 0;
+	kvars->page_allocator.n_free = ccfg->n_pages;
+	kvars->page_allocator.next = 0;
 }
 
 /* man-page-generation - to be defined

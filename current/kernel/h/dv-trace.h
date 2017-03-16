@@ -1,4 +1,4 @@
-/*	dv-projectconfig.h - davros configuration for xxx project
+/*	dv-trace.h - tracing for davros
  *
  *	Copyright 2017 David Haworth
  *
@@ -17,22 +17,17 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef dv_projectconfig_h
-#define dv_projectconfig_h	1
+#ifndef dv_trace_h
+#define dv_trace_h	1
 
-#define DV_C0_N_EXECUTABLES		20
-#define DV_C0_N_THREADS			20
-#define DV_C0_N_REGISTERS		20
-#define DV_C0_N_EVENTSTATUS		5
+#include <kernel/h/dv-kconfig.h>
+#include <kernel/h/dv-types.h>
+#include <kernel/h/dv-kernel-types.h>
+#include <kernel/h/dv-thread.h>
 
-#define DV_C0_N_PAGES			20
+static inline void dv_trace_threadstate(dv_thread_t *unused_thread, dv_threadstate_t unused_newstate)
+{
+}
 
-#define DV_C0_INIT_FUNC			prj_init
-#define DV_C0_INIT_STACK		200
-
-#if !DV_ASM
-void prj_init(void);
-
-#endif
 
 #endif

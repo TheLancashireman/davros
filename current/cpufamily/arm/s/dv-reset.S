@@ -27,7 +27,7 @@
 */
 	.globl	dv_trap_reset
 	.extern	dv_board_start
-	.extern dv_c0kernstacktop
+	.extern dv_c0_kernstacktop
 
 	.text
 

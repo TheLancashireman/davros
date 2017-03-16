@@ -28,8 +28,26 @@
 */
 #define DV_KSTACK_WORDS		200
 
+/* Parameters for memory regions, including stacks.
+ *
+ * DV_MEM_PAGESIZE - granularity of memory management blocks.
+ * DV_MEM_GAP - minimum gap to leave at bottom of block.
+*/
+#define DV_MEM_PAGESIZE	4096	/* ARM MMU page size */
+#define DV_MEM_GAP		0		/* ARM MMU doesn't allow multi-byte accesses to spill */
+
 /* Include files for ARM.
 */
 #define DV_REGISTERS			<cpufamily/arm/h/dv-arm-registers.h>
+#define DV_DISPATCH				<cpufamily/arm/h/dv-arm-dispatch.h>
+
+#if !DV_ASM
+
+static inline void dv_hw_wait(void)
+{
+	__asm__ volatile ("wfi");
+}
+
+#endif
 
 #endif
