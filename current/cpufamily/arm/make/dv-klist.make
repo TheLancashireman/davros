@@ -26,3 +26,4 @@ DV_KLIST_S	+= dv-vectors
 DV_KLIST_S	+= dv-reset
 DV_KLIST_S	+= dv-sbreak
 DV_KLIST_S	+= dv-resume
+DV_KLIST_S	+= dv-exit

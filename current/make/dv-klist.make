@@ -31,6 +31,7 @@ DV_KLIST_C	+=	dv-dllinsertaftersame
 DV_KLIST_C	+=	dv-dllinsertbeforesame
 DV_KLIST_C	+=	dv-initkvars
 DV_KLIST_C	+=	dv-spawnexecutable
+DV_KLIST_C	+=	dv-spawnexecutableinthread
 DV_KLIST_C	+=	dv-start
 DV_KLIST_C	+=	dv-syscall
 

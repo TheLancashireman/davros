@@ -83,6 +83,8 @@ static inline void dv_set_prio(dv_thread_t *thr, dv_dllkey_t p)
 	thr->link.key = p;
 }
 
+void dv_return_from_main(dv_machineword_t, dv_machineword_t);
+
 #endif
 
 #define DV_OFFSET_thr_regs		0

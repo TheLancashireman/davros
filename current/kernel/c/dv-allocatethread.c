@@ -56,8 +56,12 @@ dv_thread_t *dv_allocate_thread(dv_kernel_t *kvars, const dv_executable_t *exe)
 	*/
 	for ( i=0; i<dv_coreconfigs[kvars->core_index]->n_executables; i++ )
 	{
-		if ( (exe_tbl[i].name != DV_NULL) && (exe_tbl[i].baseprio == exe->baseprio) )
+		if ( (exe_tbl[i].name != DV_NULL) &&
+			 (exe_tbl[i].baseprio == exe->baseprio) &&
+			 (exe_tbl[i].thread != DV_NULL) )
 		{
+			DV_DBG(dv_kprintf("dv_allocate_thread(): %s shares thread 0x%08x with %s\n",
+															exe->name, (unsigned)exe_tbl[i].thread, exe_tbl[i].name));
 			exe_tbl[i].thread->n_exe++;
 			return exe_tbl[i].thread;
 		}
@@ -71,6 +75,7 @@ dv_thread_t *dv_allocate_thread(dv_kernel_t *kvars, const dv_executable_t *exe)
 		return DV_NULL;
 
 	thr_tbl[thr_i].n_exe = 1;
+	thr_tbl[thr_i].link.payload = &thr_tbl[thr_i];
 
 	return &thr_tbl[thr_i];
 }

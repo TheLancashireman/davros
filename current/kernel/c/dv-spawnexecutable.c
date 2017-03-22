@@ -27,27 +27,34 @@
 #include <kernel/h/dv-coverage.h>
 #include <kernel/h/dv-error.h>
 
-DV_COVDEF(spawnexecutable);
+/* Todo: job queues.
+*/
+#define dv_enqueue_job_in_jobqueue(x, y) dv_panic(dv_panic_unimplemented, "dv_spawn_executable", "jobqueue not implemented")
+
+DV_COVDEF(spawn_executable);
 
 /* dv_spawn_executable() - spawn an instance of an executable
 */
-dv_errorid_t dv_spawn_executable(dv_kernel_t *kvars, dv_executable_t *executable)
+dv_errorid_t dv_spawn_executable(dv_kernel_t *kvars, dv_executable_t *exe)
 {
 	dv_errorid_t ecode = dv_eid_UnknownError;
 
-	if ( executable->enabled )
+	if ( exe->enabled )
 	{
-		if ( executable->n_instances < executable->maxinstances )
+		if ( exe->n_instances < exe->maxinstances )
 		{
-			executable->n_instances++;
+			exe->n_instances++;
 
-			if ( executable->events != DV_NULL )
+			if ( exe->events != DV_NULL )
 			{
-				executable->events->pending_events = DV_NO_EVENTS;
-				executable->events->awaited_events = DV_NO_EVENTS;
+				exe->events->pending_events = DV_NO_EVENTS;
+				exe->events->awaited_events = DV_NO_EVENTS;
 			}
 
-			ecode = dv_spawn_executable_in_thread(&kvars->thread_queue, executable->thread, executable);
+			if ( exe->thread->state == dv_thread_idle )
+				dv_spawn_executable_in_thread(&kvars->thread_queue, exe, exe->thread);
+			else
+				dv_enqueue_job_in_jobqueue(exe->thread, exe);
 		}
 		else
 		{

@@ -77,6 +77,12 @@
 #define DV_EXECUTIONBUDGET	0
 #endif
 
+/* Assume debug off unless told otherwise.
+*/
+#ifndef DV_DEBUG
+#define DVDEBUG		0
+#endif
+
 /* Assume standard idle function unless told otherwise.
 */
 #ifndef DV_IDLE_FUNC
@@ -85,6 +91,13 @@
 #if !DV_ASM
 void dv_idle(void);
 #endif
+#endif
+
+#if DV_DEBUG
+#include <kernel/h/dv-stdio.h>
+#define DV_DBG(x)	do {x;} while (0)
+#else
+#define DV_DBG(x)	do {} while (0)
 #endif
 
 #endif

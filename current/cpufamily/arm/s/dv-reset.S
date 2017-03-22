@@ -18,7 +18,7 @@
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <kernel/h/dv-asm.h>
-#include <cpufamily/arm/h/dv-arm-core.h>
+#include <cpufamily/arm/h/dv-arm-registers.h>
 
 /* dv_reset() - startup code after reset
  *

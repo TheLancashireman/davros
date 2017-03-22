@@ -67,7 +67,6 @@ static inline void dv_set_exectimer(dv_thread_t *unused_incoming)
 	/* Intentionally left blank */
 }
 
-
 static inline void dv_adjust_exectimer(dv_thread_t *unused_incoming)
 {
 	/* Intentionally left blank */
@@ -83,6 +82,9 @@ void dv_dispatch(dv_kernel_t *kvars)
 {
 	dv_thread_t *outgoing = kvars->current_thread;
 	dv_thread_t *incoming = dv_threadqueuehead(kvars);
+
+	DV_DBG(dv_kprintf("dv_dispatch(): outgoing = %s, incoming = %s\n",
+													outgoing->executable->name, incoming->executable->name));
 
 	if ( outgoing == incoming )
 	{

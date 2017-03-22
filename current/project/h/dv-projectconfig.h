@@ -30,9 +30,10 @@
 #define DV_C0_INIT_FUNC			prj_init
 #define DV_C0_INIT_STACK		200
 
+#define DV_DEBUG				1
+
 #if !DV_ASM
 void prj_init(void);
-
 #endif
 
 #endif

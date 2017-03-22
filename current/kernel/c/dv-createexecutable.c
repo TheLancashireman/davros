@@ -66,20 +66,36 @@ dv_index_t dv_create_executable(dv_kernel_t *kvars, const dv_execonfig_t *execfg
 		*/
 		exe->name = execfg->name;
 		exe->function = execfg->function;
+		exe->id = exe_i;
+		exe->baseprio = execfg->priority;
+		exe->runprio = execfg->priority;
+		exe->maxprio = execfg->priority;
+		exe->maxinstances = execfg->maxinstances;
+		exe->n_stack = execfg->n_stack;
+		exe->flags = execfg->flags;
+		exe->enabled = 0;
+		exe->n_instances = 0;
+		exe->thread = DV_NULL;
+		exe->registers = DV_NULL;
+		exe->events = DV_NULL;
+		exe->stackpage = DV_NULL;
+
 		exe->thread = dv_allocate_thread(kvars, exe);
 		if ( exe->thread == DV_NULL )
 		{
 			/* Todo: better error handling */
 			dv_panic(dv_panic_objectsearchfailed, "dv_create_executable", "no thread available");
 		}
+
 		exe->registers = dv_allocate_registers(kvars, exe);
 		if ( exe->registers == DV_NULL )
 		{
 			/* Todo: better error handling */
 			dv_panic(dv_panic_objectsearchfailed, "dv_create_executable", "no registers available");
 		}
+
 		exe->events = DV_NULL;	/* Todo */
-		exe->n_stack = execfg->n_stack;
+
 		exe->stackpage = dv_allocate_stack(kvars, exe);
 		if ( exe->stackpage == DV_NULL )
 		{
@@ -87,14 +103,6 @@ dv_index_t dv_create_executable(dv_kernel_t *kvars, const dv_execonfig_t *execfg
 			dv_panic(dv_panic_objectsearchfailed, "dv_create_executable", "no stack available");
 		}
 		exe->initial_sp = &exe->stackpage->page->words[exe->n_stack - DV_STACKEXTRA];
-		exe->id = exe_i;
-		exe->baseprio = execfg->priority;
-		exe->runprio = execfg->priority;
-		exe->maxprio = execfg->priority;
-		exe->maxinstances = execfg->maxinstances;
-		exe->flags = execfg->flags;
-		exe->enabled = 0;
-		exe->n_instances = 0;
 	}
 
 	return exe_i;

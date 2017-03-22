@@ -1,4 +1,4 @@
-/*	dv-arm-core.h - ARM core header file for davros
+/*	dv-exit.S - ARM thread termination
  *
  *	Copyright 2017 David Haworth
  *
@@ -17,18 +17,12 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef dv_arm_core_h
-#define dv_arm_core_h	1
+#include <kernel/h/dv-asm.h>
+#include <kernel/h/dv-syscall.h>
 
-#define DV_ARM_MODE_USR		0x10
-#define DV_ARM_MODE_FIQ		0x11
-#define DV_ARM_MODE_IRQ		0x12
-#define DV_ARM_MODE_SVC		0x13
-#define DV_ARM_MODE_ABT		0x17
-#define DV_ARM_MODE_UNDEF	0x1B
-#define DV_ARM_MODE_SYS		0x1F	/* available on ARM Arch 4 and later */
+	.globl	dv_exit
+	.text
 
-#define DV_ARM_IRQ_DIS		0x80	/* when I bit is set, IRQ is disabled */
-#define DV_ARM_FIQ_DIS		0x40	/* when F bit is set, FIQ is disabled */
-
-#endif
+dv_exit:
+	swi		#DV_SC_exit
+	b		dv_exit

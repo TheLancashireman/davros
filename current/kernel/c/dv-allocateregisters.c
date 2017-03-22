@@ -64,8 +64,11 @@ dv_registers_t *dv_allocate_registers(dv_kernel_t *kvars, const dv_executable_t 
 		{
 			if ( (exe_tbl[i].name != DV_NULL) &&
 				 (exe_tbl[i].baseprio == exe->baseprio) &&
-				 ((exe_tbl[i].flags && DV_EXEFLAG_BLOCKING) == 0) )
+				 ((exe_tbl[i].flags && DV_EXEFLAG_BLOCKING) == 0) &&
+				 (exe_tbl[i].registers != DV_NULL) )
 			{
+				DV_DBG(dv_kprintf("dv_allocate_registers(): %s shares registers 0x%08x with %s\n",
+														exe->name, (unsigned)exe_tbl[i].registers, exe_tbl[i].name));
 				exe_tbl[i].registers->n_exe++;
 				return exe_tbl[i].registers;
 			}

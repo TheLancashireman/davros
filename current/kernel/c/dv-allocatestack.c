@@ -70,8 +70,11 @@ dv_mempage_t *dv_allocate_stack(dv_kernel_t *kvars, const dv_executable_t *exe)
 		{
 			if ( (exe_tbl[i].name != DV_NULL) &&
 				 (exe_tbl[i].baseprio == exe->baseprio) &&
-				 ((exe_tbl[i].flags && DV_EXEFLAG_BLOCKING) == 0) )
+				 ((exe_tbl[i].flags && DV_EXEFLAG_BLOCKING) == 0) &&
+				 (exe_tbl[i].stackpage != DV_NULL) )
 			{
+				DV_DBG(dv_kprintf("dv_allocate_stack(): %s shares stack 0x%08x with %s\n",
+														exe->name, (unsigned)exe_tbl[i].stackpage, exe_tbl[i].name));
 				exe_tbl[i].stackpage->n_use++;
 				return exe_tbl[i].stackpage;
 			}

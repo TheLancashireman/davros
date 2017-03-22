@@ -38,6 +38,9 @@ LD_OPT		+= -e dv_trap_reset
 
 VPATH 		+= project/c
 
+DV_KLIB	= $(DV_LIB_D)/lib$(DV_KLIB_NAME).$(DV_A)
+DV_ULIB = $(DV_LIB_D)/lib$(DV_ULIB_NAME).$(DV_A)
+
 
 # Include the board's make selections
 include $(DV_BOARD_D)/make/dv-board.make
@@ -50,13 +53,13 @@ default:	all
 
 all:		klib ulib bin
 
-klib:		$(DV_LIB_D)/lib$(DV_KLIB_NAME).$(DV_A)
+klib:		$(DV_KLIB)
 
-ulib:		$(DV_LIB_D)/lib$(DV_ULIB_NAME).$(DV_A)
+ulib:		$(DV_ULIB)
 
 bin:		$(DV_BIN_D)/davros.elf
 
-$(DV_BIN_D)/davros.elf:	$(DV_LD_OBJS)
+$(DV_BIN_D)/davros.elf:	$(DV_LD_OBJS) $(DV_KLIB) $(DV_ULIB)
 	$(dv_ld)
 
 include make/dv-commontargets.make

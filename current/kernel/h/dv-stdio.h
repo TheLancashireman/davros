@@ -24,6 +24,8 @@
 #ifndef dv_stdio_h
 #define dv_stdio_h
 
+#if !DV_ASM
+
 #include "stdarg.h"
 
 typedef int (*dv_xprintf_putc)(int,void *);
@@ -46,6 +48,8 @@ int dv_strlen(const char *);
 int dv_kmode(int m);
 #define KPOLLED 0
 #define KINTR	1
+#endif
+
 #endif
 
 #endif

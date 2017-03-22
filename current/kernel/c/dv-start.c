@@ -35,16 +35,40 @@ void dv_start(dv_index_t ci)
 	const dv_coreconfig_t *ccfg = dv_coreconfigs[ci];
 	dv_kernel_t *kvars = ccfg->kernelvars;
 	dv_index_t e;
+	dv_executable_t *exe_tbl;
 
+	DV_DBG(dv_kprintf("dv_start(): Initialising kvars 0x%08x for core %d\n", (unsigned)kvars, ci));
 	dv_init_kvars(kvars, ccfg);
 
+	exe_tbl = dv_coreconfigs[kvars->core_index]->executables;
+
+	DV_DBG(dv_kprintf("dv_start(): Creating executable for idle thread core %d\n", ci));
 	e = dv_create_executable(kvars, ccfg->idle_cfg);
 	if ( e >= 0 )
-		dv_activate_executable(e);
+	{
+		exe_tbl[e].enabled = 1;
+		DV_DBG(dv_kprintf("dv_start(): Spawning executable %d for idle thread core %d\n", e, ci));
+		dv_spawn_executable(kvars, &exe_tbl[e]);
+
+		/* Pretend that this is the current thread. The state is 'new', so the dispatcher handles it properly.
+		*/
+		kvars->current_thread = exe_tbl[e].thread;
+	}
+	else
+		dv_panic(dv_panic_objectsearchfailed, "dv_start", "Failed to create executable for idle thread");
+
+	DV_DBG(dv_kprintf("dv_start(): Creating executable for init thread core %d\n", ci));
 	e = dv_create_executable(kvars, ccfg->init_cfg);
 	if ( e >= 0 )
-		dv_activate_executable(e);
+	{
+		exe_tbl[e].enabled = 1;
+		DV_DBG(dv_kprintf("dv_start(): Spawning executable %d for init thread core %d\n", e, ci));
+		dv_spawn_executable(kvars, &exe_tbl[e]);
+	}
+	else
+		dv_panic(dv_panic_objectsearchfailed, "dv_start", "Failed to create executable for init thread");
 
+	DV_DBG(dv_kprintf("dv_start(): Calling dv_dispatch() to start core %d\n", ci));
 	dv_dispatch(kvars);
 }
 
