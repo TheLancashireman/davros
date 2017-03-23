@@ -68,6 +68,9 @@ void dv_start(dv_index_t ci)
 	else
 		dv_panic(dv_panic_objectsearchfailed, "dv_start", "Failed to create executable for init thread");
 
+	DV_DBG(dv_kprintf("dv_start(): Calling dv_init_vectors() on core %d\n", ci));
+	dv_init_vectors();
+
 	DV_DBG(dv_kprintf("dv_start(): Calling dv_dispatch() to start core %d\n", ci));
 	dv_dispatch(kvars);
 }

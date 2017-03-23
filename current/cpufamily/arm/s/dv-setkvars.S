@@ -1,4 +1,4 @@
-/*	dv-arm-dispatch.h - ARM dispatcher functions for davros
+/*	dv-setkvars.s - store the kvars address in a register
  *
  *	Copyright 2017 David Haworth
  *
@@ -17,26 +17,14 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef dv_arm_dispatch_h
-#define dv_arm_dispatch_h	1
-
-#include <kernel/h/dv-kconfig.h>
-#include <kernel/h/dv-types.h>
+#include <kernel/h/dv-asm.h>
+#include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-thread.h>
+#include <cpufamily/arm/h/dv-arm-registers.h>
 
-#if !DV_ASM
+	.globl	dv_set_kvars
+	.text
 
-/* Thread dispatcher.
-*/
-void dv_resume(dv_registers_t *regs) __attribute__((noreturn));
-
-static inline void dv_hw_resume(dv_kernel_t *unused_kv, dv_thread_t *incoming) __attribute__((noreturn));
-static inline void dv_hw_resume(dv_kernel_t *unused_kv, dv_thread_t *incoming)
-{
-	/* Todo: interrupt lock level */
-	dv_resume(incoming->regs);
-}
-
-#endif
-
-#endif
+dv_set_kvars:
+	mcr		p15, 0, r0, c13, c0, 3						/* Store r0 to user read/only pid register */
+	bx		lr

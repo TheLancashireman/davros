@@ -41,6 +41,13 @@
 #define DV_REGISTERS			<cpufamily/arm/h/dv-arm-registers.h>
 #define DV_DISPATCH				<cpufamily/arm/h/dv-arm-dispatch.h>
 
+/* Vector table location. For ARM processors that have RAM at address 0 we copy the vectors
+ * there.
+ * If there's read-only memory at 0 we have to flash a vector table that redirects to somewhere in
+ * RAM, or maybe there's a vector base address register.
+*/
+#define DV_VECTOR_LOCATION		0
+
 #if !DV_ASM
 
 static inline void dv_hw_wait(void)

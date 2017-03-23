@@ -54,3 +54,5 @@ const dv_coreconfig_t *const dv_coreconfigs[DV_N_CORES] =
 					&dv_c6_coreconfig,
 					&dv_c7_coreconfig)
 };
+
+unsigned *const dv_vector_location = (unsigned *)DV_VECTOR_LOCATION;

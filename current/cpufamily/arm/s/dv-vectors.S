@@ -20,6 +20,7 @@
 #include <kernel/h/dv-asm.h>
 
 	.globl	dv_vectortable
+	.globl	dv_vectortable_end
 	.extern	dv_trap_reset
 	.extern	dv_trap_undef
 	.extern	dv_trap_sbreak
@@ -53,6 +54,8 @@ dv_hndlraddr_data_abort:		.word		dv_trap_data_abort
 dv_hndlraddr_reserved:			.word		dv_trap_reserved
 dv_hndlraddr_irq:				.word		dv_trap_irq
 dv_hndlraddr_fiq:				.word		dv_trap_fiq
+
+dv_vectortable_end:
 
 /* Temporary vectors for stuff that isn't handled yet
 */

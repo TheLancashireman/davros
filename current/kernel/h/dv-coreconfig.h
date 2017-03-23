@@ -71,4 +71,9 @@ extern const dv_coreconfig_t *const dv_coreconfigs[DV_N_CORES];
 #define DV_CORELIST(c0, c1, c2, c3, c4, c5, c6, c7)	c0, c1, c2, c3, c4, c5, c6, c7
 #endif
 
+/* dv_vector_location is the location of the hardware interrupt/exception vectors.
+ * This address is used in a hardware-dependent way but can be defined independently of the hardware.
+*/
+extern unsigned *const dv_vector_location;
+
 #endif

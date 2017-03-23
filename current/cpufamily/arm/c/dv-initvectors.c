@@ -1,4 +1,4 @@
-/*	dv-arm-dispatch.h - ARM dispatcher functions for davros
+/*	dv-initvectors.c - initialise vectors for ARM cpu
  *
  *	Copyright 2017 David Haworth
  *
@@ -17,26 +17,31 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef dv_arm_dispatch_h
-#define dv_arm_dispatch_h	1
-
 #include <kernel/h/dv-kconfig.h>
 #include <kernel/h/dv-types.h>
-#include <kernel/h/dv-thread.h>
+#include <kernel/h/dv-coreconfig.h>
+#include <kernel/h/dv-coverage.h>
 
-#if !DV_ASM
+extern unsigned dv_vectortable;
+extern unsigned dv_vectortable_end;
 
-/* Thread dispatcher.
+DV_COVDEF(init_vectors);
+
+/* dv_init_vectors() - initialise the ARM vector table.
+ *
+ * If there's RAM at address 0 we copy the vectors there.
+ * If the memory at 0 is read-only we have to ensure that there's a vector table that
+ * redirects somewhere else, and copy the vectors to the redirection table.
+ * Either way, the constant dv_vector_location contains the address.
 */
-void dv_resume(dv_registers_t *regs) __attribute__((noreturn));
-
-static inline void dv_hw_resume(dv_kernel_t *unused_kv, dv_thread_t *incoming) __attribute__((noreturn));
-static inline void dv_hw_resume(dv_kernel_t *unused_kv, dv_thread_t *incoming)
+void dv_init_vectors(void)
 {
-	/* Todo: interrupt lock level */
-	dv_resume(incoming->regs);
+	unsigned *s = &dv_vectortable;
+	unsigned *d = dv_vector_location;
+
+	while ( s < &dv_vectortable_end )
+		*d++ = *s++;
 }
 
-#endif
-
-#endif
+/* man-page-generation - to be defined
+*/

@@ -46,6 +46,8 @@ void dv_init_kvars(dv_kernel_t *kvars, const dv_coreconfig_t * ccfg)
 	kvars->reg_allocator.next = 0;
 	kvars->page_allocator.n_free = ccfg->n_pages;
 	kvars->page_allocator.next = 0;
+
+	dv_set_kvars(kvars);
 }
 
 /* man-page-generation - to be defined
