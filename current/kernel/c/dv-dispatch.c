@@ -81,27 +81,23 @@ static inline void dv_adjust_exectimer(dv_thread_t *unused_incoming)
 void dv_dispatch(dv_kernel_t *kvars)
 {
 	dv_thread_t *outgoing = kvars->current_thread;
-	dv_thread_t *incoming = dv_threadqueuehead(kvars);
+	dv_thread_t *incoming = dv_select_most_eligible(kvars);
 
 	DV_DBG(dv_kprintf("dv_dispatch(): outgoing = %s, incoming = %s\n",
-													outgoing->executable->name, incoming->executable->name));
+						(outgoing == DV_NULL ? "<null>" : outgoing->executable->name), incoming->executable->name));
+
+	/* Todo: make the following an optional assertion.
+	*/
+	if ( incoming == DV_NULL )
+		dv_panic(dv_panic_threadqueueempty, "dv_dispatch", "No thread to run");
 
 	if ( outgoing == incoming )
 	{
-		if ( incoming->state == dv_thread_new )
-		{
-			dv_trace_threadstate(incoming, dv_thread_running);
-			incoming->state = dv_thread_running;
-			dv_set_exectimer(incoming);
-		}
-		else
-		{
-			dv_adjust_exectimer(incoming);
-		}
+		dv_adjust_exectimer(incoming);
 	}
 	else
 	{
-		if ( outgoing->state == dv_thread_running )
+		if ( outgoing != DV_NULL )
 		{
 			dv_trace_threadstate(outgoing, dv_thread_ready);
 			outgoing->state = dv_thread_ready;

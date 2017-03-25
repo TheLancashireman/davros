@@ -28,4 +28,5 @@ DV_KLIST_S	+= dv-reset
 DV_KLIST_S	+= dv-sbreak
 DV_KLIST_S	+= dv-resume
 DV_KLIST_S	+= dv-exit
+DV_KLIST_S	+= dv-nullsc
 DV_KLIST_S	+= dv-setkvars

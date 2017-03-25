@@ -64,6 +64,13 @@ void dv_dllinit(dv_doublylinkedlist_t *, dv_dlltype_t);
 void dv_dllinsertbeforesame(dv_doublylinkedlist_t *, dv_dllelement_t *);
 void dv_dllinsertaftersame(dv_doublylinkedlist_t *, dv_dllelement_t *);
 
+static inline void dv_dllremove(dv_dllelement_t *elem)
+{
+	elem->successor->predecessor = elem->predecessor;
+	elem->predecessor->successor = elem->successor;
+	elem->successor = elem->predecessor = DV_NULL;
+}
+
 static inline dv_boolean_t dv_dllisempty(dv_doublylinkedlist_t *list)
 {
 	return (list->headtail.successor == list->headtail.predecessor);

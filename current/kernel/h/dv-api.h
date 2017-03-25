@@ -1,4 +1,4 @@
-/*	dv-projectconfig.h - davros configuration for xxx project
+/*	dv-api.h - API header file for davros
  *
  *	Copyright 2017 David Haworth
  *
@@ -17,24 +17,17 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef dv_projectconfig_h
-#define dv_projectconfig_h	1
-
-#define DV_C0_N_EXECUTABLES		20
-#define DV_C0_N_THREADS			20
-#define DV_C0_N_REGISTERS		20
-#define DV_C0_N_EVENTSTATUS		5
-
-#define DV_C0_N_PAGES			20
-
-#define DV_C0_INIT_FUNC			prj_init
-#define DV_C0_INIT_STACK		200
-
-#define DV_TRACE				1
-#define DV_DEBUG				1
+#ifndef dv_api_h
+#define dv_api_h	1
 
 #if !DV_ASM
-void prj_init(void);
+
+#include <kernel/h/dv-kconfig.h>
+#include <kernel/h/dv-types.h>
+#include <kernel/h/dv-kernel-types.h>
+
+void dv_nullsc(dv_machineword_t, dv_machineword_t, dv_machineword_t, dv_machineword_t);
+void dv_exit(dv_machineword_t, dv_machineword_t);
 
 #endif
 

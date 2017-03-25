@@ -80,7 +80,13 @@
 /* Assume debug off unless told otherwise.
 */
 #ifndef DV_DEBUG
-#define DVDEBUG		0
+#define DV_DEBUG		0
+#endif
+
+/* Assume trace off unless told otherwise.
+*/
+#ifndef DV_TRACE
+#define DV_TRACE		0
 #endif
 
 /* Assume standard idle function unless told otherwise.

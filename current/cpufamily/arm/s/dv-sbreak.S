@@ -44,7 +44,7 @@ dv_trap_sbreak:
 	mrs		r0, spsr									/* saved mode */
 	mov		r2, sp										/* kvars->current_thread->regs->gpr[0] */
 
-	add		r4, #DV_OFFSET_regs_gpr8					/* &kvars->current_thread->regs->gpr[8] */
+	add		r4, r2, #DV_OFFSET_regs_gpr8				/* &kvars->current_thread->regs->gpr[8] */
 	stmia	r4, {r8-r12}								/* save r8-r12 in regs structure */
 	str		r0, [r2, #DV_OFFSET_regs_cpsr]
 	str		lr, [r2, #DV_OFFSET_regs_pc]				/* No adjustment of return address for sbreak */

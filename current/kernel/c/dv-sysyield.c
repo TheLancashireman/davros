@@ -1,4 +1,4 @@
-/*	dv-projectconfig.h - davros configuration for xxx project
+/*	dv-sysyield.c - yield system call for davros
  *
  *	Copyright 2017 David Haworth
  *
@@ -17,25 +17,22 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef dv_projectconfig_h
-#define dv_projectconfig_h	1
+#include <kernel/h/dv-kconfig.h>
+#include <kernel/h/dv-types.h>
+#include <kernel/h/dv-kernel-types.h>
+#include <kernel/h/dv-kernel.h>
+#include <kernel/h/dv-syscall.h>
+#include <kernel/h/dv-coverage.h>
 
-#define DV_C0_N_EXECUTABLES		20
-#define DV_C0_N_THREADS			20
-#define DV_C0_N_REGISTERS		20
-#define DV_C0_N_EVENTSTATUS		5
+DV_COVDEF(sys_yield);
 
-#define DV_C0_N_PAGES			20
+/* dv_sys_yield() - yield to executables with higher base priority
+ *
+ * This function implements the kernel side of the yield system call.
+*/
+void dv_sys_yield(dv_kernel_t *unused_kvars, dv_index_t unused_sci)
+{
+}
 
-#define DV_C0_INIT_FUNC			prj_init
-#define DV_C0_INIT_STACK		200
-
-#define DV_TRACE				1
-#define DV_DEBUG				1
-
-#if !DV_ASM
-void prj_init(void);
-
-#endif
-
-#endif
+/* man-page-generation - to be defined
+*/

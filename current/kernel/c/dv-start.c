@@ -49,10 +49,6 @@ void dv_start(dv_index_t ci)
 		exe_tbl[e].enabled = 1;
 		DV_DBG(dv_kprintf("dv_start(): Spawning executable %d for idle thread core %d\n", e, ci));
 		dv_spawn_executable(kvars, &exe_tbl[e]);
-
-		/* Pretend that this is the current thread. The state is 'new', so the dispatcher handles it properly.
-		*/
-		kvars->current_thread = exe_tbl[e].thread;
 	}
 	else
 		dv_panic(dv_panic_objectsearchfailed, "dv_start", "Failed to create executable for idle thread");

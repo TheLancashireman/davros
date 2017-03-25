@@ -21,12 +21,18 @@
 #include <kernel/h/dv-types.h>
 #include <kernel/h/dv-coverage.h>
 
+/* Todo: temporary, use kernel printf.
+*/
+#include <kernel/h/dv-stdio.h>
+#define dv_uprintf	dv_kprintf
+
 DV_COVDEF(idle);
 
 /* dv_idle() - idle loop
 */
 void dv_idle(void)
 {
+	dv_uprintf("dv_idle() reached()\n");
 	for (;;)
 	{
 		dv_hw_wait();

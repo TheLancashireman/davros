@@ -24,6 +24,7 @@
 #include <kernel/h/dv-types.h>
 #include <kernel/h/dv-thread.h>
 #include <kernel/h/dv-executable.h>
+#include <kernel/h/dv-api.h>
 
 #define DV_ARM_MODE_USR		0x10
 #define DV_ARM_MODE_FIQ		0x11
@@ -51,7 +52,27 @@ struct dv_registers_s
 	int n_exe;
 };
 
-void dv_exit(dv_machineword_t, dv_machineword_t);
+/* dv_get_xxx() - get the value of a register
+*/
+static inline dv_u32_t dv_get_p0(dv_registers_t *regs)
+{
+	return regs->gpr[0];
+}
+
+static inline dv_u32_t dv_get_p1(dv_registers_t *regs)
+{
+	return regs->gpr[1];
+}
+
+static inline dv_u32_t dv_get_p2(dv_registers_t *regs)
+{
+	return regs->gpr[2];
+}
+
+static inline dv_u32_t dv_get_p3(dv_registers_t *regs)
+{
+	return regs->gpr[3];
+}
 
 /* dv_set_registers() - initialise the registers.
  *
@@ -67,6 +88,18 @@ static inline void dv_set_registers(dv_registers_t *regs, dv_executable_t *exe)
 	regs->cpsr = DV_ARM_MODE_SYS | DV_ARM_IRQ_DIS | DV_ARM_FIQ_DIS;		/* Todo: from field in exe */
 	regs->sp = (dv_u32_t)exe->initial_sp;
 	regs->lr = (dv_u32_t)dv_exit;
+}
+
+/* dv_set_xxx() - set the value of a register
+*/
+static inline void dv_set_rv0(dv_registers_t *regs, dv_u32_t v)
+{
+	regs->gpr[0] = v;
+}
+
+static inline void dv_set_rv1(dv_registers_t *regs, dv_u32_t v)
+{
+	regs->gpr[1] = v;
 }
 
 #endif

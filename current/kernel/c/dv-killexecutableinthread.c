@@ -1,4 +1,4 @@
-/*	dv-syscall.c - system-call handler for davros
+/*	dv-killexecutableinthread.c - kill the executable that is running in a thread.
  *
  *	Copyright 2017 David Haworth
  *
@@ -19,49 +19,45 @@
 */
 #include <kernel/h/dv-kconfig.h>
 #include <kernel/h/dv-types.h>
-#include <kernel/h/dv-syscall.h>
+#include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-kernel.h>
+#include <kernel/h/dv-executable.h>
 #include <kernel/h/dv-thread.h>
 #include <kernel/h/dv-doublylinkedlist.h>
-#include <kernel/h/dv-error.h>
 #include <kernel/h/dv-trace.h>
 #include <kernel/h/dv-coverage.h>
 
-DV_COVDEF(dv_syscall);
+DV_COVDEF(kill_executable_in_thread);
 
-const dv_syscall_t dv_syscalltable[DV_N_SYSCALL+1] = { DV_SYSCALLTABLE };
-
-/* dv_function() - short description
+/* dv_kill_executable_in_thread() - kill the executable in the specified thread.
  *
- * Long description
+ * Kill the specified executable, which is running in the specified thread.
 */
-void dv_syscall(dv_kernel_t *kvars, dv_machineword_t sc_index)
+void dv_kill_executable_in_thread(dv_kernel_t *kvars, dv_thread_t *thr, dv_executable_t *exe)
 {
-	dv_fcov(0);
+	exe->n_instances--;
 
-	if ( dv_ccov(1, 2, dv_dllisempty(&kvars->thread_queue)) )
-	{
-		dv_panic(dv_panic_threadqueueempty, "dv_syscall", "Thread queue is empty");
-	}
-	else
-	if ( dv_ccov(3, 4, (kvars->current_thread == dv_threadqueuehead(kvars))) )
-	{
-		if ( dv_ccov(5, 6, (sc_index < (dv_machineword_t)DV_N_SYSCALL)) )
-		{
-			dv_index_t sci = (dv_index_t)sc_index;
-			dv_trace_api(kvars->current_thread, sci, &dv_syscalltable[sci]);
-			(*dv_syscalltable[sci].function)(kvars, sci);
-		}
-		else
-		{
-			dv_sys_unknown(kvars, (dv_index_t)sc_index);
-		}
+	dv_dllremove(&thr->link);
 
-		dv_dispatch(kvars);
-	}
-	else
+	dv_trace_threadstate(thr, dv_thread_idle);
+	thr->state = dv_thread_idle;
+	
+	thr->executable = DV_NULL;
+	thr->regs = DV_NULL;
+	thr->parent = DV_NULL;
+
+	while ( thr->locktaken != DV_NULL )
 	{
-		dv_panic(dv_panic_currentthreadnotqueuehead, "dv_syscall", "Current thread is not at head of queue");
+		dv_panic(dv_panic_unimplemented, "dv_kill_executable_in_thread", "Locks not implemented yet");
+	}
+
+	kvars->current_thread = DV_NULL;
+
+	/* Job queue handling might move up a level ...
+	*/
+	if ( thr->jobqueue != DV_NULL )
+	{
+		dv_panic(dv_panic_unimplemented, "dv_kill_executable_in_thread", "Job queues not implemented yet");
 	}
 }
 

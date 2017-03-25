@@ -80,6 +80,7 @@ struct dv_executable_s
 dv_index_t dv_create_executable(dv_kernel_t *, const dv_execonfig_t *);
 dv_errorid_t dv_spawn_executable(dv_kernel_t *, dv_executable_t *);
 void dv_spawn_executable_in_thread(dv_doublylinkedlist_t *, dv_executable_t *, dv_thread_t *);
+void dv_kill_executable_in_thread(dv_kernel_t *, dv_thread_t *, dv_executable_t *);
 
 #endif
 

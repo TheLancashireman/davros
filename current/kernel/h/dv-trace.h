@@ -25,9 +25,24 @@
 #include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-thread.h>
 
+#if DV_TRACE
+
+/* The following must be provided by the project.
+*/
+void dv_trace_threadstate(dv_thread_t *thread, dv_threadstate_t newstate);
+void dv_trace_api(dv_thread_t *thread, dv_index_t sci, const dv_syscall_t *sc);
+
+#else
+
 static inline void dv_trace_threadstate(dv_thread_t *unused_thread, dv_threadstate_t unused_newstate)
 {
 }
+
+static inline void dv_trace_api(dv_thread_t *unused_thread, dv_index_t unused_sci, const dv_syscall_t *unused_sc)
+{
+}
+
+#endif
 
 
 #endif
