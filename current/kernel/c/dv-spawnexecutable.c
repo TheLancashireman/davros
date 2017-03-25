@@ -29,7 +29,8 @@
 
 /* Todo: job queues.
 */
-#define dv_enqueue_job_in_jobqueue(x, y) dv_panic(dv_panic_unimplemented, "dv_spawn_executable", "jobqueue not implemented")
+#define dv_enqueue_job_in_jobqueue(x, y) \
+	dv_panic(dv_panic_unimplemented, "dv_spawn_executable", "jobqueue not implemented")
 
 DV_COVDEF(spawn_executable);
 

@@ -1,4 +1,4 @@
-/*	dv-api.h - API header file for davros
+/*	dv-spawn.S - ARM "spawn" system call
  *
  *	Copyright 2017 David Haworth
  *
@@ -17,20 +17,12 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef dv_api_h
-#define dv_api_h	1
+#include <kernel/h/dv-asm.h>
+#include <kernel/h/dv-syscall.h>
 
-#if !DV_ASM
+	.globl	dv_spawn
+	.text
 
-#include <kernel/h/dv-kconfig.h>
-#include <kernel/h/dv-types.h>
-#include <kernel/h/dv-kernel-types.h>
-#include <kernel/h/dv-error.h>
-
-void dv_nullsc(dv_machineword_t, dv_machineword_t, dv_machineword_t, dv_machineword_t);
-void dv_exit(dv_machineword_t, dv_machineword_t);
-dv_errorid_t dv_spawn(dv_index_t);
-
-#endif
-
-#endif
+dv_spawn:
+	swi		#DV_SC_spawn
+	bx		lr

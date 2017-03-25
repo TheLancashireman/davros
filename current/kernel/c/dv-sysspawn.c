@@ -22,6 +22,8 @@
 #include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-syscall.h>
+#include DV_REGISTERS
+#include <kernel/h/dv-coreconfig.h>
 #include <kernel/h/dv-coverage.h>
 
 DV_COVDEF(sys_spawn);
@@ -30,8 +32,34 @@ DV_COVDEF(sys_spawn);
  *
  * This function implements the kernel side of the spawn and spawn_async system calls.
 */
-void dv_sys_spawn(dv_kernel_t *unused_kvars, dv_index_t unused_sci)
+void dv_sys_spawn(dv_kernel_t *kvars, dv_index_t unused_sci)
 {
+	dv_machineword_t p0 = dv_get_p0(kvars->current_thread->regs);
+	dv_executable_t *exe_tbl = dv_coreconfigs[kvars->core_index]->executables;
+	dv_index_t exe_i = (dv_index_t)p0;
+	dv_executable_t *exe;
+	dv_errorid_t e = dv_nerrors;
+	
+
+	if ( exe_i < 0 || exe_i >= dv_coreconfigs[kvars->core_index]->n_executables )
+	{
+		e = dv_eid_UnknownExecutable;
+	}
+	else
+	{
+		exe = &exe_tbl[exe_i];
+
+		if ( exe->name == DV_NULL )
+		{
+			e = dv_eid_UnknownExecutable;
+		}
+		else
+		{
+			e = dv_spawn_executable(kvars, exe);
+		}
+	}
+
+	dv_set_rv0(kvars->current_thread->regs, e);
 }
 
 /* man-page-generation - to be defined
