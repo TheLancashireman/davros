@@ -25,6 +25,7 @@
 #include DV_REGISTERS
 #include <kernel/h/dv-coreconfig.h>
 #include <kernel/h/dv-coverage.h>
+#include <kernel/h/dv-stdio.h>
 
 DV_COVDEF(sys_spawn);
 
@@ -40,10 +41,11 @@ void dv_sys_spawn(dv_kernel_t *kvars, dv_index_t unused_sci)
 	dv_executable_t *exe;
 	dv_errorid_t e = dv_nerrors;
 	
-
+	DV_DBG(dv_kprintf("dv_sys_spawn(): exe_i = %d\n", exe_i));
 	if ( exe_i < 0 || exe_i >= dv_coreconfigs[kvars->core_index]->n_executables )
 	{
-		e = dv_eid_UnknownExecutable;
+		e = dv_eid_IndexOutOfRange;
+		DV_DBG(dv_kprintf("dv_sys_spawn(): e = %d (IndexOutOfRange)\n", e));
 	}
 	else
 	{
@@ -51,11 +53,13 @@ void dv_sys_spawn(dv_kernel_t *kvars, dv_index_t unused_sci)
 
 		if ( exe->name == DV_NULL )
 		{
-			e = dv_eid_UnknownExecutable;
+			e = dv_eid_UnconfiguredExecutable;
+			DV_DBG(dv_kprintf("dv_sys_spawn(): e = %d (UnconfiguredExecutable)\n", e));
 		}
 		else
 		{
 			e = dv_spawn_executable(kvars, exe);
+			DV_DBG(dv_kprintf("dv_sys_spawn(): e = %d (returned from dv_spawn_executable())\n", e));
 		}
 	}
 

@@ -29,7 +29,8 @@ enum dv_errorid_e
 	dv_eid_None = 0,					/* No error - all ok */
 	dv_eid_TryAgain,					/* Try the operation again - not an error */
 
-	dv_eid_UnknownExecutable,
+	dv_eid_IndexOutOfRange,
+	dv_eid_UnconfiguredExecutable,
 	dv_eid_ExecutableQuarantined,
 	dv_eid_MaxInstancesExceeded,
 
