@@ -30,6 +30,7 @@
 void dv_nullsc(dv_machineword_t, dv_machineword_t, dv_machineword_t, dv_machineword_t);
 void dv_exit(dv_machineword_t, dv_machineword_t);
 dv_errorid_t dv_spawn(dv_index_t);
+dv_dual_t dv_create_exe(const dv_execonfig_t *);
 
 #endif
 

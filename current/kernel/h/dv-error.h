@@ -33,6 +33,8 @@ enum dv_errorid_e
 	dv_eid_UnconfiguredExecutable,
 	dv_eid_ExecutableQuarantined,
 	dv_eid_MaxInstancesExceeded,
+	dv_eid_InvalidPointerParameter,
+	dv_eid_ExecutableCreationFailed,
 
 	dv_nerrors							/* Not used as an error code */
 };

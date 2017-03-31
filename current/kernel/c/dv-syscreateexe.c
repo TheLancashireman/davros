@@ -1,4 +1,4 @@
-/*	dv-sysspawn.c - spawn system call for davros
+/*	dv-syscreateexe.c - create_exe system call for davros
  *
  *	Copyright 2017 David Haworth
  *
@@ -30,39 +30,32 @@
 
 DV_COVDEF(sys_spawn);
 
-/* dv_sys_spawn() - spawn an executable
+/* dv_sys_create_exe() - create an executable
  *
- * This function implements the kernel side of the spawn and spawn_async system calls.
+ * This function implements the kernel side of the create_exe system call.
 */
-void dv_sys_spawn(dv_kernel_t *kvars, dv_index_t unused_sci)
+void dv_sys_create_exe(dv_kernel_t *kvars, dv_index_t unused_sci)
 {
 	dv_machineword_t p0 = dv_get_p0(kvars->current_thread->regs);
-	dv_executable_t *exe_tbl = dv_coreconfigs[kvars->core_index]->executables;
-	dv_index_t exe_i = (dv_index_t)p0;
-	dv_executable_t *exe;
 	dv_errorid_t e = dv_eid_UnknownError;
-	
-	DV_DBG(dv_kprintf("dv_sys_spawn(): exe_i = %d\n", exe_i));
-	if ( exe_i < 0 || exe_i >= dv_coreconfigs[kvars->core_index]->n_executables )
-	{
-		e = dv_eid_IndexOutOfRange;
-		DV_DBG(dv_kprintf("dv_sys_spawn(): e = %d (IndexOutOfRange)\n", e));
-	}
-	else
-	{
-		exe = &exe_tbl[exe_i];
+	dv_index_t exe;
 
-		if ( exe->name == DV_NULL )
-		{
-			e = dv_eid_UnconfiguredExecutable;
-			DV_DBG(dv_kprintf("dv_sys_spawn(): e = %d (UnconfiguredExecutable)\n", e));
-		}
+	/* Todo: pointer parameter validation. For now, just check alignment
+	*/
+	if ( (p0 & 0x03) == 0 )
+	{
+		exe = dv_create_executable(kvars, (dv_execonfig_t *)p0);
+		if ( exe < 0 )
+			e = dv_eid_ExecutableCreationFailed;		/* Todo: be more specific */
 		else
 		{
-			e = dv_spawn_executable(kvars, exe);
-			DV_DBG(dv_kprintf("dv_sys_spawn(): e = %d (returned from dv_spawn_executable())\n", e));
+			e = dv_eid_None;
+			dv_set_rv1(kvars->current_thread->regs, exe);
 		}
 	}
+	else
+		e = dv_eid_InvalidPointerParameter;
+		
 
 	dv_set_rv0(kvars->current_thread->regs, e);
 }

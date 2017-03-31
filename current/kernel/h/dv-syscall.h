@@ -26,7 +26,7 @@
 #define DV_SC_null				0
 #define DV_SC_exit				1
 #define DV_SC_yield				2
-#define DV_SC_reserved_3		3
+#define DV_SC_create_exe		3
 #define DV_SC_spawn				4		/* Must be even */
 #define DV_SC_spawn_async		5		/* Must be DV_SC_spawn+1 */
 #define DV_SC_chain				6
@@ -49,7 +49,7 @@ enum dv_sc_e
 	dv_sc_null				= DV_SC_null,
 	dv_sc_exit				= DV_SC_exit,
 	dv_sc_yield				= DV_SC_yield,
-	dv_sc_reserved_3		= DV_SC_reserved_3,
+	dv_sc_create_exe		= DV_SC_create_exe,
 	dv_sc_spawn				= DV_SC_spawn,
 	dv_sc_spawn_async		= DV_SC_spawn_async,
 	dv_sc_chain				= DV_SC_chain,
@@ -69,7 +69,7 @@ enum dv_sc_e
 /*  0 */	{ dv_sys_null,			"dv_sys_null"			},	\
 /*  1 */	{ dv_sys_exit,			"dv_sys_exit"			},	\
 /*  2 */	{ dv_sys_yield,			"dv_sys_yield"			},	\
-/*  3 */	{ dv_sys_unknown,		"dv_sys_unknown"		},	\
+/*  3 */	{ dv_sys_create_exe,	"dv_sys_create_exe"		},	\
 /*  4 */	{ dv_sys_spawn,			"dv_sys_spawn"			},	\
 /*  5 */	{ dv_sys_spawn,			"dv_sys_spawn"			},	\
 /*  6 */	{ dv_sys_chain,			"dv_sys_chain"			},	\
@@ -101,6 +101,7 @@ extern const dv_syscall_t dv_syscalltable[DV_N_SYSCALL+1];
 void dv_sys_null(dv_kernel_t *, dv_index_t);
 void dv_sys_exit(dv_kernel_t *, dv_index_t);
 void dv_sys_yield(dv_kernel_t *, dv_index_t);
+void dv_sys_create_exe(dv_kernel_t *, dv_index_t);
 void dv_sys_spawn(dv_kernel_t *, dv_index_t);
 void dv_sys_chain(dv_kernel_t *, dv_index_t);
 void dv_sys_acquire(dv_kernel_t *, dv_index_t);

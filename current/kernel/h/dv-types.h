@@ -47,6 +47,11 @@ typedef volatile dv_u16_t	dv_reg16_t;
 typedef volatile dv_u32_t	dv_reg32_t;
 typedef volatile dv_u64_t	dv_reg64_t;
 
+typedef struct
+{	dv_machineword_t rv0;
+	dv_machineword_t rv1;
+} dv_dual_t;
+
 #endif
 
 #define	DV_NULL				0

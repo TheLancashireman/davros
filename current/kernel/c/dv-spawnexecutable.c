@@ -56,6 +56,8 @@ dv_errorid_t dv_spawn_executable(dv_kernel_t *kvars, dv_executable_t *exe)
 				dv_spawn_executable_in_thread(&kvars->thread_queue, exe, exe->thread);
 			else
 				dv_enqueue_job_in_jobqueue(exe->thread, exe);
+
+			ecode = dv_eid_None;
 		}
 		else
 		{

@@ -103,6 +103,10 @@ dv_index_t dv_create_executable(dv_kernel_t *kvars, const dv_execonfig_t *execfg
 			dv_panic(dv_panic_objectsearchfailed, "dv_create_executable", "no stack available");
 		}
 		exe->initial_sp = &exe->stackpage->page->words[exe->n_stack - DV_STACKEXTRA];
+
+		/* If all OK, enable the new executable.
+		*/
+		exe->enabled = 1;
 	}
 
 	return exe_i;

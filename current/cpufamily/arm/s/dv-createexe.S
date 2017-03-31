@@ -1,4 +1,4 @@
-/*	dv-projectconfig.h - davros configuration for xxx project
+/*	dv-createexe.S - ARM "create_exe" system call
  *
  *	Copyright 2017 David Haworth
  *
@@ -17,30 +17,24 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef dv_projectconfig_h
-#define dv_projectconfig_h	1
+#include <kernel/h/dv-asm.h>
+#include <kernel/h/dv-syscall.h>
 
-#include <kernel/h/dv-types.h>
-#include <kernel/h/dv-kernel-types.h>
+	.globl	dv_create_exe
+	.text
 
-#define DV_C0_N_EXECUTABLES		20
-#define DV_C0_N_THREADS			20
-#define DV_C0_N_REGISTERS		20
-#define DV_C0_N_EVENTSTATUS		5
+/* dv_create_exe() is an API to a system call that returns two parameters in r0 and r1
+ *
+ * The ARM ABI specifies that in this case the first parameter to this function is
+ * a pointer to the the return value.
+ * We must save that pointer (using the fact that davros's API preserves all registers except the return
+ * value) and after the system call store the return value registers there.
+*/
 
-#define DV_C0_N_PAGES			20
-
-#define DV_C0_INIT_FUNC			prj_init
-#define DV_C0_INIT_STACK		200
-
-#define DV_TRACE				1
-#define DV_DEBUG				1
-
-#define DV_PRJ_STARTUP			1
-
-#if !DV_ASM
-void prj_init(void);
-void prj_startup(dv_kernel_t *kvars);
-#endif
-
-#endif
+dv_create_exe:
+	mov		r12, r0
+	mov		r0, r1
+	swi		#DV_SC_create_exe
+	str		r0, [r12, #0]
+	str		r1, [r12, #4]
+	bx		lr

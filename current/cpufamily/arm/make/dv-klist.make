@@ -25,11 +25,13 @@ DV_KLIST_C	+= dv-initvectors
 # Without the .s suffix.
 DV_KLIST_S	+= dv-vectors
 DV_KLIST_S	+= dv-reset
-DV_KLIST_S	+= dv-sbreak
 DV_KLIST_S	+= dv-resume
-DV_KLIST_S	+= dv-exit
-DV_KLIST_S	+= dv-nullsc
-DV_KLIST_S	+= dv-spawn
 DV_KLIST_S	+= dv-setkvars
 
-#ToDo: DV_ULIST_S ???
+# DV_ULIST_S is a list of all the assembler source files that are in the user library.
+# Without the .s suffix.
+DV_ULIST_S	+= dv-sbreak
+DV_ULIST_S	+= dv-exit
+DV_ULIST_S	+= dv-nullsc
+DV_ULIST_S	+= dv-spawn
+DV_ULIST_S	+= dv-createexe

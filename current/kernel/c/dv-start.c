@@ -46,7 +46,6 @@ void dv_start(dv_index_t ci)
 	e = dv_create_executable(kvars, ccfg->idle_cfg);
 	if ( e >= 0 )
 	{
-		exe_tbl[e].enabled = 1;
 		DV_DBG(dv_kprintf("dv_start(): Spawning executable %d for idle thread core %d\n", e, ci));
 		dv_spawn_executable(kvars, &exe_tbl[e]);
 	}
@@ -57,12 +56,16 @@ void dv_start(dv_index_t ci)
 	e = dv_create_executable(kvars, ccfg->init_cfg);
 	if ( e >= 0 )
 	{
-		exe_tbl[e].enabled = 1;
 		DV_DBG(dv_kprintf("dv_start(): Spawning executable %d for init thread core %d\n", e, ci));
 		dv_spawn_executable(kvars, &exe_tbl[e]);
 	}
 	else
 		dv_panic(dv_panic_objectsearchfailed, "dv_start", "Failed to create executable for init thread");
+
+#if DV_PRJ_STARTUP
+	DV_DBG(dv_kprintf("dv_start(): calling prj_startup() on core %d\n", ci));
+	prj_startup(kvars);
+#endif
 
 	DV_DBG(dv_kprintf("dv_start(): Calling dv_init_vectors() on core %d\n", ci));
 	dv_init_vectors();

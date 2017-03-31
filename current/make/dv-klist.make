@@ -37,6 +37,7 @@ DV_KLIST_C	+=	dv-start
 DV_KLIST_C	+=	dv-sysacquire
 DV_KLIST_C	+=	dv-syscall
 DV_KLIST_C	+=	dv-syschain
+DV_KLIST_C	+=	dv-syscreateexe
 DV_KLIST_C	+=	dv-sysdrop
 DV_KLIST_C	+=	dv-sysexit
 DV_KLIST_C	+=	dv-sysnull
