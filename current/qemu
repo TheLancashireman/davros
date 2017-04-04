@@ -1,6 +1,7 @@
 #!/bin/sh
+export QEMU_AUDIO_DRV=none
 qemu-system-arm \
-	-machine integratorcp \
+	-machine realview-pbx-a9 \
 	-cpu cortex-a9 \
 	-s -S \
 	-kernel bin/davros.elf \
@@ -8,3 +9,5 @@ qemu-system-arm \
 	-monitor stdio \
 	-nographic \
 	-serial pty 
+
+#	-machine integratorcp

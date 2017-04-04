@@ -42,8 +42,20 @@ struct arm_uart_s
 	volatile unsigned dmacr;
 };
 
+#if 0
+/* -machine integratorcp
+*/
 #define arm_uart0		(*(arm_uart_t *)0x16000000)
 #define arm_uart1		(*(arm_uart_t *)0x17000000)
+#else
+
+/* -machine realview-pbx-a9
+*/
+#define arm_uart0		(*(arm_uart_t *)0x10009000)
+#define arm_uart1		(*(arm_uart_t *)0x1000a000)
+#define arm_uart2		(*(arm_uart_t *)0x1000b000)
+#define arm_uart3		(*(arm_uart_t *)0x1000c000)
+#endif
 
 void dv_uart0_init(void)
 {

@@ -27,6 +27,7 @@ DV_KLIST_S	+= dv-vectors
 DV_KLIST_S	+= dv-reset
 DV_KLIST_S	+= dv-resume
 DV_KLIST_S	+= dv-setkvars
+#DV_KLIST_S	+= dv-getconfigbase
 
 # DV_ULIST_S is a list of all the assembler source files that are in the user library.
 # Without the .s suffix.
@@ -35,3 +36,4 @@ DV_ULIST_S	+= dv-exit
 DV_ULIST_S	+= dv-nullsc
 DV_ULIST_S	+= dv-spawn
 DV_ULIST_S	+= dv-createexe
+DV_ULIST_S	+= dv-getkvars

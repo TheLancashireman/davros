@@ -59,6 +59,7 @@ struct dv_kernel_s
 };
 
 void dv_set_kvars(dv_kernel_t *kvars);
+dv_kernel_t *dv_get_kvars(void);
 void dv_init_vectors(void);
 
 static inline dv_thread_t *dv_threadqueuehead(dv_kernel_t *kvars)
