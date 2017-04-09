@@ -29,6 +29,7 @@
 	.extern	dv_trap_reserved
 	.extern	dv_trap_irq
 	.extern	dv_trap_fiq
+	.extern dv_trap_unimplemented
 
 /* dv_vectortable - a standard ARM vector table
  *     
@@ -63,7 +64,5 @@ dv_trap_undef:
 dv_trap_prefetch_abort:
 dv_trap_data_abort:
 dv_trap_reserved:
-dv_trap_irq:
 dv_trap_fiq:
-dv_trap_stop:
-	b		dv_trap_stop   
+	b		dv_trap_unimplemented   

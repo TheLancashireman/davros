@@ -23,7 +23,7 @@
 #include <kernel/h/dv-types.h>
 #include <cpufamily/arm/h/dv-arm-configbase.h>
 
-#ifndef DV_ASM
+#if !DV_ASM
 
 typedef struct dv_gicc_s dv_gicc_t;
 typedef struct dv_gicd_s dv_gicd_t;
@@ -72,8 +72,34 @@ struct dv_gicd_s
 	dv_reg8_t  icdspendsgir[16];	/* SGI set-pending registers. */
 };
 
-#define DV_gicc		(*(dv_gicc_t *)(DV_PBASE+DV_OFFSET_GICC))
-#define DV_gicd		(*(dv_gicd_t *)(DV_PBASE+DV_OFFSET_GICD))
+/* GIC functions
+*/
+void dv_init_gic(void);
+
+static inline void dv_config_irq(int index, int core, int prio)
+{
+	dv_gicd_t *icd = dv_get_config_base(DV_GICD_OFFSET);
+	icd->icdipriorityr[index] = prio;
+	icd->icditargetsr[index] = (1 << core);
+}
+
+static inline void dv_enable_irq(int index)
+{
+	dv_gicd_t *icd = dv_get_config_base(DV_GICD_OFFSET);
+	icd->icdisenabler[index/32] = (1 << (index % 32));
+}
+
+static inline void dv_disable_irq(int index)
+{
+	dv_gicd_t *icd = dv_get_config_base(DV_GICD_OFFSET);
+	icd->icdicenabler[index/32] = (1 << (index % 32));
+}
+
+static inline void dv_set_level(int lvl)
+{
+	dv_gicc_t *icc = dv_get_config_base(DV_GICC_OFFSET);
+	icc->iccpmr = lvl;
+}
 
 #endif
 
@@ -102,5 +128,32 @@ struct dv_gicd_s
 */
 #define DV_ICCIAR_INTERRUPT_ID	0x3ffu;
 #define DV_ICCIAR_CPUID			0x1c00u;
+
+/* Special interrupt IDs
+*/
+#define DV_IID_SGI0			0		/* GIC software-generated interrupts */
+#define DV_IID_SGI1			1
+#define DV_IID_SGI2			2
+#define DV_IID_SGI3			3
+#define DV_IID_SGI4			4
+#define DV_IID_SGI5			5
+#define DV_IID_SGI6			6
+#define DV_IID_SGI7			7
+#define DV_IID_SGI8			8
+#define DV_IID_SGI9			9
+#define DV_IID_SGI10		10
+#define DV_IID_SGI11		11
+#define DV_IID_SGI12		12
+#define DV_IID_SGI13		13
+#define DV_IID_SGI14		14
+#define DV_IID_SGI15		15
+
+#define DV_IID_GTIMER		27		/* Global timer */
+#define DV_IID_FIQ			28		/* Legacy FIQ */
+#define DV_IID_PTIMER		29		/* Private timer */
+#define DV_IID_A9WDG		30		/* Cortex A9 watchdog */
+#define DV_IID_IRQ			28		/* Legacy IRQ */
+
+#define DV_IID_SPURIOUS		1023
 
 #endif

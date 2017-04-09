@@ -45,6 +45,7 @@ struct dv_arm_globaltimer_s
 
 #define DV_GT_IRQ	0x0001	/* status: irq occurred. Write 1 to clear */
 
+#define DV_GT_IRQID	27		/* Interrupt index in GIC */
 
 static inline dv_u64_t dv_readtime(void)
 {
@@ -59,6 +60,10 @@ static inline dv_u64_t dv_readtime(void)
 	} while ( h != x );
 	return (((dv_u64_t)h) << 32) + l;
 }
+
+/* Interrupt handler function
+*/
+void dv_gtimer_interrupt(dv_kernel_t *, unsigned);
 
 #endif
 

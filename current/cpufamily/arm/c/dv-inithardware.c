@@ -1,4 +1,4 @@
-/*	dv-arm-configbase.h - ARM perpheral address header file for davros
+/*	dv-inithardware.c - ARM hardware initialisation source file for davros
  *
  *	Copyright 2017 David Haworth
  *
@@ -17,25 +17,19 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef dv_arm_configbase_h
-#define dv_arm_configbase_h	1
+#include <kernel/h/dv-kconfig.h>
+#include <kernel/h/dv-types.h>
+#include <kernel/h/dv-kernel-types.h>
+#include <cpufamily/arm/h/dv-arm-start.h>
+#include <cpufamily/arm/h/dv-arm-gic.h>
+#include <kernel/h/dv-coverage.h>
 
-#if !DV_ASM
-
-static inline void *dv_get_config_base(unsigned offset)
+/* dv_init_hardware() - initialise the processor etc.
+*/
+void dv_init_hardware(dv_kernel_t *unused_kvars)
 {
-	unsigned x;
-	__asm__ volatile ("mrc	p15, 4, %0, c15, c0, 0" : "=r"(x) : );
-	return (void *)(x+offset);
+	dv_init_gic();
 }
 
-#endif
-
-/* These offsets are correct for  Cortex A9.
- * Todo: Other ARMS might be different. If so, move to derivative header.
+/* man-page-generation - to be defined
 */
-#define DV_GTIMER_OFFSET	0x0200
-#define DV_GICC_OFFSET		0x0100
-#define DV_GICD_OFFSET		0x1000
-
-#endif

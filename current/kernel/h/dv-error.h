@@ -47,6 +47,7 @@ enum dv_panic_e
 {
 	dv_panic_none = 0,
 	dv_panic_unimplemented,
+	dv_panic_hardwareerror,
 	dv_panic_unknownqueuetype,
 	dv_panic_threadqueueempty,
 	dv_panic_currentthreadnotqueuehead,

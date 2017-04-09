@@ -25,6 +25,7 @@
 #include <kernel/h/dv-doublylinkedlist.h>
 #include <kernel/h/dv-error.h>
 #include <kernel/h/dv-executable.h>
+#include DV_START
 
 DV_COVDEF(start);
 
@@ -39,6 +40,9 @@ void dv_start(dv_index_t ci)
 
 	DV_DBG(dv_kprintf("dv_start(): Initialising kvars 0x%08x for core %d\n", (unsigned)kvars, ci));
 	dv_init_kvars(kvars, ccfg);
+
+	DV_DBG(dv_kprintf("dv_start(): Initialising hardware for core %d\n", ci));
+	dv_init_hardware(kvars);
 
 	exe_tbl = dv_coreconfigs[kvars->core_index]->executables;
 

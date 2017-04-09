@@ -1,4 +1,4 @@
-/*	dv-arm-dispatch.h - ARM dispatcher functions for davros
+/*	dv-gtimer.c - global timer handling for davros
  *
  *	Copyright 2017 David Haworth
  *
@@ -17,26 +17,29 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef dv_arm_dispatch_h
-#define dv_arm_dispatch_h	1
-
 #include <kernel/h/dv-kconfig.h>
 #include <kernel/h/dv-types.h>
-#include <kernel/h/dv-thread.h>
+#include <kernel/h/dv-kernel-types.h>
+#include <kernel/h/dv-kernel.h>
+#include <cpufamily/arm/h/dv-arm-globaltimer.h>
+#include <kernel/h/dv-coverage.h>
 
-#if !DV_ASM
-
-/* Thread dispatcher.
+/* dv_gtimer_interrupt() - handle an interrupt from the global timer
+ *
+ * The global timer is used to provide davros time features such as sleep etc.
 */
-void dv_resume(dv_registers_t *regs) __attribute__((noreturn));
-
-static inline void dv_resume_thread(dv_kernel_t *unused_kv, dv_thread_t *incoming) __attribute__((noreturn));
-static inline void dv_resume_thread(dv_kernel_t *unused_kv, dv_thread_t *incoming)
+void dv_gtimer_interrupt(dv_kernel_t *kvars, unsigned unused_p)
 {
-	/* Todo: interrupt lock level */
-	dv_resume(incoming->regs);
+	dv_arm_globaltimer_t *gt = dv_get_config_base(DV_GTIMER_OFFSET);
+	dv_u64_t t;
+
+	/* Acknowledge the timer event.
+	*/
+	gt->status = DV_GT_IRQ;
+
+	t = dv_readtime();
+	dv_kprintf("dv_gtimer_interrupt: core %d, t = 0x%08x%08x\n", kvars->core_index, (unsigned)(t>>32), (unsigned)t);
 }
 
-#endif
-
-#endif
+/* man-page-generation - to be defined
+*/

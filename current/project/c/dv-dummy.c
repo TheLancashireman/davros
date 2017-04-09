@@ -11,6 +11,8 @@
 #include <kernel/h/dv-api.h>
 #include <kernel/h/dv-error.h>
 #include <cpufamily/arm/h/dv-arm-globaltimer.h>
+#include <cpufamily/arm/h/dv-arm-gic.h>
+#include <kernel/h/dv-interrupt.h>
 
 /* Task id variables
 */
@@ -40,7 +42,10 @@ const dv_execonfig_t task_bar_cfg =
 	0			/* Flags */
 };
 
-
+void dv_trap_unimplemented(void)
+{
+	dv_panic(dv_panic_unimplemented, "dv_trap_unimplemented", "Oops! An exception occurred");
+}
 
 
 void dv_panic(dv_panic_t reason, char *function, char *message)
@@ -120,6 +125,9 @@ void Task_Foo(void)
 	dv_dual_t rv;
 	dv_u64_t t;
 	dv_arm_globaltimer_t *gt;
+	dv_gicc_t *icc;
+	dv_gicd_t *icd;
+	int p1, p2;
 
 	dv_kprintf("Task_Foo: started\n");
 
@@ -141,9 +149,9 @@ void Task_Foo(void)
 		dv_kprintf("Task_Foo: dv_create_exe() returned error %d (rv1 = 0x%08x)\n", rv.rv0, rv.rv1);
 	}
 
-	dv_kprintf("Task_Foo: calling dv_get_config_base()\n");
 	gt = dv_get_config_base(DV_GTIMER_OFFSET);
-	dv_kprintf("Task_Foo: gtimer = 0x%08x\n", (unsigned)gt);
+	icc = dv_get_config_base(DV_GICC_OFFSET);
+	icd = dv_get_config_base(DV_GICD_OFFSET);
 
 #if 1
 #define delay 100000000
@@ -157,15 +165,25 @@ void Task_Foo(void)
 	gt->status = DV_GT_IRQ;
 	gt->ctrl = (DV_GT_INC | DV_GT_IEN | DV_GT_CEN | DV_GT_TEN);
 
+	dv_config_irq(27, 0, 254);
+	dv_attach_irq(27, dv_gtimer_interrupt, 0);
+	dv_enable_irq(27);
+	dv_set_level(255);
+	dv_kprintf("Task_Foo: gicc.iccpmr = %d, gicd.icdipriorityr[27] = %d\n", icc->iccpmr, icd->icdipriorityr[27]);
+
+#if 0
 	for ( i = 0; i < 60; i++ )
 	{
+		p1 = icc->icchpir;
 		while ( (gt->status & DV_GT_IRQ) == 0 )
 		{
 		}
+		p2 = icc->icchpir;
 		gt->status = DV_GT_IRQ;
 		t = dv_readtime();
-		dv_kprintf("Task_Foo: t = 0x%08x%08x\n", (unsigned)(t>>32), (unsigned)t);
+		dv_kprintf("Task_Foo: t = 0x%08x%08x p1=%d, p2=%d\n", (unsigned)(t>>32), (unsigned)t, p1, p2);
 	}
+#endif
 
 #endif
 }

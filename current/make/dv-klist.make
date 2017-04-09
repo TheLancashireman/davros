@@ -26,6 +26,7 @@ DV_KLIST_C	+=	dv-allocatethread
 DV_KLIST_C	+=	dv-cores
 DV_KLIST_C	+=	dv-createexecutable
 DV_KLIST_C	+=	dv-dispatch
+DV_KLIST_C	+=	dv-dispatchinterrupt
 DV_KLIST_C	+=	dv-dllinit
 DV_KLIST_C	+=	dv-dllinsertaftersame
 DV_KLIST_C	+=	dv-dllinsertbeforesame
@@ -44,6 +45,8 @@ DV_KLIST_C	+=	dv-sysnull
 DV_KLIST_C	+=	dv-sysspawn
 DV_KLIST_C	+=	dv-sysunknown
 DV_KLIST_C	+=	dv-sysyield
+DV_KLIST_C	+=	dv-unconfiguredinterrupt
+DV_KLIST_C	+=	dv-unknowninterrupt
 
 DV_KLIST_C	+=	dv-c0
 

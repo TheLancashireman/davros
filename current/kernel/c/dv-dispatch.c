@@ -113,7 +113,7 @@ void dv_dispatch(dv_kernel_t *kvars)
 
 	dv_set_runprio(incoming);
 
-	dv_hw_resume(kvars, incoming);		/* Never returns */
+	dv_resume_thread(kvars, incoming);		/* Never returns */
 }
 
 /* man-page-generation - to be defined
