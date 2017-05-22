@@ -103,6 +103,14 @@
 #define DV_N_IID			84
 #define DV_N_SOFTVECTOR		100		/* Allows some interrupts to be demultiplexed. */
 
+/* Interrupt levels for this board.
+ * It appears that the qemu implementation of gic supports all 8 bits of the level register.
+ *
+ * Interrupt level 0 is highest, 255 is lowest. An IRQ at level 255 cannot occur.
+*/
+#define DV_LEVEL_XCORE		1
+#define DV_LEVEL_GTIMER		2
+
 #include <cpufamily/arm/h/dv-arm-kconfig.h>
 
 #endif

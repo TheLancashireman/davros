@@ -27,6 +27,7 @@
 #if !DV_ASM
 
 void dv_init_hardware(dv_kernel_t *);
+void dv_init_peripherals(dv_kernel_t *);
 
 #endif
 

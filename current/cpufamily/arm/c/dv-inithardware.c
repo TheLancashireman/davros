@@ -20,8 +20,11 @@
 #include <kernel/h/dv-kconfig.h>
 #include <kernel/h/dv-types.h>
 #include <kernel/h/dv-kernel-types.h>
+#include <kernel/h/dv-kernel.h>
+#include <kernel/h/dv-interrupt.h>
 #include <cpufamily/arm/h/dv-arm-start.h>
 #include <cpufamily/arm/h/dv-arm-gic.h>
+#include <cpufamily/arm/h/dv-arm-globaltimer.h>
 #include <kernel/h/dv-coverage.h>
 
 /* dv_init_hardware() - initialise the processor etc.
@@ -29,6 +32,35 @@
 void dv_init_hardware(dv_kernel_t *unused_kvars)
 {
 	dv_init_gic();
+}
+
+/* dv_init_peripherals() - initisalise the peripherals used by davros.
+ *
+ * Modifying vectors for reserved and banked interrupts is done here too.
+*/
+void dv_init_peripherals(dv_kernel_t *kvars)
+{
+	int i;
+	dv_arm_globaltimer_t *gt;
+
+#if 0	/* Multi-core */
+	dv_attach_irq(DV_IID_SGI0, dv_xcore_interrupt, 0);
+#endif
+
+	for ( i = DV_IID_SGI15+1; i < DV_IID_GTIMER ; i++ )
+		dv_attach_irq(i, dv_unknown_interrupt, i);
+
+	/* Todo: board function to patch the "reserved" vectors?
+	*/
+
+	/* Set up the globaltimer and its interrupt handling
+	*/
+	gt = dv_get_config_base(DV_GTIMER_OFFSET);
+	gt->status = DV_GT_IRQ;
+	gt->ctrl = (DV_GT_IEN | DV_GT_CEN | DV_GT_TEN);
+	dv_attach_irq(DV_IID_GTIMER, dv_gtimer_interrupt, 0);
+	dv_config_irq(DV_IID_GTIMER, kvars->core_index, DV_LEVEL_GTIMER);
+	dv_enable_irq(DV_IID_GTIMER);
 }
 
 /* man-page-generation - to be defined

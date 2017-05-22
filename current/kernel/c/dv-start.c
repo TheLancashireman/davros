@@ -38,43 +38,50 @@ void dv_start(dv_index_t ci)
 	dv_index_t e;
 	dv_executable_t *exe_tbl;
 
-	DV_DBG(dv_kprintf("dv_start(): Initialising kvars 0x%08x for core %d\n", (unsigned)kvars, ci));
+	/* Initialise the kernel variables.
+	*/
 	dv_init_kvars(kvars, ccfg);
 
-	DV_DBG(dv_kprintf("dv_start(): Initialising hardware for core %d\n", ci));
+	/* Initialise the processor's hardware.
+	*/
 	dv_init_hardware(kvars);
 
+	/* Initialise the interrupt vectoring
+	*/
+	dv_init_vectors();
+
+	/* Initialise the peripherals that davros uses.
+	*/
+	dv_init_peripherals(kvars);
+
+	/* Create executables for main() and the idle loop, and spawn them.
+	*/
 	exe_tbl = dv_coreconfigs[kvars->core_index]->executables;
 
-	DV_DBG(dv_kprintf("dv_start(): Creating executable for idle thread core %d\n", ci));
 	e = dv_create_executable(kvars, ccfg->idle_cfg);
 	if ( e >= 0 )
 	{
-		DV_DBG(dv_kprintf("dv_start(): Spawning executable %d for idle thread core %d\n", e, ci));
 		dv_spawn_executable(kvars, &exe_tbl[e]);
 	}
 	else
 		dv_panic(dv_panic_objectsearchfailed, "dv_start", "Failed to create executable for idle thread");
 
-	DV_DBG(dv_kprintf("dv_start(): Creating executable for init thread core %d\n", ci));
 	e = dv_create_executable(kvars, ccfg->init_cfg);
 	if ( e >= 0 )
 	{
-		DV_DBG(dv_kprintf("dv_start(): Spawning executable %d for init thread core %d\n", e, ci));
 		dv_spawn_executable(kvars, &exe_tbl[e]);
 	}
 	else
 		dv_panic(dv_panic_objectsearchfailed, "dv_start", "Failed to create executable for init thread");
 
 #if DV_PRJ_STARTUP
-	DV_DBG(dv_kprintf("dv_start(): calling prj_startup() on core %d\n", ci));
+	/* Optional: call the project's startup function.
+	*/
 	prj_startup(kvars);
 #endif
 
-	DV_DBG(dv_kprintf("dv_start(): Calling dv_init_vectors() on core %d\n", ci));
-	dv_init_vectors();
-
-	DV_DBG(dv_kprintf("dv_start(): Calling dv_dispatch() to start core %d\n", ci));
+	/* Dispatch the highest-priority thread.
+	*/
 	dv_dispatch(kvars);
 }
 

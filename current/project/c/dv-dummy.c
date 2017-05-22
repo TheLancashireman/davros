@@ -165,9 +165,12 @@ void Task_Foo(void)
 	gt->status = DV_GT_IRQ;
 	gt->ctrl = (DV_GT_INC | DV_GT_IEN | DV_GT_CEN | DV_GT_TEN);
 
+#if 0
 	dv_config_irq(27, 0, 254);
 	dv_attach_irq(27, dv_gtimer_interrupt, 0);
 	dv_enable_irq(27);
+#endif
+
 	dv_set_level(255);
 	dv_kprintf("Task_Foo: gicc.iccpmr = %d, gicd.icdipriorityr[27] = %d\n", icc->iccpmr, icd->icdipriorityr[27]);
 
