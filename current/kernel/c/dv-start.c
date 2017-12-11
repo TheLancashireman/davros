@@ -25,6 +25,7 @@
 #include <kernel/h/dv-doublylinkedlist.h>
 #include <kernel/h/dv-error.h>
 #include <kernel/h/dv-executable.h>
+#include <kernel/h/dv-stdio.h>
 #include DV_START
 
 DV_COVDEF(start);
@@ -38,41 +39,51 @@ void dv_start(dv_index_t ci)
 	dv_index_t e;
 	dv_executable_t *exe_tbl;
 
+	dv_kprintf("dv_start(%d) called\n", ci);
+
 	/* Initialise the kernel variables.
 	*/
+	dv_kprintf("dv_init_kvars()\n");
 	dv_init_kvars(kvars, ccfg);
 
 	/* Initialise the processor's hardware.
 	*/
+	dv_kprintf("dv_init_hardware()\n");
 	dv_init_hardware(kvars);
 
 	/* Initialise the interrupt vectoring
 	*/
+	dv_kprintf("dv_init_vectors()\n");
 	dv_init_vectors();
 
 	/* Initialise the peripherals that davros uses.
 	*/
+	dv_kprintf("dv_init_peripherals()\n");
 	dv_init_peripherals(kvars);
 
 	/* Create executables for main() and the idle loop, and spawn them.
 	*/
 	exe_tbl = dv_coreconfigs[kvars->core_index]->executables;
 
+	dv_kprintf("dv_create_executable(idle)\n");
 	e = dv_create_executable(kvars, ccfg->idle_cfg);
 	if ( e >= 0 )
 	{
+		dv_kprintf("dv_spawn_executable(%d)\n", e);
 		dv_spawn_executable(kvars, &exe_tbl[e]);
 	}
 	else
-		dv_panic(dv_panic_objectsearchfailed, "dv_start", "Failed to create executable for idle thread");
+		dv_panic(dv_panic_objectsearchfailed, "dv_start", "Failed to create executable for idle");
 
+	dv_kprintf("dv_create_executable(init)\n");
 	e = dv_create_executable(kvars, ccfg->init_cfg);
 	if ( e >= 0 )
 	{
+		dv_kprintf("dv_spawn_executable(%d)\n", e);
 		dv_spawn_executable(kvars, &exe_tbl[e]);
 	}
 	else
-		dv_panic(dv_panic_objectsearchfailed, "dv_start", "Failed to create executable for init thread");
+		dv_panic(dv_panic_objectsearchfailed, "dv_start", "Failed to create executable for init");
 
 #if DV_PRJ_STARTUP
 	/* Optional: call the project's startup function.

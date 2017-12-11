@@ -99,14 +99,14 @@ const dv_execonfig_t dv_c0_cfg_init =
 const dv_coreconfig_t dv_c0_coreconfig =
 {
 	&dv_c0_kvars,
-	dv_c0_kernelstack,
+	&dv_c0_kernelstack[0],
 	&dv_c0_kernelstack[DV_KSTACK_WORDS],
-	dv_c0_executables,
-	dv_c0_threads,
-	dv_c0_registers,
-	dv_c0_eventstatus,
-	dv_c0_pages,
-	dv_c0_mempage,
+	&dv_c0_executables[0],
+	&dv_c0_threads[0],
+	&dv_c0_registers[0],
+	&dv_c0_eventstatus[0],
+	&dv_c0_pages[0],
+	&dv_c0_mempage[0],
 	&dv_c0_cfg_idle,
 	&dv_c0_cfg_init,
 
