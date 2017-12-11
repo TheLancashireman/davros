@@ -21,18 +21,20 @@
 DV_ROOT		?= $(shell pwd)
 
 # Select your board directory here
-#DV_BOARD_D 	?=	board/arm/raspberry-pi
-DV_BOARD_D 	?=	board/arm/qemu
+DV_BOARD_D 	?=	board/arm/raspberry-pi
+#DV_BOARD_D 	?=	board/arm/qemu
 
 # Select your compiler here
 DV_COMPILER	?=	gnu
+#DV_GNU_D	?=	/data1/gnu/gcc-linaro-6.3.1-2017.02-x86_64_aarch64-elf
 DV_GNU_D	?=	/data1/gnu/gcc-linaro-6.3.1-2017.02-x86_64_arm-eabi
 
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-vectors.$(DV_O)
-DV_LD_OBJS	+= $(DV_OBJ_D)/dv-qemu-board.$(DV_O)
-DV_LD_OBJS	+= $(DV_OBJ_D)/dv-qemu-uart.$(DV_O)
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-c0.$(DV_O)
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-dummy.$(DV_O)
+
+# Include the board's file lists
+include $(DV_BOARD_D)/make/dv-board-list.make
 
 LD_OPT		+= -e dv_trap_reset
 
@@ -40,7 +42,6 @@ VPATH 		+= project/c
 
 DV_KLIB	= $(DV_LIB_D)/lib$(DV_KLIB_NAME).$(DV_A)
 DV_ULIB = $(DV_LIB_D)/lib$(DV_ULIB_NAME).$(DV_A)
-
 
 # Include the board's make selections
 include $(DV_BOARD_D)/make/dv-board.make
@@ -57,10 +58,17 @@ klib:		$(DV_KLIB)
 
 ulib:		$(DV_ULIB)
 
-bin:		$(DV_BIN_D)/davros.elf
+bin:		$(DV_BIN_D)/davros.bin
+
+$(DV_BIN_D)/davros.bin:	 $(DV_BIN_D)/davros.elf
+	$(dv_elf2bin)
 
 $(DV_BIN_D)/davros.elf:	$(DV_LD_OBJS) $(DV_KLIB) $(DV_ULIB)
 	$(dv_ld)
+
+install:	$(DV_BIN_D)/davros.bin
+	cp $(DV_BIN_D)/davros.bin ../../raspberry-pi/usb-zero/msd/kernel.img
+
 
 include make/dv-commontargets.make
 include cpufamily/$(DV_FAMILY)/make/dv-$(DV_FAMILY)-$(DV_COMPILER).make

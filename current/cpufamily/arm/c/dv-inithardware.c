@@ -31,7 +31,9 @@
 */
 void dv_init_hardware(dv_kernel_t *unused_kvars)
 {
+#if 0	/* ToDo: select interrupt controller based on hardware */
 	dv_init_gic();
+#endif
 }
 
 /* dv_init_peripherals() - initisalise the peripherals used by davros.
@@ -50,9 +52,10 @@ void dv_init_peripherals(dv_kernel_t *kvars)
 	for ( i = DV_IID_SGI15+1; i < DV_IID_GTIMER ; i++ )
 		dv_attach_irq(i, dv_unknown_interrupt, i);
 
-	/* Todo: board function to patch the "reserved" vectors?
+	/* ToDo: board function to patch the "reserved" vectors?
 	*/
 
+#if 0	/* ToDo: select timer based on hardware */
 	/* Set up the globaltimer and its interrupt handling
 	*/
 	gt = dv_get_config_base(DV_GTIMER_OFFSET);
@@ -61,6 +64,7 @@ void dv_init_peripherals(dv_kernel_t *kvars)
 	dv_attach_irq(DV_IID_GTIMER, dv_gtimer_interrupt, 0);
 	dv_config_irq(DV_IID_GTIMER, kvars->core_index, DV_LEVEL_GTIMER);
 	dv_enable_irq(DV_IID_GTIMER);
+#endif
 }
 
 /* man-page-generation - to be defined

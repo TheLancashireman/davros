@@ -1,4 +1,4 @@
-#	dv-board-list.make - board file lists for davros
+#	dv-make.make - board make definitions for davros
 #
 #	Copyright 2015 David Haworth
 #
@@ -17,5 +17,6 @@
 #	You should have received a copy of the GNU General Public License
 #	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 
-DV_LD_OBJS += $(DV_OBJ_D)/dv-qemu-board.$(DV_O)
-DV_LD_OBJS += $(DV_OBJ_D)/dv-qemu-uart.$(DV_O)
+DV_FAMILY	?=	arm
+DV_CPU		?=	arm1176jzf-s
+DV_GNU_CPU	?=	arm1176jzf-s

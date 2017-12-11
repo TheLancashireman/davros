@@ -1,12 +1,12 @@
-/*	dv-kernelconfig.h - kernel configuration header file for davros
+/*	dv-boardconfig.h - bcm2835 kernel configuration header file for davros
  *
- *	This file defines the configuration of the kernel libraries
+ *	This file defines the configuration of the kernel libraries for original raspberry pi boards
  *	- processor selection
  *	- compiler selection
  *	- instrumentation for test coverage
  *	- debug and trace macros
  *
- *	Copyright 2015 David Haworth
+ *	Copyright 2017 David Haworth
  *
  *	This file is part of davros.
  *
@@ -23,13 +23,13 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef dv_kernelconfig_h
-#define dv_kernelconfig_h	1
+#ifndef dv_boardconfig_h
+#define dv_boardconfig_h	1
 
 /* Select the family, CPU and compiler
 */
 #define DV_FAMILY		DV_ARM
-#define DV_CPU			DV_ARM1136
+#define DV_CPU			DV_ARM1176
 #define DV_HEADERSEL	DV_HEADERSEL_ARM
 #define DV_COMPILER		DV_COMPILER_GNU
 
@@ -38,5 +38,12 @@
  *	other	- trace code coverage
 */
 #define DV_COVERAGE		0
+
+/* Still to be defined.
+*/
+#define DV_N_IID			84
+#define DV_N_SOFTVECTOR		DV_N_IID		/* No demultiplexing on a single core. */
+
+#include <cpufamily/arm/h/dv-arm-kconfig.h>
 
 #endif

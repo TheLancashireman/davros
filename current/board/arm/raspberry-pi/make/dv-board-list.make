@@ -1,4 +1,4 @@
-#	dv-make.make - board make definitions for davros
+#	dv-board-list.make - board file lists for davros
 #
 #	Copyright 2015 David Haworth
 #
@@ -17,4 +17,6 @@
 #	You should have received a copy of the GNU General Public License
 #	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 
-DV_FAMILY ?=	arm
+DV_LD_OBJS += $(DV_OBJ_D)/dv-raspberrypi-board.$(DV_O)
+DV_LD_OBJS += $(DV_OBJ_D)/dv-arm-bcm2835-uart.$(DV_O)
+DV_LD_OBJS += $(DV_OBJ_D)/dv-arm-bcm2835-gpio.$(DV_O)

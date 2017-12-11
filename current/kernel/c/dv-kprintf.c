@@ -41,7 +41,7 @@ int dv_kprintf(const char *fmt, ...)
 #if 0
 	modesave = kmode(KPOLLED);
 #endif
-	nprinted = dv_xprintf(dv_kputc, NULL, fmt, ap);
+	nprinted = dv_xprintf(dv_kputc, fmt, ap);
 #if 0
 	kmode(modesave);
 #endif
@@ -50,8 +50,9 @@ int dv_kprintf(const char *fmt, ...)
 	return(nprinted);
 }
 
-int dv_kputc(int c, void *unused_d)
+int dv_kputc(int c)
 {
-	DV_KPUTC(c);
-	return 0;
+	if ( c == '\n' )
+		dv_consoledriver.putc('\r');
+	return dv_consoledriver.putc(c);
 }

@@ -45,10 +45,18 @@ define dv_ar
 endef
 endif
 
-# Make a binary from a list of object files.
+# Make an ELF binary from a list of object files.
 # No rule can be given for this
 ifndef dv_ld
 define dv_ld
-    $(LD) $(LD_LIB) $@ $^ $(LD_OPT) $(LD_O)
+    $(LD) $(LD_LIB) $@ $(DV_LD_OBJS) $(LD_OPT) $(LD_O)
+endef
+endif
+
+# Make a binary from an ELF binary
+# No rule can be given for this
+ifndef dv_elf2bin
+define dv_elf2bin
+    $(OBJCOPY) $< -O binary $@
 endef
 endif

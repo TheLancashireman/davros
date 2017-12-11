@@ -23,6 +23,7 @@ AS_INC	?=	$(addprefix -I,$(DV_INCLUDE_PATH))
 CC_OPT	+= -std=c99
 CC_OPT	+= -Wall
 CC_OPT	+= -Wextra
+CC_OPT	+= -Wno-unused-parameter
 CC_OPT	+= -g
 CC_OPT	+= -fcommon
 CC_OPT	+= -mcpu=$(DV_GNU_CPU)
@@ -54,9 +55,16 @@ define dv_ar
 endef
 endif
 
-# Make a binary from a list of object files.
+# Make an ELF binary from a list of object files.
 ifndef dv_ld
 define dv_ld
-    $(DV_GNU_D)/bin/$(DV_GNU_PRE)ld -o $@ $^ $(LD_LIB) $(LD_OPT)
+    $(DV_GNU_D)/bin/$(DV_GNU_PRE)ld -o $@ $(DV_LD_OBJS) $(LD_LIB) $(LD_OPT)
+endef
+endif
+
+# Make a raw binary from an ELF file
+ifndef dv_elf2bin
+define dv_elf2bin
+    $(DV_GNU_D)/bin/$(DV_GNU_PRE)objcopy $< -O binary $@
 endef
 endif

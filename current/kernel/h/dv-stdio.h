@@ -28,9 +28,22 @@
 
 #include "stdarg.h"
 
-typedef int (*dv_xprintf_putc)(int,void *);
+typedef int (*dv_xprintf_putc_t)(int);
+typedef int (*dv_xprintf_getc_t)(void);	/* Also used for the get-status functions */
 
-int dv_xprintf(dv_xprintf_putc, void *, const char *, va_list);
+typedef struct dv_uartdriver_s dv_uartdriver_t;
+
+struct dv_uartdriver_s
+{
+	dv_xprintf_putc_t putc;		/* Put a character into the output stream. Wait if no room. */
+	dv_xprintf_getc_t getc;		/* Get a character from the input stream. Wait if none. */
+	dv_xprintf_getc_t istx;		/* Return TRUE if there's room in the output stream. */
+	dv_xprintf_getc_t isrx;		/* Return TRUE if there's a character in input stream. */
+};
+
+dv_uartdriver_t dv_consoledriver;		/* Must be set up by the board init. */
+
+int dv_xprintf(dv_xprintf_putc_t xputc, const char *fmt, va_list ap);
 
 /*	Functions for kprintf.
  *	kprintf is in the library
@@ -40,9 +53,9 @@ int dv_xprintf(dv_xprintf_putc, void *, const char *, va_list);
  *	the given mode and returns the old mode. The only specified value
  *	of mode is 0 (KPOLLED)
 */
-int dv_kprintf(const char *, ...);
-int dv_kputc(int, void *);
-int dv_strlen(const char *);
+int dv_kprintf(const char *fmt, ...);
+int dv_kputc(int c);
+int dv_strlen(const char *s);
 
 #if 0
 int dv_kmode(int m);

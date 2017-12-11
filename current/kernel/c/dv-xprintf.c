@@ -42,8 +42,7 @@ static char *prt10(unsigned long val, char *str);
 static char *prt16(unsigned long val, char *str, char *hexdgt);
 
 int dv_xprintf
-(	int (*xputc)(int, void *),
-	void *dev,
+(	dv_xprintf_putc_t xputc,
 	const char *fmt,
 	va_list ap
 )
@@ -60,7 +59,7 @@ int dv_xprintf
 	{
 		if ( ch != '%' )
 		{
-			(*xputc)(ch, dev);
+			(*xputc)(ch);
 			nprinted++;
 		}
 		else
@@ -120,7 +119,7 @@ int dv_xprintf
 			switch (ch)
 			{
 			case '\0':
-				(*xputc)('%', dev);
+				(*xputc)('%');
 				nprinted++;
 				return(nprinted);
 				break;
@@ -172,18 +171,18 @@ int dv_xprintf
 			if ( sign && ( fill == '0' ) )
 			{
 				sign = 0;
-				(*xputc)('-', dev);
+				(*xputc)('-');
 			}
 			if ( !ljust )
 				for ( i=leading; i>0; i-- )
-					(*xputc)(fill, dev);
+					(*xputc)(fill);
 			if ( sign )
-				(*xputc)('-', dev);
+				(*xputc)('-');
 			for ( i=len; i>0; i-- )
-				(*xputc)(*str++, dev);
+				(*xputc)(*str++);
 			if ( ljust )
 				for ( i=leading; i>0; i-- )
-					(*xputc)(fill, dev);
+					(*xputc)(fill);
 		}
 	}
 	return(nprinted);

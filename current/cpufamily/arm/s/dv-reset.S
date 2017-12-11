@@ -20,6 +20,10 @@
 #include <kernel/h/dv-asm.h>
 #include <cpufamily/arm/h/dv-arm-registers.h>
 
+#ifndef DV_N_CORES
+#error "DV_N_CORES is nto defined"
+#endif
+
 /* dv_reset() - startup code after reset
  *
  * Reset vector jumps here.
@@ -37,15 +41,24 @@ dv_trap_reset:
 */
 	msr		cpsr_c, #(DV_ARM_MODE_SVC+DV_ARM_IRQ_DIS+DV_ARM_FIQ_DIS)
 
+#if DV_N_CORES <= 1					/* Single-core */
+	b		core0_start
+#endif
+
+#if DV_N_CORES >= 2
 	mrc		p15,0,r5,c0,c0,5		/* Multiprocessor affinity register */
 	and		r0, r5, #3				/* Discard all but cpu ID */
 	cmp		r0, #0
 	beq		core0_start
-#if 0
+
 	cmp		r0, #1
 	beq		core1_start
+#endif
+#if DV_N_CORES >= 3
 	cmp		r0, #2
 	beq		core2_start
+#endif
+#if DV_N_CORES >= 4
 	cmp		r0, #3
 	beq		core4_start
 #endif
