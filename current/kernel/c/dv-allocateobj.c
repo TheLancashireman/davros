@@ -22,6 +22,7 @@
 #include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-coverage.h>
 #include <kernel/h/dv-kernel.h>
+#include <kernel/h/dv-stdio.h>
 
 DV_COVDEF(allocate_obj);
 
@@ -38,8 +39,13 @@ dv_index_t dv_allocate_obj
 	dv_index_t obj_i = allocator->next;
 	dv_index_t tmp;
 
+	dv_kprintf("dv_allocate_obj(0x%x, %d, ..., 0x%x): obj_i = %d\n", allocator, n_obj, tbl, obj_i);
+
 	if ( allocator->n_free <= 0 )
+	{
+		dv_kprintf("dv_allocate_obj() failed because allocator->n_free <= 0 (value %d)\n", allocator->n_free);
 		return -1;
+	}
 
 	for ( i = 0; i < n_obj; i++ )
 	{
@@ -48,6 +54,7 @@ dv_index_t dv_allocate_obj
 		if ( obj_i >= n_obj )
 			obj_i = 0;
 
+		dv_kprintf("dv_allocate_obj(): i = %d, tmp = %d, obj_i = %d,\n", i, tmp, obj_i);
 		if ( (*is_free)(tmp, tbl) )
 		{
 			allocator->n_free--;

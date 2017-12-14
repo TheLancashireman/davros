@@ -41,7 +41,7 @@ struct dv_uartdriver_s
 	dv_xprintf_getc_t isrx;		/* Return TRUE if there's a character in input stream. */
 };
 
-dv_uartdriver_t dv_consoledriver;		/* Must be set up by the board init. */
+extern dv_uartdriver_t dv_consoledriver;		/* Must be set up by the board init. */
 
 int dv_xprintf(dv_xprintf_putc_t xputc, const char *fmt, va_list ap);
 

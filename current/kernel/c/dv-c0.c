@@ -33,12 +33,12 @@
 
 /* Memory pages. Here temporarily until memory protection.
 */
-dv_page_t dv_c0_pages[DV_C0_N_PAGES] __attribute__((aligned(DV_MEM_PAGESIZE)));
+dv_page_t dv_c0_pages[DV_C0_N_PAGES] __attribute__((section("dv_pages")));
 
 /* The kernel stack.
  * The stack is here temporarily until memory protection. We should use one of the pages eventually.
 */
-dv_stackword_t dv_c0_kernelstack[DV_KSTACK_WORDS+DV_STACKEXTRA] __attribute__((aligned(DV_MEM_PAGESIZE)));
+dv_stackword_t dv_c0_kernelstack[DV_KSTACK_WORDS+DV_STACKEXTRA] __attribute__((section("dv_stack")));
 
 /* Kernel variables.
 */

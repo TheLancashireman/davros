@@ -28,6 +28,8 @@
 
 #include "stdarg.h"
 
+dv_uartdriver_t dv_consoledriver;		/* Must be set up by the board init. */
+
 int dv_kprintf(const char *fmt, ...)
 {
 	int nprinted;

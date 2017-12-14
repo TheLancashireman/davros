@@ -25,7 +25,7 @@ CC_OPT	+= -Wall
 CC_OPT	+= -Wextra
 CC_OPT	+= -Wno-unused-parameter
 CC_OPT	+= -g
-CC_OPT	+= -fcommon
+CC_OPT	+= -fno-common
 CC_OPT	+= -mcpu=$(DV_GNU_CPU)
 
 AS_OPT	+= -mcpu=$(DV_GNU_CPU)

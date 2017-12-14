@@ -37,6 +37,7 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/dv-dummy.$(DV_O)
 include $(DV_BOARD_D)/make/dv-board-list.make
 
 LD_OPT		+= -e dv_trap_reset
+LD_OPT		+= -T $(DV_BOARD_D)/ldscript/pi-zero.ldscript
 
 VPATH 		+= project/c
 
