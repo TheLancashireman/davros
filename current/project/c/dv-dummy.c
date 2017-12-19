@@ -10,8 +10,16 @@
 #include DV_REGISTERS
 #include <kernel/h/dv-api.h>
 #include <kernel/h/dv-error.h>
+
+#if 0
 #include <cpufamily/arm/h/dv-arm-globaltimer.h>
 #include <cpufamily/arm/h/dv-arm-gic.h>
+#endif
+
+#if DV_CPU == DV_ARM1176
+#include <cpufamily/arm/h/dv-arm-bcm2835-timer.h>
+#endif
+
 #include <kernel/h/dv-interrupt.h>
 
 /* Task id variables
@@ -69,7 +77,7 @@ void prj_init(void)
 	dv_kprintf("prj_init: dv_spawn(1000) returned %d\n", e);
 
 	e = dv_spawn(task_foo+1);
-	dv_kprintf("prj_init: dv_spawn(%d) returned %d\n", task_bar+1, e);
+	dv_kprintf("prj_init: dv_spawn(%d) returned %d\n", task_foo+1, e);
 
 	e = dv_spawn(0);
 	dv_kprintf("prj_init: dv_spawn(0) returned %d\n", e);
@@ -124,10 +132,6 @@ void Task_Foo(void)
 	dv_errorid_t e;
 	dv_dual_t rv;
 	dv_u64_t t;
-	dv_arm_globaltimer_t *gt;
-	dv_gicc_t *icc;
-	dv_gicd_t *icd;
-	int p1, p2;
 
 	dv_kprintf("Task_Foo: started\n");
 
@@ -149,6 +153,54 @@ void Task_Foo(void)
 		dv_kprintf("Task_Foo: dv_create_exe() returned error %d (rv1 = 0x%08x)\n", rv.rv0, rv.rv1);
 	}
 
+	{
+#define CMP 1
+		dv_u64_t then = 0;
+		dv_u64_t now = 0;
+		int m;
+
+		dv_setcmp(CMP, (dv_readtime() & 0xffffffff) + 10000000);
+		dv_clrmatch(CMP);
+
+		for  (;;)
+		{
+#if 1
+			then = now;
+
+			do {
+				now = dv_readtime();
+			} while ( (now - then) < 1000000 );
+
+			dv_kprintf("Time: 0x%08x%08x cmp = 0x%08x int = %d\n",
+				(dv_u32_t)(now / 0x100000000), (dv_u32_t)(now % 0x100000000),
+				dv_getcmp(CMP), m = dv_getmatch(CMP));
+#if 1
+			if ( m )
+			{
+				dv_setcmp(CMP, dv_getcmp(CMP) + 10000000);
+				dv_clrmatch(CMP);
+			}
+#endif
+#else
+			now = dv_readtime();
+			dv_kprintf("Time: 0x%08x%08x\n", (dv_u32_t)(now / 0x100000000), (dv_u32_t)(now % 0x100000000));
+#endif
+		}
+	}
+}
+
+int bar_count = 0;
+
+void Task_Bar(void)
+{
+	dv_kprintf("Task_Bar: started\n");
+	bar_count++;
+	dv_kprintf("Task_Bar: executed %d times\n", bar_count);
+}
+
+#if 0
+void cortex_a_stuff(void)
+{
 	gt = dv_get_config_base(DV_GTIMER_OFFSET);
 	icc = dv_get_config_base(DV_GICC_OFFSET);
 	icd = dv_get_config_base(DV_GICD_OFFSET);
@@ -190,12 +242,4 @@ void Task_Foo(void)
 
 #endif
 }
-
-int bar_count = 0;
-
-void Task_Bar(void)
-{
-	dv_kprintf("Task_Bar: started\n");
-	bar_count++;
-	dv_kprintf("Task_Bar: executed %d times\n", bar_count);
-}
+#endif

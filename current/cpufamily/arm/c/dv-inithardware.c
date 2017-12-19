@@ -23,17 +23,25 @@
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-interrupt.h>
 #include <cpufamily/arm/h/dv-arm-start.h>
+#if 0
 #include <cpufamily/arm/h/dv-arm-gic.h>
 #include <cpufamily/arm/h/dv-arm-globaltimer.h>
+#else
+#include <cpufamily/arm/h/dv-arm-bcm2835-interruptcontroller.h>
+#endif
+#include <kernel/h/dv-stdio.h>
 #include <kernel/h/dv-coverage.h>
 
 /* dv_init_hardware() - initialise the processor etc.
 */
 void dv_init_hardware(dv_kernel_t *unused_kvars)
 {
+	dv_kprintf("dv_init_hardware() called\n");
 #if 0	/* ToDo: select interrupt controller based on hardware */
 	dv_init_gic();
 #endif
+
+	dv_arm_bcm2835_intctrl_init();
 }
 
 /* dv_init_peripherals() - initisalise the peripherals used by davros.
@@ -43,14 +51,16 @@ void dv_init_hardware(dv_kernel_t *unused_kvars)
 void dv_init_peripherals(dv_kernel_t *kvars)
 {
 	int i;
+
+	dv_kprintf("dv_init_peripherals() called\n");
+#if 0	/* Multi-core */
 	dv_arm_globaltimer_t *gt;
 
-#if 0	/* Multi-core */
 	dv_attach_irq(DV_IID_SGI0, dv_xcore_interrupt, 0);
-#endif
 
 	for ( i = DV_IID_SGI15+1; i < DV_IID_GTIMER ; i++ )
 		dv_attach_irq(i, dv_unknown_interrupt, i);
+#endif
 
 	/* ToDo: board function to patch the "reserved" vectors?
 	*/
