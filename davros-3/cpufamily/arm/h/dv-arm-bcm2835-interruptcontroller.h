@@ -27,20 +27,23 @@
 
 /* BCM2835 interrupt controller (as used on Raspberry Pi CPUs).
  *
- * Apart from IRQ/FIQ there are no priorities.
- * Interrupt handling is polled.
+ * The BCM2835 interrupt controller is a very simple unit. There is no vectoring, and
+ * there are no priority levels. The only priority control is FIQ/IRQ. Only one source
+ * can be routed to FIQ.
+ *
+ * There are 3 sets of 3 registers for control and status related to the IRQ signal.
+ * Each set of 3 has a base IRQ register and two IRQ registers. Annoyingly, the
+ * "pending" set has the registers in a different order from the other two sets. :-(
 */
 typedef struct dv_arm_bcm2835_interruptcontroller_s dv_arm_bcm2835_interruptcontroller_t;
 
 struct dv_arm_bcm2835_interruptcontroller_s
 {
-	dv_reg32_t basic_pending;
+	dv_reg32_t basic_pending;		/* Wrong order :-(   But we can sort this out in the handler */
 	dv_reg32_t irq_pending[2];
 	dv_reg32_t fiq_control;
-	dv_reg32_t irq_enable[2];		/* Write 1 to enable */
-	dv_reg32_t basic_enable;		/* Write 1 to enable */
-	dv_reg32_t irq_disable[2];		/* Write 1 to disable */
-	dv_reg32_t basic_disable;		/* Write 1 to disable */
+	dv_reg32_t irq_enable[3];		/* Write 1 to enable. Basic is index 2 */
+	dv_reg32_t irq_disable[3];		/* Write 1 to disable. Basic is index 2 */
 };
 
 #define dv_arm_bcm2835_interruptcontroller	((dv_arm_bcm2835_interruptcontroller_t *)0x2000b200)[0]
@@ -49,9 +52,9 @@ static inline void dv_arm_bcm2835_intctrl_init(void)
 {
 	/* Disable all interrupt sources, including those used by the GPU.
 	*/
-	dv_arm_bcm2835_interruptcontroller.basic_disable = 0xffffffff;
 	dv_arm_bcm2835_interruptcontroller.irq_disable[0] = 0xffffffff;
 	dv_arm_bcm2835_interruptcontroller.irq_disable[1] = 0xffffffff;
+	dv_arm_bcm2835_interruptcontroller.irq_disable[2] = 0xffffffff;
 
 	/* Disable FIQ.
 	*/
@@ -77,8 +80,8 @@ static inline void dv_arm_bcm2835_intctrl_init(void)
  * but leaves CM1 and CM3 alone. In "bare metal", it was discovered by experiment that
  * CM1 and CM3 are bits 1 and 3. Assume then that bits 0 and 2 are CM0 and 2.
 */
-#define DV_INT_SYST_CM1		0x00000020
-#define DV_INT_SYST_CM3		0x00000080
+#define DV_INT_SYST_CM1		0x00000002
+#define DV_INT_SYST_CM3		0x00000008
 #define DV_INT_AUX			0x20000000
 
 /* Bits in the irq[1] registers
@@ -108,7 +111,7 @@ typedef struct dv_bcm2835_intvect_s dv_bcm2835_intvect_t;
 struct dv_bcm2835_intvect_s
 {
 	int regIndex;	/* -1 for basic, 0/1 for IRQ */
-	dvu32_t mask;	/* Mask for the bit in the pending/enable/disable registers */
+	dv_u32_t mask;	/* Mask for the bit in the pending/enable/disable registers */
 };
 
 #endif

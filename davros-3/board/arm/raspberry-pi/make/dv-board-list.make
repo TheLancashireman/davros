@@ -20,3 +20,4 @@
 DV_LD_OBJS += $(DV_OBJ_D)/dv-raspberrypi-board.$(DV_O)
 DV_LD_OBJS += $(DV_OBJ_D)/dv-arm-bcm2835-uart.$(DV_O)
 DV_LD_OBJS += $(DV_OBJ_D)/dv-arm-bcm2835-gpio.$(DV_O)
+DV_LD_OBJS += $(DV_OBJ_D)/dv-arm-bcm2835-interruptcontroller.$(DV_O)

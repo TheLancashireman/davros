@@ -74,6 +74,6 @@ extern const dv_coreconfig_t *const dv_coreconfigs[DV_N_CORES];
 /* dv_vector_location is the location of the hardware interrupt/exception vectors.
  * This address is used in a hardware-dependent way but can be defined independently of the hardware.
 */
-extern unsigned *const dv_vector_location;
+extern void *const dv_vector_location;
 
 #endif

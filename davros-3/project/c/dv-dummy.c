@@ -6,6 +6,7 @@
 #include <kernel/h/dv-thread.h>
 #include <kernel/h/dv-stdio.h>
 #include <kernel/h/dv-kernel.h>
+#include <kernel/h/dv-trace.h>
 #include <kernel/h/dv-coreconfig.h>
 #include DV_REGISTERS
 #include <kernel/h/dv-api.h>
@@ -18,6 +19,8 @@
 
 #if DV_CPU == DV_ARM1176
 #include <cpufamily/arm/h/dv-arm-bcm2835-timer.h>
+#include <cpufamily/arm/h/dv-arm-bcm2835-uart.h>
+#include <cpufamily/arm/h/dv-arm-bcm2835-interruptcontroller.h>
 #endif
 
 #include <kernel/h/dv-interrupt.h>
@@ -50,6 +53,8 @@ const dv_execonfig_t task_bar_cfg =
 	0			/* Flags */
 };
 
+void dv_saveregs(dv_registers_t *r);
+
 void dv_trap_unimplemented(void)
 {
 	dv_panic(dv_panic_unimplemented, "dv_trap_unimplemented", "Oops! An exception occurred");
@@ -69,20 +74,28 @@ void prj_init(void)
 
 	dv_kprintf("prj_init: started.\n");
 
+	kvars = dv_get_kvars();
+
+	dv_kprintf(" -- kvars = 0x%08x, current_thread = 0x%08x, executable = 0x%08x\n",
+						kvars, kvars->current_thread, kvars->current_thread->executable);
+	dv_trace_dumpregs(kvars->current_thread->executable->name, kvars->current_thread->regs);
 	dv_nullsc(0x42, 0xdeadbeef, 0x12345678, 0x98765432);
+	dv_trace_dumpregs(kvars->current_thread->executable->name, kvars->current_thread->regs);
 
 	dv_kprintf("prj_init: returned from null system call.\n");
 
 	e = dv_spawn(1000);
+	dv_trace_dumpregs(kvars->current_thread->executable->name, kvars->current_thread->regs);
 	dv_kprintf("prj_init: dv_spawn(1000) returned %d\n", e);
 
 	e = dv_spawn(task_foo+1);
+	dv_trace_dumpregs(kvars->current_thread->executable->name, kvars->current_thread->regs);
 	dv_kprintf("prj_init: dv_spawn(%d) returned %d\n", task_foo+1, e);
 
 	e = dv_spawn(0);
+	dv_trace_dumpregs(kvars->current_thread->executable->name, kvars->current_thread->regs);
 	dv_kprintf("prj_init: dv_spawn(0) returned %d\n", e);
 
-	kvars = dv_get_kvars();
 
 	if ( kvars->core_index == 0 )
 	{
@@ -118,6 +131,30 @@ void dv_trace_api(dv_thread_t *thread, dv_index_t sci, const dv_syscall_t *sc)
 			dv_get_p0(thread->regs), dv_get_p1(thread->regs), dv_get_p2(thread->regs), dv_get_p3(thread->regs));
 }
 
+void dv_trace_dumpregs(const char *str, const dv_registers_t *r)
+{
+	int i;
+
+	dv_kprintf("dumpregs: %s r = 0x%08x\n", str, r);
+
+	for ( i=0; i<13; i++ )
+	{
+		dv_kprintf("r%-2d  = 0x%08x\n", i, r->gpr[i]);
+	}
+	dv_kprintf("pc   = 0x%08x\n", r->pc);
+	dv_kprintf("cpsr = 0x%08x\n", r->cpsr);
+	dv_kprintf("sp   = 0x%08x\n", r->sp);
+	dv_kprintf("lr   = 0x%08x\n", r->lr);
+}
+
+void dv_trace_dumpcpuregs(void)
+{
+	dv_registers_t r;
+
+	dv_saveregs(&r);
+	dv_trace_dumpregs("Current registers", &r);
+}
+
 /* This function is called at startup so the system-call API is not available.
  * Use direct function calls to internal functions instead.
 */
@@ -132,8 +169,16 @@ void Task_Foo(void)
 	dv_errorid_t e;
 	dv_dual_t rv;
 	dv_u64_t t;
+	dv_kernel_t *kvars;
+
+	dv_trace_dumpcpuregs();
 
 	dv_kprintf("Task_Foo: started\n");
+
+	kvars = dv_get_kvars();
+	dv_kprintf(" -- kvars = 0x%08x, current_thread = 0x%08x, executable = 0x%08x\n",
+						kvars, kvars->current_thread, kvars->current_thread->executable);
+	dv_trace_dumpregs(kvars->current_thread->executable->name, kvars->current_thread->regs);
 
 	rv = dv_create_exe(&task_bar_cfg);
 
@@ -171,12 +216,41 @@ void Task_Foo(void)
 				now = dv_readtime();
 			} while ( (now - then) < 1000000 );
 
-			dv_kprintf("Time: 0x%08x%08x cmp = 0x%08x int = %d\n",
-				(dv_u32_t)(now / 0x100000000), (dv_u32_t)(now % 0x100000000),
-				dv_getcmp(CMP), m = dv_getmatch(CMP));
+			if ( dv_consoledriver.isrx() )
+			{
+				char c;
+				dv_kprintf("Time: 0x%08x%08x cmp = 0x%08x int = %d, char = %c\n",
+					(dv_u32_t)(now / 0x100000000), (dv_u32_t)(now % 0x100000000),
+					dv_getcmp(CMP), m = dv_getmatch(CMP), c = dv_consoledriver.getc());
+
+				if ( c == 'x' )
+				{
+					/* Enable timer interrupt */
+					dv_arm_bcm2835_interruptcontroller.irq_enable[0] = DV_INT_SYST_CM1;
+					dv_kprintf(" -- kvars = 0x%08x, current_thread = 0x%08x, executable = 0x%08x\n",
+										kvars, kvars->current_thread, kvars->current_thread->executable);
+#if 0
+					dv_trace_dumpregs(kvars->current_thread->executable->name, kvars->current_thread->regs);
+#endif
+				}
+			}
+			else
+			{
+				dv_kprintf("Time: 0x%08x%08x cmp = 0x%08x int = %d, uart = 0x%08x, 0x%02x\n",
+					(dv_u32_t)(now / 0x100000000), (dv_u32_t)(now % 0x100000000),
+					dv_getcmp(CMP), m = dv_getmatch(CMP), dv_arm_bcm2835_uart.stat, dv_arm_bcm2835_uart.cntl);
+			}
 #if 1
 			if ( m )
 			{
+#if 0
+				dv_trace_dumpcpuregs();
+#endif
+				dv_kprintf(" -- kvars = 0x%08x, current_thread = 0x%08x, executable = 0x%08x\n",
+									kvars, kvars->current_thread, kvars->current_thread->executable);
+#if 0
+				dv_trace_dumpregs(kvars->current_thread->executable->name, kvars->current_thread->regs);
+#endif
 				dv_setcmp(CMP, dv_getcmp(CMP) + 10000000);
 				dv_clrmatch(CMP);
 			}

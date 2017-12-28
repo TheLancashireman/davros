@@ -22,6 +22,7 @@
 #include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-syscall.h>
+#include <kernel/h/dv-trace.h>
 #include <kernel/h/dv-coverage.h>
 
 /* Todo: move the register dump function to cpu-specific and call it here.
@@ -39,21 +40,15 @@ DV_COVDEF(sys_null);
 #if DV_DEBUG
 void dv_sys_null(dv_kernel_t *kvars, dv_index_t sci)
 {
-	dv_registers_t *r;
-	int i;
 	dv_kprintf("dv_sys_null() on core %d, sci = %d\n", kvars->core_index, sci);
 
-	r = kvars->current_thread->regs;
-
-	for ( i=0; i<13; i++ )
-	{
-		dv_kprintf("r%-2d  = 0x%08x\n", i, r->gpr[i]);
-	}
-	dv_kprintf("pc   = 0x%08x\n", r->pc);
-	dv_kprintf("cpsr = 0x%08x\n", r->cpsr);
-	dv_kprintf("sp   = 0x%08x\n", r->sp);
-	dv_kprintf("lr   = 0x%08x\n", r->lr);
+	dv_kprintf(" -- kvars = 0x%08x, current_thread = 0x%08x, executable = 0x%08x\n",
+						kvars, kvars->current_thread, kvars->current_thread->executable);
+	dv_trace_dumpregs(kvars->current_thread->executable->name, kvars->current_thread->regs);
 }
+
+
+
 #else
 void dv_sys_null(dv_kernel_t *unused_kvars, dv_index_t unused_sci)
 {

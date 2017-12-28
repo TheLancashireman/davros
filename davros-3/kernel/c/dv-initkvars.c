@@ -31,6 +31,9 @@ DV_COVDEF(initkvars);
 */
 void dv_init_kvars(dv_kernel_t *kvars, const dv_coreconfig_t * ccfg)
 {
+	dv_kprintf("dv_init_kvars(): kvars = 0x%08x, ccfg = 0x%08x\n", kvars, ccfg);
+	dv_kprintf("dv_init_kvars(): kernel_sp = 0x%08x\n", ccfg->kernelstacktop);
+
 	kvars->current_thread = DV_NULL;
 	kvars->kernel_sp = ccfg->kernelstacktop;
 	kvars->core_index = ccfg->core_index;

@@ -20,10 +20,8 @@
 #include <kernel/h/dv-kconfig.h>
 #include <kernel/h/dv-types.h>
 #include <kernel/h/dv-coreconfig.h>
+#include <cpufamily/arm/h/dv-arm-vectors.h>
 #include <kernel/h/dv-coverage.h>
-
-extern unsigned dv_vectortable;
-extern unsigned dv_vectortable_end;
 
 DV_COVDEF(init_vectors);
 
@@ -36,11 +34,7 @@ DV_COVDEF(init_vectors);
 */
 void dv_init_vectors(void)
 {
-	unsigned *s = &dv_vectortable;
-	unsigned *d = dv_vector_location;
-
-	while ( s < &dv_vectortable_end )
-		*d++ = *s++;
+	((dv_arm_vectors_t *)dv_vector_location)[0] = dv_vectortable;
 }
 
 /* man-page-generation - to be defined
