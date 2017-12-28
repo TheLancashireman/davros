@@ -49,7 +49,7 @@ dv_trap_irq:
 	add		r4, r2, #DV_OFFSET_regs_gpr8				/* &kvars->current_thread->regs->gpr[8] */
 	stmia	r4, {r8-r12}								/* save r8-r12 in regs structure */
 	str		r0, [r2, #DV_OFFSET_regs_cpsr]
-	str		lr, [r2, #DV_OFFSET_regs_pc]				/* No adjustment of return address for irq */
+	str		r1, [r2, #DV_OFFSET_regs_pc]
 	add		r4, r2, #DV_OFFSET_regs_sp
 	stmia	r4, {sp,lr}^								/* save banked sp/lr */
 
