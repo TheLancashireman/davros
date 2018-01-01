@@ -41,8 +41,6 @@ void dv_sys_sleep(dv_kernel_t *kvars, dv_index_t sci)
 	dv_errorid_t e = dv_eid_UnknownError;
 	dv_executable_t *exe;
 
-	dv_kprintf("dv_sys_sleep() on core %d, sci = %u, sleep_time = %d\n", kvars->core_index, sci, (unsigned)p0);
-
 	exe = kvars->current_thread->executable;
 
 	if ( exe->dll_element == DV_NULL )

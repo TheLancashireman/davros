@@ -43,7 +43,7 @@ void dv_arm_bcm2835_timerinterrupt(dv_kernel_t *kvars, dv_address_t param)
 	int chan = (int)param;
 	dv_u64_t next;
 
-	dv_kprintf("dv_arm_bcm2835_timerinterrupt(): param = %d\n", chan);
+	DV_DBG(dv_kprintf("dv_arm_bcm2835_timerinterrupt(): param = %d\n", chan));
 
 	dv_clrmatch(chan);
 

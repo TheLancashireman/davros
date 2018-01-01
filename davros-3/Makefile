@@ -32,6 +32,7 @@ DV_GNU_D	?=	/data1/gnu/gcc-linaro-6.3.1-2017.02-x86_64_arm-eabi
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-vectors.$(DV_O)
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-c0.$(DV_O)
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-dummy.$(DV_O)
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-prj-trace.$(DV_O)
 
 # Include the board's file lists
 include $(DV_BOARD_D)/make/dv-board-list.make

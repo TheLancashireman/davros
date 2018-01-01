@@ -37,10 +37,8 @@ DV_COVDEF(create_executable);
 static dv_boolean_t dv_is_free_exe(dv_index_t i, const void *tbl)
 {
 	const dv_executable_t *exe_tbl = tbl;
-	dv_kprintf("dv_is_free_exe(): name = 0x%x\n", exe_tbl[i].name);
 	if ( exe_tbl[i].name == DV_NULL )
 		return 1;
-	dv_kprintf("dv_is_free_exe(): name = %10s\n", exe_tbl[i].name);
 	return 0;
 }
 

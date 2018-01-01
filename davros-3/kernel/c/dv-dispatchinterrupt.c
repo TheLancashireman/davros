@@ -63,7 +63,7 @@ void dv_init_softvector(void)
 		dv_attach_irq(i, dv_unknown_interrupt, i);
 }
 
-#if 0
+#if 0	/* This function isn't always needed. ToDo: proper selection */
 /* dv_dispatch_interrupt() - dispatch an interrupt
  *
  * Select a function from a table using the supplied interrupt id, and call it.
@@ -82,9 +82,12 @@ void dv_init_softvector(void)
 */
 void dv_dispatch_interrupt(dv_kernel_t *kvars, unsigned iid)
 {
-	dv_kprintf("dv_dispatch_interrupt: called ion core %d with vector %d\n", kvars->core_index, iid);
+	DV_DBG(dv_kprintf("dv_dispatch_interrupt: called ion core %d with vector %d\n", kvars->core_index, iid));
 	(*dv_softvector[iid].handler)(kvars, dv_softvector[iid].parameter);
-	dv_resume_thread(kvars, kvars->current_thread);
+
+	/* If the interrupt handler didn't dispatch then just return to the interrupted thread.
+	*/
+	dv_return_to_thread(kvars, kvars->current_thread);
 }
 #endif
 

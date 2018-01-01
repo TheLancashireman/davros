@@ -85,25 +85,33 @@ const bcm2835_irq_t bcm2835_irq_list[dv_n_iid] =
 #endif
 };
 
+static const dv_u32_t known_irq[3] =
+{
+	DV_INT_SYST_CM1 | DV_INT_SYST_CM3 | DV_INT_AUX,
+	DV_INT_I2CSPI_SLV | DV_INT_PWA0 | DV_INT_PWA1 | DV_INT_SMI |
+		DV_INT_GPIO0 | DV_INT_GPIO1 | DV_INT_GPIO2 | DV_INT_GPIO3 |
+		DV_INT_I2C | DV_INT_SPI | DV_INT_PCM | DV_INT_UART,
+	DV_INT_TIMER | DV_INT_MAILBOX | DV_INT_DOORBELL0 | DV_INT_DOORBELL1 |
+		DV_INT_GPU0HALT | DV_INT_GPU1HALT | DV_INT_ILLEGAL0 | DV_INT_ILLEGAL1
+};
+
 void dv_irq_handler(dv_kernel_t *kvars)
 {
 	dv_u32_t pend[3];	/* 2 = basic, 0 = IRQ0, 1 = IRQ1. This order makes enable/disable easier. */
 	int i, idx;
 	dv_u32_t mask;
 
+	/* Only consider the IRQs that are documented. There are others that appear to be used
+ 	 * by the GPU. At least one (basic_irq 0x100) seems to follow the CM1 IRQ :-?
+	*/
 	pend[0] = dv_arm_bcm2835_interruptcontroller.irq_pending[0];
 	pend[1] = dv_arm_bcm2835_interruptcontroller.irq_pending[1];
 	pend[2] = dv_arm_bcm2835_interruptcontroller.basic_pending;
 
-	dv_kprintf("dv_irq_handler() called\n");
-#if 0
-	dv_kprintf(" -- kvars = 0x%08x, current_thread = 0x%08x, executable = 0x%08x\n",
-						kvars, kvars->current_thread, kvars->current_thread->executable);
-	dv_trace_dumpregs(kvars->current_thread->executable->name, kvars->current_thread->regs);
-#endif
-	dv_kprintf(" -- pend[0] = 0x%08x\n", pend[0]);
-	dv_kprintf(" -- pend[1] = 0x%08x\n", pend[1]);
-	dv_kprintf(" -- pend[2] = 0x%08x\n", pend[2]);
+	DV_DBG(dv_kprintf("dv_irq_handler() called\n"));
+	DV_DBG(dv_kprintf(" -- pend[0] = 0x%08x\n", pend[0]));
+	DV_DBG(dv_kprintf(" -- pend[1] = 0x%08x\n", pend[1]));
+	DV_DBG(dv_kprintf(" -- pend[2] = 0x%08x\n", pend[2]));
 
 	/* Disable all the interrupts that are pending */
 	dv_arm_bcm2835_interruptcontroller.irq_disable[0] = pend[0];
@@ -125,6 +133,9 @@ void dv_irq_handler(dv_kernel_t *kvars)
 
 	/* Report unknown interrupts.
 	*/
+	pend[0] &= known_irq[0];
+	pend[1] &= known_irq[1];
+	pend[2] &= known_irq[2];
 	if ( (pend[0] | pend[1] | pend[2]) != 0)
 	{
 		dv_kprintf("dv_irq_handler() - unknown interrupts: 0x%08x, 0x%08x, 0x%08x\n", pend[0], pend[1], pend[2]);

@@ -51,7 +51,7 @@ struct dv_arm_bcm2835_interruptcontroller_s
 
 #define dv_arm_bcm2835_interruptcontroller	((dv_arm_bcm2835_interruptcontroller_t *)0x2000b200)[0]
 
-static inline void dv_arm_bcm2835_intctrl_init(void)
+static inline void dv_init_interrupt_controller(void)
 {
 	/* Disable all interrupt sources, including those used by the GPU.
 	*/

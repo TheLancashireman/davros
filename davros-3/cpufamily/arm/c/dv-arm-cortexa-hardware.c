@@ -32,7 +32,7 @@
 */
 void dv_init_hardware(dv_kernel_t *kvars)
 {
-	dv_kprintf("dv_init_hardware()\n");
+	dv_kprintf("dv_init_hardware() called\n");
 
 	dv_init_interrupt_controller();
 }
@@ -46,6 +46,28 @@ void dv_init_peripherals(dv_kernel_t *kvars)
 	dv_kprintf("dv_init_peripherals()\n");
 
 	dv_init_system_timer(kvars);
+
+/* The stuff below here will have to be moved to a cortex-a file eventually
+*/
+#if 0	/* Multi-core */
+	dv_arm_globaltimer_t *gt;
+
+	dv_attach_irq(DV_IID_SGI0, dv_xcore_interrupt, 0);
+
+	for ( i = DV_IID_SGI15+1; i < DV_IID_GTIMER ; i++ )
+		dv_attach_irq(i, dv_unknown_interrupt, i);
+#endif
+
+#if 0
+	/* Set up the globaltimer and its interrupt handling
+	*/
+	gt = dv_get_config_base(DV_GTIMER_OFFSET);
+	gt->status = DV_GT_IRQ;
+	gt->ctrl = (DV_GT_IEN | DV_GT_CEN | DV_GT_TEN);
+	dv_attach_irq(DV_IID_GTIMER, dv_gtimer_interrupt, 0);
+	dv_config_irq(DV_IID_GTIMER, kvars->core_index, DV_LEVEL_GTIMER);
+	dv_enable_irq(DV_IID_GTIMER);
+#endif
 }
 
 /* man-page-generation - to be defined

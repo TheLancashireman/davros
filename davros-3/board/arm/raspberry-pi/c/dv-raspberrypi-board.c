@@ -38,21 +38,10 @@ void dv_board_start(int core_index)
 	dv_arm_bcm2835_uart_init(115200, 8, 0);
 	dv_arm_bcm2835_uart_console();
 
+	dv_kprintf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 	dv_kprintf("********************************************************************************\n");
 	dv_kprintf("Davros starting on Raspberry Pi\n");
 	dv_kprintf("********************************************************************************\n");
-
-#if 0
-	dv_kprintf("dv_memset32(0x%08x, %u, %u)\n",
-		(dv_u32_t)&__c0_bss_begin,
-		0,
-		((dv_address_t)&__c0_bss_end - (dv_address_t)&__c0_bss_begin + sizeof(dv_u32_t) - 1) / sizeof(dv_u32_t));
-
-	dv_memset32(&__c0_bss_begin, 0,
-		((dv_address_t)&__c0_bss_end - (dv_address_t)&__c0_bss_begin + sizeof(dv_u32_t) - 1) / sizeof(dv_u32_t));
-
-	dv_arm_bcm2835_uart_console();
-#endif
 
 	dv_start(core_index);
 }

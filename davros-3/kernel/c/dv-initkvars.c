@@ -23,6 +23,7 @@
 #include <kernel/h/dv-coreconfig.h>
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-doublylinkedlist.h>
+#include <kernel/h/dv-stdio.h>
 #include <kernel/h/dv-error.h>
 
 DV_COVDEF(initkvars);
@@ -32,7 +33,14 @@ DV_COVDEF(initkvars);
 void dv_init_kvars(dv_kernel_t *kvars, const dv_coreconfig_t * ccfg)
 {
 	dv_kprintf("dv_init_kvars(): kvars = 0x%08x, ccfg = 0x%08x\n", kvars, ccfg);
-	dv_kprintf("dv_init_kvars(): kernel_sp = 0x%08x\n", ccfg->kernelstacktop);
+	dv_kprintf("  -- kernel_sp = 0x%08x\n", ccfg->kernelstacktop);
+	dv_kprintf("  -- Configuration\n");
+	dv_kprintf("     -- %d executables\n",		ccfg->n_executables);
+	dv_kprintf("     -- %d threads\n",			ccfg->n_threads);
+	dv_kprintf("     -- %d register stores\n",	ccfg->n_registers);
+	dv_kprintf("     -- %d event stores\n",		ccfg->n_events);
+	dv_kprintf("     -- %d list elements\n",	ccfg->n_dll_elements);
+	dv_kprintf("     -- %d pages\n",			ccfg->n_pages);
 
 	kvars->current_thread = DV_NULL;
 	kvars->kernel_sp = ccfg->kernelstacktop;

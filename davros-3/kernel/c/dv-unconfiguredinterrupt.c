@@ -22,6 +22,7 @@
 #include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-interrupt.h>
 #include <kernel/h/dv-error.h>
+#include <kernel/h/dv-stdio.h>
 #include <kernel/h/dv-coverage.h>
 
 /* dv_unconfigured_interrupt() - handler for unconfigured interrupts
