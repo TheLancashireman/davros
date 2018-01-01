@@ -40,6 +40,7 @@ DV_KLIST_S	+= dv-saveregs
 DV_ULIST_S	+= dv-exit
 DV_ULIST_S	+= dv-nullsc
 DV_ULIST_S	+= dv-sleep
+DV_ULIST_S	+= dv-sleepuntil
 DV_ULIST_S	+= dv-spawn
 DV_ULIST_S	+= dv-createexe
 DV_ULIST_S	+= dv-getkvars

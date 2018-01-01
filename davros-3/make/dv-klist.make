@@ -46,6 +46,7 @@ DV_KLIST_C	+=	dv-sysdrop
 DV_KLIST_C	+=	dv-sysexit
 DV_KLIST_C	+=	dv-sysnull
 DV_KLIST_C	+=	dv-syssleep
+DV_KLIST_C	+=	dv-syssleepuntil
 DV_KLIST_C	+=	dv-sysspawn
 DV_KLIST_C	+=	dv-sysunknown
 DV_KLIST_C	+=	dv-sysyield

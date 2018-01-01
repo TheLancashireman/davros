@@ -40,8 +40,9 @@
 #define DV_SC_event_get			14
 #define DV_SC_event_clear		15
 #define DV_SC_sleep				16
+#define DV_SC_sleep_until		17
 
-#define DV_N_SYSCALL			17
+#define DV_N_SYSCALL			18
 
 #if !DV_ASM
 
@@ -64,28 +65,30 @@ enum dv_sc_e
 	dv_sc_event_get			= DV_SC_event_get,
 	dv_sc_event_clear		= DV_SC_event_clear,
 	dv_sc_sleep				= DV_SC_sleep,
+	dv_sc_sleep_until		= DV_SC_sleep_until,
 	dv_sc_n_syscall
 };
 
 #define DV_SYSCALLTABLE \
-/*  0 */	{ dv_sys_null,			"dv_sys_null"			},	\
-/*  1 */	{ dv_sys_exit,			"dv_sys_exit"			},	\
-/*  2 */	{ dv_sys_yield,			"dv_sys_yield"			},	\
-/*  3 */	{ dv_sys_create_exe,	"dv_sys_create_exe"		},	\
-/*  4 */	{ dv_sys_spawn,			"dv_sys_spawn"			},	\
-/*  5 */	{ dv_sys_spawn,			"dv_sys_spawn"			},	\
-/*  6 */	{ dv_sys_chain,			"dv_sys_chain"			},	\
-/*  7 */	{ dv_sys_acquire,		"dv_sys_acquire"		},	\
-/*  8 */	{ dv_sys_drop,			"dv_sys_drop"			},	\
-/*  9 */	{ dv_sys_event_wait,	"dv_sys_event_wait"		},	\
-/* 10 */	{ dv_sys_event_wgc,		"dv_sys_event_wgc"		},	\
-/* 11 */	{ dv_sys_event_wgc_all,	"dv_sys_event_wgc_all"	},	\
-/* 12 */	{ dv_sys_event_set,		"dv_sys_event_set"		},	\
-/* 13 */	{ dv_sys_event_set,		"dv_sys_event_set"		},	\
-/* 14 */	{ dv_sys_event_get,		"dv_sys_event_get"		},	\
-/* 15 */	{ dv_sys_event_clear,	"dv_sys_event_clear"	},	\
-/* 16 */	{ dv_sys_sleep,			"dv_sys_sleep"			},	\
-/* 17 */	{ dv_sys_unknown,		"dv_sys_unknown"		}
+/*  0 */	{ dv_sys_null,			"dv_sys_null"				},	\
+/*  1 */	{ dv_sys_exit,			"dv_sys_exit"				},	\
+/*  2 */	{ dv_sys_yield,			"dv_sys_yield"				},	\
+/*  3 */	{ dv_sys_create_exe,	"dv_sys_create_exe"			},	\
+/*  4 */	{ dv_sys_spawn,			"dv_sys_spawn"				},	\
+/*  5 */	{ dv_sys_spawn,			"dv_sys_spawn_async"		},	\
+/*  6 */	{ dv_sys_chain,			"dv_sys_chain"				},	\
+/*  7 */	{ dv_sys_acquire,		"dv_sys_acquire"			},	\
+/*  8 */	{ dv_sys_drop,			"dv_sys_drop"				},	\
+/*  9 */	{ dv_sys_event_wait,	"dv_sys_event_wait"			},	\
+/* 10 */	{ dv_sys_event_wgc,		"dv_sys_event_wgc"			},	\
+/* 11 */	{ dv_sys_event_wgc_all,	"dv_sys_event_wgc_all"		},	\
+/* 12 */	{ dv_sys_event_set,		"dv_sys_event_set"			},	\
+/* 13 */	{ dv_sys_event_set,		"dv_sys_event_set_async"	},	\
+/* 14 */	{ dv_sys_event_get,		"dv_sys_event_get"			},	\
+/* 15 */	{ dv_sys_event_clear,	"dv_sys_event_clear"		},	\
+/* 16 */	{ dv_sys_sleep,			"dv_sys_sleep"				},	\
+/* 17 */	{ dv_sys_sleep_until,	"dv_sys_sleep_until"		},	\
+/* 18 */	{ dv_sys_unknown,		"dv_sys_unknown"			}
 
 typedef enum dv_sc_t dv_sc_e;
 
@@ -126,6 +129,7 @@ void dv_sys_event_clear(dv_kernel_t *, dv_index_t);
 #define dv_sys_event_clear		dv_sys_unknown
 #endif
 void dv_sys_sleep(dv_kernel_t *, dv_index_t);
+void dv_sys_sleep_until(dv_kernel_t *, dv_index_t);
 
 void dv_sys_unknown(dv_kernel_t *, dv_index_t);
 

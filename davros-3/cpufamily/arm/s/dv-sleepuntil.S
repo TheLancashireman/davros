@@ -1,4 +1,4 @@
-/*	dv-api.h - API header file for davros
+/*	dv-sleepuntil.S - ARM "sleep until" system call
  *
  *	Copyright 2017 David Haworth
  *
@@ -17,23 +17,12 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef dv_api_h
-#define dv_api_h	1
+#include <kernel/h/dv-asm.h>
+#include <kernel/h/dv-syscall.h>
 
-#if !DV_ASM
+	.globl	dv_sleep_until
+	.text
 
-#include <kernel/h/dv-kconfig.h>
-#include <kernel/h/dv-types.h>
-#include <kernel/h/dv-kernel-types.h>
-#include <kernel/h/dv-error.h>
-
-void dv_nullsc(dv_machineword_t, dv_machineword_t, dv_machineword_t, dv_machineword_t);
-void dv_exit(dv_machineword_t, dv_machineword_t);
-dv_errorid_t dv_spawn(dv_index_t);
-dv_dual_t dv_create_exe(const dv_execonfig_t *);
-dv_errorid_t dv_sleep(dv_u32_t);
-dv_errorid_t dv_sleep_until(dv_u64_t);
-
-#endif
-
-#endif
+dv_sleep_until:
+	swi		#DV_SC_sleep_until
+	bx		lr

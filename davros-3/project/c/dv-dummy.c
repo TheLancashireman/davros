@@ -23,11 +23,13 @@
 */
 dv_index_t task_foo;
 dv_index_t task_bar;
+dv_index_t task_qxx;
 
 /* Task configurations
 */
 void Task_Foo(void);
 void Task_Bar(void);
+void Task_Qxx(void);
 const dv_execonfig_t task_foo_cfg =
 {   "task_foo",
 	Task_Foo,		
@@ -44,7 +46,16 @@ const dv_execonfig_t task_bar_cfg =
 	200,		/* Stacksize (words) */
 	1,			/* Priority */
 	1,			/* Max instances */
-	DV_EXEFLAG_BLOCKING			/* Flags */
+	DV_EXEFLAG_BLOCKING	/* Flags */
+};
+const dv_execonfig_t task_qxx_cfg =
+{   "task_qxx",
+	Task_Qxx,		
+	0,			/* Core */
+	200,		/* Stacksize (words) */
+	2,			/* Priority */
+	1,			/* Max instances */
+	DV_EXEFLAG_BLOCKING	/* Flags */
 };
 
 void dv_trap_unimplemented(void)
@@ -130,6 +141,21 @@ void Task_Foo(void)
 		dv_kprintf("Task_Foo: dv_create_exe() returned error %d (rv1 = 0x%08x)\n", rv.rv0, rv.rv1);
 	}
 
+	rv = dv_create_exe(&task_qxx_cfg);
+
+	if ( rv.rv0 == dv_eid_None )
+	{
+		task_qxx = (dv_index_t)rv.rv1;
+
+		dv_kprintf("Task_Foo: created task_qxx, id = %d\n", task_qxx);
+		e = dv_spawn(task_qxx);
+		dv_kprintf("Task_Foo: dv_spawn(task_qxx) returned %d\n", e);
+	}
+	else
+	{
+		dv_kprintf("Task_Foo: dv_create_exe() returned error %d (rv1 = 0x%08x)\n", rv.rv0, rv.rv1);
+	}
+
 	dv_u64_t then = 0;
 	dv_u64_t now = 0;
 
@@ -169,6 +195,22 @@ void Task_Bar(void)
 		dv_sleep(1000000);
 		bar_count++;
 		dv_kprintf("Task_Bar: woken up %d\n", bar_count);
+	}
+}
+
+void Task_Qxx(void)
+{
+	int qxx_count = 0;
+	dv_kprintf("Task_Qxx: started\n");
+
+	dv_u64_t next = dv_readtime();
+	for (;;)
+	{
+		next += 1000000;
+		dv_kprintf("Task_Qxx: sleeping\n");
+		dv_sleep_until(next);
+		qxx_count++;
+		dv_kprintf("Task_Qxx: woken up %d\n", qxx_count);
 	}
 }
 
