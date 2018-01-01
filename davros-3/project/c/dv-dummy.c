@@ -165,7 +165,6 @@ void prj_startup(dv_kernel_t *kvars)
 
 void Task_Foo(void)
 {
-	int i;
 	dv_errorid_t e;
 	dv_dual_t rv;
 	dv_kernel_t *kvars;
@@ -186,11 +185,8 @@ void Task_Foo(void)
 		task_bar = (dv_index_t)rv.rv1;
 
 		dv_kprintf("Task_Foo: created task_bar, id = %d\n", task_bar);
-		for ( i = 0; i < 5; i++ )
-		{
-			e = dv_spawn(task_bar);
-			dv_kprintf("Task_Foo: dv_spawn(task_bar) (%d) returned %d\n", i, e);
-		}
+		e = dv_spawn(task_bar);
+		dv_kprintf("Task_Foo: dv_spawn(task_bar) returned %d\n", e);
 	}
 	else
 	{
@@ -202,14 +198,9 @@ void Task_Foo(void)
 		dv_u64_t then = 0;
 		dv_u64_t now = 0;
 		int m;
-#if 0
-		dv_setcmp(CMP, (dv_readtime() & 0xffffffff) + 10000000);
-		dv_clrmatch(CMP);
-#endif
 
 		for  (;;)
 		{
-#if 1
 			then = now;
 
 			do {
@@ -222,18 +213,6 @@ void Task_Foo(void)
 				dv_kprintf("Time: 0x%08x%08x cmp = 0x%08x int = %d, char = %c\n",
 					(dv_u32_t)(now / 0x100000000), (dv_u32_t)(now % 0x100000000),
 					dv_getcmp(CMP), m = dv_getmatch(CMP), c = dv_consoledriver.getc());
-#if 0
-				if ( c == 'x' )
-				{
-					/* Enable timer interrupt */
-					dv_arm_bcm2835_interruptcontroller.irq_enable[0] = DV_INT_SYST_CM1;
-					dv_kprintf(" -- kvars = 0x%08x, current_thread = 0x%08x, executable = 0x%08x\n",
-										kvars, kvars->current_thread, kvars->current_thread->executable);
-#if 0
-					dv_trace_dumpregs(kvars->current_thread->executable->name, kvars->current_thread->regs);
-#endif
-				}
-#endif
 			}
 			else
 			{
@@ -242,38 +221,16 @@ void Task_Foo(void)
 					dv_getcmp(CMP), m = dv_getmatch(CMP), dv_arm_bcm2835_uart.stat, dv_arm_bcm2835_uart.cntl,
 					dv_arm_bcm2835_interruptcontroller.basic_pending);
 			}
-#if 0
-			if ( m )
-			{
-#if 0
-				dv_trace_dumpcpuregs();
-#endif
-				dv_kprintf(" -- kvars = 0x%08x, current_thread = 0x%08x, executable = 0x%08x\n",
-									kvars, kvars->current_thread, kvars->current_thread->executable);
-#if 0
-				dv_trace_dumpregs(kvars->current_thread->executable->name, kvars->current_thread->regs);
-#endif
-				dv_setcmp(CMP, dv_getcmp(CMP) + 10000000);
-				dv_clrmatch(CMP);
-			}
-#endif
-#else
-			now = dv_readtime();
-			dv_kprintf("Time: 0x%08x%08x\n", (dv_u32_t)(now / 0x100000000), (dv_u32_t)(now % 0x100000000));
-#endif
 		}
 	}
 }
 
-int bar_count = 0;
-
 void Task_Bar(void)
 {
+	int bar_count = 0;
 	dv_kprintf("Task_Bar: started\n");
-	bar_count++;
-	dv_kprintf("Task_Bar: spawned %d times\n", bar_count);
 
-	while ( bar_count >= 5 )
+	for (;;)
 	{
 		dv_kprintf("Task_Bar: sleeping\n");
 		dv_sleep(1000000);

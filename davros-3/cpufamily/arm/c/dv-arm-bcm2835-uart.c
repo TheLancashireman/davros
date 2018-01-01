@@ -31,7 +31,7 @@ static int dv_arm_bcm2835_uart_isrx(void);
 
 void dv_arm_bcm2835_uart_init(dv_u32_t baud, dv_u32_t bits, dv_u32_t parity)
 {
-	if ( baud == 115200 &&			/* ToDo: Other bauds */
+	if ( baud == 115200 &&			/* ToDo: Other bitrates */
 		 (bits == 7 || bits == 8) &&
 		 (parity == 0 ) )
 	{
@@ -41,7 +41,7 @@ void dv_arm_bcm2835_uart_init(dv_u32_t baud, dv_u32_t bits, dv_u32_t parity)
 		dv_arm_bcm2835_uart.ier = 0;		/* Interrupts disabled */
 		dv_arm_bcm2835_uart.lcr = (bits==7 ? DV_LCR_7bit : DV_LCR_8bit);
 		dv_arm_bcm2835_uart.mcr = 0;		/* RTS high (not used) */
-		dv_arm_bcm2835_uart.baud = 270;	/* 115200 */
+		dv_arm_bcm2835_uart.baud = 270;		/* 115200 */
 
 		dv_arm_bcm2835_gpio_pinconfig(14, DV_pinfunc_alt5, DV_pinpull_none);	/* Transmit pin gpio14 */
 		dv_arm_bcm2835_gpio_pinconfig(15, DV_pinfunc_alt5, DV_pinpull_none);	/* Receive pin gpio15 */

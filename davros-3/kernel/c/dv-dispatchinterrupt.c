@@ -78,7 +78,7 @@ void dv_init_softvector(void)
  * Prerequisites:
  * 	- the iid has been forced into the range 0 to XXX by the caller.
  *
- * Todo: XXX is larger than the largest HW id because of demultiplexing.
+ * ToDo: XXX is larger than the largest HW id because of demultiplexing.
 */
 void dv_dispatch_interrupt(dv_kernel_t *kvars, unsigned iid)
 {

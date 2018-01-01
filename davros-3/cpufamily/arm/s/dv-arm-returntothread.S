@@ -1,4 +1,4 @@
-/*	dv-resume.s - ARM thread resume.
+/*	dv-arm-returntothread.s - ARM thread resumption.
  *
  *	Copyright 2017 David Haworth
  *
@@ -22,15 +22,15 @@
 #include <kernel/h/dv-thread.h>
 #include <cpufamily/arm/h/dv-arm-registers.h>
 
-	.globl	dv_resume
+	.globl	dv_arm_return_to_thread
 
 	.text
 
-/* dv_resume(dv_registers_t *r) - dispatch the thread whose register store is r
+/* dv_arm_return_to_thread(dv_registers_t *r) - dispatch the thread whose register store is r
  *
  * Parameter r in r0
 */
-dv_resume:
+dv_arm_return_to_thread:
 
 #if 0
 	/* restore FPU context */
@@ -51,10 +51,10 @@ dv_resume:
 	msr		spsr_cxsf, r1					/* spsr = r1 */
 	add		r1, r0, #DV_OFFSET_regs_sp		/* r1 = &(regs->sp) */
 	ldmia	r1, {sp, lr}^					/* { sp_usr, lr_usr } = regs->{sp, lr} */
-	ldmia	r0, {r0-r12, pc}^				/* return from exception */
+	ldmia	r0, {r0-r12, pc}^				/* Return from exception */
 
 	/* The above instruction loads the program counter so the following instruction
 	   is never reached.
 	*/
-dv_resume_stop:
-	b		dv_resume_stop
+dv_arm_return_to_thread_stop:
+	b		dv_arm_return_to_thread_stop

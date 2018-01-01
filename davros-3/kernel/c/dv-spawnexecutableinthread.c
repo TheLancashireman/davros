@@ -1,4 +1,4 @@
-/*	dv-spawnexecutableinthread.c - spawn an executable in directly in its thread.
+/*	dv-spawnexecutableinthread.c - spawn or resume an executable in directly in its thread.
  *
  *	Copyright 2017 David Haworth
  *
@@ -28,6 +28,23 @@
 
 DV_COVDEF(spawn_executable_in_thread);
 
+/* dv_resume_executable_in_thread() - resume an executable in the specified thread.
+ *
+ * Program the thread with the executable's data, then enqueue it.
+ *
+ * On entry:
+ *	- the thread is idle
+*/
+void dv_resume_executable_in_thread(dv_doublylinkedlist_t *dll, dv_executable_t *exe, dv_thread_t *thr)
+{
+	thr->executable = exe;
+	thr->parent = DV_NULL;
+	thr->state = dv_thread_new;
+	thr->regs = exe->registers;
+	dv_set_prio(thr, exe->baseprio);
+	dv_dllinsertaftersame(dll, &thr->link);
+}
+
 /* dv_spawn_executable_in_thread() - spawn an executable in the specified thread.
  *
  * Program the thread with the executable's data, then enqueue it.
@@ -37,13 +54,8 @@ DV_COVDEF(spawn_executable_in_thread);
 */
 void dv_spawn_executable_in_thread(dv_doublylinkedlist_t *dll, dv_executable_t *exe, dv_thread_t *thr)
 {
-	thr->executable = exe;
-	thr->parent = DV_NULL;
-	thr->state = dv_thread_new;
-	thr->regs = exe->registers;
-	dv_set_registers(thr->regs, exe);
-	dv_set_prio(thr, exe->baseprio);
-	dv_dllinsertaftersame(dll, &thr->link);
+	dv_set_registers(exe->registers, exe);
+	dv_resume_executable_in_thread(dll, exe, thr);
 }
 
 /* man-page-generation - to be defined

@@ -26,15 +26,17 @@
 
 #if !DV_ASM
 
-/* Thread dispatcher.
+/* Low-level thread dispatcher (assembly language)
 */
-void dv_resume(dv_registers_t *regs) __attribute__((noreturn));
+void dv_arm_return_to_thread(dv_registers_t *regs) __attribute__((noreturn));
 
-static inline void dv_resume_thread(dv_kernel_t *unused_kv, dv_thread_t *incoming) __attribute__((noreturn));
-static inline void dv_resume_thread(dv_kernel_t *unused_kv, dv_thread_t *incoming)
+/* Hardware-independent interface to low-level thread dispatcher.
+*/
+static inline void dv_return_to_thread(dv_kernel_t *unused_kv, dv_thread_t *incoming) __attribute__((noreturn));
+static inline void dv_return_to_thread(dv_kernel_t *unused_kv, dv_thread_t *incoming)
 {
-	/* Todo: interrupt lock level */
-	dv_resume(incoming->regs);
+	/* ToDo: interrupt lock level */
+	dv_arm_return_to_thread(incoming->regs);
 }
 
 #endif

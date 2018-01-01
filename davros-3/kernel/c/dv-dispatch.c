@@ -39,7 +39,7 @@ static inline dv_thread_t *dv_select_most_eligible(kvars)
 
 static inline void dv_set_exectimer(dv_thread_t *unused_incoming)
 {
-	/* Todo: implement this */
+	/* ToDo: implement this */
 }
 
 static inline void dv_adjust_exectimer(dv_threat_t *unused_incoming)
@@ -86,7 +86,7 @@ void dv_dispatch(dv_kernel_t *kvars)
 	DV_DBG(dv_kprintf("dv_dispatch(): outgoing = %s, incoming = %s\n",
 						(outgoing == DV_NULL ? "<null>" : outgoing->executable->name), incoming->executable->name));
 
-	/* Todo: make the following an optional assertion.
+	/* ToDo: make the following an optional assertion.
 	*/
 	if ( incoming == DV_NULL )
 		dv_panic(dv_panic_threadqueueempty, "dv_dispatch", "No thread to run");
@@ -109,11 +109,11 @@ void dv_dispatch(dv_kernel_t *kvars)
 		dv_set_exectimer(incoming);
 	}
 
-	/* Todo: return and clear pending events */
+	/* ToDo: return and clear pending events */
 
 	dv_set_runprio(incoming);
 
-	dv_resume_thread(kvars, incoming);		/* Never returns */
+	dv_return_to_thread(kvars, incoming);		/* Never returns */
 }
 
 /* man-page-generation - to be defined

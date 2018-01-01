@@ -27,7 +27,7 @@
 #include <kernel/h/dv-coverage.h>
 #include <kernel/h/dv-error.h>
 
-/* Todo: job queues.
+/* ToDo: job queues.
 */
 #define dv_enqueue_job_in_jobqueue(x, y) \
 	dv_panic(dv_panic_unimplemented, "dv_spawn_executable", "jobqueue not implemented")

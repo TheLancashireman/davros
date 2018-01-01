@@ -30,7 +30,7 @@
 dv_trap_sbreak:
 	cpsid	aif			/* Disable IRQ, FIQ and async exceptions */
 
-						/* Todo: switch to kernel page table */
+						/* ToDo: switch to kernel page table */
 
 /*	Load address of current thread's registers into sp.
  *  sp = kvars->current_thread->regs->gpr[0];

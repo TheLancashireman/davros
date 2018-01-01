@@ -48,7 +48,7 @@ struct dv_registers_s
 	dv_u32_t cpsr;
 	dv_u32_t sp;
 	dv_u32_t lr;
-/* Todo: floating point registers */
+/* ToDo: floating point registers */
 	int n_exe;
 };
 
@@ -85,7 +85,7 @@ static inline dv_u32_t dv_get_p3(dv_registers_t *regs)
 static inline void dv_set_registers(dv_registers_t *regs, dv_executable_t *exe)
 {
 	regs->pc = (dv_u32_t)exe->function;
-	regs->cpsr = DV_ARM_MODE_SYS | DV_ARM_FIQ_DIS;		/* Todo: from field in exe */
+	regs->cpsr = DV_ARM_MODE_SYS | DV_ARM_FIQ_DIS;		/* ToDo: from field in exe */
 	regs->sp = (dv_u32_t)exe->initial_sp;
 	regs->lr = (dv_u32_t)dv_exit;
 }

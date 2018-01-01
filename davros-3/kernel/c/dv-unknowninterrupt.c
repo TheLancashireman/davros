@@ -38,7 +38,7 @@ void dv_unknown_interrupt(dv_kernel_t *unused_kvars, dv_address_t param)
 	char buf[12];
 	int i;
 
-	/* Todo: use a sprintf function to make a better error message.
+	/* ToDo: use a sprintf function to make a better error message.
 	*/
 	buf[0] = '0';
 	buf[1] = 'x';

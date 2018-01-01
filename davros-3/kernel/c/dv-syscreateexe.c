@@ -40,13 +40,13 @@ void dv_sys_create_exe(dv_kernel_t *kvars, dv_index_t unused_sci)
 	dv_errorid_t e = dv_eid_UnknownError;
 	dv_index_t exe;
 
-	/* Todo: pointer parameter validation. For now, just check alignment
+	/* ToDo: pointer parameter validation. For now, just check alignment
 	*/
 	if ( (p0 & 0x03) == 0 )
 	{
 		exe = dv_create_executable(kvars, (dv_execonfig_t *)p0);
 		if ( exe < 0 )
-			e = dv_eid_ExecutableCreationFailed;		/* Todo: be more specific */
+			e = dv_eid_ExecutableCreationFailed;		/* ToDo: be more specific */
 		else
 		{
 			e = dv_eid_None;

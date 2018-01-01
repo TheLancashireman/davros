@@ -89,14 +89,14 @@ dv_index_t dv_create_executable(dv_kernel_t *kvars, const dv_execonfig_t *execfg
 		exe->thread = dv_allocate_thread(kvars, exe);
 		if ( exe->thread == DV_NULL )
 		{
-			/* Todo: better error handling */
+			/* ToDo: better error handling */
 			dv_panic(dv_panic_objectsearchfailed, "dv_create_executable", "no thread available");
 		}
 
 		exe->registers = dv_allocate_registers(kvars, exe);
 		if ( exe->registers == DV_NULL )
 		{
-			/* Todo: better error handling */
+			/* ToDo: better error handling */
 			dv_panic(dv_panic_objectsearchfailed, "dv_create_executable", "no registers available");
 		}
 
@@ -105,7 +105,7 @@ dv_index_t dv_create_executable(dv_kernel_t *kvars, const dv_execonfig_t *execfg
 			exe->events = dv_allocate_eventstatus(kvars);
 			if ( exe->events == DV_NULL )
 			{
-				/* Todo: better error handling */
+				/* ToDo: better error handling */
 				dv_panic(dv_panic_objectsearchfailed, "dv_create_executable", "no eventstatus available");
 			}
 		}
@@ -115,7 +115,7 @@ dv_index_t dv_create_executable(dv_kernel_t *kvars, const dv_execonfig_t *execfg
 			exe->dll_element = dv_allocate_dllelement(kvars);
 			if ( exe->dll_element == DV_NULL )
 			{
-				/* Todo: better error handling */
+				/* ToDo: better error handling */
 				dv_panic(dv_panic_objectsearchfailed, "dv_create_executable", "no dll_element available");
 			}
 		}
@@ -123,7 +123,7 @@ dv_index_t dv_create_executable(dv_kernel_t *kvars, const dv_execonfig_t *execfg
 		exe->stackpage = dv_allocate_stack(kvars, exe);
 		if ( exe->stackpage == DV_NULL )
 		{
-			/* Todo: better error handling */
+			/* ToDo: better error handling */
 			dv_panic(dv_panic_objectsearchfailed, "dv_create_executable", "no stack available");
 		}
 		exe->initial_sp = &exe->stackpage->page->words[exe->n_stack - DV_STACKEXTRA];

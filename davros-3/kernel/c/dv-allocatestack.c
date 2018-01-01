@@ -53,7 +53,7 @@ dv_mempage_t *dv_allocate_stack(dv_kernel_t *kvars, const dv_executable_t *exe)
 	int n_pge;
 
 	/* Ensure that no executable needs more than a page of stack.
-	 * Todo: for executables that need more than a page we'll have to do some spanning....
+	 * ToDo: for executables that need more than a page we'll have to do some spanning....
 	*/
 	if ( (exe->n_stack * sizeof(dv_stackword_t)) > (DV_MEM_PAGESIZE - DV_MEM_GAP) )
 		dv_panic(dv_panic_unimplemented, "dv_allocate_stack", "executable stack bigger than a page");

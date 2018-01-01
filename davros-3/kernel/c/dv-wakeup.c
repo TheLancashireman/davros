@@ -26,7 +26,7 @@
 #include DV_H_SYSTEMTIMER
 #include <kernel/h/dv-coverage.h>
 
-/* Todo: job queues.
+/* ToDo: job queues.
 */
 #define dv_enqueue_job_in_jobqueue(x, y) \
 	dv_panic(dv_panic_unimplemented, "dv_wakeup", "jobqueue not implemented")
@@ -51,7 +51,7 @@ dv_u64_t dv_wakeup(dv_kernel_t *kvars)
 		{
 			/* Sleep queue is empty
 			*/
-			return now + 1000000;		/* ToDo: use a macro for 1 second */
+			return now + 1000000;		/* ToDo: use a constant for 1 second */
 		}
 
 		if ( first->key.u64_key <= (now + DV_MIN_SLEEP) )
@@ -65,7 +65,7 @@ dv_u64_t dv_wakeup(dv_kernel_t *kvars)
 				exe->state = dv_exe_active;
 				exe->dll_element->key.u64_key = 0;
 				if ( exe->thread->state == dv_thread_idle )
-					dv_spawn_executable_in_thread(&kvars->thread_queue, exe, exe->thread);
+					dv_resume_executable_in_thread(&kvars->thread_queue, exe, exe->thread);
 				else
 					dv_enqueue_job_in_jobqueue(exe->thread, exe);
 				break;

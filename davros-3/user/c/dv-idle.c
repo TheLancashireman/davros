@@ -21,7 +21,7 @@
 #include <kernel/h/dv-types.h>
 #include <kernel/h/dv-coverage.h>
 
-/* Todo: temporary, use kernel printf.
+/* ToDo: temporary, use kernel printf.
 */
 #include <kernel/h/dv-stdio.h>
 #define dv_uprintf	dv_kprintf

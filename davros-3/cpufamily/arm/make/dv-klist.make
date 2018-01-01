@@ -20,15 +20,15 @@
 # DV_KLIST_C is a list of all the C source files that are in the kernel library.
 # Without the .c suffix.
 DV_KLIST_C	+= dv-initvectors
-DV_KLIST_C	+= dv-gic
-DV_KLIST_C	+= dv-gtimer
+#DV_KLIST_C	+= dv-gic
+#DV_KLIST_C	+= dv-gtimer
 DV_KLIST_C	+= dv-inithardware
 
 # DV_KLIST_S is a list of all the assembler source files that are in the kernel library.
 # Without the .s suffix.
 DV_KLIST_S	+= dv-vectors
 DV_KLIST_S	+= dv-reset
-DV_KLIST_S	+= dv-resume
+DV_KLIST_S	+= dv-arm-returntothread
 DV_KLIST_S	+= dv-setkvars
 DV_KLIST_S	+= dv-sbreak
 DV_KLIST_S	+= dv-irq

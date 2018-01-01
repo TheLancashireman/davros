@@ -32,7 +32,7 @@ static inline void *dv_get_config_base(unsigned offset)
 #endif
 
 /* These offsets are correct for  Cortex A9.
- * Todo: Other ARMS might be different. If so, move to derivative header.
+ * ToDo: Other ARMS might be different. If so, move to derivative header.
 */
 #define DV_GTIMER_OFFSET	0x0200
 #define DV_GICC_OFFSET		0x0100
