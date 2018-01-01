@@ -8,6 +8,8 @@
 #include DV_H_REGISTERS
 #include <kernel/h/dv-error.h>
 
+#if DV_TRACE
+
 const char *tstates[dv_thread_nstates] = { DV_THREADSTATES };
 
 void dv_saveregs(dv_registers_t *r);
@@ -48,3 +50,4 @@ void dv_trace_dumpcpuregs(void)
 	dv_saveregs(&r);
 	dv_trace_dumpregs("Current registers", &r);
 }
+#endif
