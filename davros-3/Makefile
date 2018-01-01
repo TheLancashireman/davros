@@ -37,6 +37,7 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/dv-prj-trace.$(DV_O)
 # Include the board's file lists
 include $(DV_BOARD_D)/make/dv-board-list.make
 
+#CC_OPT		+= -O2
 LD_OPT		+= -e dv_trap_reset
 LD_OPT		+= -T $(DV_BOARD_D)/ldscript/pi-zero.ldscript
 
