@@ -26,6 +26,7 @@
 #include <kernel/h/dv-doublylinkedlist.h>
 #include DV_H_REGISTERS
 #include DV_H_SYSTEMTIMER
+#include <kernel/h/dv-stdio.h>
 #include <kernel/h/dv-coverage.h>
 
 DV_COVDEF(sys_sleep);
@@ -63,6 +64,10 @@ void dv_sys_sleep(dv_kernel_t *kvars, dv_index_t sci)
 			*/
 			dv_set_system_timer_alarm(t);
 		}
+	}
+	else
+	{
+		e = dv_eid_TimeInThePast;
 	}
 
 	dv_set_rv0(kvars->current_thread->regs, e);
