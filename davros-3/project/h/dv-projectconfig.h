@@ -27,6 +27,7 @@
 #define DV_C0_N_THREADS			20
 #define DV_C0_N_REGISTERS		20
 #define DV_C0_N_EVENTSTATUS		5
+#define DV_C0_N_DLLELEMENT		5
 
 #define DV_C0_N_PAGES			20
 

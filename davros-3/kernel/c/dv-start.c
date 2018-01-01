@@ -25,8 +25,9 @@
 #include <kernel/h/dv-doublylinkedlist.h>
 #include <kernel/h/dv-error.h>
 #include <kernel/h/dv-executable.h>
+#include <kernel/h/dv-interrupt.h>
 #include <kernel/h/dv-stdio.h>
-#include DV_START
+#include DV_H_START
 
 DV_COVDEF(start);
 
@@ -55,6 +56,8 @@ void dv_start(dv_index_t ci)
 	*/
 	dv_kprintf("dv_init_vectors()\n");
 	dv_init_vectors();
+	dv_kprintf("dv_init_softvector()\n");
+	dv_init_softvector();
 
 	/* Initialise the peripherals that davros uses.
 	*/

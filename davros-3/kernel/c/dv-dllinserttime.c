@@ -1,6 +1,6 @@
-/*	dv-dllinit.c - initialise a doubly linked list
+/*	dv-dllinserttime.c - insert an element into a time queue
  *
- *	Copyright 2015 David Haworth
+ *	Copyright 2017 David Haworth
  *
  *	This file is part of davros.
  *
@@ -21,38 +21,33 @@
 #include <kernel/h/dv-types.h>
 #include <kernel/h/dv-doublylinkedlist.h>
 #include <kernel/h/dv-coverage.h>
-#include <kernel/h/dv-error.h>
 
-DV_COVDEF(dllinit);
+#define DV_COVNAME	dllinserttime
+DV_COVDEF(dllinserttime);
 
-/* dv_dllinit() - initialise a doubly-linked list
+/* dv_dllinserttime() - insert an element into a time queue.
+ *
+ * The element is inserted after all others of the same or earlier time
+ * but before those of later time.
+ *
+ * Returns TRUE if the element was inserted at the head of the list.
 */
-void dv_dllinit(dv_doublylinkedlist_t *list, dv_dlltype_t type)
+dv_boolean_t dv_dllinserttime(dv_doublylinkedlist_t *list, dv_dllelement_t *elem)
 {
+	dv_dllelement_t *e = list->headtail.successor;
 	dv_fcov(0);
 
-	list->listtype = type;
-	list->headtail.predecessor = &list->headtail;
-	list->headtail.successor = &list->headtail;
-	list->headtail.payload = DV_NULL;
-
-	switch ( type )
+	while ( dv_ccov(1, 2, (elem->key.u64_key >= e->key.u64_key)) )
 	{
-	case dv_dll_priority:
-		dv_fcov(1);
-		list->headtail.key.i32_key = DV_DLLMINI32KEY;
-		break;
-
-	case dv_dll_time:
-		dv_fcov(2);
-		list->headtail.key.u64_key = 0xffffffffffffffff;
-		break;
-
-	default:		/* Unreachable! */
-		dv_fcov(3);
-		dv_panic(dv_panic_unknownqueuetype, "dv_dllinit", "Unknown queue type");
-		break;
+		e = e->successor;
 	}
+
+	elem->predecessor = e->predecessor;
+	elem->successor = e;
+	e->predecessor->successor = elem;
+	e->predecessor = elem;
+
+	return (elem->predecessor == &list->headtail);
 }
 
 /* man-page-generation - to be defined

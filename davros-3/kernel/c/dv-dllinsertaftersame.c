@@ -35,7 +35,7 @@ void dv_dllinsertaftersame(dv_doublylinkedlist_t *list, dv_dllelement_t *elem)
 	dv_dllelement_t *e = list->headtail.successor;
 	dv_fcov(0);
 
-	while ( dv_ccov(1, 2, (elem->key <= e->key)) )
+	while ( dv_ccov(1, 2, (elem->key.i32_key <= e->key.i32_key)) )
 	{
 		e = e->successor;
 	}

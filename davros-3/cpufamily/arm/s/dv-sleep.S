@@ -1,4 +1,4 @@
-/*	dv-interrupt.h - interrupt handling header file for davros
+/*	dv-sleep.S - ARM "sleep" system call
  *
  *	Copyright 2017 David Haworth
  *
@@ -17,31 +17,12 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef dv_interrupt_h
-#define dv_interrupt_h	1
+#include <kernel/h/dv-asm.h>
+#include <kernel/h/dv-syscall.h>
 
-#include <kernel/h/dv-kconfig.h>
-#include <kernel/h/dv-kernel-types.h>
+	.globl	dv_sleep
+	.text
 
-#if !DV_ASM
-
-typedef void (*dv_inthandler_t)(dv_kernel_t *, dv_address_t);
-
-struct dv_softvector_s
-{
-	dv_inthandler_t handler;
-	dv_address_t parameter;
-};
-
-extern dv_softvector_t dv_softvector[DV_N_SOFTVECTOR];
-
-void dv_unknown_interrupt(dv_kernel_t *, dv_address_t);
-void dv_unconfigured_interrupt(dv_kernel_t *, dv_address_t);
-
-void dv_dispatch_interrupt(dv_kernel_t *, int);
-void dv_init_softvector(void);
-void dv_attach_irq(int, dv_inthandler_t, dv_address_t);
-
-#endif
-
-#endif
+dv_sleep:
+	swi		#DV_SC_sleep
+	bx		lr

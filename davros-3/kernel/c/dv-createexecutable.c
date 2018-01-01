@@ -24,6 +24,8 @@
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-executable.h>
 #include <kernel/h/dv-thread.h>
+#include <kernel/h/dv-event.h>
+#include <kernel/h/dv-doublylinkedlist.h>
 #include <kernel/h/dv-mempage.h>
 #include <kernel/h/dv-coverage.h>
 #include <kernel/h/dv-stdio.h>
@@ -76,11 +78,12 @@ dv_index_t dv_create_executable(dv_kernel_t *kvars, const dv_execonfig_t *execfg
 		exe->maxinstances = execfg->maxinstances;
 		exe->n_stack = execfg->n_stack;
 		exe->flags = execfg->flags;
-		exe->enabled = 0;
+		exe->state = dv_exe_disabled;
 		exe->n_instances = 0;
 		exe->thread = DV_NULL;
 		exe->registers = DV_NULL;
 		exe->events = DV_NULL;
+		exe->dll_element = DV_NULL;
 		exe->stackpage = DV_NULL;
 
 		exe->thread = dv_allocate_thread(kvars, exe);
@@ -97,7 +100,25 @@ dv_index_t dv_create_executable(dv_kernel_t *kvars, const dv_execonfig_t *execfg
 			dv_panic(dv_panic_objectsearchfailed, "dv_create_executable", "no registers available");
 		}
 
-		exe->events = DV_NULL;	/* Todo */
+		if ( exe->flags & DV_EXEFLAG_EVENTS )
+		{
+			exe->events = dv_allocate_eventstatus(kvars);
+			if ( exe->events == DV_NULL )
+			{
+				/* Todo: better error handling */
+				dv_panic(dv_panic_objectsearchfailed, "dv_create_executable", "no eventstatus available");
+			}
+		}
+
+		if ( exe->flags & DV_EXEFLAG_BLOCKING )
+		{
+			exe->dll_element = dv_allocate_dllelement(kvars);
+			if ( exe->dll_element == DV_NULL )
+			{
+				/* Todo: better error handling */
+				dv_panic(dv_panic_objectsearchfailed, "dv_create_executable", "no dll_element available");
+			}
+		}
 
 		exe->stackpage = dv_allocate_stack(kvars, exe);
 		if ( exe->stackpage == DV_NULL )
@@ -109,7 +130,7 @@ dv_index_t dv_create_executable(dv_kernel_t *kvars, const dv_execonfig_t *execfg
 
 		/* If all OK, enable the new executable.
 		*/
-		exe->enabled = 1;
+		exe->state = dv_exe_idle;
 	}
 
 	return exe_i;

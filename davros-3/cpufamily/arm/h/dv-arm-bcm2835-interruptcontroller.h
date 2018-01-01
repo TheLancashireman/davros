@@ -34,6 +34,9 @@
  * There are 3 sets of 3 registers for control and status related to the IRQ signal.
  * Each set of 3 has a base IRQ register and two IRQ registers. Annoyingly, the
  * "pending" set has the registers in a different order from the other two sets. :-(
+ *
+ * Refer to the corresponding C file dv-arm-bcm2835-interruptcontroller.c for a full
+ * description of the device and the Davros driver for it.
 */
 typedef struct dv_arm_bcm2835_interruptcontroller_s dv_arm_bcm2835_interruptcontroller_t;
 
@@ -100,19 +103,79 @@ static inline void dv_arm_bcm2835_intctrl_init(void)
 #define DV_INT_PCM			0x00800000
 #define DV_INT_UART			0x02000000
 
-/* Structures for demultiplexing interrupts.
+/* Interrupt identifiers.
  *
- * There will be an array of these structures, one for each interrupt that can be used.
- * Indexes in the array will give an interrupt id.
- * The software vector table will contain a function and a parameter for each interrupt id.
+ * There are no banked interrupts, so no. of IIDs is the same as no. of software vectors.
+ *
+ * The SoC does not define any vector numbers, so we define them here.
 */
-typedef struct dv_bcm2835_intvect_s dv_bcm2835_intvect_t;
-
-struct dv_bcm2835_intvect_s
+typedef enum dv_bcd2835_softvector_e
 {
-	int regIndex;	/* -1 for basic, 0/1 for IRQ */
-	dv_u32_t mask;	/* Mask for the bit in the pending/enable/disable registers */
-};
+	/* IRQ0	*/
+	dv_iid_syst_cm1,
+	dv_iid_syst_cm3,
+	dv_iid_aux,
+#if 0
+	/* IRQ1 */
+	dv_iid_i2cspi_slv,
+	dv_iid_pwa0,
+	dv_iid_pwa1,
+	dv_iid_smi,
+	dv_iid_gpio0,
+	dv_iid_gpio1,
+	dv_iid_gpio2,
+	dv_iid_gpio3,
+	dv_iid_i2c,
+	dv_iid_spi,
+	dv_iid_pcm,
+	dv_iid_uart,
+#endif
+#if 0
+	/* Basic */
+	dv_iid_timer,
+	dv_iid_mailbox,
+	dv_iid_doorbell0,
+	dv_iid_doorbell1,
+	dv_iid_gpu0halt,
+	dv_iid_gpu1halt,
+	dv_iid_illegal0,
+	dv_iid_illegal1,
+#endif
+	dv_n_iid				/* Must be last */
+} dv_bcd2835_softvector_t;
+
+typedef struct bcm2835_irq_s
+{
+	int idx;
+	dv_u32_t mask;
+} bcm2835_irq_t;
+
+extern const bcm2835_irq_t bcm2835_irq_list[dv_n_iid];
+
+static inline void dv_config_irq(int unused_index, int unused_core, int unused_prio)
+{
+	/* Nothing to do.
+	*/
+}
+
+static inline void dv_enable_irq(int index)
+{
+	dv_arm_bcm2835_interruptcontroller.irq_enable[bcm2835_irq_list[index].idx] = bcm2835_irq_list[index].mask;
+}
+
+static inline void dv_disable_irq(int index)
+{
+	dv_arm_bcm2835_interruptcontroller.irq_disable[bcm2835_irq_list[index].idx] = bcm2835_irq_list[index].mask;
+}
+
+static inline void dv_set_level(int lvl)
+{
+	/* Nothing to do.
+	*/
+}
+
+
+
 
 #endif
 

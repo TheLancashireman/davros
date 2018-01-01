@@ -30,8 +30,11 @@
  * Unconfigured interrupts are those that have hardware to trigger them but should
  * not occur because they are not in use.
 */
-void dv_unconfigured_interrupt(dv_kernel_t *unused_kvars, unsigned vec)
+void dv_unconfigured_interrupt(dv_kernel_t *unused_kvars, dv_address_t param)
 {
+#if 1
+	dv_kprintf("dv_unconfigured_interrupt() - 0x%08x\n", (unsigned)param);
+#else
 	char buf[12];
 	int i;
 
@@ -51,6 +54,7 @@ void dv_unconfigured_interrupt(dv_kernel_t *unused_kvars, unsigned vec)
 	}
 
 	dv_panic(dv_panic_hardwareerror, "dv_unconfigured_interrupt", buf);
+#endif
 }
 
 /* man-page-generation - to be defined

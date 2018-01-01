@@ -23,7 +23,7 @@
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-syscall.h>
 #include <kernel/h/dv-executable.h>
-#include DV_REGISTERS
+#include DV_H_REGISTERS
 #include <kernel/h/dv-coreconfig.h>
 #include <kernel/h/dv-coverage.h>
 #include <kernel/h/dv-stdio.h>

@@ -41,13 +41,55 @@
  * After processing all the known IRQs, if there are any left they are reported as unknown
  * and disabled.
  *
- * At the end of an ISR, the physical interrupt source gets enabled again unless
- * the configured source has been disabled.
+ * bcm2835_irq_list[] is a table of all the interrupt sources that can be used.
+ * The index in this list gives the vector number of the IRQ.
+ * The list is minimal at the moment but can be extended later.
+ *
+ * Interrupts are handled by calling the function from the corresponding
+ * entry in the software vector table. The standard interrupt dispatcher cannot be used because
+ * it is designed to handle a single interrupt, whereas we must handle every interrupt that's
+ * pending. Before calling the handler the source is disabled. This means that if the handler
+ * must re-enable the interrupt if it has been completely handled within the kernel. If the
+ * handler spawns an "ISR" thread, the kernel must re-enable the interrupt source
+ * when the ISR terminates.
 */
+
+const bcm2835_irq_t bcm2835_irq_list[dv_n_iid] =
+{
+	[dv_iid_syst_cm1]	= {	0,	DV_INT_SYST_CM1		},
+	[dv_iid_syst_cm3]	= {	0,	DV_INT_SYST_CM3		},
+	[dv_iid_aux]		= {	0,	DV_INT_AUX			},
+#if 0
+	[dv_iid_i2cspi_slv]	= {	1,	DV_INT_I2CSPI_SLV	},
+	[dv_iid_pwa0]		= {	1,	DV_INT_PWA0			},
+	[dv_iid_pwa1]		= {	1,	DV_INT_PWA1			},
+	[dv_iid_smi]		= {	1,	DV_INT_SMI			},
+	[dv_iid_gpio0]		= {	1,	DV_INT_GPIO0		},
+	[dv_iid_gpio1]		= {	1,	DV_INT_GPIO1		},
+	[dv_iid_gpio2]		= {	1,	DV_INT_GPIO2		},
+	[dv_iid_gpio3]		= {	1,	DV_INT_GPIO3		},
+	[dv_iid_i2c]		= {	1,	DV_INT_I2C			},
+	[dv_iid_spi]		= {	1,	DV_INT_SPI			},
+	[dv_iid_pcm]		= {	1,	DV_INT_PCM			},
+	[dv_iid_uart]		= {	1,	DV_INT_UART			},
+#endif
+#if 0
+	[dv_iid_timer]		= {	2,	DV_INT_TIMER		},
+	[dv_iid_mailbox]	= {	2,	DV_INT_MAILBOX		},
+	[dv_iid_doorbell0]	= {	2,	DV_INT_DOORBELL0	},
+	[dv_iid_doorbell1]	= {	2,	DV_INT_DOORBELL1	},
+	[dv_iid_gpu0halt]	= {	2,	DV_INT_GPU0HALT		},
+	[dv_iid_gpu1halt]	= {	2,	DV_INT_GPU1HALT		},
+	[dv_iid_illegal0]	= {	2,	DV_INT_ILLEGAL0		},
+	[dv_iid_illegal1]	= {	2,	DV_INT_ILLEGAL1		},
+#endif
+};
+
 void dv_irq_handler(dv_kernel_t *kvars)
 {
 	dv_u32_t pend[3];	/* 2 = basic, 0 = IRQ0, 1 = IRQ1. This order makes enable/disable easier. */
-	int i;
+	int i, idx;
+	dv_u32_t mask;
 
 	pend[0] = dv_arm_bcm2835_interruptcontroller.irq_pending[0];
 	pend[1] = dv_arm_bcm2835_interruptcontroller.irq_pending[1];
@@ -68,28 +110,27 @@ void dv_irq_handler(dv_kernel_t *kvars)
 	dv_arm_bcm2835_interruptcontroller.irq_disable[1] = pend[1];
 	dv_arm_bcm2835_interruptcontroller.irq_disable[2] = pend[2];
 
-#if 0
 	/* Loop over all interrupt sources. Clear and handle the configured sources.
 	*/
-	for ( i = 0; i < dv_n_softvector; i++ )
+	for ( i = 0; i < DV_N_SOFTVECTOR; i++ )
 	{
-		idx =  dv_softvector[i].cpu.irqidx;
-		mask = dv_softvector[i].cpu.irqmask;
+		idx =  bcm2835_irq_list[i].idx;
+		mask = bcm2835_irq_list[i].mask;
 		if ( pend[idx] & mask )
 		{
 			pend[idx] &= ~mask;
-			(*dv_softvector[i].handler)(dv_softvector[i].parameter);
+			(*dv_softvector[i].handler)(kvars, dv_softvector[i].parameter);
 		}
 	}
 
-	/* Report unknown interrupts and disable them.
+	/* Report unknown interrupts.
 	*/
 	if ( (pend[0] | pend[1] | pend[2]) != 0)
 	{
+		dv_kprintf("dv_irq_handler() - unknown interrupts: 0x%08x, 0x%08x, 0x%08x\n", pend[0], pend[1], pend[2]);
 	}
-#endif
 
-	dv_resume_thread(kvars, kvars->current_thread);
+	dv_dispatch(kvars);
 }
 
 /* man-page-generation - to be defined

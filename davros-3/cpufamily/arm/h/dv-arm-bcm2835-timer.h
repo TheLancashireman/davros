@@ -42,8 +42,9 @@ static inline dv_u64_t dv_readtime(void)
 {
 	dv_u32_t u1, u2, l;
 
+	u2 = dv_arm_bcm2835_timer.chi;
 	do {
-		u1 = dv_arm_bcm2835_timer.chi;
+		u1 = u2;
 		l = dv_arm_bcm2835_timer.clo;
 		u2 = dv_arm_bcm2835_timer.chi;
 	} while ( u1 != u2 );
@@ -71,6 +72,10 @@ static inline void dv_clrmatch(int i)
 	dv_arm_bcm2835_timer.cs = (1<<i);
 }
 
+void dv_arm_bcm2835_timerinterrupt(dv_kernel_t *kvars, dv_address_t param);
+void dv_init_system_timer(dv_kernel_t *kvars);
+void dv_set_system_timer_alarm(dv_u64_t);
+
 /* Bits in cs register. 1 means "matched".
  * Write 1 to clear.
 */
@@ -78,5 +83,10 @@ static inline void dv_clrmatch(int i)
 #define DV_CS_M1	0x02
 #define DV_CS_M2	0x04
 #define DV_CS_M3	0x08
+
+/* Minimum sleep time. Any time difference less than this is considered zero
+ * for the purpose of the sleep queue.
+*/
+#define DV_MIN_SLEEP	10
 
 #endif

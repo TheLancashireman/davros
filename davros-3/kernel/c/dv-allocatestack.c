@@ -60,7 +60,7 @@ dv_mempage_t *dv_allocate_stack(dv_kernel_t *kvars, const dv_executable_t *exe)
 
 	/* Can only share stack if the executable is non-blocking.
 	*/
-	if ( (exe->flags & DV_EXEFLAG_BLOCKING) == 0 )
+	if ( (exe->flags & (DV_EXEFLAG_EVENTS | DV_EXEFLAG_BLOCKING)) == 0 )
 	{
 		/* Search all the executables to find a stack to share.
 		 * Cannot share with a blocking executable.

@@ -23,7 +23,7 @@
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-thread.h>
 #include <kernel/h/dv-trace.h>
-#include DV_DISPATCH
+#include DV_H_DISPATCH
 
 DV_COVDEF(dispatch);
 

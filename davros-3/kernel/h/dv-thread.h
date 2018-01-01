@@ -25,10 +25,10 @@
 #include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-doublylinkedlist.h>
 #include <kernel/h/dv-executable.h>
-#include DV_REGISTERS
+#include DV_H_REGISTERS
 
-#define DV_MIN_PRIORITY		(DV_DLLMINKEY+1)
-#define DV_MAX_PRIORITY		(0x7fffffff)
+#define DV_MIN_PRIORITY		(DV_DLLMINI32KEY+1)
+#define DV_MAX_PRIORITY		(2147483647)
 
 #if !DV_ASM
 
@@ -73,24 +73,24 @@ struct dv_thread_s
 */
 static inline void dv_set_runprio(dv_thread_t *thr)
 {
-	if ( thr->link.key < thr->executable->runprio )
+	if ( thr->link.key.i32_key < thr->executable->runprio )
 	{
-		thr->link.key = thr->executable->runprio;
+		thr->link.key.i32_key = thr->executable->runprio;
 	}
 }
 
 /* dv_get_prio() - get a thread's priority
 */
-static inline dv_dllkey_t dv_get_prio(dv_thread_t *thr)
+static inline dv_i32_t dv_get_prio(dv_thread_t *thr)
 {
-	return (thr->link.key);
+	return (thr->link.key.i32_key);
 }
 
 /* dv_set_prio() - set a thread's priority
 */
-static inline void dv_set_prio(dv_thread_t *thr, dv_dllkey_t p)
+static inline void dv_set_prio(dv_thread_t *thr, dv_i32_t p)
 {
-	thr->link.key = p;
+	thr->link.key.i32_key = p;
 }
 
 void dv_return_from_main(dv_machineword_t, dv_machineword_t);

@@ -35,19 +35,19 @@ DV_COVDEF(sys_exit);
 void dv_sys_exit(dv_kernel_t *kvars, dv_index_t unused_sci)
 {
 	dv_thread_t *thr = kvars->current_thread;
-	dv_executable_t *exe = thr->executable;
 
 #if 0
 	/* We'll need some stuff from the thread for later. The thread will either be idle or
 	 * hold a different executable (or a different instance of the same executable) after
 	 * dv_kill_executable_in_thread()
 	*/
-	dv_dllkey_t prio = dv_get_prio(thr);
+	dv_executable_t *exe = thr->executable;
+	dv_i32_t prio = dv_get_prio(thr);
 	dv_machineword_t p0 = dv_get_p0(thr->regs);
 	dv_machineword_t p1 = dv_get_p1(thr->regs);
 #endif
 
-	dv_kill_executable_in_thread(kvars, thr, exe);
+	dv_kill_executable_in_thread(kvars, thr);
 
 #if 0
 	if ( exe->exitfunc != DV_NULL )

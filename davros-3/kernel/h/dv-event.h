@@ -28,7 +28,10 @@ struct dv_eventstatus_s
 {
 	dv_u64_t pending_events;
 	dv_u64_t awaited_events;
+	dv_boolean_t allocated;
 };
+
+dv_eventstatus_t *dv_allocate_eventstatus(dv_kernel_t *kvars);
 
 #define DV_NO_EVENTS	0LL
 

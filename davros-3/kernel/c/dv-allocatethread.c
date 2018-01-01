@@ -75,6 +75,7 @@ dv_thread_t *dv_allocate_thread(dv_kernel_t *kvars, const dv_executable_t *exe)
 		return DV_NULL;
 
 	thr_tbl[thr_i].n_exe = 1;
+	thr_tbl[thr_i].link.payload_type = dv_dll_thread;
 	thr_tbl[thr_i].link.payload = &thr_tbl[thr_i];
 
 	return &thr_tbl[thr_i];

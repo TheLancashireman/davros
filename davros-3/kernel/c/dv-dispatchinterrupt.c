@@ -23,7 +23,7 @@
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-interrupt.h>
 #include <kernel/h/dv-coverage.h>
-#include DV_DISPATCH
+#include DV_H_DISPATCH
 
 DV_COVDEF(dv_dispatch_interrupt);
 
@@ -63,6 +63,7 @@ void dv_init_softvector(void)
 		dv_attach_irq(i, dv_unknown_interrupt, i);
 }
 
+#if 0
 /* dv_dispatch_interrupt() - dispatch an interrupt
  *
  * Select a function from a table using the supplied interrupt id, and call it.
@@ -85,6 +86,7 @@ void dv_dispatch_interrupt(dv_kernel_t *kvars, unsigned iid)
 	(*dv_softvector[iid].handler)(kvars, dv_softvector[iid].parameter);
 	dv_resume_thread(kvars, kvars->current_thread);
 }
+#endif
 
 /* man-page-generation - to be defined
 */

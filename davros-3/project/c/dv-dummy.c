@@ -8,7 +8,7 @@
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-trace.h>
 #include <kernel/h/dv-coreconfig.h>
-#include DV_REGISTERS
+#include DV_H_REGISTERS
 #include <kernel/h/dv-api.h>
 #include <kernel/h/dv-error.h>
 
@@ -50,7 +50,7 @@ const dv_execonfig_t task_bar_cfg =
 	200,		/* Stacksize (words) */
 	1,			/* Priority */
 	1,			/* Max instances */
-	0			/* Flags */
+	DV_EXEFLAG_BLOCKING			/* Flags */
 };
 
 void dv_saveregs(dv_registers_t *r);
@@ -168,7 +168,6 @@ void Task_Foo(void)
 	int i;
 	dv_errorid_t e;
 	dv_dual_t rv;
-	dv_u64_t t;
 	dv_kernel_t *kvars;
 
 	dv_trace_dumpcpuregs();
@@ -203,9 +202,10 @@ void Task_Foo(void)
 		dv_u64_t then = 0;
 		dv_u64_t now = 0;
 		int m;
-
+#if 0
 		dv_setcmp(CMP, (dv_readtime() & 0xffffffff) + 10000000);
 		dv_clrmatch(CMP);
+#endif
 
 		for  (;;)
 		{
@@ -222,7 +222,7 @@ void Task_Foo(void)
 				dv_kprintf("Time: 0x%08x%08x cmp = 0x%08x int = %d, char = %c\n",
 					(dv_u32_t)(now / 0x100000000), (dv_u32_t)(now % 0x100000000),
 					dv_getcmp(CMP), m = dv_getmatch(CMP), c = dv_consoledriver.getc());
-
+#if 0
 				if ( c == 'x' )
 				{
 					/* Enable timer interrupt */
@@ -233,14 +233,16 @@ void Task_Foo(void)
 					dv_trace_dumpregs(kvars->current_thread->executable->name, kvars->current_thread->regs);
 #endif
 				}
+#endif
 			}
 			else
 			{
-				dv_kprintf("Time: 0x%08x%08x cmp = 0x%08x int = %d, uart = 0x%08x, 0x%02x\n",
+				dv_kprintf("Time: 0x%08x%08x cmp = 0x%08x int = %d, uart = 0x%08x, 0x%02x, 0x%08x\n",
 					(dv_u32_t)(now / 0x100000000), (dv_u32_t)(now % 0x100000000),
-					dv_getcmp(CMP), m = dv_getmatch(CMP), dv_arm_bcm2835_uart.stat, dv_arm_bcm2835_uart.cntl);
+					dv_getcmp(CMP), m = dv_getmatch(CMP), dv_arm_bcm2835_uart.stat, dv_arm_bcm2835_uart.cntl,
+					dv_arm_bcm2835_interruptcontroller.basic_pending);
 			}
-#if 1
+#if 0
 			if ( m )
 			{
 #if 0
@@ -269,7 +271,15 @@ void Task_Bar(void)
 {
 	dv_kprintf("Task_Bar: started\n");
 	bar_count++;
-	dv_kprintf("Task_Bar: executed %d times\n", bar_count);
+	dv_kprintf("Task_Bar: spawned %d times\n", bar_count);
+
+	while ( bar_count >= 5 )
+	{
+		dv_kprintf("Task_Bar: sleeping\n");
+		dv_sleep(1000000);
+		bar_count++;
+		dv_kprintf("Task_Bar: woken up %d\n", bar_count);
+	}
 }
 
 #if 0

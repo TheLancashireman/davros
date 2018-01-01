@@ -1,4 +1,4 @@
-/*	dv-sysspawn.c - spawn system call for davros
+/*	dv-syssleep.c - sleep system call for davros
  *
  *	Copyright 2017 David Haworth
  *
@@ -21,46 +21,49 @@
 #include <kernel/h/dv-types.h>
 #include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-kernel.h>
-#include <kernel/h/dv-syscall.h>
 #include <kernel/h/dv-executable.h>
+#include <kernel/h/dv-thread.h>
+#include <kernel/h/dv-doublylinkedlist.h>
 #include DV_H_REGISTERS
-#include <kernel/h/dv-coreconfig.h>
+#include DV_H_SYSTEMTIMER
 #include <kernel/h/dv-coverage.h>
-#include <kernel/h/dv-stdio.h>
 
-DV_COVDEF(sys_spawn);
+DV_COVDEF(sys_sleep);
 
-/* dv_sys_spawn() - spawn an executable
+/* dv_sys_sleep() - put a task to sleep
  *
- * This function implements the kernel side of the spawn and spawn_async system calls.
+ * This function implements the kernel side of the sleep system call.
+ * The calling executable is placed into a sleeping state and woken up again after n ticks of the system timer.
 */
-void dv_sys_spawn(dv_kernel_t *kvars, dv_index_t unused_sci)
+void dv_sys_sleep(dv_kernel_t *kvars, dv_index_t sci)
 {
 	dv_machineword_t p0 = dv_get_p0(kvars->current_thread->regs);
-	dv_executable_t *exe_tbl = dv_coreconfigs[kvars->core_index]->executables;
-	dv_index_t exe_i = (dv_index_t)p0;
-	dv_executable_t *exe;
 	dv_errorid_t e = dv_eid_UnknownError;
-	
-	DV_DBG(dv_kprintf("dv_sys_spawn(): exe_i = %d\n", exe_i));
-	if ( exe_i < 0 || exe_i >= dv_coreconfigs[kvars->core_index]->n_executables )
+	dv_executable_t *exe;
+
+	dv_kprintf("dv_sys_sleep() on core %d, sci = %u, sleep_time = %d\n", kvars->core_index, sci, (unsigned)p0);
+
+	exe = kvars->current_thread->executable;
+
+	if ( exe->dll_element == DV_NULL )
 	{
-		e = dv_eid_IndexOutOfRange;
-		DV_DBG(dv_kprintf("dv_sys_spawn(): e = %d (IndexOutOfRange)\n", e));
+		e = dv_eid_ExecutableIsNonBlocking;
+		DV_DBG(dv_kprintf("dv_sys_sleep(): e = %d (ExecutableIsNonBlocking)\n", e));
 	}
 	else
+	if ( p0 >= DV_MIN_SLEEP )
 	{
-		exe = &exe_tbl[exe_i];
+		e = dv_eid_None;
+		dv_remove_executable_from_thread(kvars, kvars->current_thread);
+		exe->state = dv_exe_sleep;
 
-		if ( exe->name == DV_NULL )
+		dv_u64_t t = exe->dll_element->key.u64_key = dv_readtime() + p0;
+
+		if ( dv_dllinserttime(&kvars->sleep_queue, exe->dll_element) )
 		{
-			e = dv_eid_UnconfiguredExecutable;
-			DV_DBG(dv_kprintf("dv_sys_spawn(): e = %d (UnconfiguredExecutable)\n", e));
-		}
-		else
-		{
-			e = dv_spawn_executable(kvars, exe);
-			DV_DBG(dv_kprintf("dv_sys_spawn(): e = %d (returned from dv_spawn_executable())\n", e));
+			/* Inserted at queue head; need to set the timer interrupt.
+			*/
+			dv_set_system_timer_alarm(t);
 		}
 	}
 

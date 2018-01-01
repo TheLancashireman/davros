@@ -33,8 +33,4 @@
 #define DV_COMPILER_GHS		2	/* Green Hills */
 #define DV_COMPILER_WR		3	/* Wind River (diab) */
 
-/* Macros to define header file selection. DV_HEADERSEL is defined to be one of these.
-*/
-#define DV_HEADERSEL_ARM	<user/include/arm/dv-arm-headers.h>
-
 #endif

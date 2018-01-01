@@ -38,10 +38,24 @@ struct dv_execonfig_s
 	dv_function_t function;			/* The top-level function */
 	dv_index_t core;				/* The core on which this executable runs */
 	dv_quantity_t n_stack;			/* Stack requirement (no. of stackwords) */
-	dv_dllkey_t priority;			/* Configured priority */
+	dv_i32_t priority;				/* Configured priority */
 	dv_quantity_t maxinstances;		/* No. of instances (for "basic tasks") */
 	dv_u32_t flags;					/* Configuration options (see below) */
 };
+
+/* dv_exestate_t - State of an executable
+*/
+typedef enum dv_exestate_e
+{
+	dv_exe_disabled = 0,	/* Not permitted to run - might need allocations (stack, events etc.)  */
+	dv_exe_idle,			/* Idle. Must spawn to start it running */
+    dv_exe_active,			/* Occupying thread and ready to run when scheduled */
+    dv_exe_suspended,		/* Spawned but doing nothing */
+	dv_exe_sleep,			/* Sleeping */
+	dv_exe_lock_wait,		/* Waiting for a lock */
+	dv_exe_event_wait,		/* Waiting for an event */
+    dv_exe_nstates
+} dv_exestate_t;
 
 /* dv_executable_s
  *
@@ -55,32 +69,35 @@ struct dv_executable_s
 	dv_function_t function;
 	dv_thread_t *thread;
 	dv_registers_t *registers;
+	dv_dllelement_t *dll_element;	/* For sleep, locks etc. */
 	dv_eventstatus_t *events;
 	dv_mempage_t *stackpage;
 	dv_stackword_t *initial_sp;
 	dv_quantity_t n_stack;
 	dv_index_t id;
-	dv_dllkey_t baseprio;
-	dv_dllkey_t runprio;
-	dv_dllkey_t maxprio;
+	dv_i32_t baseprio;
+	dv_i32_t runprio;
+	dv_i32_t maxprio;
 	dv_quantity_t maxinstances;
 	dv_u32_t flags;
 
-	dv_boolean_t enabled;
 	dv_quantity_t n_instances;
+	dv_exestate_t state;
 };
 
 #define DV_EXEFLAG_SYNCHRONOUS		0x00000001		/* Can be activated synchronously */
 #define DV_EXEFLAG_ASYNCHRONOUS		0x00000002		/* Can be activated asynchronously */ 
 #define DV_EXEFLAG_CALL				0x00000004		/* Activations have "call" semantics */ 
 #define DV_EXEFLAG_BLOCKING			0x00000008		/* Can use "blocking" APIs */
-#define DV_EXEFLAG_EVENTS			0x00000010		/* Can use events (requires "blocking") */
+#define DV_EXEFLAG_EVENTS			0x00000010		/* Can use events */
 #define DV_EXEFLAG_AUTODESTROY		0x00000020		/* Automatically destroy on termination */
 
 dv_index_t dv_create_executable(dv_kernel_t *, const dv_execonfig_t *);
 dv_errorid_t dv_spawn_executable(dv_kernel_t *, dv_executable_t *);
 void dv_spawn_executable_in_thread(dv_doublylinkedlist_t *, dv_executable_t *, dv_thread_t *);
-void dv_kill_executable_in_thread(dv_kernel_t *, dv_thread_t *, dv_executable_t *);
+void dv_kill_executable_in_thread(dv_kernel_t *, dv_thread_t *);
+void dv_remove_executable_from_thread(dv_kernel_t *, dv_thread_t *);
+dv_u64_t dv_wakeup(dv_kernel_t *);
 
 #endif
 

@@ -23,7 +23,7 @@
 #include <kernel/h/dv-executable.h>
 #include <kernel/h/dv-thread.h>
 #include <kernel/h/dv-doublylinkedlist.h>
-#include DV_REGISTERS
+#include DV_H_REGISTERS
 #include <kernel/h/dv-coverage.h>
 
 DV_COVDEF(spawn_executable_in_thread);

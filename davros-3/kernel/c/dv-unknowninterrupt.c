@@ -30,8 +30,11 @@
  * Unknown interrupts are those that should never occur because there is no hardware to trigger them
  * or they are documented as "reserved" in the manuals.
 */
-void dv_unknown_interrupt(dv_kernel_t *unused_kvars, unsigned vec)
+void dv_unknown_interrupt(dv_kernel_t *unused_kvars, dv_address_t param)
 {
+#if 1
+	dv_kprintf("dv_unknown_interrupt() - 0x%08x\n", (unsigned)param);
+#else
 	char buf[12];
 	int i;
 
@@ -51,6 +54,7 @@ void dv_unknown_interrupt(dv_kernel_t *unused_kvars, unsigned vec)
 	}
 
 	dv_panic(dv_panic_hardwareerror, "dv_unknown_interrupt", buf);
+#endif
 }
 
 /* man-page-generation - to be defined

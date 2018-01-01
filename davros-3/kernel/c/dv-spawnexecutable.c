@@ -40,7 +40,11 @@ dv_errorid_t dv_spawn_executable(dv_kernel_t *kvars, dv_executable_t *exe)
 {
 	dv_errorid_t ecode = dv_eid_UnknownError;
 
-	if ( exe->enabled )
+	if ( exe->state == dv_exe_disabled )
+	{
+		ecode = dv_eid_ExecutableQuarantined;
+	}
+	else
 	{
 		if ( exe->n_instances < exe->maxinstances )
 		{
@@ -50,6 +54,15 @@ dv_errorid_t dv_spawn_executable(dv_kernel_t *kvars, dv_executable_t *exe)
 			{
 				exe->events->pending_events = DV_NO_EVENTS;
 				exe->events->awaited_events = DV_NO_EVENTS;
+			}
+
+			if ( exe->dll_element != DV_NULL )
+			{
+				exe->dll_element->successor = DV_NULL;
+				exe->dll_element->predecessor = DV_NULL;
+				exe->dll_element->key.u64_key = 0;
+				exe->dll_element->payload_type = dv_dll_exe;
+				exe->dll_element->payload = exe;
 			}
 
 			if ( exe->thread->state == dv_thread_idle )
@@ -63,10 +76,6 @@ dv_errorid_t dv_spawn_executable(dv_kernel_t *kvars, dv_executable_t *exe)
 		{
 			ecode = dv_eid_MaxInstancesExceeded;
 		}
-	}
-	else
-	{
-		ecode = dv_eid_ExecutableQuarantined;
 	}
 
 	return ecode;

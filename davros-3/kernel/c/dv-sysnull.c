@@ -25,10 +25,6 @@
 #include <kernel/h/dv-trace.h>
 #include <kernel/h/dv-coverage.h>
 
-/* Todo: move the register dump function to cpu-specific and call it here.
-*/
-#include DV_REGISTERS
-
 DV_COVDEF(sys_null);
 
 /* dv_sys_null() - do nothing, but in the kernel

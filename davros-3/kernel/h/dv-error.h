@@ -35,6 +35,7 @@ enum dv_errorid_e
 	dv_eid_MaxInstancesExceeded,
 	dv_eid_InvalidPointerParameter,
 	dv_eid_ExecutableCreationFailed,
+	dv_eid_ExecutableIsNonBlocking,
 
 	dv_nerrors							/* Not used as an error code */
 };

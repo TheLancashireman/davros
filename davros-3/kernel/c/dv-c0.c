@@ -27,7 +27,7 @@
 #include <kernel/h/dv-thread.h>
 #include <kernel/h/dv-event.h>
 #include <kernel/h/dv-mempage.h>
-#include DV_REGISTERS
+#include DV_H_REGISTERS
 #include <kernel/h/dv-c0.h>
 #include <kernel/h/dv-coreconfig.h>
 
@@ -67,6 +67,10 @@ dv_registers_t dv_c0_registers[DV_C0_N_REGISTERS];
 */
 dv_eventstatus_t dv_c0_eventstatus[DV_C0_N_EVENTSTATUS];
 
+/* DLL element table for blocking executables.
+*/
+dv_dllelement_t dv_c0_dllelement[DV_C0_N_DLLELEMENT];
+
 /* Page management array.
 */
 dv_mempage_t dv_c0_mempage[DV_C0_N_PAGES];
@@ -105,6 +109,7 @@ const dv_coreconfig_t dv_c0_coreconfig =
 	&dv_c0_threads[0],
 	&dv_c0_registers[0],
 	&dv_c0_eventstatus[0],
+	&dv_c0_dllelement[0],
 	&dv_c0_pages[0],
 	&dv_c0_mempage[0],
 	&dv_c0_cfg_idle,
@@ -116,6 +121,7 @@ const dv_coreconfig_t dv_c0_coreconfig =
 	DV_C0_N_THREADS,
 	DV_C0_N_REGISTERS,
 	DV_C0_N_EVENTSTATUS,
+	DV_C0_N_DLLELEMENT,
 	DV_C0_N_PAGES
 };
 

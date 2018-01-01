@@ -39,8 +39,9 @@
 #define DV_SC_event_set_async	13		/* Must be DV_SC_event_set+1 */
 #define DV_SC_event_get			14
 #define DV_SC_event_clear		15
+#define DV_SC_sleep				16
 
-#define DV_N_SYSCALL			16
+#define DV_N_SYSCALL			17
 
 #if !DV_ASM
 
@@ -62,6 +63,7 @@ enum dv_sc_e
 	dv_sc_event_set_async	= DV_SC_event_set_async,
 	dv_sc_event_get			= DV_SC_event_get,
 	dv_sc_event_clear		= DV_SC_event_clear,
+	dv_sc_sleep				= DV_SC_sleep,
 	dv_sc_n_syscall
 };
 
@@ -82,7 +84,8 @@ enum dv_sc_e
 /* 13 */	{ dv_sys_event_set,		"dv_sys_event_set"		},	\
 /* 14 */	{ dv_sys_event_get,		"dv_sys_event_get"		},	\
 /* 15 */	{ dv_sys_event_clear,	"dv_sys_event_clear"	},	\
-/* 16 */	{ dv_sys_unknown,		"dv_sys_unknown"		}
+/* 16 */	{ dv_sys_sleep,			"dv_sys_sleep"			},	\
+/* 17 */	{ dv_sys_unknown,		"dv_sys_unknown"		}
 
 typedef enum dv_sc_t dv_sc_e;
 
@@ -122,6 +125,7 @@ void dv_sys_event_clear(dv_kernel_t *, dv_index_t);
 #define dv_sys_event_get		dv_sys_unknown
 #define dv_sys_event_clear		dv_sys_unknown
 #endif
+void dv_sys_sleep(dv_kernel_t *, dv_index_t);
 
 void dv_sys_unknown(dv_kernel_t *, dv_index_t);
 

@@ -39,6 +39,7 @@ void dv_init_kvars(dv_kernel_t *kvars, const dv_coreconfig_t * ccfg)
 	kvars->core_index = ccfg->core_index;
 
 	dv_dllinit(&kvars->thread_queue, dv_dll_priority);
+	dv_dllinit(&kvars->sleep_queue, dv_dll_time);
 	kvars->panic_reason[0] = kvars->panic_reason[1] = dv_panic_none;
 
 	kvars->exe_allocator.n_free = ccfg->n_executables;
@@ -47,6 +48,10 @@ void dv_init_kvars(dv_kernel_t *kvars, const dv_coreconfig_t * ccfg)
 	kvars->thr_allocator.next = 0;
 	kvars->reg_allocator.n_free = ccfg->n_registers;
 	kvars->reg_allocator.next = 0;
+	kvars->evs_allocator.n_free = ccfg->n_events;
+	kvars->evs_allocator.next = 0;
+	kvars->dllelem_allocator.n_free = ccfg->n_dll_elements;
+	kvars->dllelem_allocator.next = 0;
 	kvars->page_allocator.n_free = ccfg->n_pages;
 	kvars->page_allocator.next = 0;
 

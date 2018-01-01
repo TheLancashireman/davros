@@ -30,7 +30,6 @@
 */
 #define DV_FAMILY		DV_ARM
 #define DV_CPU			DV_ARM1176
-#define DV_HEADERSEL	DV_HEADERSEL_ARM
 #define DV_COMPILER		DV_COMPILER_GNU
 
 /* DV_COVERAGE
@@ -39,11 +38,19 @@
 */
 #define DV_COVERAGE		0
 
-/* Still to be defined.
+/* See dv-arm-bcm2835-interruptcontroller.c for the list of supported interrupt sources.
+ * ToDo: make the table configurable.
+ *
+ * On a single-core CPU there are no banked interrupts, so the number of vectors
+ * is the same as the number of interrupts.
 */
-#define DV_N_IID			84
-#define DV_N_SOFTVECTOR		DV_N_IID		/* No demultiplexing on a single core. */
+#define DV_N_IID			3
+#define DV_N_SOFTVECTOR		DV_N_IID
 
 #include <cpufamily/arm/h/dv-arm-kconfig.h>
+
+/* Header files for BCM2835
+*/
+#define DV_H_SYSTEMTIMER	<cpufamily/arm/h/dv-arm-bcm2835-timer.h>
 
 #endif

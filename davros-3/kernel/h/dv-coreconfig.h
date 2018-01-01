@@ -33,6 +33,7 @@ struct dv_coreconfig_s
 	dv_thread_t *threads;				/* Array of threads on this core */
 	dv_registers_t *registers;			/* Array of register stores on this core */
 	dv_eventstatus_t *events;			/* Array of event status structures on this core */
+	dv_dllelement_t *dll_elements;		/* Array of dll element structures on this core */
 	dv_page_t *pages;					/* Array of pages on this core */
 	dv_mempage_t *mempage;				/* Array of management structs for pages */
 	const dv_execonfig_t *idle_cfg;		/* Idle thread configuration */
@@ -44,6 +45,7 @@ struct dv_coreconfig_s
 	dv_quantity_t n_threads;			/* No of threads in the threads array */
 	dv_quantity_t n_registers;			/* No of register stores in the registers array */
 	dv_quantity_t n_events;				/* No of event status structures in the events array */
+	dv_quantity_t n_dll_elements;		/* No of dll element structures in the dll_elements array */
 	dv_quantity_t n_pages;				/* No of pages and management structs */
 };
 

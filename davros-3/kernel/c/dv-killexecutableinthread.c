@@ -33,10 +33,20 @@ DV_COVDEF(kill_executable_in_thread);
  *
  * Kill the specified executable, which is running in the specified thread.
 */
-void dv_kill_executable_in_thread(dv_kernel_t *kvars, dv_thread_t *thr, dv_executable_t *exe)
+void dv_kill_executable_in_thread(dv_kernel_t *kvars, dv_thread_t *thr)
 {
-	exe->n_instances--;
+	thr->executable->n_instances--;
+	thr->executable->state = dv_exe_idle;		/* May be short lived - there might be a queued instance */
 
+	dv_remove_executable_from_thread(kvars, thr);
+}
+
+/* dv_remove_executable_from_thread() - remove the executable from the specified thread.
+ *
+ * Kill the specified executable, which is running in the specified thread.
+*/
+void dv_remove_executable_from_thread(dv_kernel_t *kvars, dv_thread_t *thr)
+{
 	dv_dllremove(&thr->link);
 
 	dv_trace_threadstate(thr, dv_thread_idle);

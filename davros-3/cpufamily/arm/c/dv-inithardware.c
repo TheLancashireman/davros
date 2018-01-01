@@ -28,13 +28,14 @@
 #include <cpufamily/arm/h/dv-arm-globaltimer.h>
 #else
 #include <cpufamily/arm/h/dv-arm-bcm2835-interruptcontroller.h>
+#include <cpufamily/arm/h/dv-arm-bcm2835-timer.h>
 #endif
 #include <kernel/h/dv-stdio.h>
 #include <kernel/h/dv-coverage.h>
 
 /* dv_init_hardware() - initialise the processor etc.
 */
-void dv_init_hardware(dv_kernel_t *unused_kvars)
+void dv_init_hardware(dv_kernel_t *kvars)
 {
 	dv_kprintf("dv_init_hardware() called\n");
 #if 0	/* ToDo: select interrupt controller based on hardware */
@@ -50,9 +51,12 @@ void dv_init_hardware(dv_kernel_t *unused_kvars)
 */
 void dv_init_peripherals(dv_kernel_t *kvars)
 {
-	int i;
-
 	dv_kprintf("dv_init_peripherals() called\n");
+
+	dv_init_system_timer(kvars);
+
+/* The stuff below here will have to be moved to a cortex-a file eventually
+*/
 #if 0	/* Multi-core */
 	dv_arm_globaltimer_t *gt;
 
@@ -62,10 +66,7 @@ void dv_init_peripherals(dv_kernel_t *kvars)
 		dv_attach_irq(i, dv_unknown_interrupt, i);
 #endif
 
-	/* ToDo: board function to patch the "reserved" vectors?
-	*/
-
-#if 0	/* ToDo: select timer based on hardware */
+#if 0
 	/* Set up the globaltimer and its interrupt handling
 	*/
 	gt = dv_get_config_base(DV_GTIMER_OFFSET);

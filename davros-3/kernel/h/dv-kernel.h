@@ -51,10 +51,13 @@ struct dv_kernel_s
 	dv_stackword_t *kernel_sp;
 	dv_index_t core_index;
 	dv_doublylinkedlist_t thread_queue;
+	dv_doublylinkedlist_t sleep_queue;
 	dv_panic_t panic_reason[2];
 	dv_kobjallocator_t exe_allocator;
 	dv_kobjallocator_t thr_allocator;
 	dv_kobjallocator_t reg_allocator;
+	dv_kobjallocator_t evs_allocator;
+	dv_kobjallocator_t dllelem_allocator;
 	dv_kobjallocator_t page_allocator;
 };
 

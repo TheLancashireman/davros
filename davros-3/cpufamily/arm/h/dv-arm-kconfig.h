@@ -38,9 +38,9 @@
 
 /* Include files for ARM.
 */
-#define DV_REGISTERS			<cpufamily/arm/h/dv-arm-registers.h>
-#define DV_DISPATCH				<cpufamily/arm/h/dv-arm-dispatch.h>
-#define DV_START				<cpufamily/arm/h/dv-arm-start.h>
+#define DV_H_REGISTERS		<cpufamily/arm/h/dv-arm-registers.h>
+#define DV_H_DISPATCH		<cpufamily/arm/h/dv-arm-dispatch.h>
+#define DV_H_START			<cpufamily/arm/h/dv-arm-start.h>
 
 /* Vector table location. For ARM processors that have RAM at address 0 we copy the vectors
  * there.
