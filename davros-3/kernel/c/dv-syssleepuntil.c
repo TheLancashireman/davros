@@ -44,7 +44,7 @@ void dv_sys_sleep_until(dv_kernel_t *kvars, dv_index_t sci)
 #if 1	/* 32-bit version */
 	dv_machineword_t p1 = dv_get_p1(kvars->current_thread->regs);
 	dv_u64_t t = ((dv_u64_t)p1) << 32 | (dv_u64_t)p0;
-	dv_kprintf("dv_sleep_until(0x%08x%08x)\n", p1, p0);
+	DV_DBG(dv_kprintf("dv_sleep_until(0x%08x%08x)\n", p1, p0));
 #else
 	dv_u64_t t = (dv_u64_t)p0;
 #endif
