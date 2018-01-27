@@ -26,6 +26,8 @@
 #include <kernel/h/dv-executable.h>
 #include <kernel/h/dv-thread.h>
 #include <kernel/h/dv-event.h>
+#include <kernel/h/dv-ringbuffer.h>
+#include <kernel/h/dv-doublylinkedlist.h>
 #include <kernel/h/dv-mempage.h>
 #include DV_H_REGISTERS
 #include <kernel/h/dv-c0.h>
@@ -71,6 +73,10 @@ dv_eventstatus_t dv_c0_eventstatus[DV_C0_N_EVENTSTATUS];
 */
 dv_dllelement_t dv_c0_dllelement[DV_C0_N_DLLELEMENT];
 
+/* Ring buffers for thread job queues, message queues etc.
+*/
+dv_ringbuffer_t dv_c0_ringbuffers[DV_C0_N_RINGBUFFERS];
+
 /* Page management array.
 */
 dv_mempage_t dv_c0_mempage[DV_C0_N_PAGES];
@@ -110,6 +116,7 @@ const dv_coreconfig_t dv_c0_coreconfig =
 	&dv_c0_registers[0],
 	&dv_c0_eventstatus[0],
 	&dv_c0_dllelement[0],
+	&dv_c0_ringbuffers[0],
 	&dv_c0_pages[0],
 	&dv_c0_mempage[0],
 	&dv_c0_cfg_idle,
@@ -122,6 +129,7 @@ const dv_coreconfig_t dv_c0_coreconfig =
 	DV_C0_N_REGISTERS,
 	DV_C0_N_EVENTSTATUS,
 	DV_C0_N_DLLELEMENT,
+	DV_C0_N_RINGBUFFERS,
 	DV_C0_N_PAGES
 };
 

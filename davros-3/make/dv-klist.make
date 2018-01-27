@@ -35,6 +35,7 @@ DV_KLIST_C	+=	dv-dllinsertbeforesame
 DV_KLIST_C	+=	dv-dllinserttime
 DV_KLIST_C	+=	dv-initkvars
 DV_KLIST_C	+=	dv-killexecutableinthread
+DV_KLIST_C	+=	dv-rbappendsimple
 DV_KLIST_C	+=	dv-rbremovesimple
 DV_KLIST_C	+=	dv-spawnexecutable
 DV_KLIST_C	+=	dv-spawnexecutableinthread

@@ -57,6 +57,7 @@ struct dv_kernel_s
 	dv_kobjallocator_t thr_allocator;
 	dv_kobjallocator_t reg_allocator;
 	dv_kobjallocator_t evs_allocator;
+	dv_kobjallocator_t rb_allocator;
 	dv_kobjallocator_t dllelem_allocator;
 	dv_kobjallocator_t page_allocator;
 };

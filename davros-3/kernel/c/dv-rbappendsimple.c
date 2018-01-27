@@ -1,4 +1,4 @@
-/*	dv-rbremovesimple.c - dv_rb_remove_simple()
+/*	dv-rbappendsimple.c - dv_rb_append_simple()
  *
  *	Copyright 2018 David Haworth
  *
@@ -25,51 +25,57 @@
 
 DV_COVDEF(function);
 
-/* dv_rb_remove_simple() - remove an element from a (simple local) ring buffer
+/* dv_rb_append_simple() - append an element to a (local) ring buffer
  *
- * Removes the next element from a ring buffer and places it in the space provided.
+ * appends the given element to a ring buffer
  *
  * Return value:
- *	0 - the ringbuffer is empty
+ *	0 - the ringbuffer is full
  * >0 - the number of elements copied
 */
-dv_quantity_t dv_rb_remove_simple
+dv_quantity_t dv_rb_append_simple
 (	dv_ringbuffer_t *rb,
-	void *out
+	void *in
 )
 {
+	dv_quantity_t new_index;
+
 	if ( rb->buf == DV_NULL )
 	{
-		dv_panic(dv_panic_ringbuffernotallocated, "dv_rb_remove_simple", "ringbuffer creation is incomplete");
+		dv_panic(dv_panic_ringbuffernotallocated, "dv_rb_append_simple", "ringbuffer creation is incomplete");
 	}
 
 	if ( rb->rbType != rb_simple )
 	{
-		dv_panic(dv_panic_ringbufferwrongtype, "dv_rb_remove_simple", "ringbuffer is wrong type");
+		dv_panic(dv_panic_ringbufferwrongtype, "dv_rb_append_simple", "ringbuffer is wrong type");
 	}
 
-	if ( rb->readerState_u.readerState.index == rb->writerState.index )
+	/* Calculate where the writer index woud be if we did this.
+	*/
+	new_index = dv_rb_increment(rb->writerState.index, 1, rb->length);
+
+	if ( new_index == rb->readerState_u.readerState.index )
 	{
-		return 0;	/* Buffer is empty */
+		return 0;	/* Buffer is full */
 	}
 
 	switch ( rb->size )
 	{
 	case 1:
-		*(dv_u8_t *)out = ((dv_u8_t *)(&rb->buf[0]))[rb->readerState_u.readerState.index];
+		((dv_u8_t *)(&rb->buf[0]))[rb->readerState_u.readerState.index] = *(dv_u8_t *)in;
 		break;
 	case 2:
-		*(dv_u16_t *)out = ((dv_u16_t *)(&rb->buf[0]))[rb->readerState_u.readerState.index];
+		((dv_u16_t *)(&rb->buf[0]))[rb->readerState_u.readerState.index] = *(dv_u16_t *)in;
 		break;
 	case 4:
-		*(dv_u32_t *)out = rb->buf[rb->readerState_u.readerState.index];
+		rb->buf[rb->readerState_u.readerState.index] = *(dv_u32_t *)in;
 		break;
 	default:
-		dv_panic(dv_panic_ringbufferinvalidsize, "dv_rb_remove_simple", "ringbuffer has invalid element size");
+		dv_panic(dv_panic_ringbufferinvalidsize, "dv_rb_append_simple", "ringbuffer has invalid element size");
 		break;
 	}
 
-	rb->readerState_u.readerState.index = dv_rb_increment(rb->readerState_u.readerState.index, 1, rb->length);
+	rb->writerState.index = new_index;
 
 	return 1;
 }

@@ -40,6 +40,7 @@ void dv_init_kvars(dv_kernel_t *kvars, const dv_coreconfig_t * ccfg)
 	dv_kprintf("     -- %d register stores\n",	ccfg->n_registers);
 	dv_kprintf("     -- %d event stores\n",		ccfg->n_events);
 	dv_kprintf("     -- %d list elements\n",	ccfg->n_dll_elements);
+	dv_kprintf("     -- %d ring buffers\n",		ccfg->n_ringbuffers);
 	dv_kprintf("     -- %d pages\n",			ccfg->n_pages);
 
 	kvars->current_thread = DV_NULL;
@@ -60,6 +61,8 @@ void dv_init_kvars(dv_kernel_t *kvars, const dv_coreconfig_t * ccfg)
 	kvars->evs_allocator.next = 0;
 	kvars->dllelem_allocator.n_free = ccfg->n_dll_elements;
 	kvars->dllelem_allocator.next = 0;
+	kvars->rb_allocator.n_free = ccfg->n_ringbuffers;
+	kvars->rb_allocator.next = 0;
 	kvars->page_allocator.n_free = ccfg->n_pages;
 	kvars->page_allocator.next = 0;
 
