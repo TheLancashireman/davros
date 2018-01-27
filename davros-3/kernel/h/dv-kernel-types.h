@@ -37,6 +37,8 @@ typedef struct dv_page_s dv_page_t;
 typedef struct dv_mempage_s dv_mempage_t;
 typedef struct dv_syscall_s dv_syscall_t;
 typedef struct dv_softvector_s dv_softvector_t;
+typedef struct dv_ringbuffer_s dv_ringbuffer_t;
+typedef struct dv_job_s dv_job_t;
 
 typedef void (*dv_function_t)(void);
 #endif

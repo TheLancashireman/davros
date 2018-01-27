@@ -54,6 +54,8 @@ enum dv_panic_e
 	dv_panic_threadqueueempty,
 	dv_panic_currentthreadnotqueuehead,
 	dv_panic_objectsearchfailed,
+	dv_panic_ringbufferwrongtype,
+	dv_panic_ringbufferinvalidsize,
 	dv_panic_last
 };
 
