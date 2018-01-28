@@ -45,16 +45,16 @@ dv_quantity_t dv_rb_append_simple
 		dv_panic(dv_panic_ringbuffernotallocated, "dv_rb_append_simple", "ringbuffer creation is incomplete");
 	}
 
-	if ( rb->rbType != rb_simple )
+	if ( rb->rb_type != rb_simple )
 	{
 		dv_panic(dv_panic_ringbufferwrongtype, "dv_rb_append_simple", "ringbuffer is wrong type");
 	}
 
 	/* Calculate where the writer index woud be if we did this.
 	*/
-	new_index = dv_rb_increment(rb->writerState.index, 1, rb->length);
+	new_index = dv_rb_increment(rb->writer_state.index, 1, rb->length);
 
-	if ( new_index == rb->readerState_u.readerState.index )
+	if ( new_index == rb->reader_state_u.reader_state.index )
 	{
 		return 0;	/* Buffer is full */
 	}
@@ -62,20 +62,20 @@ dv_quantity_t dv_rb_append_simple
 	switch ( rb->size )
 	{
 	case 1:
-		((dv_u8_t *)(&rb->buf[0]))[rb->readerState_u.readerState.index] = *(dv_u8_t *)in;
+		((dv_u8_t *)(&rb->buf[0]))[rb->reader_state_u.reader_state.index] = *(dv_u8_t *)in;
 		break;
 	case 2:
-		((dv_u16_t *)(&rb->buf[0]))[rb->readerState_u.readerState.index] = *(dv_u16_t *)in;
+		((dv_u16_t *)(&rb->buf[0]))[rb->reader_state_u.reader_state.index] = *(dv_u16_t *)in;
 		break;
 	case 4:
-		rb->buf[rb->readerState_u.readerState.index] = *(dv_u32_t *)in;
+		rb->buf[rb->reader_state_u.reader_state.index] = *(dv_u32_t *)in;
 		break;
 	default:
 		dv_panic(dv_panic_ringbufferinvalidsize, "dv_rb_append_simple", "ringbuffer has invalid element size");
 		break;
 	}
 
-	rb->writerState.index = new_index;
+	rb->writer_state.index = new_index;
 
 	return 1;
 }

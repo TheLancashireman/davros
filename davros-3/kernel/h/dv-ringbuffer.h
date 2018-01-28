@@ -52,7 +52,9 @@
 */
 enum dv_rbtype_e
 {
-	rb_simple = 1,		/* Simple queue - bastic types (u8, u16, u32) are added individually. */
+	rb_unused,			/* Not in use. */
+	rb_reserved,		/* Allocated but type hasn't been set yet. */
+	rb_simple,			/* Simple queue - bastic types (u8, u16, u32) are added individually. */
 	rb_complex,			/* Complex queue - variable-length entries with metadata */
 	rb_msgqueue			/* Message queue (complex, lock-free, protected) */
 };
@@ -71,13 +73,13 @@ typedef dv_rbstate_t dv_rbreaderstate_t;
 
 struct dv_ringbuffer_s
 {
-	dv_rbtype_t rbType;					/* What kind of ring buffer is this? */
-	dv_rbwriterstate_t writerState;
+	dv_rbtype_t rb_type;				/* What kind of ring buffer is this? */
+	dv_rbwriterstate_t writer_state;
 	union
 	{
-		dv_rbreaderstate_t *readerStateRef;
-		dv_rbreaderstate_t readerState;
-	} readerState_u;
+		dv_rbreaderstate_t *reader_state_ref;
+		dv_rbreaderstate_t reader_state;
+	} reader_state_u;
 	dv_quantity_t length;				/* Number of objects in the buffer */
 	dv_quantity_t size;					/* Size of each object in the buffer (in bytes) */
 	dv_u32_t *buf;						/* The buffer - contains at least (length*size) bytes */

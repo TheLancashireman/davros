@@ -23,6 +23,7 @@ DV_KLIST_C	+=	dv-allocatedllelement
 DV_KLIST_C	+=	dv-allocateeventstatus
 DV_KLIST_C	+=	dv-allocateobj
 DV_KLIST_C	+=	dv-allocateregisters
+DV_KLIST_C	+=	dv-allocateringbuffer
 DV_KLIST_C	+=	dv-allocatestack
 DV_KLIST_C	+=	dv-allocatethread
 DV_KLIST_C	+=	dv-cores
