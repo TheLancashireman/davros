@@ -31,7 +31,6 @@ typedef struct dv_execonfig_s dv_execonfig_t;
 typedef struct dv_kernel_s dv_kernel_t;
 typedef struct dv_registers_s dv_registers_t;
 typedef struct dv_thread_s dv_thread_t;
-typedef struct dv_jobqueue_s dv_jobqueue_t;
 typedef struct dv_lock_s dv_lock_t;
 typedef struct dv_page_s dv_page_t;
 typedef struct dv_mempage_s dv_mempage_t;
@@ -39,6 +38,7 @@ typedef struct dv_syscall_s dv_syscall_t;
 typedef struct dv_softvector_s dv_softvector_t;
 typedef struct dv_ringbuffer_s dv_ringbuffer_t;
 typedef struct dv_job_s dv_job_t;
+typedef struct dv_kobjallocator_s dv_kobjallocator_t;
 
 typedef void (*dv_function_t)(void);
 #endif

@@ -50,7 +50,7 @@ dv_quantity_t dv_rb_append_simple
 		dv_panic(dv_panic_ringbufferwrongtype, "dv_rb_append_simple", "ringbuffer is wrong type");
 	}
 
-	/* Calculate where the writer index woud be if we did this.
+	/* Calculate where the writer index would be if we did this.
 	*/
 	new_index = dv_rb_increment(rb->writer_state.index, 1, rb->length);
 
@@ -62,13 +62,13 @@ dv_quantity_t dv_rb_append_simple
 	switch ( rb->size )
 	{
 	case 1:
-		((dv_u8_t *)(&rb->buf[0]))[rb->reader_state_u.reader_state.index] = *(dv_u8_t *)in;
+		((dv_u8_t *)(&rb->buf[0]))[rb->writer_state.index] = *(dv_u8_t *)in;
 		break;
 	case 2:
-		((dv_u16_t *)(&rb->buf[0]))[rb->reader_state_u.reader_state.index] = *(dv_u16_t *)in;
+		((dv_u16_t *)(&rb->buf[0]))[rb->writer_state.index] = *(dv_u16_t *)in;
 		break;
 	case 4:
-		rb->buf[rb->reader_state_u.reader_state.index] = *(dv_u32_t *)in;
+		rb->buf[rb->writer_state.index] = *(dv_u32_t *)in;
 		break;
 	default:
 		dv_panic(dv_panic_ringbufferinvalidsize, "dv_rb_append_simple", "ringbuffer has invalid element size");

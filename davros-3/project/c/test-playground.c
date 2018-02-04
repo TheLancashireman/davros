@@ -22,12 +22,14 @@
 /* Task id variables
 */
 dv_index_t task_foo;
+dv_index_t task_fot;
 dv_index_t task_bar;
 dv_index_t task_qxx;
 
 /* Task configurations
 */
 void Task_Foo(void);
+void Task_Fot(void);
 void Task_Bar(void);
 void Task_Qxx(void);
 const dv_execonfig_t task_foo_cfg =
@@ -37,6 +39,15 @@ const dv_execonfig_t task_foo_cfg =
 	200,		/* Stacksize (words) */
 	0,			/* Priority */
 	1,			/* Max instances */
+	0			/* Flags */
+};
+const dv_execonfig_t task_fot_cfg =
+{   "task_fot",
+	Task_Fot,		
+	0,			/* Core */
+	200,		/* Stacksize (words) */
+	0,			/* Priority */
+	2,			/* Max instances */
 	0			/* Flags */
 };
 const dv_execonfig_t task_bar_cfg =
@@ -108,6 +119,20 @@ void prj_init(void)
 		{
 			dv_kprintf("prj_init: failed to create task_foo (%d, %d) on core %d\n", rv.rv0, rv.rv1, kvars->core_index);
 		}
+
+		rv = dv_create_exe(&task_fot_cfg);
+
+		if ( rv.rv0 == dv_eid_None )
+		{
+			dv_kprintf("prj_init: created task_fot (%d) on core %d\n", task_fot, kvars->core_index);
+			task_fot = (dv_index_t)rv.rv1;
+			e = dv_spawn(task_fot);
+			dv_kprintf("prj_init: dv_spawn(task_fot) returned %d\n", e);
+		}
+		else
+		{
+			dv_kprintf("prj_init: failed to create task_fot (%d, %d) on core %d\n", rv.rv0, rv.rv1, kvars->core_index);
+		}
 	}
 }
 
@@ -125,6 +150,9 @@ void Task_Foo(void)
 	dv_dual_t rv;
 
 	dv_kprintf("Task_Foo: started\n");
+
+	e = dv_spawn(task_fot);		/* should run when foo finishes */
+	dv_kprintf("Task_Foo: dv_spawn(task_fot) returned %d\n", e);
 
 	rv = dv_create_exe(&task_bar_cfg);
 
@@ -156,6 +184,7 @@ void Task_Foo(void)
 		dv_kprintf("Task_Foo: dv_create_exe() returned error %d (rv1 = 0x%08x)\n", rv.rv0, rv.rv1);
 	}
 
+#if 0
 	dv_u64_t then = 0;
 	dv_u64_t now = 0;
 
@@ -182,6 +211,12 @@ void Task_Foo(void)
 			(dv_u32_t)(now / 0x100000000), (dv_u32_t)(now % 0x100000000),
 			dv_getcmp(CMP), dv_getmatch(CMP));
 	}
+#endif
+}
+
+void Task_Fot(void)
+{
+	dv_kprintf("Task_Fot: started\n");
 }
 
 void Task_Bar(void)

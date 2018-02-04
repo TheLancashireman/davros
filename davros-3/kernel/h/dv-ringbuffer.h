@@ -21,6 +21,7 @@
 #define dv_ringbuffer_h		1
 
 #include <kernel/h/dv-kernel-types.h>
+#include <kernel/h/dv-error.h>
 
 #if !DV_ASM
 
@@ -82,15 +83,42 @@ struct dv_ringbuffer_s
 	} reader_state_u;
 	dv_quantity_t length;				/* Number of objects in the buffer */
 	dv_quantity_t size;					/* Size of each object in the buffer (in bytes) */
+	dv_quantity_t n_alloc;				/* Number of u32 words allocated */
 	dv_u32_t *buf;						/* The buffer - contains at least (length*size) bytes */
 };
 
 dv_quantity_t dv_rb_remove_simple(dv_ringbuffer_t *, void *);
 dv_quantity_t dv_rb_append_simple(dv_ringbuffer_t *, void *);
+dv_ringbuffer_t *dv_allocate_ringbuffer(dv_kernel_t *);
+dv_index_t dv_allocate_buf(dv_kobjallocator_t *allocator, dv_quantity_t n_required);
+void dv_rb_allocate(dv_kernel_t *, dv_ringbuffer_t *);
+
+static inline void dv_rb_configure(dv_ringbuffer_t *rb, dv_rbtype_t t, dv_quantity_t s, dv_quantity_t l)
+{
+	if ( rb->rb_type != rb_reserved )
+		dv_panic(dv_panic_objectsearchfailed, "dv_rb_configure", "ringbuffer already configured");
+	if ( t == rb_msgqueue )
+		dv_panic(dv_panic_unimplemented, "dv_rb_configure", "external reader state not implemented");
+
+	rb->rb_type = t;
+	rb->writer_state.index = 0;
+	rb->reader_state_u.reader_state.index = 0;
+	rb->length = l+1;		/* Always need one extra because the buffer is full when w.i+1 == r.i	*/
+	rb->size = s;
+	rb->n_alloc = 0;
+	rb->buf = DV_NULL;
+}
+
+static inline void dv_rb_lengthen(dv_ringbuffer_t *rb, dv_quantity_t l)
+{
+	if ( rb->buf != DV_NULL )
+		dv_panic(dv_panic_initialisationerror, "dv_rb_lengthen", "attempt to extend a ringbuffer is too late");
+	rb->length += l;
+}
 
 static inline dv_quantity_t dv_rb_increment(dv_quantity_t index, dv_quantity_t incr, dv_quantity_t length)
 {
-	dv_quantity_t i = index + incr;
+	dv_quantity_t i = (index + incr);
 	return (i < length) ? i : (i - length);
 }
 

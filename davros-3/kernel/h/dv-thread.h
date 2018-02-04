@@ -60,7 +60,7 @@ struct dv_thread_s
 	dv_dllelement_t link;				/* Link entry in the thread queue */
 	dv_executable_t *executable;		/* Current executable */
 	dv_thread_t *parent;				/* Parent thread (for synchronous threads) */
-	dv_jobqueue_t *jobqueue;			/* Job queue (if any) */
+	dv_ringbuffer_t *jobqueue;			/* Job queue (if any) */
 	dv_lock_t *locktaken;				/* Innermost lock occupied by thread. */
 	dv_threadstate_t state;				/* Current state */
 	int n_exe;							/* No. of executables using this thread. */

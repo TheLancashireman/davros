@@ -39,11 +39,11 @@
  * When an object is freed, increment n_free and (optionally) if the object at index "next" is in use, set next
  * to the index of the freed object.
 */
-typedef struct dv_kobjallocator_s
+struct dv_kobjallocator_s
 {
 	dv_quantity_t n_free;			/* No. of free objects remaining */
 	dv_index_t next;				/* Next object to begin search for a free object */
-} dv_kobjallocator_t;
+};
 
 struct dv_kernel_s
 {
@@ -58,6 +58,7 @@ struct dv_kernel_s
 	dv_kobjallocator_t reg_allocator;
 	dv_kobjallocator_t evs_allocator;
 	dv_kobjallocator_t rb_allocator;
+	dv_kobjallocator_t rbbuf_allocator;
 	dv_kobjallocator_t dllelem_allocator;
 	dv_kobjallocator_t page_allocator;
 };

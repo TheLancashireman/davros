@@ -23,16 +23,28 @@
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-executable.h>
 #include <kernel/h/dv-thread.h>
+#include <kernel/h/dv-ringbuffer.h>
 #include <kernel/h/dv-event.h>
 #include <kernel/h/dv-coverage.h>
 #include <kernel/h/dv-error.h>
 
-/* ToDo: job queues.
-*/
-#define dv_enqueue_job_in_jobqueue(x, y) \
-	dv_panic(dv_panic_unimplemented, "dv_spawn_executable", "jobqueue not implemented")
-
 DV_COVDEF(spawn_executable);
+
+/* Append executable's ID to job queue.
+*/
+static inline void dv_enqueue_job_in_jobqueue(dv_kernel_t *kvars, dv_executable_t *exe)
+{
+	if ( exe->thread->jobqueue == DV_NULL )
+		dv_panic(dv_panic_initialisationerror, "dv_spawn_executable", "no jobqueue allocated");
+
+	if ( exe->thread->jobqueue->buf == DV_NULL )
+	{
+		dv_rb_allocate(kvars, exe->thread->jobqueue);
+	}
+
+	if ( dv_rb_append_simple(exe->thread->jobqueue, &exe->id) == 0 )
+		dv_panic(dv_panic_initialisationerror, "dv_spawn_executable", "insufficient space in jobqueue");
+}
 
 /* dv_spawn_executable() - spawn an instance of an executable
 */
@@ -68,7 +80,7 @@ dv_errorid_t dv_spawn_executable(dv_kernel_t *kvars, dv_executable_t *exe)
 			if ( exe->thread->state == dv_thread_idle )
 				dv_spawn_executable_in_thread(&kvars->thread_queue, exe, exe->thread);
 			else
-				dv_enqueue_job_in_jobqueue(exe->thread, exe);
+				dv_enqueue_job_in_jobqueue(kvars, exe);
 
 			ecode = dv_eid_None;
 		}

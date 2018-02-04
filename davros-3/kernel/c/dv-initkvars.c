@@ -63,6 +63,8 @@ void dv_init_kvars(dv_kernel_t *kvars, const dv_coreconfig_t * ccfg)
 	kvars->dllelem_allocator.next = 0;
 	kvars->rb_allocator.n_free = ccfg->n_ringbuffers;
 	kvars->rb_allocator.next = 0;
+	kvars->rbbuf_allocator.n_free = ccfg->n_ringbufferwords;
+	kvars->rbbuf_allocator.next = 0;
 	kvars->page_allocator.n_free = ccfg->n_pages;
 	kvars->page_allocator.next = 0;
 

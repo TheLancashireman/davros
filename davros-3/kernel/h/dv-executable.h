@@ -78,7 +78,7 @@ struct dv_executable_s
 	dv_i32_t baseprio;
 	dv_i32_t runprio;
 	dv_i32_t maxprio;
-	dv_quantity_t maxinstances;
+	dv_quantity_t maxinstances;		/* For OSEK-style multiple activations */
 	dv_u32_t flags;
 
 	dv_quantity_t n_instances;

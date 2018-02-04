@@ -76,6 +76,7 @@ dv_dllelement_t dv_c0_dllelement[DV_C0_N_DLLELEMENT];
 /* Ring buffers for thread job queues, message queues etc.
 */
 dv_ringbuffer_t dv_c0_ringbuffers[DV_C0_N_RINGBUFFERS];
+dv_u32_t dv_c0_rb_buffers[DV_C0_N_RINGBUFFERWORDS];
 
 /* Page management array.
 */
@@ -108,29 +109,31 @@ const dv_execonfig_t dv_c0_cfg_init =
 
 const dv_coreconfig_t dv_c0_coreconfig =
 {
-	&dv_c0_kvars,
-	&dv_c0_kernelstack[0],
-	&dv_c0_kernelstack[DV_KSTACK_WORDS],
-	&dv_c0_executables[0],
-	&dv_c0_threads[0],
-	&dv_c0_registers[0],
-	&dv_c0_eventstatus[0],
-	&dv_c0_dllelement[0],
-	&dv_c0_ringbuffers[0],
-	&dv_c0_pages[0],
-	&dv_c0_mempage[0],
-	&dv_c0_cfg_idle,
-	&dv_c0_cfg_init,
+	.kernelvars			= &dv_c0_kvars,
+	.kernelstack		= &dv_c0_kernelstack[0],
+	.kernelstacktop		= &dv_c0_kernelstack[DV_KSTACK_WORDS],
+	.executables		= &dv_c0_executables[0],
+	.threads			= &dv_c0_threads[0],
+	.registers			= &dv_c0_registers[0],
+	.events				= &dv_c0_eventstatus[0],
+	.dll_elements		= &dv_c0_dllelement[0],
+	.ringbuffers		= &dv_c0_ringbuffers[0],
+	.buffers			= &dv_c0_rb_buffers[0],
+	.pages				= &dv_c0_pages[0],
+	.mempage			= &dv_c0_mempage[0],
+	.idle_cfg			= &dv_c0_cfg_idle,
+	.init_cfg			= &dv_c0_cfg_init,
 
-	0,
-	DV_KSTACK_WORDS+DV_STACKEXTRA,
-	DV_C0_N_EXECUTABLES,
-	DV_C0_N_THREADS,
-	DV_C0_N_REGISTERS,
-	DV_C0_N_EVENTSTATUS,
-	DV_C0_N_DLLELEMENT,
-	DV_C0_N_RINGBUFFERS,
-	DV_C0_N_PAGES
+	.core_index			= 0,
+	.n_kernelstack		= DV_KSTACK_WORDS+DV_STACKEXTRA,
+	.n_executables		= DV_C0_N_EXECUTABLES,
+	.n_threads			= DV_C0_N_THREADS,
+	.n_registers		= DV_C0_N_REGISTERS,
+	.n_events			= DV_C0_N_EVENTSTATUS,
+	.n_dll_elements		= DV_C0_N_DLLELEMENT,
+	.n_ringbuffers		= DV_C0_N_RINGBUFFERS,
+	.n_ringbufferwords	= DV_C0_N_RINGBUFFERWORDS,
+	.n_pages			= DV_C0_N_PAGES
 };
 
 #else
