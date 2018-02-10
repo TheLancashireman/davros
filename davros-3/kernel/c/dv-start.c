@@ -19,14 +19,12 @@
 */
 #include <kernel/h/dv-kconfig.h>
 #include <kernel/h/dv-types.h>
-#include <kernel/h/dv-coverage.h>
 #include <kernel/h/dv-coreconfig.h>
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-doublylinkedlist.h>
 #include <kernel/h/dv-error.h>
 #include <kernel/h/dv-executable.h>
 #include <kernel/h/dv-interrupt.h>
-#include <kernel/h/dv-stdio.h>
 #include DV_H_START
 
 DV_COVDEF(start);

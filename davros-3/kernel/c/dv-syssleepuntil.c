@@ -26,8 +26,6 @@
 #include <kernel/h/dv-doublylinkedlist.h>
 #include DV_H_REGISTERS
 #include DV_H_SYSTEMTIMER
-#include <kernel/h/dv-stdio.h>
-#include <kernel/h/dv-coverage.h>
 
 DV_COVDEF(sys_sleep);
 

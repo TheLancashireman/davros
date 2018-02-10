@@ -20,6 +20,8 @@
 #ifndef dv_coverage_h
 #define dv_coverage_h	1
 
+#if !DV_ASM
+
 #include <kernel/h/dv-kernel-types.h>
 
 /* Macros to help tracing test coverage.
@@ -83,5 +85,7 @@ struct dv_coverage_s
 
 void dv_functioncovered(dv_coverage_t *, int);
 dv_boolean_t dv_conditioncovered(dv_coverage_t *, int, int, dv_boolean_t);
+
+#endif
 
 #endif

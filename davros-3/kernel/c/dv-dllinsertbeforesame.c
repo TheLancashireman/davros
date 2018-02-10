@@ -20,10 +20,8 @@
 #include <kernel/h/dv-kconfig.h>
 #include <kernel/h/dv-types.h>
 #include <kernel/h/dv-doublylinkedlist.h>
-#include <kernel/h/dv-coverage.h>
 
-#define DV_COVNAME	dllinsertbeforesame
-DV_COVDEF(DV_COVNAME);
+DV_COVDEF(dllinsertbeforesame);
 
 /* dv_dllinsertbeforesame() - insert an element into a priority queue.
  *

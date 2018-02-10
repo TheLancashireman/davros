@@ -37,7 +37,7 @@
 #define DV_C0_INIT_STACK		200
 
 #define DV_TRACE				0
-#define DV_DEBUG				0
+#define DV_DEBUG				1
 
 #define DV_PRJ_STARTUP			1
 

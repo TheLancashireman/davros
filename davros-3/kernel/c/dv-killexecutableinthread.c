@@ -19,13 +19,13 @@
 */
 #include <kernel/h/dv-kconfig.h>
 #include <kernel/h/dv-types.h>
+#include <kernel/h/dv-coreconfig.h>
 #include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-executable.h>
 #include <kernel/h/dv-thread.h>
 #include <kernel/h/dv-doublylinkedlist.h>
-#include <kernel/h/dv-trace.h>
-#include <kernel/h/dv-coverage.h>
+#include <kernel/h/dv-ringbuffer.h>
 
 DV_COVDEF(kill_executable_in_thread);
 
@@ -67,7 +67,22 @@ void dv_remove_executable_from_thread(dv_kernel_t *kvars, dv_thread_t *thr)
 	*/
 	if ( thr->jobqueue != DV_NULL )
 	{
-		dv_panic(dv_panic_unimplemented, "dv_kill_executable_in_thread", "Job queues not implemented yet");
+		dv_index_t exe_id;
+
+		if ( dv_rb_remove_simple(thr->jobqueue, &exe_id) == 0 )
+		{
+			/* Nothing to do. */
+		}
+		else
+		if ( exe_id >= 0 && exe_id < dv_coreconfigs[kvars->core_index]->n_executables )
+		{
+			dv_executable_t *exe = &dv_coreconfigs[kvars->core_index]->executables[exe_id];
+			dv_spawn_executable_in_thread(&kvars->thread_queue, exe, thr);
+		}
+		else
+		{
+			dv_panic(dv_panic_internalerror, "dv_remove_executable_from_thread", "unknown executable in job queue");
+		}
 	}
 }
 

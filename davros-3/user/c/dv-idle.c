@@ -19,7 +19,6 @@
 */
 #include <kernel/h/dv-kconfig.h>
 #include <kernel/h/dv-types.h>
-#include <kernel/h/dv-coverage.h>
 
 /* ToDo: temporary, use kernel printf.
 */

@@ -19,18 +19,13 @@
 */
 #include <kernel/h/dv-kconfig.h>
 #include <kernel/h/dv-types.h>
-#include <kernel/h/dv-coverage.h>
 #include <kernel/h/dv-coreconfig.h>
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-executable.h>
 #include <kernel/h/dv-thread.h>
 #include <kernel/h/dv-ringbuffer.h>
-#include <kernel/h/dv-stdio.h>
 
 DV_COVDEF(allocatethread);
-
-#undef DV_DBG
-#define DV_DBG(x)	x
 
 /* dv_is_free_thread() - return true if thread i is free
 */

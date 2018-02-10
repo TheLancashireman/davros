@@ -21,10 +21,8 @@
 #include <kernel/h/dv-types.h>
 #include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-ringbuffer.h>
-#include <kernel/h/dv-coverage.h>
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-coreconfig.h>
-#include <kernel/h/dv-stdio.h>
 
 DV_COVDEF(allocatebuf);
 

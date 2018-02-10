@@ -20,7 +20,6 @@
 #include <kernel/h/dv-kconfig.h>
 #include <kernel/h/dv-types.h>
 #include <kernel/h/dv-doublylinkedlist.h>
-#include <kernel/h/dv-coverage.h>
 
 #define DV_COVNAME	dllinserttime
 DV_COVDEF(dllinserttime);

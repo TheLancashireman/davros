@@ -25,7 +25,6 @@
 #include <kernel/h/dv-thread.h>
 #include <kernel/h/dv-ringbuffer.h>
 #include <kernel/h/dv-event.h>
-#include <kernel/h/dv-coverage.h>
 #include <kernel/h/dv-error.h>
 
 DV_COVDEF(spawn_executable);

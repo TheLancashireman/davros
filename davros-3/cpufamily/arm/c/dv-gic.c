@@ -24,7 +24,6 @@
 #include <kernel/h/dv-interrupt.h>
 #include <cpufamily/arm/h/dv-arm-gic.h>
 #include <cpufamily/arm/h/dv-arm-dispatch.h>
-#include <kernel/h/dv-coverage.h>
 
 /* dv_init_gic() - initialise the interrupt controller
 */

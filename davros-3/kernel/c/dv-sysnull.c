@@ -22,8 +22,6 @@
 #include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-syscall.h>
-#include <kernel/h/dv-trace.h>
-#include <kernel/h/dv-coverage.h>
 
 DV_COVDEF(sys_null);
 

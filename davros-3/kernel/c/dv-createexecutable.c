@@ -27,8 +27,6 @@
 #include <kernel/h/dv-event.h>
 #include <kernel/h/dv-doublylinkedlist.h>
 #include <kernel/h/dv-mempage.h>
-#include <kernel/h/dv-coverage.h>
-#include <kernel/h/dv-stdio.h>
 
 DV_COVDEF(create_executable);
 

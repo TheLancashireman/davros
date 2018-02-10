@@ -19,12 +19,11 @@
 */
 #include <kernel/h/dv-kconfig.h>
 #include <kernel/h/dv-types.h>
-#include <kernel/h/dv-coverage.h>
 #include <kernel/h/dv-coreconfig.h>
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-doublylinkedlist.h>
-#include <kernel/h/dv-stdio.h>
 #include <kernel/h/dv-error.h>
+#include <kernel/h/dv-stdio.h>
 
 DV_COVDEF(initkvars);
 
@@ -41,6 +40,7 @@ void dv_init_kvars(dv_kernel_t *kvars, const dv_coreconfig_t * ccfg)
 	dv_kprintf("     -- %d event stores\n",		ccfg->n_events);
 	dv_kprintf("     -- %d list elements\n",	ccfg->n_dll_elements);
 	dv_kprintf("     -- %d ring buffers\n",		ccfg->n_ringbuffers);
+	dv_kprintf("     -- %d buffer words\n",		ccfg->n_ringbufferwords);
 	dv_kprintf("     -- %d pages\n",			ccfg->n_pages);
 
 	kvars->current_thread = DV_NULL;

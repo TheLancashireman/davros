@@ -24,7 +24,6 @@
 #include <kernel/h/dv-executable.h>
 #include <kernel/h/dv-thread.h>
 #include DV_H_SYSTEMTIMER
-#include <kernel/h/dv-coverage.h>
 
 /* ToDo: job queues.
 */

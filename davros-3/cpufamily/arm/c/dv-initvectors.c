@@ -21,7 +21,6 @@
 #include <kernel/h/dv-types.h>
 #include <kernel/h/dv-coreconfig.h>
 #include <cpufamily/arm/h/dv-arm-vectors.h>
-#include <kernel/h/dv-coverage.h>
 
 DV_COVDEF(init_vectors);
 

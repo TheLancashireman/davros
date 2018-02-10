@@ -23,8 +23,6 @@
 #include <cpufamily/arm/h/dv-arm-bcm2835-interruptcontroller.h>
 #include <kernel/h/dv-interrupt.h>
 #include <kernel/h/dv-executable.h>
-#include <kernel/h/dv-stdio.h>
-#include <kernel/h/dv-coverage.h>
 
 /* dv_arm_bcm2835_timerinterrupt() - handle a timer interrupt from the BCM2835 system timer
  *

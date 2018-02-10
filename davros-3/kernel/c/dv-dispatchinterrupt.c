@@ -22,7 +22,6 @@
 #include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-interrupt.h>
-#include <kernel/h/dv-coverage.h>
 #include DV_H_DISPATCH
 
 DV_COVDEF(dv_dispatch_interrupt);

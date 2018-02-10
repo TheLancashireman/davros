@@ -19,7 +19,6 @@
 */
 #include <kernel/h/dv-kconfig.h>
 #include <kernel/h/dv-types.h>
-#include <kernel/h/dv-coverage.h>
 #include <kernel/h/dv-coreconfig.h>
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-executable.h>

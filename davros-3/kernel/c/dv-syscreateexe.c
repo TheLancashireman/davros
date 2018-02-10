@@ -25,8 +25,6 @@
 #include <kernel/h/dv-executable.h>
 #include DV_H_REGISTERS
 #include <kernel/h/dv-coreconfig.h>
-#include <kernel/h/dv-coverage.h>
-#include <kernel/h/dv-stdio.h>
 
 DV_COVDEF(sys_spawn);
 

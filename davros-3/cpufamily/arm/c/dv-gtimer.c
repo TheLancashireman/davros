@@ -22,7 +22,6 @@
 #include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-kernel.h>
 #include <cpufamily/arm/h/dv-arm-globaltimer.h>
-#include <kernel/h/dv-coverage.h>
 
 /* dv_gtimer_interrupt() - handle an interrupt from the global timer
  *

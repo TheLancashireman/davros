@@ -51,6 +51,7 @@ enum dv_panic_e
 	dv_panic_unimplemented,
 	dv_panic_hardwareerror,
 	dv_panic_initialisationerror,
+	dv_panic_internalerror,
 	dv_panic_unknownqueuetype,
 	dv_panic_threadqueueempty,
 	dv_panic_currentthreadnotqueuehead,

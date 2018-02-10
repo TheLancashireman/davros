@@ -21,7 +21,6 @@
 #include <kernel/h/dv-types.h>
 #include <kernel/h/dv-error.h>
 #include <kernel/h/dv-ringbuffer.h>
-#include <kernel/h/dv-coverage.h>
 
 DV_COVDEF(function);
 

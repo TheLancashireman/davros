@@ -25,7 +25,6 @@
 #include <kernel/h/dv-doublylinkedlist.h>
 #include <kernel/h/dv-error.h>
 #include <kernel/h/dv-trace.h>
-#include <kernel/h/dv-coverage.h>
 
 DV_COVDEF(dv_syscall);
 

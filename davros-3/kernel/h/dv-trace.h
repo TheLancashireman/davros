@@ -20,10 +20,12 @@
 #ifndef dv_trace_h
 #define dv_trace_h	1
 
-#include <kernel/h/dv-kconfig.h>
+#if !DV_ASM
+
 #include <kernel/h/dv-types.h>
 #include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-thread.h>
+#include <kernel/h/dv-stdio.h>
 
 #if DV_TRACE
 
@@ -54,5 +56,22 @@ static inline void dv_trace_dumpcpuregs(void)
 
 #endif
 
+#if DV_DEBUG != 0
+
+#define DV_dbg(x)	do {x;} while (0)
+
+#if DV_DEBUG >= 2
+#define DV_DBG(x)	do {x;} while (0)
+#else
+#define DV_DBG(x)	do {} while (0)
+#endif
+
+#else
+
+#define DV_DBG(x)	do {} while (0)
+
+#endif
+
+#endif
 
 #endif

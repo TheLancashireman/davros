@@ -25,8 +25,6 @@
 #include <cpufamily/arm/h/dv-arm-start.h>
 #include DV_H_INTERRUPTCONTROLLER
 #include DV_H_SYSTEMTIMER
-#include <kernel/h/dv-stdio.h>
-#include <kernel/h/dv-coverage.h>
 
 /* dv_init_hardware() - initialise the processor etc.
 */

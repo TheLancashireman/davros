@@ -153,6 +153,8 @@ void Task_Foo(void)
 
 	e = dv_spawn(task_fot);		/* should run when foo finishes */
 	dv_kprintf("Task_Foo: dv_spawn(task_fot) returned %d\n", e);
+	e = dv_spawn(task_fot);		/* should fail: max instances exceeded */
+	dv_kprintf("Task_Foo: dv_spawn(task_fot) returned %d\n", e);
 
 	rv = dv_create_exe(&task_bar_cfg);
 
@@ -221,6 +223,7 @@ void Task_Fot(void)
 
 void Task_Bar(void)
 {
+	dv_errorid_t e;
 	int bar_count = 0;
 	dv_kprintf("Task_Bar: started\n");
 
@@ -230,11 +233,14 @@ void Task_Bar(void)
 		dv_sleep(1000000);
 		bar_count++;
 		dv_kprintf("Task_Bar: woken up %d\n", bar_count);
+		e = dv_spawn(task_fot);		/* should run when bar finishes */
+		dv_kprintf("Task_Bar dv_spawn(task_fot) returned %d\n", e);
 	}
 }
 
 void Task_Qxx(void)
 {
+	dv_errorid_t e;
 	int qxx_count = 0;
 	dv_kprintf("Task_Qxx: started\n");
 
@@ -246,6 +252,8 @@ void Task_Qxx(void)
 		dv_sleep_until(next);
 		qxx_count++;
 		dv_kprintf("Task_Qxx: woken up %d\n", qxx_count);
+		e = dv_spawn(task_fot);		/* should run when qxx finishes */
+		dv_kprintf("Task_Qxx dv_spawn(task_fot) returned %d\n", e);
 	}
 }
 

@@ -24,7 +24,6 @@
 #include <kernel/h/dv-thread.h>
 #include <kernel/h/dv-executable.h>
 #include <kernel/h/dv-syscall.h>
-#include <kernel/h/dv-coverage.h>
 
 DV_COVDEF(sys_exit);
 

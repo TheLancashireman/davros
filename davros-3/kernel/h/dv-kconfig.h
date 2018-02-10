@@ -99,11 +99,7 @@ void dv_idle(void);
 #endif
 #endif
 
-#if DV_DEBUG
-#include <kernel/h/dv-stdio.h>
-#define DV_DBG(x)	do {x;} while (0)
-#else
-#define DV_DBG(x)	do {} while (0)
-#endif
+#include <kernel/h/dv-trace.h>
+#include <kernel/h/dv-coverage.h>
 
 #endif
