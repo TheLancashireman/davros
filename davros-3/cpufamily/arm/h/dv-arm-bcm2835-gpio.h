@@ -99,6 +99,28 @@ struct dv_arm_bcm2835_gpio_s
 
 void dv_arm_bcm2835_gpio_pinconfig(dv_u32_t pin, dv_u32_t fsel, dv_u32_t pud);
 
+static inline void dv_arm_bcm2835_gpio_pin_set(dv_u32_t pin)
+{
+	dv_arm_bcm2835_gpio.set[pin/32] = 1 << (pin%32);
+}
+
+static inline void dv_arm_bcm2835_gpio_pin_clear(dv_u32_t pin)
+{
+	dv_arm_bcm2835_gpio.clr[pin/32] = 1 << (pin%32);
+}
+
+static inline void dv_arm_bcm2835_gpio_pin_set_group(dv_u64_t group)
+{
+	dv_arm_bcm2835_gpio.set[0] = group & 0xffffffff;
+	dv_arm_bcm2835_gpio.set[1] = group >> 32;
+}
+
+static inline void dv_arm_bcm2835_gpio_pin_clear_group(dv_u64_t group)
+{
+	dv_arm_bcm2835_gpio.clr[0] = group & 0xffffffff;
+	dv_arm_bcm2835_gpio.clr[1] = group >> 32;
+}
+
 #endif
 
 #endif

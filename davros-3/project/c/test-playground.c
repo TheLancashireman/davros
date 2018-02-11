@@ -19,6 +19,8 @@
 
 #include <kernel/h/dv-interrupt.h>
 
+#include <cpufamily/arm/h/dv-arm-bcm2835-gpio.h>
+
 /* Task id variables
 */
 dv_index_t task_foo;
@@ -90,6 +92,8 @@ void prj_init(void)
 	dv_kprintf("prj_init: started.\n");
 
 	kvars = dv_get_kvars();
+
+	dv_arm_bcm2835_gpio_pinconfig(17, DV_pinfunc_output, DV_pinpull_none);
 
 	dv_nullsc(0x42, 0xdeadbeef, 0x12345678, 0x98765432);
 	dv_kprintf("prj_init: returned from null system call.\n");
@@ -231,6 +235,7 @@ void Task_Bar(void)
 	{
 		dv_kprintf("Task_Bar: sleeping\n");
 		dv_sleep(1000000);
+		dv_arm_bcm2835_gpio_pin_set(17);
 		bar_count++;
 		dv_kprintf("Task_Bar: woken up %d\n", bar_count);
 		e = dv_spawn(task_fot);		/* should run when bar finishes */
@@ -250,6 +255,7 @@ void Task_Qxx(void)
 		next += 1000000;
 		dv_kprintf("Task_Qxx: sleeping\n");
 		dv_sleep_until(next);
+		dv_arm_bcm2835_gpio_pin_clear(17);
 		qxx_count++;
 		dv_kprintf("Task_Qxx: woken up %d\n", qxx_count);
 		e = dv_spawn(task_fot);		/* should run when qxx finishes */
