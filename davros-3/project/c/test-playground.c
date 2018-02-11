@@ -93,7 +93,12 @@ void prj_init(void)
 
 	kvars = dv_get_kvars();
 
+	/* Four GPIO pins for the LEDs.
+	*/
 	dv_arm_bcm2835_gpio_pinconfig(17, DV_pinfunc_output, DV_pinpull_none);
+	dv_arm_bcm2835_gpio_pinconfig(18, DV_pinfunc_output, DV_pinpull_none);
+	dv_arm_bcm2835_gpio_pinconfig(27, DV_pinfunc_output, DV_pinpull_none);
+	dv_arm_bcm2835_gpio_pinconfig(22, DV_pinfunc_output, DV_pinpull_none);
 
 	dv_nullsc(0x42, 0xdeadbeef, 0x12345678, 0x98765432);
 	dv_kprintf("prj_init: returned from null system call.\n");
@@ -225,6 +230,27 @@ void Task_Fot(void)
 	dv_kprintf("Task_Fot: started\n");
 }
 
+const dv_u64_t led_mask = (1<<17)|(1<<18)|(1<<27)|(1<<22);
+
+const dv_u64_t led_vals[16] =
+{	0,
+	(1<<17),
+	(1<<18),
+	(1<<17)|(1<<18),
+	(1<<27),
+	(1<<17)|(1<<27),
+	(1<<18)|(1<<27),
+	(1<<17)|(1<<18)|(1<<27),
+	(1<<22),
+	(1<<17)|(1<<22),
+	(1<<18)|(1<<22),
+	(1<<17)|(1<<18)|(1<<22),
+	(1<<27)|(1<<22),
+	(1<<17)|(1<<27)|(1<<22),
+	(1<<18)|(1<<27)|(1<<22),
+	(1<<17)|(1<<18)|(1<<27)|(1<<22)
+};
+
 void Task_Bar(void)
 {
 	dv_errorid_t e;
@@ -235,7 +261,6 @@ void Task_Bar(void)
 	{
 		dv_kprintf("Task_Bar: sleeping\n");
 		dv_sleep(1000000);
-		dv_arm_bcm2835_gpio_pin_set(17);
 		bar_count++;
 		dv_kprintf("Task_Bar: woken up %d\n", bar_count);
 		e = dv_spawn(task_fot);		/* should run when bar finishes */
@@ -248,6 +273,7 @@ void Task_Qxx(void)
 	dv_errorid_t e;
 	int qxx_count = 0;
 	dv_kprintf("Task_Qxx: started\n");
+	dv_arm_bcm2835_gpio_pin_set_group(led_mask);	/* All LEDs off */
 
 	dv_u64_t next = dv_readtime();
 	for (;;)
@@ -255,7 +281,9 @@ void Task_Qxx(void)
 		next += 1000000;
 		dv_kprintf("Task_Qxx: sleeping\n");
 		dv_sleep_until(next);
-		dv_arm_bcm2835_gpio_pin_clear(17);
+		dv_arm_bcm2835_gpio_pin_clear_group(led_vals[qxx_count%16]);
+		dv_arm_bcm2835_gpio_pin_set_group(led_vals[qxx_count%16]^led_mask);
+		//	dv_arm_bcm2835_gpio_pin_clear(17);
 		qxx_count++;
 		dv_kprintf("Task_Qxx: woken up %d\n", qxx_count);
 		e = dv_spawn(task_fot);		/* should run when qxx finishes */
