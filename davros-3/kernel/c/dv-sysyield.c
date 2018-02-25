@@ -29,8 +29,19 @@ DV_COVDEF(sys_yield);
  *
  * This function implements the kernel side of the yield system call.
 */
-void dv_sys_yield(dv_kernel_t *unused_kvars, dv_index_t unused_sci)
+void dv_sys_yield(dv_kernel_t *kvars, dv_index_t unused_sci)
 {
+	dv_thread_t *thr = kvars->current_thread;
+	dv_thread_t *next = thr->link.successor->payload;
+
+	/* ToDo: what if a lock is occupied? */
+
+	if ( next->link.key.i32_key > thr->executable->baseprio )
+	{
+		dv_dllremove(&thr->link);
+		dv_set_prio(thr, thr->executable->baseprio);
+		dv_dllinsertaftersame(&kvars->thread_queue, &thr->link);
+	}
 }
 
 /* man-page-generation - to be defined
