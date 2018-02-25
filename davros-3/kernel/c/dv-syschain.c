@@ -28,6 +28,8 @@ DV_COVDEF(sys_chain);
 /* dv_sys_chain() - combined spawn and exit system call
  *
  * This function implements the kernel side of the chain system call.
+ *
+ * ToDo: not implemented yet
 */
 void dv_sys_chain(dv_kernel_t *unused_kvars, dv_index_t unused_sci)
 {

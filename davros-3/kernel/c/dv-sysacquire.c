@@ -28,6 +28,8 @@ DV_COVDEF(sys_acquire);
 /* dv_sys_acquire() - acquire a lock
  *
  * This function implements the kernel side of the acquire system call.
+ *
+ * ToDo: not implemented yet
 */
 void dv_sys_acquire(dv_kernel_t *unused_kvars, dv_index_t unused_sci)
 {

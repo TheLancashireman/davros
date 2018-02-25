@@ -28,6 +28,8 @@ DV_COVDEF(sys_unknown);
 /* dv_sys_unknown() - report an error for an unknown/unimplemented system call
  *
  * This function handles unknown and unimplemented system calls in the kernel.
+ *
+ * ToDo: not implemented yet
 */
 void dv_sys_unknown(dv_kernel_t *unused_kvars, dv_index_t unused_sci)
 {

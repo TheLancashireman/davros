@@ -28,6 +28,8 @@ DV_COVDEF(sys_drop);
 /* dv_sys_drop() - drop a lock
  *
  * This function implements the kernel side of the drop system call.
+ *
+ * ToDo: not implemented yet
 */
 void dv_sys_drop(dv_kernel_t *unused_kvars, dv_index_t unused_sci)
 {
