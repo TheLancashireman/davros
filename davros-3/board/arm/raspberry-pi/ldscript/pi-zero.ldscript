@@ -7,8 +7,11 @@ MEMORY
 
 SECTIONS
 {
+	DV_TextStart = 0;
     .text		: { *(.text*) } > rom
-	.rodata		: { *(.rodata*) } > rom
+	DV_TextEnd = .;
+	.rodata		ALIGN(4096) : { *(.rodata*) } > rom
+	DV_RodataEnd = .;
 
 	.c0_stack	: { *(dv_stack) } > ram
 	.c0_pages	ALIGN(4096)	: { *(dv_pages) } > ram
