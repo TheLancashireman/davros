@@ -31,7 +31,7 @@
 #define DV_C0_N_RINGBUFFERS		10
 #define DV_C0_N_RINGBUFFERWORDS	100
 
-#define DV_C0_N_PAGES			20
+#define DV_C0_N_PAGES			100000
 
 #define DV_C0_INIT_FUNC			prj_init
 #define DV_C0_INIT_STACK		200
