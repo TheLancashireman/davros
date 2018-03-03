@@ -23,6 +23,7 @@ DV_KLIST_C	+=	dv-allocatebuf
 DV_KLIST_C	+=	dv-allocatedllelement
 DV_KLIST_C	+=	dv-allocateeventstatus
 DV_KLIST_C	+=	dv-allocateobj
+DV_KLIST_C	+=	dv-allocatepage
 DV_KLIST_C	+=	dv-allocateregisters
 DV_KLIST_C	+=	dv-allocateringbuffer
 DV_KLIST_C	+=	dv-allocatestack

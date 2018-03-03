@@ -26,16 +26,6 @@
 
 DV_COVDEF(allocatestack);
 
-/* dv_is_free_page() - return true if page i is free
-*/
-static dv_boolean_t dv_is_free_page(dv_index_t i, const void *tbl)
-{
-	const dv_mempage_t *pg_tbl = tbl;
-	if ( pg_tbl[i].n_use == 0 )
-		return 1;
-	return 0;
-}
-
 /* dv_allocate_stack() - allocate a stack
  *
  * Find and allocate a stack for an executable.
@@ -80,18 +70,5 @@ dv_mempage_t *dv_allocate_stack(dv_kernel_t *kvars, const dv_executable_t *exe)
 		}
 	}
 
-	pge_tbl = dv_coreconfigs[kvars->core_index]->mempage;
-	n_pge = dv_coreconfigs[kvars->core_index]->n_pages;
-	pge_i = dv_allocate_obj(&kvars->page_allocator, n_pge, dv_is_free_page, pge_tbl);
-
-	if ( pge_i < 0 )
-		return DV_NULL;
-
-	pge_tbl[pge_i].n_use = 1;
-	pge_tbl[pge_i].page = &dv_coreconfigs[kvars->core_index]->pages[pge_i];
-
-	return &pge_tbl[pge_i];
+	return dv_allocate_page(kvars);
 }
-
-/* man-page-generation - to be defined
-*/
