@@ -45,6 +45,3 @@ void dv_init_peripherals(dv_kernel_t *kvars)
 
 	dv_init_system_timer(kvars);
 }
-
-/* man-page-generation - to be defined
-*/

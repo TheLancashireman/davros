@@ -39,6 +39,3 @@ void dv_gtimer_interrupt(dv_kernel_t *kvars, unsigned unused_p)
 	t = dv_readtime();
 	dv_kprintf("dv_gtimer_interrupt: core %d, t = 0x%08x%08x\n", kvars->core_index, (unsigned)(t>>32), (unsigned)t);
 }
-
-/* man-page-generation - to be defined
-*/

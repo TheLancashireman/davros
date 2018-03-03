@@ -48,6 +48,3 @@ void dv_sys_null(dv_kernel_t *unused_kvars, dv_index_t unused_sci)
 {
 }
 #endif
-
-/* man-page-generation - to be defined
-*/

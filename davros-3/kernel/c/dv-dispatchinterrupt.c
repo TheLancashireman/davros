@@ -89,6 +89,3 @@ void dv_dispatch_interrupt(dv_kernel_t *kvars, unsigned iid)
 	dv_return_to_thread(kvars, kvars->current_thread);
 }
 #endif
-
-/* man-page-generation - to be defined
-*/

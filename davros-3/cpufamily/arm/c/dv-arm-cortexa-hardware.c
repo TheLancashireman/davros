@@ -67,6 +67,3 @@ void dv_init_peripherals(dv_kernel_t *kvars)
 	dv_enable_irq(DV_IID_GTIMER);
 #endif
 }
-
-/* man-page-generation - to be defined
-*/

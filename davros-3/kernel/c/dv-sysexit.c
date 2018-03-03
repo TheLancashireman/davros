@@ -55,6 +55,3 @@ void dv_sys_exit(dv_kernel_t *kvars, dv_index_t unused_sci)
 	}
 #endif
 }
-
-/* man-page-generation - to be defined
-*/

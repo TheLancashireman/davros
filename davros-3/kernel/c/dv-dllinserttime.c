@@ -48,6 +48,3 @@ dv_boolean_t dv_dllinserttime(dv_doublylinkedlist_t *list, dv_dllelement_t *elem
 
 	return (elem->predecessor == &list->headtail);
 }
-
-/* man-page-generation - to be defined
-*/

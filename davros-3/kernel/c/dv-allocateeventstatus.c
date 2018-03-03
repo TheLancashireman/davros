@@ -57,6 +57,3 @@ dv_eventstatus_t *dv_allocate_eventstatus(dv_kernel_t *kvars)
 
 	return &evs_tbl[evs_i];
 }
-
-/* man-page-generation - to be defined
-*/

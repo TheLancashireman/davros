@@ -57,6 +57,3 @@ void dv_sys_create_exe(dv_kernel_t *kvars, dv_index_t unused_sci)
 
 	dv_set_rv0(kvars->current_thread->regs, e);
 }
-
-/* man-page-generation - to be defined
-*/

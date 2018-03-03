@@ -69,6 +69,3 @@ void dv_rb_allocate(dv_kernel_t *kvars, dv_ringbuffer_t *rb)
 		rb->buf = &dv_coreconfigs[kvars->core_index]->buffers[i];
 	}
 }
-
-/* man-page-generation - to be defined
-*/

@@ -56,6 +56,3 @@ void dv_spawn_executable_in_thread(dv_doublylinkedlist_t *dll, dv_executable_t *
 	dv_set_registers(exe->registers, exe);
 	dv_resume_executable_in_thread(dll, exe, thr);
 }
-
-/* man-page-generation - to be defined
-*/

@@ -114,6 +114,3 @@ void dv_dispatch(dv_kernel_t *kvars)
 
 	dv_return_to_thread(kvars, incoming);		/* Never returns */
 }
-
-/* man-page-generation - to be defined
-*/

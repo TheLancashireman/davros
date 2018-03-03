@@ -57,6 +57,3 @@ dv_dllelement_t *dv_allocate_dllelement(dv_kernel_t *kvars)
 
 	return &dllelem_tbl[dllelem_i];
 }
-
-/* man-page-generation - to be defined
-*/

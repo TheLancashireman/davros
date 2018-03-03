@@ -85,6 +85,3 @@ dv_registers_t *dv_allocate_registers(dv_kernel_t *kvars, const dv_executable_t 
 
 	return &reg_tbl[reg_i];
 }
-
-/* man-page-generation - to be defined
-*/

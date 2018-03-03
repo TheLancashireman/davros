@@ -58,6 +58,3 @@ dv_ringbuffer_t *dv_allocate_ringbuffer(dv_kernel_t *kvars)
 
 	return &rb_tbl[rb_i];
 }
-
-/* man-page-generation - to be defined
-*/

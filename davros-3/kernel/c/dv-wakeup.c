@@ -83,6 +83,3 @@ dv_u64_t dv_wakeup(dv_kernel_t *kvars)
 		}
 	}
 }
-
-/* man-page-generation - to be defined
-*/

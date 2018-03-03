@@ -115,6 +115,3 @@ void dv_irq_handler(dv_kernel_t *kvars)
 		dv_unknown_interrupt(kvars, vec);
 	}
 }
-
-/* man-page-generation - to be defined
-*/

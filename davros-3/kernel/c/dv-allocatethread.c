@@ -128,6 +128,3 @@ dv_thread_t *dv_allocate_thread(dv_kernel_t *kvars, const dv_executable_t *exe)
 
 	return &thr_tbl[thr_i];
 }
-
-/* man-page-generation - to be defined
-*/

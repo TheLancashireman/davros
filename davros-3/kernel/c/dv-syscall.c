@@ -63,6 +63,3 @@ void dv_syscall(dv_kernel_t *kvars, dv_machineword_t sc_index)
 		dv_panic(dv_panic_currentthreadnotqueuehead, "dv_syscall", "Current thread is not at head of queue");
 	}
 }
-
-/* man-page-generation - to be defined
-*/

@@ -43,6 +43,3 @@ void dv_sys_yield(dv_kernel_t *kvars, dv_index_t unused_sci)
 		dv_dllinsertaftersame(&kvars->thread_queue, &thr->link);
 	}
 }
-
-/* man-page-generation - to be defined
-*/

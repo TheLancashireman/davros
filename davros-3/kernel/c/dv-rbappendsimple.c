@@ -78,6 +78,3 @@ dv_quantity_t dv_rb_append_simple
 
 	return 1;
 }
-
-/* man-page-generation - to be defined
-*/

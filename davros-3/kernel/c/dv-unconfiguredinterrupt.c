@@ -56,6 +56,3 @@ void dv_unconfigured_interrupt(dv_kernel_t *unused_kvars, dv_address_t param)
 	dv_panic(dv_panic_hardwareerror, "dv_unconfigured_interrupt", buf);
 #endif
 }
-
-/* man-page-generation - to be defined
-*/

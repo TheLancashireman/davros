@@ -35,6 +35,3 @@ void dv_init_vectors(void)
 {
 	((dv_arm_vectors_t *)dv_vector_location)[0] = dv_vectortable;
 }
-
-/* man-page-generation - to be defined
-*/

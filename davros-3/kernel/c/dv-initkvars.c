@@ -70,6 +70,3 @@ void dv_init_kvars(dv_kernel_t *kvars, const dv_coreconfig_t * ccfg)
 
 	dv_set_kvars(kvars);
 }
-
-/* man-page-generation - to be defined
-*/

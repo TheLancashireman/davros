@@ -91,6 +91,3 @@ void dv_start(dv_index_t ci)
 	*/
 	dv_dispatch(kvars);
 }
-
-/* man-page-generation - to be defined
-*/

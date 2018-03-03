@@ -131,6 +131,3 @@ dv_index_t dv_create_executable(dv_kernel_t *kvars, const dv_execonfig_t *execfg
 
 	return exe_i;
 }
-
-/* man-page-generation - to be defined
-*/

@@ -93,6 +93,3 @@ void dv_set_system_timer_alarm(dv_u64_t t)
 	dv_setcmp(CMP, (dv_u32_t)t);
 	dv_enable_irq(IID);
 }
-
-/* man-page-generation - to be defined
-*/

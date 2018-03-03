@@ -53,6 +53,3 @@ void dv_dllinit(dv_doublylinkedlist_t *list, dv_dlltype_t type)
 		break;
 	}
 }
-
-/* man-page-generation - to be defined
-*/

@@ -70,6 +70,3 @@ void dv_sys_sleep(dv_kernel_t *kvars, dv_index_t sci)
 
 	dv_set_rv0(kvars->current_thread->regs, e);
 }
-
-/* man-page-generation - to be defined
-*/

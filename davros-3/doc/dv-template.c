@@ -29,6 +29,3 @@ DV_COVDEF(function);
 void dv_function(void)
 {
 }
-
-/* man-page-generation - to be defined
-*/

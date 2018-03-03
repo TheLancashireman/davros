@@ -34,6 +34,3 @@ DV_COVDEF(sys_drop);
 void dv_sys_drop(dv_kernel_t *unused_kvars, dv_index_t unused_sci)
 {
 }
-
-/* man-page-generation - to be defined
-*/

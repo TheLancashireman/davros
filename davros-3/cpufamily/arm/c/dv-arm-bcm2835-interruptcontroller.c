@@ -140,6 +140,3 @@ void dv_irq_handler(dv_kernel_t *kvars)
 
 	dv_dispatch(kvars);
 }
-
-/* man-page-generation - to be defined
-*/

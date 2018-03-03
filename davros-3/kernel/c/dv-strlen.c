@@ -31,6 +31,3 @@ int dv_strlen(const char *str)
 	}
 	return (s-str);
 }
-
-/* man-page-generation - to be defined
-*/

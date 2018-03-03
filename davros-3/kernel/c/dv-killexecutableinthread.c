@@ -85,6 +85,3 @@ void dv_remove_executable_from_thread(dv_kernel_t *kvars, dv_thread_t *thr)
 		}
 	}
 }
-
-/* man-page-generation - to be defined
-*/

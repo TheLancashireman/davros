@@ -91,6 +91,3 @@ dv_errorid_t dv_spawn_executable(dv_kernel_t *kvars, dv_executable_t *exe)
 
 	return ecode;
 }
-
-/* man-page-generation - to be defined
-*/

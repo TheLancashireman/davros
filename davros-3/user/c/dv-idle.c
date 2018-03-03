@@ -37,6 +37,3 @@ void dv_idle(void)
 		dv_hw_wait();
 	}
 }
-
-/* man-page-generation - to be defined
-*/

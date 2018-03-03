@@ -63,6 +63,3 @@ dv_index_t dv_allocate_obj
 
 	return -1;
 }
-
-/* man-page-generation - to be defined
-*/

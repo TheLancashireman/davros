@@ -43,6 +43,3 @@ void dv_dllinsertbeforesame(dv_doublylinkedlist_t *list, dv_dllelement_t *elem)
 	e->predecessor->successor = elem;
 	e->predecessor = elem;
 }
-
-/* man-page-generation - to be defined
-*/
