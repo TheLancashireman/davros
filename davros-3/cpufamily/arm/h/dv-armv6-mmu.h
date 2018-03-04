@@ -101,9 +101,13 @@ struct dv_armv6_l2pagetable_s
 #define DV_V6MMUL2_PB		0x00000002		/* This bit is 1 if the entry is a 4k page */
 #define DV_V6MMUL2_B		0x00000004		/* B - bufferable */
 #define DV_V6MMUL2_C		0x00000008		/* C - cacheable */
-#define DV_V6MMUL2_AP		0x00000030		/* AP */
+#define DV_V6MMUL2_AP		0x00000030		/* AP - access permissions */
+#define DV_V6MMUL2_AP_0		0x00000000		/*		no access */
+#define DV_V6MMUL2_AP_1		0x00000010		/*		s = r/w  u = none */
+#define DV_V6MMUL2_AP_2		0x00000020		/*		s = r/w  u = r */
+#define DV_V6MMUL2_AP_3		0x00000030		/*		s = r/w  u = r/w */
 #define DV_V6MMUL2_TEX		0x000001c0		/* TEX */
-#define DV_V6MMUL2_APX		0x00000200		/* APX */
+#define DV_V6MMUL2_APX		0x00000200		/* APX : 1 converts s = r/w to s = r in AP */
 #define DV_V6MMUL2_S		0x00000400		/* S */
 #define DV_V6MMUL2_NG		0x00000800		/* nG */
 #define DV_V6MMUL2_ADDR		0xfffff000		/* Physical page address */

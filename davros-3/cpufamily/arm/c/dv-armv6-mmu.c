@@ -22,6 +22,7 @@
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-mempage.h>
 #include <cpufamily/arm/h/dv-armv6-mmu.h>
+#include <kernel/h/dv-stdio.h>
 
 DV_COVDEF(armv6_mmu);
 
@@ -35,6 +36,7 @@ dv_armv6_l1pagetable_t dv_c0_l1_pagetable __attribute__((section("dv_pagetable")
 */
 void dv_armv6_mmu_init(dv_kernel_t *kvars)
 {
+	dv_kprintf("dv_armv6_mmu_init()\n");
 	if ( kvars->cpu.page_table != DV_NULL )
 	{
 		dv_panic(dv_panic_initialisationerror, "dv_armv6_mmu_init", "page table pointer is not null");
@@ -51,6 +53,7 @@ void dv_armv6_mmu_init(dv_kernel_t *kvars)
 */
 void dv_armv6_mmu_map_page(dv_kernel_t *kvars, void *phys, void *virt, dv_u32_t l1_attr, dv_u32_t l2_attr)
 {
+	dv_kprintf("dv_armv6_mmu_map_page() mapping 0x%08x to physical address 0x%08x\n", virt, phys);
 	dv_u32_t v_addr = (dv_u32_t)virt;
 	dv_u32_t l1_ind = dv_armv6_virt_to_l1(v_addr);
 
@@ -83,21 +86,25 @@ void dv_armv6_mmu_map_page(dv_kernel_t *kvars, void *phys, void *virt, dv_u32_t 
  *
  * Allocates a new l2 table and maps it to an l1 entry.
  *
- * Space for the tables is allocated from the free page pool. Each page of memory 4KiB) can
+ * Space for the tables is allocated from the free page pool. Each page of memory (4KiB) can
  * hold 4 l2 tables (256*4 bytes = 1KiB each).
  * The in-use counter of the page allocator keeps track of the number of tables in use in each page.
 */
 
 static inline void dv_armv6_mmu_new_l1_map(dv_kernel_t *kvars, dv_u32_t l1_ind, dv_u32_t l1_attr)
 {
+	dv_kprintf("dv_armv6_mmu_new_l1_map()\n");
 	if ( kvars->cpu.l2_table_page == DV_NULL )
 	{
 		kvars->cpu.l2_table_page = dv_allocate_page(kvars);
+		dv_kprintf("dv_armv6_mmu_new_l1_map(): new l2 array block at 0x%08x\n", kvars->cpu.l2_table_page->page);
 	}
 	else
 	{
 		/* Each allocated page holds up to 4 l2 tables.
 		*/
+		dv_kprintf("dv_armv6_mmu_new_l1_map(): existing l2 array block at 0x%08x, index %d\n",
+			kvars->cpu.l2_table_page->page, kvars->cpu.l2_table_page->n_use);
 		kvars->cpu.l2_table_page->n_use++;
 		if ( kvars->cpu.l2_table_page->n_use > 4 )
 		{
@@ -113,6 +120,7 @@ static inline void dv_armv6_mmu_new_l1_map(dv_kernel_t *kvars, dv_u32_t l1_ind, 
 	{
 		/* All l2 pages in this block are used.
 		*/
+		dv_kprintf("dv_armv6_mmu_new_l1_map(): l2 array block full\n");
 		kvars->cpu.l2_table_page = DV_NULL;
 	}
 }
