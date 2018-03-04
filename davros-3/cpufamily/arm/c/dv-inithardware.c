@@ -22,7 +22,8 @@
 #include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-interrupt.h>
-#include <cpufamily/arm/h/dv-arm-start.h>
+#include DV_H_START
+#include DV_H_MMU
 #include DV_H_INTERRUPTCONTROLLER
 #include DV_H_SYSTEMTIMER
 
@@ -31,6 +32,8 @@
 void dv_init_hardware(dv_kernel_t *kvars)
 {
 	dv_kprintf("dv_init_hardware()\n");
+
+	dv_init_mmu(kvars);
 
 	dv_init_interrupt_controller();
 }

@@ -33,13 +33,9 @@
 #include <kernel/h/dv-c0.h>
 #include <kernel/h/dv-coreconfig.h>
 
-/* Memory pages. Here temporarily until memory protection.
+/* Memory pages. The location of the array is defined in the linker script.
 */
-#if 1
 extern dv_page_t dv_c0_pages[DV_C0_N_PAGES];
-#else
-dv_page_t dv_c0_pages[DV_C0_N_PAGES] __attribute__((section("dv_pages")));
-#endif
 
 /* The kernel stack.
  * The stack is here temporarily until memory protection. We should use one of the pages eventually.

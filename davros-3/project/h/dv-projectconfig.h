@@ -23,6 +23,8 @@
 #include <kernel/h/dv-types.h>
 #include <kernel/h/dv-kernel-types.h>
 
+#define DV_MEMSIZE_MB			480
+
 #define DV_C0_N_EXECUTABLES		20
 #define DV_C0_N_THREADS			20
 #define DV_C0_N_REGISTERS		20

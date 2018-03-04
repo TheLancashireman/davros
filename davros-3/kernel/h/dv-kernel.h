@@ -61,6 +61,9 @@ struct dv_kernel_s
 	dv_kobjallocator_t rbbuf_allocator;
 	dv_kobjallocator_t dllelem_allocator;
 	dv_kobjallocator_t page_allocator;
+#if DV_CPU_HAS_KVARS
+	DV_CPU_KVARS_TYPE cpu;
+#endif
 };
 
 void dv_set_kvars(dv_kernel_t *kvars);

@@ -36,10 +36,7 @@ DV_COVDEF(allocatestack);
 dv_mempage_t *dv_allocate_stack(dv_kernel_t *kvars, const dv_executable_t *exe)
 {
 	dv_executable_t *exe_tbl = dv_coreconfigs[kvars->core_index]->executables;
-	dv_mempage_t *pge_tbl;
 	int i;
-	int pge_i;
-	int n_pge;
 
 	/* Ensure that no executable needs more than a page of stack.
 	 * ToDo: for executables that need more than a page we'll have to do some spanning....

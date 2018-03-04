@@ -20,9 +20,18 @@
 #ifndef dv_arm_kconfig_h
 #define dv_arm_kconfig_h	1
 
+/* Include files for ARM.
+*/
+#define DV_H_REGISTERS		<cpufamily/arm/h/dv-arm-registers.h>
+#define DV_H_DISPATCH		<cpufamily/arm/h/dv-arm-dispatch.h>
+#define DV_H_START			<cpufamily/arm/h/dv-arm-start.h>
+#define DV_H_MMU			<cpufamily/arm/h/dv-armv6-mmu.h>
+
 /* 32-bit processor with no oddities.
 */
 #include <kernel/h/dv-types-32.h>
+#include <kernel/h/dv-kernel-types.h>
+#include DV_H_MMU
 
 /* Size of kernel stack in stackwords.
 */
@@ -36,12 +45,6 @@
 #define DV_MEM_PAGESIZE	4096	/* ARM MMU page size */
 #define DV_MEM_GAP		0		/* ARM MMU doesn't allow multi-byte accesses to spill */
 
-/* Include files for ARM.
-*/
-#define DV_H_REGISTERS		<cpufamily/arm/h/dv-arm-registers.h>
-#define DV_H_DISPATCH		<cpufamily/arm/h/dv-arm-dispatch.h>
-#define DV_H_START			<cpufamily/arm/h/dv-arm-start.h>
-
 /* Vector table location. For ARM processors that have RAM at address 0 we copy the vectors
  * there.
  * If there's read-only memory at 0 we have to flash a vector table that redirects to somewhere in
@@ -50,6 +53,19 @@
 #define DV_VECTOR_LOCATION		0
 
 #if !DV_ASM
+
+/* CPU-specific kernel variables.
+*/
+#define DV_CPU_HAS_KVARS		1
+#define DV_CPU_KVARS_TYPE		dv_arm_kvars_t
+
+typedef struct dv_arm_kvars_s dv_arm_kvars_t;
+
+struct dv_arm_kvars_s
+{
+	dv_armv6_l1pagetable_t *page_table;
+	dv_mempage_t *l2_table_page;
+};
 
 static inline void dv_hw_wait(void)
 {

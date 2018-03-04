@@ -23,6 +23,7 @@ DV_KLIST_C	+= dv-initvectors
 #DV_KLIST_C	+= dv-gic
 #DV_KLIST_C	+= dv-gtimer
 DV_KLIST_C	+= dv-inithardware
+DV_KLIST_C	+= dv-armv6-mmu
 
 # DV_KLIST_S is a list of all the assembler source files that are in the kernel library.
 # Without the .s suffix.
