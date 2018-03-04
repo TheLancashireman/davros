@@ -6,21 +6,38 @@ MEMORY
 
 SECTIONS
 {
-	DV_TextStart = 0;
-    .text		: { *(.text*) } > ram
-	DV_TextEnd = .;
-	.rodata		ALIGN(4096) : { *(.rodata*) } > ram
-	DV_RodataEnd = .;
+    .text		:
+	{
+		dv_start_text = .;
+		*(.text*)
+		dv_end_text = .;
+	} > ram
+	.rodata		ALIGN(4096) :
+	{
+		dv_start_rodata = .;
+		*(.rodata*)
+		dv_end_rodata = .;
+	} > ram
 
-	.c0_stack	ALIGN(4096)	: { *(dv_stack) } > ram
+	.c0_stack	ALIGN(4096)	:
+	{
+		dv_start_stack_c0 = .;
+		*(dv_stack)
+		dv_end_stack_c0 = .;
+	} > ram
 
-	dv_c0_data_begin = ALIGN(4096);
-	.c0_data	ALIGN(4096)	: { *(.data*) } > ram
-	dv_c0_data_end = ALIGN(4096);
-	. = dv_c0_data_end;
-	dv_c0_bss_begin = ALIGN(16);
-    .c0_bss		ALIGN(16)	: { *(.bss*) } > ram
-	dv_c0_bss_end = ALIGN(16);
+	.c0_data	ALIGN(4096)	:
+	{
+		dv_begin_data_c0 = .;
+		*(.data*)
+		dv_end_data_c0 = .;
+	} > ram
+    .c0_bss		ALIGN(16)	:
+	{
+		dv_begin_bss_c0 = .;
+		*(.bss*)
+		dv_end_bss_c0 = .;
+	} > ram
 
 	dv_c0_pages = ALIGN(4096);
 	dv_ram_end = 0x1e000000;			/* Assumes GPU memory of 32 MB */
