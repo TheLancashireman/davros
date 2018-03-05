@@ -1,4 +1,4 @@
-/*	dv-armv6-mmu.c - mmu management functions for armv6
+/*	dv-armv6-mmu.c - mmu management functions for armv6 MMU
  *
  *	Copyright 2018 David Haworth
  *
@@ -30,11 +30,11 @@ static inline void dv_armv6_mmu_new_l1_map(dv_kernel_t *kvars, dv_u32_t l1_ind, 
 
 dv_armv6_l1pagetable_t dv_c0_l1_pagetable __attribute__((section("dv_pagetable")));
 
-/* dv_armv6_mmu_init() - initialise the MMU
+/* dv_armv6_mmu_init_pagetable() - initialise the MMU
  *
  * Initialises the page tables to map the memory at its physical addresses for the kernel.
 */
-void dv_armv6_mmu_init(dv_kernel_t *kvars)
+void dv_armv6_mmu_init_pagetable(dv_kernel_t *kvars)
 {
 	dv_kprintf("dv_armv6_mmu_init()\n");
 	if ( kvars->cpu.page_table != DV_NULL )
@@ -65,16 +65,19 @@ void dv_armv6_mmu_map_page(dv_kernel_t *kvars, void *phys, void *virt, dv_u32_t 
 	dv_u32_t l2_ent = kvars->cpu.page_table->l1page[l1_ind];
 	dv_armv6_l2pagetable_t *l2_tbl = (dv_armv6_l2pagetable_t *)(l2_ent & DV_V6MMUL1_L2B_ADDR);
 	dv_u32_t l2_ind = dv_armv6_virt_to_l2(v_addr);
-	dv_u32_t p_addr = (dv_u32_t)phys && DV_V6MMUL2_ADDR;
+	dv_u32_t p_addr = (dv_u32_t)phys & DV_V6MMUL2_ADDR;
 
 	if ( l2_tbl->l2page[l2_ind] == 0 )
 	{
 		/* New mapping: put physical address and l2 attributes into l2 table.
 		*/
+		dv_kprintf("dv_armv6_mmu_map_page() l1_ind %d, l2_ind %d, value = 0x%08x\n", l1_ind, l2_ind, p_addr | l2_attr);
 		l2_tbl->l2page[l2_ind] = p_addr | l2_attr;
 	}
 	else
 	{
+		dv_kprintf("dv_armv6_mmu_map_page() l1_ind %d, l2_ind %d, reusing existing l2 mapping 0x%08x\n",
+						l1_ind, l2_ind, l2_tbl->l2page[l2_ind]);
 		if ( l2_tbl->l2page[l2_ind] != (p_addr | l2_attr) )
 		{
 			dv_panic(dv_panic_initialisationerror, "dv_armv6_mmu_map_page", "virtual page already mapped differently");
@@ -93,7 +96,7 @@ void dv_armv6_mmu_map_page(dv_kernel_t *kvars, void *phys, void *virt, dv_u32_t 
 
 static inline void dv_armv6_mmu_new_l1_map(dv_kernel_t *kvars, dv_u32_t l1_ind, dv_u32_t l1_attr)
 {
-	dv_kprintf("dv_armv6_mmu_new_l1_map()\n");
+	dv_kprintf("dv_armv6_mmu_new_l1_map() l1_ind %d, l1_attr 0x%08x\n", l1_ind, l1_attr);
 	if ( kvars->cpu.l2_table_page == DV_NULL )
 	{
 		kvars->cpu.l2_table_page = dv_allocate_page(kvars);

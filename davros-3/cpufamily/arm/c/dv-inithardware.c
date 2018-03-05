@@ -32,9 +32,7 @@ void dv_init_hardware(dv_kernel_t *kvars)
 {
 	dv_kprintf("dv_init_hardware()\n");
 
-#if 0
 	dv_init_memory_management(kvars);
-#endif
 
 	dv_init_interrupt_controller();
 }

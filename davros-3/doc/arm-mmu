@@ -1,0 +1,10 @@
+MicroTLB:
+	One for instructions, one for data
+	Global (nG=0) or not global. Not global => ASID used (where from?)
+
+Main TLB:
+	Unified instruction & data
+    8 lockable entries
+	Shared => not cacheable
+	
+

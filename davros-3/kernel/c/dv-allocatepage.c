@@ -23,6 +23,7 @@
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-executable.h>
 #include <kernel/h/dv-mempage.h>
+#include <lib/h/dv-string.h>
 
 DV_COVDEF(allocatepage);
 
@@ -50,7 +51,8 @@ dv_mempage_t *dv_allocate_page(dv_kernel_t *kvars)
 		return DV_NULL;
 
 	pge_tbl[pge_i].n_use = 1;
-	pge_tbl[pge_i].page = &dv_coreconfigs[kvars->core_index]->pages[pge_i];
+	pge_tbl[pge_i].page = dv_memset32(&dv_coreconfigs[kvars->core_index]->pages[pge_i], 0, DV_MEM_PAGESIZE);
+	
 
 	return &pge_tbl[pge_i];
 }

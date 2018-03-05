@@ -112,14 +112,14 @@ struct dv_armv6_l2pagetable_s
 #define DV_V6MMUL2_NG		0x00000800		/* nG */
 #define DV_V6MMUL2_ADDR		0xfffff000		/* Physical page address */
 
-void dv_armv6_mmu_init(dv_kernel_t *kvars);
+void dv_armv6_mmu_init_pagetable(dv_kernel_t *kvars);
 void dv_armv6_mmu_map_page(dv_kernel_t *kvars, void *phys, void *virt, dv_u32_t l1_attr, dv_u32_t l2_attr);
 
 /* Map MMU functions to v6 MMU functions
 */
-static inline void dv_init_mmu(dv_kernel_t *kvars)
+static inline void dv_init_pagetable(dv_kernel_t *kvars)
 {
-	dv_armv6_mmu_init(kvars);
+	dv_armv6_mmu_init_pagetable(kvars);
 }
 
 static inline void dv_mmu_map_page(dv_kernel_t *kvars, void *phys, void *virt, dv_u32_t l1_attr, dv_u32_t l2_attr)
