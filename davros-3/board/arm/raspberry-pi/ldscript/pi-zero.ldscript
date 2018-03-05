@@ -28,13 +28,13 @@ SECTIONS
 
 	.c0_data	ALIGN(4096)	:
 	{
-		dv_begin_data_c0 = .;
+		dv_start_data_c0 = .;
 		*(.data*)
 		dv_end_data_c0 = .;
 	} > ram
     .c0_bss		ALIGN(16)	:
 	{
-		dv_begin_bss_c0 = .;
+		dv_start_bss_c0 = .;
 		*(.bss*)
 		dv_end_bss_c0 = .;
 	} > ram

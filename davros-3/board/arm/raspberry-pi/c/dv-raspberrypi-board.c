@@ -25,15 +25,15 @@
 
 /* These are not really C data objects, just linker script labels.
 */
-extern dv_u32_t dv_begin_bss_c0, dv_end_bss_c0;
+extern dv_u32_t dv_start_bss_c0, dv_end_bss_c0;
 
 void dv_board_start(int core_index)
 {
 	/* data sections are already initialised by the loader.
 	 * The bss sections are cleared here.
 	*/
-	dv_memset32(&dv_begin_bss_c0, 0,
-		((dv_address_t)&dv_end_bss_c0 - (dv_address_t)&dv_begin_bss_c0 + sizeof(dv_u32_t) - 1) / sizeof(dv_u32_t));
+	dv_memset32(&dv_start_bss_c0, 0,
+		((dv_address_t)&dv_end_bss_c0 - (dv_address_t)&dv_start_bss_c0 + sizeof(dv_u32_t) - 1) / sizeof(dv_u32_t));
 	
 	dv_arm_bcm2835_uart_init(115200, 8, 0);
 	dv_arm_bcm2835_uart_console();
