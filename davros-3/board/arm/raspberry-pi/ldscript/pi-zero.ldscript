@@ -19,6 +19,13 @@ SECTIONS
 		dv_end_rodata = .;
 	} > ram
 
+	.c0_pgtbl	ALIGN(16384) :
+	{
+		dv_start_pgtbl_c0 = .;
+		*(dv_pagetable)
+		dv_end_pgtbl_c0 = .;
+	} > ram
+
 	.c0_stack	ALIGN(4096)	:
 	{
 		dv_start_stack_c0 = .;

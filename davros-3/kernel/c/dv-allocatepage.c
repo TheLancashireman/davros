@@ -51,7 +51,8 @@ dv_mempage_t *dv_allocate_page(dv_kernel_t *kvars)
 		return DV_NULL;
 
 	pge_tbl[pge_i].n_use = 1;
-	pge_tbl[pge_i].page = dv_memset32(&dv_coreconfigs[kvars->core_index]->pages[pge_i], 0, DV_MEM_PAGESIZE);
+	pge_tbl[pge_i].page = (dv_page_t *)dv_memset32((dv_u32_t *)&dv_coreconfigs[kvars->core_index]->pages[pge_i],
+																									0, DV_MEM_PAGESIZE);
 	
 
 	return &pge_tbl[pge_i];

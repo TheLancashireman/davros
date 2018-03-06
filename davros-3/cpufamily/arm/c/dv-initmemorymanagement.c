@@ -22,6 +22,10 @@
 #include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-kernel.h>
 #include DV_H_MMU
+#include <cpufamily/arm/h/dv-arm-bcm2835-aux.h>
+#include <cpufamily/arm/h/dv-arm-bcm2835-gpio.h>
+#include <cpufamily/arm/h/dv-arm-bcm2835-interruptcontroller.h>
+#include <cpufamily/arm/h/dv-arm-bcm2835-timer.h>
 #include <kernel/h/dv-stdio.h>
 
 /* ToDo: all these attributes are read/write at the moment.
@@ -36,6 +40,7 @@
 
 extern dv_u32_t dv_start_text, dv_end_text;
 extern dv_u32_t dv_start_rodata, dv_end_rodata; 
+extern dv_u32_t dv_start_pgtbl_c0, dv_end_pgtbl_c0;
 extern dv_u32_t dv_start_stack_c0, dv_end_stack_c0;
 extern dv_u32_t dv_start_data_c0, dv_end_bss_c0;
 
@@ -45,6 +50,7 @@ extern dv_u32_t dv_start_data_c0, dv_end_bss_c0;
 void dv_init_memory_management(dv_kernel_t *kvars)
 {
 	dv_u32_t p;
+	int i;
 
 	dv_kprintf("dv_init_memory_management()\n");
 
@@ -68,6 +74,13 @@ void dv_init_memory_management(dv_kernel_t *kvars)
 		dv_mmu_map_page(kvars, (void *)p, (void *)p, L1_ATTR, L2_ATTR_RO);
 	}
 
+	/* Map read/write pages for the page table region.
+	*/
+	for ( p = (dv_u32_t)&dv_start_pgtbl_c0; p < (dv_u32_t)&dv_end_pgtbl_c0; p += DV_MEM_PAGESIZE )
+	{
+		dv_mmu_map_page(kvars, (void *)p, (void *)p, L1_ATTR, L2_ATTR_RW);
+	}
+	
 	/* Map read/write pages for the stack region.
 	*/
 	for ( p = (dv_u32_t)&dv_start_stack_c0; p < (dv_u32_t)&dv_end_stack_c0; p += DV_MEM_PAGESIZE )
@@ -82,8 +95,23 @@ void dv_init_memory_management(dv_kernel_t *kvars)
 		dv_mmu_map_page(kvars, (void *)p, (void *)p, L1_ATTR, L2_ATTR_RW);
 	}
 
-	/* ToDo: map pages for the page tables.
+	/* Map pages for the I/O regions (int. controller, UART, timer, GPIO etc.)
+	 * UART is in the AUX page.
 	*/
-	/* ToDo: map pages for the I/O regions (int. controller, UART, timer, GPIO etc.)
+	dv_mmu_map_page(kvars, (void *)&dv_arm_bcm2835_aux, (void *)&dv_arm_bcm2835_aux, L1_ATTR, L2_ATTR_IO);
+	dv_mmu_map_page(kvars, (void *)&dv_arm_bcm2835_gpio, (void *)&dv_arm_bcm2835_gpio, L1_ATTR, L2_ATTR_IO);
+	dv_mmu_map_page(kvars, (void *)&dv_arm_bcm2835_interruptcontroller, (void *)&dv_arm_bcm2835_interruptcontroller,
+																								L1_ATTR, L2_ATTR_IO);
+	dv_mmu_map_page(kvars, (void *)&dv_arm_bcm2835_timer, (void *)&dv_arm_bcm2835_timer, L1_ATTR, L2_ATTR_IO);
+
+	/* Map pages for the page tables.
 	*/
+	for ( i = 0; i < DV_ARMV6MMU_L1_SIZE; i++ )
+	{
+		if ( kvars->cpu.page_table->l1page[i] != 0 )
+		{
+			p = kvars->cpu.page_table->l1page[i] & DV_V6MMUL1_L2B_ADDR;
+			dv_mmu_map_page(kvars, (void *)p, (void *)p, L1_ATTR, L2_ATTR_RW);
+		}
+	}
 }
