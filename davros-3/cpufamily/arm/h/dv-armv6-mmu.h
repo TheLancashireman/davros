@@ -127,6 +127,70 @@ static inline void dv_mmu_map_page(dv_kernel_t *kvars, void *phys, void *virt, d
 	dv_armv6_mmu_map_page(kvars, phys, virt, l1_attr, l2_attr);
 }
 
+/* Functions to control the MMU via CP15
+ *
+ * mcr = "send command to coprocessor and pass some data in"
+ * mrc = "send command to coprocessor and get some data back"
+ *
+ * For CP15:
+ *	mcr	P15, Op1, Rd, CRn, CRm, Op2
+ *	mrc	P15, Op1, Rd, CRn, CRm, Op2
+ *
+ * Op1 = Opcode_1 value for the register
+ * Rd = CPU register
+ * CRn = register in CP15
+ * CRm = operational register in CP15
+ * Op2 = Opcode_2 value for the register
+*/
+static inline void dv_set_translation_table_base_0(dv_u32_t x)
+{
+	__asm__ volatile ("mcr  p15, 0, %0, c2, c0, 0" : : "r"(x) : );
+}
+	
+static inline void dv_set_translation_table_base_1(dv_u32_t x)
+{
+	__asm__ volatile ("mcr  p15, 0, %0, c2, c0, 1" : : "r"(x) : );
+}
+	
+static inline void dv_set_translation_table_base_control(dv_u32_t x)
+{
+	__asm__ volatile ("mcr  p15, 0, %0, c2, c0, 2" : : "r"(x) : );
+}
+	
+static inline dv_u32_t dv_get_translation_table_base_0(void)
+{
+	dv_u32_t x;
+	__asm__ volatile ("mrc  p15, 0, %0, c2, c0, 0" : "=r"(x) : );
+	return x;
+}
+	
+static inline dv_u32_t dv_get_translation_table_base_1(void)
+{
+	dv_u32_t x;
+	__asm__ volatile ("mrc  p15, 0, %0, c2, c0, 1" : "=r"(x) : );
+	return x;
+}
+	
+static inline dv_u32_t dv_get_translation_table_base_control(void)
+{
+	dv_u32_t x;
+	__asm__ volatile ("mrc  p15, 0, %0, c2, c0, 2" : "=r"(x) : );
+	return x;
+}
+
+static inline void dv_set_domain_access_control(dv_u32_t x)
+{
+	__asm__ volatile ("mcr  p15, 0, %0, c3, c0, 0" : : "r"(x) : );
+}
+
+static inline dv_u32_t dv_get_domain_access_control(void)
+{
+	dv_u32_t x;
+	__asm__ volatile ("mrc  p15, 0, %0, c3, c0, 0" : "=r"(x) : );
+	return x;
+}
+
+
 #endif
 
 #endif
