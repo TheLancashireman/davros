@@ -77,5 +77,5 @@ void dv_sys_sleep_until(dv_kernel_t *kvars, dv_index_t sci)
 		e = dv_eid_TimeInThePast;
 	}
 
-	dv_set_rv0(kvars->current_thread->regs, e);
+	dv_set_rv0(exe->registers, e);
 }

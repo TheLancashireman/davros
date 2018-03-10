@@ -60,7 +60,9 @@ void dv_sys_sleep(dv_kernel_t *kvars, dv_index_t sci)
 		{
 			/* Inserted at queue head; need to set the timer interrupt.
 			*/
+			DV_DBG(dv_kprintf("dv_sys_sleep(): setting timer alarm 0x%08x%08x\n", (dv_u32_t)(t>>32), (dv_u32_t)(t)));
 			dv_set_system_timer_alarm(t);
+			DV_DBG(dv_kprintf("dv_sys_sleep(): return from dv_set_system_timer_alarm(t)\n"));
 		}
 	}
 	else
@@ -68,5 +70,5 @@ void dv_sys_sleep(dv_kernel_t *kvars, dv_index_t sci)
 		e = dv_eid_TimeInThePast;
 	}
 
-	dv_set_rv0(kvars->current_thread->regs, e);
+	dv_set_rv0(exe->registers, e);
 }

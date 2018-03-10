@@ -61,7 +61,7 @@ dv_mempage_t *dv_allocate_page(dv_kernel_t *kvars)
 	*/
 	dv_mmu_map_physical_page(kvars, p);
 	
-	pge_tbl[pge_i].page = (dv_page_t *)dv_memset32((dv_u32_t *)p, 0, DV_MEM_PAGESIZE);
+	pge_tbl[pge_i].page = (dv_page_t *)dv_memset32((dv_u32_t *)p, 0, DV_MEM_PAGESIZE/sizeof(dv_u32_t));
 	
 
 	return &pge_tbl[pge_i];
