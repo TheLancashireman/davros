@@ -71,6 +71,26 @@ const dv_execonfig_t task_qxx_cfg =
 	DV_EXEFLAG_BLOCKING	/* Flags */
 };
 
+void dv_catch_data_abort(void)
+{
+	dv_panic(dv_panic_unimplemented, "dv_catch_data_abort", "Oops! An exception occurred");
+}
+
+void dv_catch_prefetch_abort(void)
+{
+	dv_panic(dv_panic_unimplemented, "dv_catch_prefetch_abort", "Oops! An exception occurred");
+}
+
+void dv_catch_reserved(void)
+{
+	dv_panic(dv_panic_unimplemented, "dv_catch_reserved", "Oops! An exception occurred");
+}
+
+void dv_catch_undef(void)
+{
+	dv_panic(dv_panic_unimplemented, "dv_catch_undef", "Oops! An exception occurred");
+}
+
 void dv_trap_unimplemented(void)
 {
 	dv_panic(dv_panic_unimplemented, "dv_trap_unimplemented", "Oops! An exception occurred");
