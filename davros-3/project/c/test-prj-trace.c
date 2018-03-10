@@ -27,6 +27,11 @@ void dv_trace_api(dv_thread_t *thread, dv_index_t sci, const dv_syscall_t *sc)
 			dv_get_p0(thread->regs), dv_get_p1(thread->regs), dv_get_p2(thread->regs), dv_get_p3(thread->regs));
 }
 
+void dv_trace_api_done(dv_thread_t *thread, dv_index_t sci, const dv_syscall_t *sc)
+{
+	dv_kprintf("TRACE: API %d (%s) returned\n", sci, sc->name);
+}
+
 void dv_trace_dumpregs(const char *str, const dv_registers_t *r)
 {
 	int i;

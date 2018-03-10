@@ -50,6 +50,7 @@ void dv_syscall(dv_kernel_t *kvars, dv_machineword_t sc_index)
 			dv_index_t sci = (dv_index_t)sc_index;
 			dv_trace_api(kvars->current_thread, sci, &dv_syscalltable[sci]);
 			(*dv_syscalltable[sci].function)(kvars, sci);
+			dv_trace_api_done(kvars->current_thread, sci, &dv_syscalltable[sci]);
 		}
 		else
 		{

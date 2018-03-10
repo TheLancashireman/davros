@@ -33,8 +33,10 @@
 */
 void dv_trace_threadstate(dv_thread_t *thread, dv_threadstate_t newstate);
 void dv_trace_api(dv_thread_t *thread, dv_index_t sci, const dv_syscall_t *sc);
+void dv_trace_api_done(dv_thread_t *thread, dv_index_t sci, const dv_syscall_t *sc);
 void dv_trace_dumpregs(const char *str, const dv_registers_t *r);
 void dv_trace_dumpcpuregs(void);
+void dv_trace_error(dv_errorid_t e, dv_thread_t *thread);
 
 #else
 
@@ -46,11 +48,19 @@ static inline void dv_trace_api(dv_thread_t *unused_thread, dv_index_t unused_sc
 {
 }
 
+static inline void dv_trace_api_done(dv_thread_t *unused_thread, dv_index_t unused_sci, const dv_syscall_t *unused_sc)
+{
+}
+
 static inline void dv_trace_dumpregs(const char *unused_str, const dv_registers_t *unused_r)
 {
 }
 
 static inline void dv_trace_dumpcpuregs(void)
+{
+}
+
+static inline void dv_trace_error(dv_errorid_t e, dv_thread_t *thread)
 {
 }
 
