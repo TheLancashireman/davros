@@ -59,14 +59,20 @@ void dv_start(dv_index_t ci)
 
 	/* Create executables for main() and the idle loop, and spawn them.
 	*/
+	dv_kputc('1');
 	exe_tbl = dv_coreconfigs[kvars->core_index]->executables;
 
+	dv_kputc('2');
 	DV_DBG(dv_kprintf("dv_create_executable(idle)\n"));
+	dv_kputc('3');
 	e = dv_create_executable(kvars, ccfg->idle_cfg);
 	if ( e >= 0 )
 	{
+		dv_kputc('4');
 		DV_DBG(dv_kprintf("dv_spawn_executable(%d)\n", e));
+		dv_kputc('5');
 		dv_spawn_executable(kvars, &exe_tbl[e]);
+		dv_kputc('6');
 	}
 	else
 		dv_panic(dv_panic_objectsearchfailed, "dv_start", "Failed to create executable for idle");

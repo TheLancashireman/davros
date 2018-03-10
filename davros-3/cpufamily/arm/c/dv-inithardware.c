@@ -44,6 +44,6 @@ void dv_init_hardware(dv_kernel_t *kvars)
 void dv_init_peripherals(dv_kernel_t *kvars)
 {
 	dv_kprintf("dv_init_peripherals()\n");
-
 	dv_init_system_timer(kvars);
+	dv_kprintf("dv_init_peripherals() returning to caller\n");
 }

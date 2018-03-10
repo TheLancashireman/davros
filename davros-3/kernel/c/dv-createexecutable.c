@@ -116,12 +116,14 @@ dv_index_t dv_create_executable(dv_kernel_t *kvars, const dv_execonfig_t *execfg
 			}
 		}
 
+		dv_kprintf("dv_create_executable(): allocating stack for %s\n", exe->name);
 		exe->stackpage = dv_allocate_stack(kvars, exe);
 		if ( exe->stackpage == DV_NULL )
 		{
 			/* ToDo: better error handling */
 			dv_panic(dv_panic_objectsearchfailed, "dv_create_executable", "no stack available");
 		}
+		dv_kprintf("dv_create_executable(): allocated stack for %s\n", exe->name);
 		exe->initial_sp = &exe->stackpage->page->words[exe->n_stack - DV_STACKEXTRA];
 
 		/* If all OK, enable the new executable.
