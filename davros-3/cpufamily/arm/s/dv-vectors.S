@@ -60,9 +60,5 @@ dv_vectortable_end:
 
 /* Temporary vectors for stuff that isn't handled yet
 */
-dv_trap_undef:
-dv_trap_prefetch_abort:
-dv_trap_data_abort:
-dv_trap_reserved:
 dv_trap_fiq:
 	b		dv_trap_unimplemented   
