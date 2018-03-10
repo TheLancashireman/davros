@@ -35,6 +35,10 @@ DV_KLIST_S	+= dv-setkvars
 DV_KLIST_S	+= dv-sbreak
 DV_KLIST_S	+= dv-irq
 DV_KLIST_S	+= dv-saveregs
+DV_KLIST_S	+= dv-dabort
+DV_KLIST_S	+= dv-pfabort
+DV_KLIST_S	+= dv-reserved
+DV_KLIST_S	+= dv-undef
 #DV_KLIST_S	+= dv-getconfigbase
 
 # DV_ULIST_S is a list of all the assembler source files that are in the user library.
