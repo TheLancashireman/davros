@@ -170,7 +170,10 @@ static inline void dv_mmu_map_page(dv_kernel_t *kvars, void *phys, void *virt, d
 
 static inline void dv_mmu_map_physical_page(dv_kernel_t *kvars, void *phys)
 {
-	dv_armv6_mmu_map_page(kvars, phys, phys, DV_L1_ATTR, DV_L2_ATTR_RW);
+	if ( kvars->cpu.mmu_active )
+	{
+		dv_armv6_mmu_map_page(kvars, phys, phys, DV_L1_ATTR, DV_L2_ATTR_RW);
+	}
 }
 
 
