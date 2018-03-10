@@ -104,7 +104,7 @@ static inline void dv_armv6_mmu_new_l1_map(dv_kernel_t *kvars, dv_u32_t l1_ind, 
 	}
 	else
 	{
-		/* Each allocated page holds up to 4 l2 tables.
+		/* Each allocated page holds up to 4 L2 tables.
 		*/
 		dv_kprintf("dv_armv6_mmu_new_l1_map(): existing l2 array block at 0x%08x, index %d\n",
 			kvars->cpu.l2_table_page->page, kvars->cpu.l2_table_page->n_use);
@@ -121,7 +121,7 @@ static inline void dv_armv6_mmu_new_l1_map(dv_kernel_t *kvars, dv_u32_t l1_ind, 
 
 	if ( kvars->cpu.l2_table_page->n_use >= 4 )
 	{
-		/* All l2 pages in this block are used.
+		/* All four L2 pages in this block are used.
 		*/
 		dv_kprintf("dv_armv6_mmu_new_l1_map(): l2 array block full\n");
 		kvars->cpu.l2_table_page = DV_NULL;
