@@ -24,6 +24,7 @@
 #include <kernel/h/dv-executable.h>
 #include <kernel/h/dv-mempage.h>
 #include <lib/h/dv-string.h>
+#include DV_H_MMU
 
 DV_COVDEF(allocatepage);
 
@@ -46,13 +47,21 @@ dv_mempage_t *dv_allocate_page(dv_kernel_t *kvars)
 	dv_mempage_t *pge_tbl = dv_coreconfigs[kvars->core_index]->mempage;
 	int n_pge = dv_coreconfigs[kvars->core_index]->n_pages;
 	int pge_i = dv_allocate_obj(&kvars->page_allocator, n_pge, dv_is_free_page, pge_tbl);
+	void *p;
 
 	if ( pge_i < 0 )
 		return DV_NULL;
 
 	pge_tbl[pge_i].n_use = 1;
-	pge_tbl[pge_i].page = (dv_page_t *)dv_memset32((dv_u32_t *)&dv_coreconfigs[kvars->core_index]->pages[pge_i],
-																									0, DV_MEM_PAGESIZE);
+
+	p = &dv_coreconfigs[kvars->core_index]->pages[pge_i];
+
+	/* If the MMU is active we have to map the page at its physical address and
+	 * make it read/write.
+	*/
+	dv_mmu_map_physical_page(kvars, p);
+	
+	pge_tbl[pge_i].page = (dv_page_t *)dv_memset32((dv_u32_t *)p, 0, DV_MEM_PAGESIZE);
 	
 
 	return &pge_tbl[pge_i];

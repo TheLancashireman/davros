@@ -30,8 +30,8 @@
 /* 32-bit processor with no oddities.
 */
 #include <kernel/h/dv-types-32.h>
+#include <kernel/h/dv-types.h>
 #include <kernel/h/dv-kernel-types.h>
-#include DV_H_MMU
 
 /* Size of kernel stack in stackwords.
 */
@@ -60,11 +60,13 @@
 #define DV_CPU_KVARS_TYPE		dv_arm_kvars_t
 
 typedef struct dv_arm_kvars_s dv_arm_kvars_t;
+typedef struct dv_armv6_l1pagetable_s dv_armv6_l1pagetable_t;
 
 struct dv_arm_kvars_s
 {
 	dv_armv6_l1pagetable_t *page_table;
 	dv_mempage_t *l2_table_page;
+	dv_boolean_t mmu_active;
 };
 
 static inline void dv_hw_wait(void)

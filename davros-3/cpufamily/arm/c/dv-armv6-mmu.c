@@ -119,7 +119,7 @@ static inline void dv_armv6_mmu_new_l1_map(dv_kernel_t *kvars, dv_u32_t l1_ind, 
 	dv_u32_t l1_ent = (dv_u32_t)&l2_tbl[kvars->cpu.l2_table_page->n_use-1];
 	kvars->cpu.page_table->l1page[l1_ind] = l1_ent | l1_attr;
 
-	if ( kvars->cpu.l2_table_page->n_use > 4 )
+	if ( kvars->cpu.l2_table_page->n_use >= 4 )
 	{
 		/* All l2 pages in this block are used.
 		*/

@@ -23,13 +23,13 @@
 #if !DV_ASM
 
 #include <kernel/h/dv-types.h>
+#include <kernel/h/dv-kernel.h>
 
 /* A page table consists of an array of 32-bit words, each of which
  * specifies some kind of object.
 */
 typedef dv_u32_t dv_arm_pagetableentry_t;
 
-typedef struct dv_armv6_l1pagetable_s dv_armv6_l1pagetable_t;
 typedef struct dv_armv6_l2pagetable_s dv_armv6_l2pagetable_t;
 
 #define DV_V6MMU_TYPE		0x00000003		/* Entry type (but see XN bit in L2 */
@@ -115,8 +115,49 @@ struct dv_armv6_l2pagetable_s
 void dv_armv6_mmu_init_pagetable(dv_kernel_t *kvars);
 void dv_armv6_mmu_map_page(dv_kernel_t *kvars, void *phys, void *virt, dv_u32_t l1_attr, dv_u32_t l2_attr);
 
+/* MMU attributes
+ *
+ * Level 1: Type = L2 base, domain = 0, non-secure.
+*/
+#define DV_L1_ATTR		(DV_V6MMUL1_L2B | DV_V6MMUL1_NS)
+
+/* MMU attributes:
+ *
+ * Level 2: Type = page base.
+ *
+ * ToDo: all these attributes are read/write at the moment.
+ *
+ * Access rights: rwxrwx (supervisor/user)
+*/
+/* Vector table: Buffered, cacheable, r-xr-x
+*/
+#define DV_L2_ATTR_V	(DV_V6MMUL2_PB|DV_V6MMUL2_B|DV_V6MMUL2_C|DV_V6MMUL2_AP_1)
+
+/* Code: Buffered, cacheable, r-xr-x
+*/
+#define DV_L2_ATTR_C	(DV_V6MMUL2_PB|DV_V6MMUL2_B|DV_V6MMUL2_C|DV_V6MMUL2_AP_1)
+
+/* RO data: Buffered, cacheable, r--r--
+*/
+#define DV_L2_ATTR_RO	(DV_V6MMUL2_PB|DV_V6MMUL2_B|DV_V6MMUL2_C|DV_V6MMUL2_AP_1|DV_V6MMUL2_XN)
+
+/* Data: Buffered, cacheable, rw-rw-
+*/
+#define DV_L2_ATTR_RW	(DV_V6MMUL2_PB|DV_V6MMUL2_B|DV_V6MMUL2_C|DV_V6MMUL2_AP_1|DV_V6MMUL2_XN)
+
+/* I/O: Not buffered, not cacheable, rw-rw-
+*/
+#define DV_L2_ATTR_IO	(DV_V6MMUL2_PB|DV_V6MMUL2_AP_1|DV_V6MMUL2_XN)
+
+
+
 /* Map MMU functions to v6 MMU functions
 */
+static inline dv_boolean_t dv_mmu_active(dv_kernel_t *kvars)
+{
+	return kvars->cpu.mmu_active;
+}
+
 static inline void dv_init_pagetable(dv_kernel_t *kvars)
 {
 	dv_armv6_mmu_init_pagetable(kvars);
@@ -126,6 +167,13 @@ static inline void dv_mmu_map_page(dv_kernel_t *kvars, void *phys, void *virt, d
 {
 	dv_armv6_mmu_map_page(kvars, phys, virt, l1_attr, l2_attr);
 }
+
+static inline void dv_mmu_map_physical_page(dv_kernel_t *kvars, void *phys)
+{
+	dv_armv6_mmu_map_page(kvars, phys, phys, DV_L1_ATTR, DV_L2_ATTR_RW);
+}
+
+
 
 /* Functions to control the MMU via CP15
  *
@@ -189,6 +237,12 @@ static inline dv_u32_t dv_get_domain_access_control(void)
 	__asm__ volatile ("mrc  p15, 0, %0, c3, c0, 0" : "=r"(x) : );
 	return x;
 }
+
+/* The DAC register holds 16 x 2-bit fields, one per domain
+*/
+#define DV_DAC_NO_ACCESS	0x00
+#define DV_DAC_CLIENT		0x01
+#define DV_DAC_MANAGER		0x03
 
 
 #endif
