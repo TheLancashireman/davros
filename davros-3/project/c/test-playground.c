@@ -285,6 +285,17 @@ void Task_Bar(void)
 		dv_kprintf("Task_Bar: woken up %d\n", bar_count);
 		e = dv_spawn(task_fot);		/* should run when bar finishes */
 		dv_kprintf("Task_Bar dv_spawn(task_fot) returned %d\n", e);
+
+		/* Temporary: try some bad things */
+#if 0
+		dv_kprintf("Task_Bar trying to write to 0x4000\n");
+		*(dv_u32_t *)0x4000 = 0;
+#endif
+
+#if 0
+		dv_kprintf("Task_Bar trying to write misaligned\n");
+		*(dv_u32_t *)(((dv_u32_t)(&bar_count))+1) = 0;
+#endif
 	}
 }
 
