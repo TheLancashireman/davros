@@ -78,14 +78,14 @@ dv_thread_t *dv_allocate_thread(dv_kernel_t *kvars, const dv_executable_t *exe)
 				 * of instances of the new executable.
 				*/
 				dv_rb_configure(exe_tbl[i].thread->jobqueue, rb_simple, 4, exe->maxinstances);
-				dv_kprintf("dv_allocate_thread(): new jobj queue, length is %d\n",
-							exe_tbl[i].thread->jobqueue->length);
+				DV_DBG(dv_kprintf("dv_allocate_thread(): new jobj queue, length is %d\n",
+							exe_tbl[i].thread->jobqueue->length));
 			}
 			else
 			{
 				dv_rb_lengthen(exe_tbl[i].thread->jobqueue, exe->maxinstances);
-				dv_kprintf("dv_allocate_thread(): lengthen jobj queue, length is %d\n",
-							exe_tbl[i].thread->jobqueue->length);
+				DV_DBG(dv_kprintf("dv_allocate_thread(): lengthen jobj queue, length is %d\n",
+							exe_tbl[i].thread->jobqueue->length));
 			}
 
 			return exe_tbl[i].thread;

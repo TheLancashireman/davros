@@ -45,18 +45,18 @@ void dv_init_memory_management(dv_kernel_t *kvars)
 	dv_u32_t p;
 	int i;
 
-	dv_kprintf("dv_init_memory_management()\n");
+	DV_DBG(dv_kprintf("dv_init_memory_management()\n"));
 
 	dv_init_pagetable(kvars);
 
 	/* Map a page for the exception vectors.
 	*/
-	dv_kprintf("dv_init_memory_management() - map page for vectors\n");
+	DV_DBG(dv_kprintf("dv_init_memory_management() - map page for vectors\n"));
 	dv_mmu_map_page(kvars, (void *)DV_VECTOR_LOCATION, (void *)DV_VECTOR_LOCATION, DV_L1_ATTR, DV_L2_ATTR_V);
 
 	/* Map code pages for the text region.
 	*/
-	dv_kprintf("dv_init_memory_management() - map pages for text\n");
+	DV_DBG(dv_kprintf("dv_init_memory_management() - map pages for text\n"));
 	for ( p = (dv_u32_t)&dv_start_text; p < (dv_u32_t)&dv_end_text; p += DV_MEM_PAGESIZE )
 	{
 		dv_mmu_map_page(kvars, (void *)p, (void *)p, DV_L1_ATTR, DV_L2_ATTR_C);
@@ -64,7 +64,7 @@ void dv_init_memory_management(dv_kernel_t *kvars)
 
 	/* Map read-only pages (no execute) for the rodata region.
 	*/
-	dv_kprintf("dv_init_memory_management() - map pages for rodata\n");
+	DV_DBG(dv_kprintf("dv_init_memory_management() - map pages for rodata\n"));
 	for ( p = (dv_u32_t)&dv_start_rodata; p < (dv_u32_t)&dv_end_rodata; p += DV_MEM_PAGESIZE )
 	{
 		dv_mmu_map_page(kvars, (void *)p, (void *)p, DV_L1_ATTR, DV_L2_ATTR_RO);
@@ -72,7 +72,7 @@ void dv_init_memory_management(dv_kernel_t *kvars)
 
 	/* Map read/write pages for the page table region.
 	*/
-	dv_kprintf("dv_init_memory_management() - map pages for L1 page table\n");
+	DV_DBG(dv_kprintf("dv_init_memory_management() - map pages for L1 page table\n"));
 	for ( p = (dv_u32_t)&dv_start_pgtbl_c0; p < (dv_u32_t)&dv_end_pgtbl_c0; p += DV_MEM_PAGESIZE )
 	{
 		dv_mmu_map_page(kvars, (void *)p, (void *)p, DV_L1_ATTR, DV_L2_ATTR_RW);
@@ -80,7 +80,7 @@ void dv_init_memory_management(dv_kernel_t *kvars)
 	
 	/* Map read/write pages for the stack region.
 	*/
-	dv_kprintf("dv_init_memory_management() - map pages for kernel stack\n");
+	DV_DBG(dv_kprintf("dv_init_memory_management() - map pages for kernel stack\n"));
 	for ( p = (dv_u32_t)&dv_start_stack_c0; p < (dv_u32_t)&dv_end_stack_c0; p += DV_MEM_PAGESIZE )
 	{
 		dv_mmu_map_page(kvars, (void *)p, (void *)p, DV_L1_ATTR, DV_L2_ATTR_RW);
@@ -88,7 +88,7 @@ void dv_init_memory_management(dv_kernel_t *kvars)
 
 	/* Map read/write pages for the data/bss region.
 	*/
-	dv_kprintf("dv_init_memory_management() - map pages for kernel data/bss\n");
+	DV_DBG(dv_kprintf("dv_init_memory_management() - map pages for kernel data/bss\n"));
 	for ( p = (dv_u32_t)&dv_start_data_c0; p < (dv_u32_t)&dv_end_bss_c0; p += DV_MEM_PAGESIZE )
 	{
 		dv_mmu_map_page(kvars, (void *)p, (void *)p, DV_L1_ATTR, DV_L2_ATTR_RW);
@@ -97,19 +97,19 @@ void dv_init_memory_management(dv_kernel_t *kvars)
 	/* Map pages for the I/O regions (int. controller, UART, timer, GPIO etc.)
 	 * UART is in the AUX page.
 	*/
-	dv_kprintf("dv_init_memory_management() - map page for I/O aux\n");
+	DV_DBG(dv_kprintf("dv_init_memory_management() - map page for I/O aux\n"));
 	dv_mmu_map_page(kvars, (void *)&dv_arm_bcm2835_aux, (void *)&dv_arm_bcm2835_aux, DV_L1_ATTR, DV_L2_ATTR_IO);
-	dv_kprintf("dv_init_memory_management() - map page for I/O gpio\n");
+	DV_DBG(dv_kprintf("dv_init_memory_management() - map page for I/O gpio\n"));
 	dv_mmu_map_page(kvars, (void *)&dv_arm_bcm2835_gpio, (void *)&dv_arm_bcm2835_gpio, DV_L1_ATTR, DV_L2_ATTR_IO);
-	dv_kprintf("dv_init_memory_management() - map page for I/O interrupt controller\n");
+	DV_DBG(dv_kprintf("dv_init_memory_management() - map page for I/O interrupt controller\n"));
 	dv_mmu_map_page(kvars, (void *)&dv_arm_bcm2835_interruptcontroller, (void *)&dv_arm_bcm2835_interruptcontroller,
 																							DV_L1_ATTR, DV_L2_ATTR_IO);
-	dv_kprintf("dv_init_memory_management() - map page for I/O timer\n");
+	DV_DBG(dv_kprintf("dv_init_memory_management() - map page for I/O timer\n"));
 	dv_mmu_map_page(kvars, (void *)&dv_arm_bcm2835_timer, (void *)&dv_arm_bcm2835_timer, DV_L1_ATTR, DV_L2_ATTR_IO);
 
 	/* Map pages for the page tables.
 	*/
-	dv_kprintf("dv_init_memory_management() - map pages for L2 page tables\n");
+	DV_DBG(dv_kprintf("dv_init_memory_management() - map pages for L2 page tables\n"));
 	for ( i = 0; i < DV_ARMV6MMU_L1_SIZE; i++ )
 	{
 		if ( kvars->cpu.page_table->l1page[i] != 0 )
@@ -122,13 +122,13 @@ void dv_init_memory_management(dv_kernel_t *kvars)
 	/* Caches not enabled yet, so no need to flush/invalidate/disable here.
 	 * N is zero, so all translations use TTB0.
 	*/
-	dv_kprintf("dv_init_memory_management() - set ttb0 to 0x%08x\n", (dv_u32_t)kvars->cpu.page_table);
+	DV_DBG(dv_kprintf("dv_init_memory_management() - set ttb0 to 0x%08x\n", (dv_u32_t)kvars->cpu.page_table));
 	dv_set_translation_table_base_0((dv_u32_t)kvars->cpu.page_table);
-	dv_kprintf("dv_init_memory_management() - set all domain access control to \"manager\"\n");
+	DV_DBG(dv_kprintf("dv_init_memory_management() - set all domain access control to \"manager\"\n"));
 	dv_set_domain_access_control(0xffffffff);		/* Everything to "manager" */
-	dv_kprintf("dv_init_memory_management() - enable MMU\n");
+	DV_DBG(dv_kprintf("dv_init_memory_management() - enable MMU\n"));
 	dv_write_cp15_control(dv_read_cp15_control() | DV_CP15_CTRL_M);
-	dv_kprintf("dv_init_memory_management() - MMU should be enabled now\n");
+	DV_DBG(dv_kprintf("dv_init_memory_management() - MMU should be enabled now\n"));
 	kvars->cpu.mmu_active = 1;
 
 }

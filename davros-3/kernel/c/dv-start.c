@@ -38,7 +38,7 @@ void dv_start(dv_index_t ci)
 	dv_index_t e;
 	dv_executable_t *exe_tbl;
 
-	dv_kprintf("dv_start(%d)\n", ci);
+	DV_DBG(dv_kprintf("dv_start(%d)\n", ci));
 
 	/* Initialise the kernel variables.
 	*/

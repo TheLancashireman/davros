@@ -31,27 +31,5 @@
 */
 void dv_unknown_interrupt(dv_kernel_t *unused_kvars, dv_address_t param)
 {
-#if 1
 	dv_kprintf("dv_unknown_interrupt() - 0x%08x\n", (unsigned)param);
-#else
-	char buf[12];
-	int i;
-
-	/* ToDo: use a sprintf function to make a better error message.
-	*/
-	buf[0] = '0';
-	buf[1] = 'x';
-	buf[10] = '\0';
-
-	for ( i = 0; i < 8; i++ )
-	{
-		buf[2+i] = (vec >> (i*4));
-		if ( buf[2+i] > 9 )
-			buf[2+i] += 'a' - 10;
-		else
-			buf[2+i] += '0';
-	}
-
-	dv_panic(dv_panic_hardwareerror, "dv_unknown_interrupt", buf);
-#endif
 }

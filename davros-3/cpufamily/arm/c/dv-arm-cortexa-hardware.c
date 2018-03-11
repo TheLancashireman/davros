@@ -30,7 +30,7 @@
 */
 void dv_init_hardware(dv_kernel_t *kvars)
 {
-	dv_kprintf("dv_init_hardware() called\n");
+	DV_DBG(dv_kprintf("dv_init_hardware() called\n"));
 
 	dv_init_interrupt_controller();
 }
@@ -41,7 +41,7 @@ void dv_init_hardware(dv_kernel_t *kvars)
 */
 void dv_init_peripherals(dv_kernel_t *kvars)
 {
-	dv_kprintf("dv_init_peripherals()\n");
+	DV_DBG(dv_kprintf("dv_init_peripherals()\n"));
 
 	dv_init_system_timer(kvars);
 

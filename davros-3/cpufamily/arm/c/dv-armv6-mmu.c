@@ -36,7 +36,7 @@ dv_armv6_l1pagetable_t dv_c0_l1_pagetable __attribute__((section("dv_pagetable")
 */
 void dv_armv6_mmu_init_pagetable(dv_kernel_t *kvars)
 {
-	dv_kprintf("dv_armv6_mmu_init()\n");
+	DV_DBG(dv_kprintf("dv_armv6_mmu_init()\n"));
 	if ( kvars->cpu.page_table != DV_NULL )
 	{
 		dv_panic(dv_panic_initialisationerror, "dv_armv6_mmu_init", "page table pointer is not null");
@@ -53,7 +53,7 @@ void dv_armv6_mmu_init_pagetable(dv_kernel_t *kvars)
 */
 void dv_armv6_mmu_map_page(dv_kernel_t *kvars, void *phys, void *virt, dv_u32_t l1_attr, dv_u32_t l2_attr)
 {
-	dv_kprintf("dv_armv6_mmu_map_page() mapping 0x%08x to physical address 0x%08x\n", virt, phys);
+	DV_DBG(dv_kprintf("dv_armv6_mmu_map_page() mapping 0x%08x to physical address 0x%08x\n", virt, phys));
 	dv_u32_t v_addr = (dv_u32_t)virt;
 	dv_u32_t l1_ind = dv_armv6_virt_to_l1(v_addr);
 
@@ -71,13 +71,14 @@ void dv_armv6_mmu_map_page(dv_kernel_t *kvars, void *phys, void *virt, dv_u32_t 
 	{
 		/* New mapping: put physical address and l2 attributes into l2 table.
 		*/
-		dv_kprintf("dv_armv6_mmu_map_page() l1_ind %d, l2_ind %d, value = 0x%08x\n", l1_ind, l2_ind, p_addr | l2_attr);
+		DV_DBG(dv_kprintf("dv_armv6_mmu_map_page() l1_ind %d, l2_ind %d, value = 0x%08x\n",
+											 l1_ind, l2_ind, p_addr | l2_attr));
 		l2_tbl->l2page[l2_ind] = p_addr | l2_attr;
 	}
 	else
 	{
-		dv_kprintf("dv_armv6_mmu_map_page() l1_ind %d, l2_ind %d, reusing existing l2 mapping 0x%08x\n",
-						l1_ind, l2_ind, l2_tbl->l2page[l2_ind]);
+		DV_DBG(dv_kprintf("dv_armv6_mmu_map_page() l1_ind %d, l2_ind %d, reusing existing l2 mapping 0x%08x\n",
+						l1_ind, l2_ind, l2_tbl->l2page[l2_ind]));
 		if ( l2_tbl->l2page[l2_ind] != (p_addr | l2_attr) )
 		{
 			dv_panic(dv_panic_initialisationerror, "dv_armv6_mmu_map_page", "virtual page already mapped differently");
@@ -96,18 +97,18 @@ void dv_armv6_mmu_map_page(dv_kernel_t *kvars, void *phys, void *virt, dv_u32_t 
 
 static inline void dv_armv6_mmu_new_l1_map(dv_kernel_t *kvars, dv_u32_t l1_ind, dv_u32_t l1_attr)
 {
-	dv_kprintf("dv_armv6_mmu_new_l1_map() l1_ind %d, l1_attr 0x%08x\n", l1_ind, l1_attr);
+	DV_DBG(dv_kprintf("dv_armv6_mmu_new_l1_map() l1_ind %d, l1_attr 0x%08x\n", l1_ind, l1_attr));
 	if ( kvars->cpu.l2_table_page == DV_NULL )
 	{
 		kvars->cpu.l2_table_page = dv_allocate_page(kvars);
-		dv_kprintf("dv_armv6_mmu_new_l1_map(): new l2 array block at 0x%08x\n", kvars->cpu.l2_table_page->page);
+		DV_DBG(dv_kprintf("dv_armv6_mmu_new_l1_map(): new l2 array block at 0x%08x\n", kvars->cpu.l2_table_page->page));
 	}
 	else
 	{
 		/* Each allocated page holds up to 4 L2 tables.
 		*/
-		dv_kprintf("dv_armv6_mmu_new_l1_map(): existing l2 array block at 0x%08x, index %d\n",
-			kvars->cpu.l2_table_page->page, kvars->cpu.l2_table_page->n_use);
+		DV_DBG(dv_kprintf("dv_armv6_mmu_new_l1_map(): existing l2 array block at 0x%08x, index %d\n",
+			kvars->cpu.l2_table_page->page, kvars->cpu.l2_table_page->n_use));
 		kvars->cpu.l2_table_page->n_use++;
 		if ( kvars->cpu.l2_table_page->n_use > 4 )
 		{
@@ -123,7 +124,7 @@ static inline void dv_armv6_mmu_new_l1_map(dv_kernel_t *kvars, dv_u32_t l1_ind, 
 	{
 		/* All four L2 pages in this block are used.
 		*/
-		dv_kprintf("dv_armv6_mmu_new_l1_map(): l2 array block full\n");
+		DV_DBG(dv_kprintf("dv_armv6_mmu_new_l1_map(): l2 array block full\n"));
 		kvars->cpu.l2_table_page = DV_NULL;
 	}
 }
