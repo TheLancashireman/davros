@@ -107,6 +107,14 @@ struct dv_armv6_l2pagetable_s
 #define DV_V6MMUL2_AP_2		0x00000020		/*		s = r/w  u = r */
 #define DV_V6MMUL2_AP_3		0x00000030		/*		s = r/w  u = r/w */
 #define DV_V6MMUL2_TEX		0x000001c0		/* TEX */
+#define DV_V6MMUL2_TEX_0	0x00000000		/* TEX = 0 */
+#define DV_V6MMUL2_TEX_1	0x00000040		/* TEX = 1 */
+#define DV_V6MMUL2_TEX_2	0x00000080		/* TEX = 2 */
+#define DV_V6MMUL2_TEX_3	0x000000c0		/* TEX = 3 */
+#define DV_V6MMUL2_TEX_4	0x00000100		/* TEX = 4 */
+#define DV_V6MMUL2_TEX_5	0x00000140		/* TEX = 5 */
+#define DV_V6MMUL2_TEX_6	0x00000180		/* TEX = 6 */
+#define DV_V6MMUL2_TEX_7	0x000001c0		/* TEX = 7 */
 #define DV_V6MMUL2_APX		0x00000200		/* APX : 1 converts s = r/w to s = r in AP */
 #define DV_V6MMUL2_S		0x00000400		/* S */
 #define DV_V6MMUL2_NG		0x00000800		/* nG */
