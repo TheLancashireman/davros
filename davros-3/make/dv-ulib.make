@@ -17,7 +17,7 @@
 #	You should have received a copy of the GNU General Public License
 #	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 
-include make/dv-ulist.make
+include $(DV_ROOT)/make/dv-ulist.make
 
 DV_ULIB_O 	=	$(addsuffix .$(DV_O),$(DV_ULIST_C) $(DV_ULIST_S))
 DV_ULIB_DO	=	$(addprefix $(DV_OBJ_D)/,$(DV_ULIB_O))

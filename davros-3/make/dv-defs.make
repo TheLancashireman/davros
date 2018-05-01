@@ -37,16 +37,20 @@ DV_OBJ_D	?= bin/obj
 DV_LIB_D	?= bin
 DV_BIN_D	?= bin
 
-DV_CPUFAM_D	?= cpufamily/$(DV_FAMILY)
-DV_CPUFAM_D	?= cpufamily/$(DV_FAMILY)
+DV_CPUFAM_D	?= $(DV_ROOT)/cpufamily/$(DV_FAMILY)
+DV_CPUFAM_D	?= $(DV_ROOT)/cpufamily/$(DV_FAMILY)
+
+DV_KERNEL_D	?= $(DV_ROOT)/kernel
+DV_USER_D	?= $(DV_ROOT)/user
 
 # Add source directories to the search path
 VPATH += $(DV_BOARD_D)/c
 VPATH += $(DV_BOARD_D)/s
 VPATH += $(DV_CPUFAM_D)/c
 VPATH += $(DV_CPUFAM_D)/s
-VPATH += kernel/c
-VPATH += user/c
+VPATH += $(DV_KERNEL_D)/c
+VPATH += $(DV_USER_D)/c
 
 # Files to put into the include path
-DV_INCLUDE_PATH	+= $(DV_BOARD_D)/h .
+DV_INCLUDE_PATH	+= $(DV_BOARD_D)/h
+DV_INCLUDE_PATH	+= $(DV_ROOT)

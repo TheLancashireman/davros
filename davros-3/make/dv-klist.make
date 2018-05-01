@@ -65,4 +65,4 @@ DV_KLIST_C	+=	dv-xprintf
 DV_KLIST_C	+=	dv-kprintf
 DV_KLIST_C	+=	dv-strlen
 
-include cpufamily/$(DV_FAMILY)/make/dv-klist.make
+include $(DV_ROOT)/cpufamily/$(DV_FAMILY)/make/dv-klist.make

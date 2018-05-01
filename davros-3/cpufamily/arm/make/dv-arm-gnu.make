@@ -21,4 +21,4 @@
 DV_GNU_PRE	?=	arm-eabi-
 
 # Otherwise gnu compilers are pretty standard
-include make/dv-gnu.make
+include $(DV_ROOT)/make/dv-gnu.make

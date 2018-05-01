@@ -17,7 +17,7 @@
 #	You should have received a copy of the GNU General Public License
 #	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 
-include make/dv-klist.make
+include $(DV_ROOT)/make/dv-klist.make
 
 DV_KLIB_O 	=	$(addsuffix .$(DV_O),$(DV_KLIST_C) $(DV_KLIST_S))
 DV_KLIB_DO	=	$(addprefix $(DV_OBJ_D)/,$(DV_KLIB_O))
