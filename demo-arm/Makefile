@@ -18,10 +18,11 @@
 #	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 
 # Find out where we are :-)
-DV_ROOT		?= $(shell pwd)
+PRJ_ROOT		?= $(shell pwd)
+DV_ROOT			= $(PRJ_ROOT)/../davros-3
 
 # Select your board directory here
-DV_BOARD_D 	?=	board/arm/raspberry-pi
+DV_BOARD_D 	?=	$(DV_ROOT)/board/arm/raspberry-pi
 #DV_BOARD_D 	?=	board/arm/qemu
 
 # Select your compiler here
@@ -49,7 +50,7 @@ DV_ULIB = $(DV_LIB_D)/lib$(DV_ULIB_NAME).$(DV_A)
 # Include the board's make selections
 include $(DV_BOARD_D)/make/dv-board.make
 
-include make/dv-defs.make
+include $(DV_ROOT)/make/dv-defs.make
 
 .PHONY:		default all help klib ulib clean
 
@@ -73,8 +74,8 @@ install:	$(DV_BIN_D)/davros.bin
 	cp $(DV_BIN_D)/davros.bin ../../raspberry-pi/usb-zero/msd/kernel.img
 
 
-include make/dv-commontargets.make
-include cpufamily/$(DV_FAMILY)/make/dv-$(DV_FAMILY)-$(DV_COMPILER).make
-include make/dv-rules.make
-include make/dv-klib.make
-include make/dv-ulib.make
+include $(DV_ROOT)/make/dv-commontargets.make
+include $(DV_ROOT)/cpufamily/$(DV_FAMILY)/make/dv-$(DV_FAMILY)-$(DV_COMPILER).make
+include $(DV_ROOT)/make/dv-rules.make
+include $(DV_ROOT)/make/dv-klib.make
+include $(DV_ROOT)/make/dv-ulib.make

@@ -52,5 +52,6 @@ VPATH += $(DV_KERNEL_D)/c
 VPATH += $(DV_USER_D)/c
 
 # Files to put into the include path
+DV_INCLUDE_PATH	+= $(PRJ_ROOT)
 DV_INCLUDE_PATH	+= $(DV_BOARD_D)/h
 DV_INCLUDE_PATH	+= $(DV_ROOT)
