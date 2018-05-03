@@ -1,6 +1,6 @@
-#	Makefile - top level Makefile for davros
+#	Makefile - top level Makefile for davros demo (arm64)
 #
-#	Copyright 2015 David Haworth
+#	Copyright 2018 David Haworth
 #
 #	This file is part of davros.
 #
@@ -19,28 +19,26 @@
 
 # Find out where we are :-)
 PRJ_ROOT		?= $(shell pwd)
-DV_ROOT			= $(PRJ_ROOT)/../davros-3
+DV_ROOT			?= $(PRJ_ROOT)/../davros-3
 
 # Select your board directory here
-DV_BOARD_D 	?=	$(DV_ROOT)/board/arm/raspberry-pi
-#DV_BOARD_D 	?=	board/arm/qemu
+DV_BOARD_D		?=	$(DV_ROOT)/board/arm64/raspberry-pi-3
 
 # Select your compiler here
-DV_COMPILER	?=	gnu
-#DV_GNU_D	?=	/data1/gnu/gcc-linaro-6.3.1-2017.02-x86_64_aarch64-elf
-DV_GNU_D	?=	/data1/gnu/gcc-linaro-6.3.1-2017.02-x86_64_arm-eabi
+DV_COMPILER		?=	gnu
+DV_GNU_D		?=	/data1/gnu/gcc-linaro-6.3.1-2017.02-x86_64_aarch64-elf
 
-DV_LD_OBJS	+= $(DV_OBJ_D)/dv-vectors.$(DV_O)
-DV_LD_OBJS	+= $(DV_OBJ_D)/dv-c0.$(DV_O)
-DV_LD_OBJS	+= $(DV_OBJ_D)/test-playground.$(DV_O)
-DV_LD_OBJS	+= $(DV_OBJ_D)/test-prj-trace.$(DV_O)
+DV_LD_OBJS		+= $(DV_OBJ_D)/dv-vectors.$(DV_O)
+DV_LD_OBJS		+= $(DV_OBJ_D)/dv-c0.$(DV_O)
+DV_LD_OBJS		+= $(DV_OBJ_D)/test-playground.$(DV_O)
+DV_LD_OBJS		+= $(DV_OBJ_D)/test-prj-trace.$(DV_O)
 
 # Include the board's file lists
 include $(DV_BOARD_D)/make/dv-board-list.make
 
 #CC_OPT		+= -O2
 LD_OPT		+= -e dv_trap_reset
-LD_OPT		+= -T $(DV_BOARD_D)/ldscript/pi-zero.ldscript
+LD_OPT		+= -T $(DV_BOARD_D)/ldscript/rpi3.ldscript
 
 VPATH 		+= project/c
 
@@ -71,7 +69,7 @@ $(DV_BIN_D)/davros.elf:	$(DV_LD_OBJS) $(DV_KLIB) $(DV_ULIB)
 	$(dv_ld)
 
 install:	$(DV_BIN_D)/davros.bin
-	cp $(DV_BIN_D)/davros.bin ../../raspberry-pi/usb-zero/msd/kernel.img
+#	cp $(DV_BIN_D)/davros.bin ../../raspberry-pi/usb-zero/msd/kernel.img		FIXME
 
 
 include $(DV_ROOT)/make/dv-commontargets.make
