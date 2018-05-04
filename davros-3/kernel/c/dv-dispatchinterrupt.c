@@ -36,7 +36,7 @@ dv_softvector_t dv_softvector[DV_N_SOFTVECTOR];
 
 /* dv_attach_irq() - attach a handler to an IRQ
 */
-void dv_attach_irq(int iid, dv_inthandler_t f, unsigned p)
+void dv_attach_irq(int iid, dv_inthandler_t f, dv_address_t p)
 {
 	dv_softvector[iid].handler = f;
 	dv_softvector[iid].parameter = p;
