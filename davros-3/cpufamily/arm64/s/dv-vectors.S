@@ -111,26 +111,26 @@
 	mrs		x30, TPIDRRO_EL0								/* kvars */
 	ldr		x30, [x30, #DV_OFFSET_kvars_current_thread]		/* current_thread */
 	ldr		x30, [x30, #DV_OFFSET_thr_regs]					/* registers */
-	stp		x0, x1, [x30, #DV_OFFSET_regs_gpr0+0x000]
-	stp		x2, x3, [x30, #DV_OFFSET_regs_gpr0+0x010]
-	stp		x4, x5, [x30, #DV_OFFSET_regs_gpr0+0x020]
-	stp		x6, x7, [x30, #DV_OFFSET_regs_gpr0+0x030]
-	stp		x8, x9, [x30, #DV_OFFSET_regs_gpr0+0x040]
-	stp		x10, x11, [x30, #DV_OFFSET_regs_gpr0+0x050]
-	stp		x12, x13, [x30, #DV_OFFSET_regs_gpr0+0x060]
-	stp		x14, x15, [x30, #DV_OFFSET_regs_gpr0+0x070]
-	stp		x16, x17, [x30, #DV_OFFSET_regs_gpr0+0x080]
-	stp		x18, x19, [x30, #DV_OFFSET_regs_gpr0+0x090]
-	stp		x20, x21, [x30, #DV_OFFSET_regs_gpr0+0x0a0]
-	stp		x22, x23, [x30, #DV_OFFSET_regs_gpr0+0x0b0]
-	stp		x24, x25, [x30, #DV_OFFSET_regs_gpr0+0x0c0]
-	stp		x26, x27, [x30, #DV_OFFSET_regs_gpr0+0x0d0]
-	stp		x28, x29, [x30, #DV_OFFSET_regs_gpr0+0x0e0]
+	stp		x0, x1, [x30, #DV_OFFSET_regs_gpr0+0x00]
+	stp		x2, x3, [x30, #DV_OFFSET_regs_gpr0+0x10]
+	stp		x4, x5, [x30, #DV_OFFSET_regs_gpr0+0x20]
+	stp		x6, x7, [x30, #DV_OFFSET_regs_gpr0+0x30]
+	stp		x8, x9, [x30, #DV_OFFSET_regs_gpr0+0x40]
+	stp		x10, x11, [x30, #DV_OFFSET_regs_gpr0+0x50]
+	stp		x12, x13, [x30, #DV_OFFSET_regs_gpr0+0x60]
+	stp		x14, x15, [x30, #DV_OFFSET_regs_gpr0+0x70]
+	stp		x16, x17, [x30, #DV_OFFSET_regs_gpr0+0x80]
+	stp		x18, x19, [x30, #DV_OFFSET_regs_gpr0+0x90]
+	stp		x20, x21, [x30, #DV_OFFSET_regs_gpr0+0xa0]
+	stp		x22, x23, [x30, #DV_OFFSET_regs_gpr0+0xb0]
+	stp		x24, x25, [x30, #DV_OFFSET_regs_gpr0+0xc0]
+	stp		x26, x27, [x30, #DV_OFFSET_regs_gpr0+0xd0]
+	stp		x28, x29, [x30, #DV_OFFSET_regs_gpr0+0xe0]
 	mrs		x0, TPIDR_EL0									/* Recover original x30 */
 	mrs		x1, ELR_EL1										/* PC where exception occurred */
 	mrs		x2, SPSR_EL1									/* Saved PSTATE */
 	mrs		x3, SP_EL0										/* Thread SP */
-	stp		x0, x1, [x30, #DV_OFFSET_regs_gpr0+0x0f0]
+	stp		x0, x1, [x30, #DV_OFFSET_regs_gpr0+0xf0]
 	stp		x2, x3, [x30, #DV_OFFSET_regs_psr]
 	.endm
 

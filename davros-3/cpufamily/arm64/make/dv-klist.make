@@ -29,7 +29,7 @@
 # Without the .s suffix.
 DV_KLIST_S	+= dv-vectors
 #DV_KLIST_S	+= dv-reset
-#DV_KLIST_S	+= dv-arm-returntothread
+DV_KLIST_S	+= dv-arm64-returntothread
 #DV_KLIST_S	+= dv-setkvars
 #DV_KLIST_S	+= dv-sbreak
 #DV_KLIST_S	+= dv-irq
