@@ -1,0 +1,5 @@
+arm64 (aarch64) notes
+
+System call is "svc #n". The number n is made available in the exception syndrome register.
+
+Exception vectors and levels - see dv-vectors.S
