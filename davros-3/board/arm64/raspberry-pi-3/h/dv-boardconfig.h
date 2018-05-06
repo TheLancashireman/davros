@@ -55,8 +55,8 @@
  *
  * FIXME: there's probably a GTIMER on this SoC
 */
-#define DV_H_SYSTEMTIMER			<cpufamily/arm/h/dv-arm-bcm2835-timer.h>
-#define DV_H_INTERRUPTCONTROLLER	<cpufamily/arm/h/dv-arm-bcm2835-interruptcontroller.h>
-#define DV_H_CONSOLEUART			<cpufamily/arm/h/dv-arm-bcm2835-uart.h>
+#define DV_H_SYSTEMTIMER			<devices/h/dv-arm-bcm2835-timer.h>
+#define DV_H_INTERRUPTCONTROLLER	<devices/h/dv-arm-bcm2835-interruptcontroller.h>
+#define DV_H_CONSOLEUART			<devices/h/dv-arm-bcm2835-uart.h>
 
 #endif

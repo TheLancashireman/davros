@@ -110,14 +110,14 @@
 /* Now the EL1 vector table
 */
 	.text
+	.balign	4096				/* Page boundary */
+dv_vectortable:
 
 /* ============================================
  * Exceptions from privileged thread (EL1, SP0)
  * ============================================
 */
-	.balign	4096				/* Page boundary */
-dv_vectortable:
-dv_exc_from_priv:
+	.balign	128
 dv_exc_priv_sync:				/* Synchronous exception from privileged thread */
 	dv_exc_save_most			/* Save registers to thread (macro) */
     ldr     x1, _dv_syncexc_from_thread
@@ -154,7 +154,6 @@ _dv_syserror_from_thread:
  * =================================
 */
 	.balign	128
-dv_exc_from_kernel:
 dv_exc_kernel_sync:				/* Synchronous exception from kernel */
 	dv_exc_save_most			/* Save registers to thread (macro) */
     ldr     x1, _dv_syncexc_from_kernel
@@ -191,7 +190,6 @@ _dv_syserror_from_kernel:
  * ================================================
 */
 	.balign	128
-dv_exc_from_nonpriv:
 dv_exc_nonpriv_sync:			/* Synchronous exception from non-privileged thread */
 	dv_exc_save_most			/* Save registers to thread (macro) */
     ldr     x1, _dv_syncexc_from_thread
@@ -220,7 +218,6 @@ dv_exc_nonpriv_serror:			/* SError from non-privileged thread */
  * ==============================================
 */
 	.balign	128
-dv_exc_from_aa32:
 dv_exc_aa32_sync:				/* Synchronous exception from aarch32 thread */
 	dv_exc_save_most			/* Save registers to thread (macro) */
     ldr     x1, _dv_syncexc_from_aarch32
@@ -252,18 +249,22 @@ dv_exc_aa32_serror:				/* SError from aarch32 thread */
 _dv_syserror_from_aarch32:
 	.dword	dv_catch_aarch32_syserror
 
-/* Common exception handler.
+/* ==============================================
+ * Common exception handler.
+ * ==============================================
+ *
  * Assumes x30 is the address of a valid register store.
  * Assumes x1 contains the address of the handler function to jump to.
+ * Passes kvars to the handler function in x0
 */
 dv_exc_common:
 	mrs		x2, TPIDR_EL0									/* Recover original x30 */
 	mrs		x3, ELR_EL1										/* PC where exception occurred */
+	stp		x2, x3, [x30, #DV_OFFSET_regs_gpr0+0xf0]
 	mrs		x4, SPSR_EL1									/* Saved PSTATE */
 	mrs		x5, SP_EL0										/* Thread SP */
-	mrs		x6, ESR_EL1										/* Exception syndrome */
-	stp		x2, x3, [x30, #DV_OFFSET_regs_gpr0+0xf0]
 	stp		x4, x5, [x30, #DV_OFFSET_regs_psr]
+	mrs		x6, ESR_EL1										/* Exception syndrome */
 	str		w6, [x30, #DV_OFFSET_regs_esr]
 	mrs		x0, TPIDRRO_EL0									/* kvars */
 	br		x1

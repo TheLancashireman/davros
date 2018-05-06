@@ -19,7 +19,7 @@
 */
 #include <kernel/h/dv-kconfig.h>
 #include <kernel/h/dv-kernel.h>
-#include <cpufamily/arm/h/dv-arm-bcm2835-uart.h>
+#include <devices//h/dv-arm-bcm2835-uart.h>
 #include <kernel/h/dv-stdio.h>
 #include <lib/h/dv-string.h>
 

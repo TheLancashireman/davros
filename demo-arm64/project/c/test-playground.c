@@ -19,7 +19,7 @@
 
 #include <kernel/h/dv-interrupt.h>
 
-#include <cpufamily/arm/h/dv-arm-bcm2835-gpio.h>
+#include <devices/h/dv-arm-bcm2835-gpio.h>
 
 /* Task id variables
 */
