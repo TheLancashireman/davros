@@ -23,42 +23,21 @@
 
 	.globl	dv_vectortable
 
-	.globl		dv_exc_from_priv
-	.globl		dv_exc_priv_sync
-	.globl		dv_exc_priv_irq
-	.globl		dv_exc_priv_fiq
-	.globl		dv_exc_priv_serror
+	.extern		dv_catch_fiq_from_aarch32
+	.extern		dv_catch_fiq_from_kernel
+	.extern		dv_catch_fiq_from_thread
 
-	.globl		dv_exc_from_kernel
-	.globl		dv_exc_kernel_sync
-	.globl		dv_exc_kernel_irq
-	.globl		dv_exc_kernel_fiq
-	.globl		dv_exc_kernel_serror
+	.extern		dv_catch_aarch32_irq
+	.extern		dv_catch_kernel_irq
+	.extern		dv_catch_thread_irq
 
-	.globl		dv_exc_from_nonpriv
-	.globl		dv_exc_nonpriv_sync
-	.globl		dv_exc_nonpriv_irq
-	.globl		dv_exc_nonpriv_fiq
-	.globl		dv_exc_nonpriv_serror
+	.extern		dv_catch_kernel_synchronous_exception
+	.extern		dv_catch_thread_synchronous_exception
+	.extern		dv_catch_aarch32_synchronous_exception
 
-	.globl		dv_exc_from_aa32
-	.globl		dv_exc_aa32_sync
-	.globl		dv_exc_aa32_irq
-	.globl		dv_exc_aa32_fiq
-	.globl		dv_exc_aa32_serror
-
-	.extern		dv_fiq_from_aarch32
-	.extern		dv_fiq_from_kernel
-	.extern		dv_fiq_from_thread
-	.extern		dv_irq_from_aarch32
-	.extern		dv_irq_from_kernel
-	.extern		dv_irq_from_thread
-	.extern		dv_syncexc_from_kernel
-	.extern		dv_syncexc_from_thread
-	.extern		dv_syncexc_from_aarch32
-	.extern		dv_syserror_from_aarch32
-	.extern		dv_syserror_from_kernel
-	.extern		dv_syserror_from_thread
+	.extern		dv_catch_aarch32_syserror
+	.extern		dv_catch_kernel_syserror
+	.extern		dv_catch_thread_syserror
 
 /* dv_vectortable - a standard ARM64 vector table
  *     
@@ -90,15 +69,15 @@
  * to have a stub EL2 and maybe EL3 handler to catch anything that accidentally goes to a higher EL.
 */
 
-/* A macro to save the registers to the current thread's register store.
+/* A macro to save most of the registers to the current thread's register store.
  *
  * This macro is used when the exception comes from a thread (SP0).
  * If we use it when the exception comes from the kernel, we trash the thread's registers.
  * That's OK for starters :-)
  *
- * This macro must not be more than 31 instructions.
+ * This macro must not be more than 28 instructions.
 */
-	.macro	dv_exc_save_all
+	.macro	dv_exc_save_most
 	msr		TPIDR_EL0, x30		/* Free up a register */
 
 #if 0		/* Switch page tables? */
@@ -126,12 +105,6 @@
 	stp		x24, x25, [x30, #DV_OFFSET_regs_gpr0+0xc0]
 	stp		x26, x27, [x30, #DV_OFFSET_regs_gpr0+0xd0]
 	stp		x28, x29, [x30, #DV_OFFSET_regs_gpr0+0xe0]
-	mrs		x0, TPIDR_EL0									/* Recover original x30 */
-	mrs		x1, ELR_EL1										/* PC where exception occurred */
-	mrs		x2, SPSR_EL1									/* Saved PSTATE */
-	mrs		x3, SP_EL0										/* Thread SP */
-	stp		x0, x1, [x30, #DV_OFFSET_regs_gpr0+0xf0]
-	stp		x2, x3, [x30, #DV_OFFSET_regs_psr]
 	.endm
 
 /* Now the EL1 vector table
@@ -142,102 +115,155 @@
  * Exceptions from privileged thread (EL1, SP0)
  * ============================================
 */
-	.align	7
+	.balign	4096				/* Page boundary */
 dv_vectortable:
 dv_exc_from_priv:
 dv_exc_priv_sync:				/* Synchronous exception from privileged thread */
-	dv_exc_save_all				/* Save all registers to thread (macro) */
-	b		dv_syncexc_from_thread
+	dv_exc_save_most			/* Save registers to thread (macro) */
+    ldr     x1, _dv_syncexc_from_thread
+	b		dv_exc_common
+_dv_syncexc_from_thread:
+	.dword	dv_catch_thread_synchronous_exception
 
-	.align	7
+	.balign	128
 dv_exc_priv_irq:				/* Irq from privileged thread */
-	dv_exc_save_all				/* Save all registers to thread (macro) */
-	b		dv_irq_from_thread
+	dv_exc_save_most			/* Save registers to thread (macro) */
+    ldr     x1, _dv_irq_from_thread
+	b		dv_exc_common
+_dv_irq_from_thread:
+	.dword	dv_catch_thread_irq
 
-	.align	7
+	.balign	128
 dv_exc_priv_fiq:				/* Fiq from privileged thread */
-	dv_exc_save_all				/* Save all registers to thread (macro) */
-	b		dv_fiq_from_thread
+	dv_exc_save_most			/* Save registers to thread (macro) */
+    ldr     x1, _dv_fiq_from_thread
+	b		dv_exc_common
+_dv_fiq_from_thread:
+	.dword	dv_catch_thread_fiq
 
-	.align	7
+	.balign	128
 dv_exc_priv_serror:				/* SError from privileged thread */
-	dv_exc_save_all				/* Save all registers to thread (macro) */
-	b		dv_syserror_from_thread
+	dv_exc_save_most			/* Save registers to thread (macro) */
+    ldr     x1, _dv_syserror_from_thread
+	b		dv_exc_common
+_dv_syserror_from_thread:
+	.dword	dv_catch_thread_syserror
 
 /* =================================
  * Exceptions from kernel (EL1, SP1)
  * =================================
 */
-	.align	7
+	.balign	128
 dv_exc_from_kernel:
 dv_exc_kernel_sync:				/* Synchronous exception from kernel */
-	dv_exc_save_all				/* Save all registers to thread (macro) */
-	b		dv_syncexc_from_kernel
+	dv_exc_save_most			/* Save registers to thread (macro) */
+    ldr     x1, _dv_syncexc_from_kernel
+	b		dv_exc_common
+_dv_syncexc_from_kernel:
+	.dword	dv_catch_kernel_synchronous_exception
 
-	.align	7
+	.balign	128
 dv_exc_kernel_irq:				/* Irq exception from kernel */
-	dv_exc_save_all				/* Save all registers to thread (macro) */
-	b		dv_irq_from_kernel
+	dv_exc_save_most			/* Save registers to thread (macro) */
+    ldr     x1, _dv_irq_from_kernel
+	b		dv_exc_common
+_dv_irq_from_kernel:
+	.dword	dv_catch_kernel_irq
 
-	.align	7
+	.balign	128
 dv_exc_kernel_fiq:				/* Fiq exception from kernel */
-	dv_exc_save_all				/* Save all registers to thread (macro) */
-	b		dv_fiq_from_kernel
+	dv_exc_save_most			/* Save registers to thread (macro) */
+    ldr     x1, _dv_fiq_from_kernel
+	b		dv_exc_common
+_dv_fiq_from_kernel:
+	.dword	dv_catch_kernel_fiq
 
-	.align	7
+	.balign	128
 dv_exc_kernel_serror:			/* SError from kernel */
-	dv_exc_save_all				/* Save all registers to thread (macro) */
-	b		dv_syserror_from_kernel
+	dv_exc_save_most			/* Save registers to thread (macro) */
+    ldr     x1, _dv_syserror_from_kernel
+	b		dv_exc_common
+_dv_syserror_from_kernel:
+	.dword	dv_catch_kernel_syserror
 
 /* ================================================
  * Exceptions from non-privileged thread (EL0, SP0)
  * ================================================
 */
-	.align	7
+	.balign	128
 dv_exc_from_nonpriv:
 dv_exc_nonpriv_sync:			/* Synchronous exception from non-privileged thread */
-	dv_exc_save_all				/* Save all registers to thread (macro) */
-	b		dv_syncexc_from_thread
+	dv_exc_save_most			/* Save registers to thread (macro) */
+    ldr     x1, _dv_syncexc_from_thread
+	b		dv_exc_common
 
-	.align	7
+	.balign	128
 dv_exc_nonpriv_irq:				/* Irq from non-privileged thread */
-	dv_exc_save_all				/* Save all registers to thread (macro) */
-	b		dv_irq_from_thread
+	dv_exc_save_most			/* Save registers to thread (macro) */
+    ldr     x1, _dv_irq_from_thread
+	b		dv_exc_common
 
-	.align	7
+	.balign	128
 dv_exc_nonpriv_fiq:				/* Fiq from non-privileged thread */
-	dv_exc_save_all				/* Save all registers to thread (macro) */
-	b		dv_fiq_from_thread
+	dv_exc_save_most			/* Save registers to thread (macro) */
+    ldr     x1, _dv_fiq_from_thread
+	b		dv_exc_common
 
-	.align	7
+	.balign	128
 dv_exc_nonpriv_serror:			/* SError from non-privileged thread */
-	dv_exc_save_all				/* Save all registers to thread (macro) */
-	b		dv_syserror_from_thread
+	dv_exc_save_most			/* Save registers to thread (macro) */
+    ldr     x1, _dv_syserror_from_thread
+	b		dv_exc_common
 
 /* ==============================================
  * Exceptions from aarch32 thread (not supported)
  * ==============================================
 */
-	.align	7
+	.balign	128
 dv_exc_from_aa32:
 dv_exc_aa32_sync:				/* Synchronous exception from aarch32 thread */
-	dv_exc_save_all				/* Save all registers to thread (macro) */
-	b		dv_syncexc_from_aarch32
+	dv_exc_save_most			/* Save registers to thread (macro) */
+    ldr     x1, _dv_syncexc_from_aarch32
+	b		dv_exc_common
+_dv_syncexc_from_aarch32:
+	.dword	dv_catch_aarch32_synchronous_exception
 
-	.align	7
+	.balign	128
 dv_exc_aa32_irq:				/* Irq from aarch32 thread */
-	dv_exc_save_all				/* Save all registers to thread (macro) */
-	b		dv_irq_from_aarch32
+	dv_exc_save_most			/* Save registers to thread (macro) */
+    ldr     x1, _dv_irq_from_aarch32
+	b		dv_exc_common
+_dv_irq_from_aarch32:
+	.dword	dv_catch_aarch32_irq
 
-	.align	7
+	.balign	128
 dv_exc_aa32_fiq:				/* Fiq from aarch32 thread */
-	dv_exc_save_all				/* Save all registers to thread (macro) */
-	b		dv_fiq_from_aarch32
+	dv_exc_save_most			/* Save registers to thread (macro) */
+    ldr     x1, _dv_fiq_from_aarch32
+	b		dv_exc_common
+_dv_fiq_from_aarch32:
+	.dword	dv_catch_aarch32_fiq
 
-	.align	7
+	.balign	128
 dv_exc_aa32_serror:				/* SError from aarch32 thread */
-	dv_exc_save_all				/* Save all registers to thread (macro) */
-	b		dv_syserror_from_aarch32
+	dv_exc_save_most			/* Save registers to thread (macro) */
+    ldr     x1, _dv_syserror_from_aarch32
+	b		dv_exc_common
+_dv_syserror_from_aarch32:
+	.dword	dv_catch_aarch32_syserror
 
-	.align	7
-dv_vectortable_end:
+/* Common exception handler.
+ * Assumes x30 is the address of a valid register store.
+ * Assumes x1 contains the address of the handler function to jump to.
+*/
+dv_exc_common:
+	mrs		x2, TPIDR_EL0									/* Recover original x30 */
+	mrs		x3, ELR_EL1										/* PC where exception occurred */
+	mrs		x4, SPSR_EL1									/* Saved PSTATE */
+	mrs		x5, SP_EL0										/* Thread SP */
+	mrs		x6, ESR_EL1										/* Exception syndrome */
+	stp		x2, x3, [x30, #DV_OFFSET_regs_gpr0+0xf0]
+	stp		x4, x5, [x30, #DV_OFFSET_regs_psr]
+	str		w6, [x30, #DV_OFFSET_regs_esr]
+	mrs		x0, TPIDRRO_EL0									/* kvars */
+	br		x1

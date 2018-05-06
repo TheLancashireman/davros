@@ -55,6 +55,7 @@ struct dv_registers_s
 	dv_u64_t psr;		/* Program state register (SPSR_EL1) */
 	dv_u64_t sp;		/* Stack pointer (SP_EL0) */
 						/* ToDo: floating point registers */
+	dv_u32_t esr;		/* Exception syndrome register. Contains syscall index (among other things) */
 	int n_exe;			/* No of executables sharing this register store. Required by common code. */
 };
 
@@ -114,5 +115,6 @@ static inline void dv_set_rv1(dv_registers_t *regs, dv_u64_t v)
 #define DV_OFFSET_regs_pc		248		/* (31*8)	*/
 #define DV_OFFSET_regs_psr		256
 #define DV_OFFSET_regs_sp		264
+#define DV_OFFSET_regs_esr		272
 
 #endif

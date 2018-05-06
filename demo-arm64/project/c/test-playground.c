@@ -71,29 +71,64 @@ const dv_execonfig_t task_qxx_cfg =
 	DV_EXEFLAG_BLOCKING	/* Flags */
 };
 
-void dv_catch_data_abort(void)
+void dv_catch_thread_synchronous_exception(dv_kernel_t *kvars)
 {
-	dv_panic(dv_panic_unimplemented, "dv_catch_data_abort", "Oops! An exception occurred");
+	dv_panic(dv_panic_unimplemented, "dv_catch_thread_synchronous_exception", "Oops! An exception occurred");
 }
 
-void dv_catch_prefetch_abort(void)
+void dv_catch_thread_irq(dv_kernel_t *kvars)
 {
-	dv_panic(dv_panic_unimplemented, "dv_catch_prefetch_abort", "Oops! An exception occurred");
+	dv_panic(dv_panic_unimplemented, "v_catch_thread_irq", "Oops! An exception occurred");
 }
 
-void dv_catch_reserved(void)
+void dv_catch_thread_fiq(dv_kernel_t *kvars)
 {
-	dv_panic(dv_panic_unimplemented, "dv_catch_reserved", "Oops! An exception occurred");
+	dv_panic(dv_panic_unimplemented, "dv_catch_thread_fiq", "Oops! An exception occurred");
 }
 
-void dv_catch_undef(void)
+void dv_catch_thread_syserror(dv_kernel_t *kvars)
 {
-	dv_panic(dv_panic_unimplemented, "dv_catch_undef", "Oops! An exception occurred");
+	dv_panic(dv_panic_unimplemented, "dv_catch_thread_syserror", "Oops! An exception occurred");
 }
 
-void dv_trap_unimplemented(void)
+void dv_catch_kernel_synchronous_exception(dv_kernel_t *kvars)
 {
-	dv_panic(dv_panic_unimplemented, "dv_trap_unimplemented", "Oops! An exception occurred");
+	dv_panic(dv_panic_unimplemented, "dv_catch_kernel_synchronous_exception", "Oops! An exception occurred");
+}
+
+void dv_catch_kernel_irq(dv_kernel_t *kvars)
+{
+	dv_panic(dv_panic_unimplemented, "dv_catch_kernel_irq", "Oops! An exception occurred");
+}
+
+void dv_catch_kernel_fiq(dv_kernel_t *kvars)
+{
+	dv_panic(dv_panic_unimplemented, "dv_catch_kernel_fiq", "Oops! An exception occurred");
+}
+
+void dv_catch_kernel_syserror(dv_kernel_t *kvars)
+{
+	dv_panic(dv_panic_unimplemented, "dv_catch_kernel_syserror", "Oops! An exception occurred");
+}
+
+void dv_catch_aarch32_synchronous_exception(dv_kernel_t *kvars)
+{
+	dv_panic(dv_panic_unimplemented, "dv_catch_aarch32_synchronous_exception", "Oops! An exception occurred");
+}
+
+void dv_catch_aarch32_irq(dv_kernel_t *kvars)
+{
+	dv_panic(dv_panic_unimplemented, "dv_catch_aarch32_irq", "Oops! An exception occurred");
+}
+
+void dv_catch_aarch32_fiq(dv_kernel_t *kvars)
+{
+	dv_panic(dv_panic_unimplemented, "dv_catch_aarch32_fiq", "Oops! An exception occurred");
+}
+
+void dv_catch_aarch32_syserror(dv_kernel_t *kvars)
+{
+	dv_panic(dv_panic_unimplemented, "dv_catch_aarch32_syserror", "Oops! An exception occurred");
 }
 
 void dv_panic(dv_panic_t reason, char *function, char *message)
