@@ -1,0 +1,13 @@
+setenv ipaddr 192.168.8.222
+setenv serverip 192.168.8.1
+setenv netmask 255.255.255.0
+setenv bootfile play.abs
+
+tftpboot 10800000
+go 10800000
+
+#tftpboot 10800100
+#go 10800100
+
+#tftpboot 80000
+#go 80000

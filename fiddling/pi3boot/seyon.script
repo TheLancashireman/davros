@@ -1,0 +1,11 @@
+transmit "setenv ipaddr ";
+transmit "192.168.8.222^M";
+transmit "setenv serverip ";
+transmit "192.168.8.1^M";
+transmit "setenv netmask ";
+transmit "255.255.255.0^M";
+transmit "setenv bootfile ";
+transmit "play.abs^M";
+
+transmit "tftpboot ";
+transmit "10800000^M";

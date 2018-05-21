@@ -1,0 +1,55 @@
+
+SCTLR_ELn	Controls architectural features, for example the MMU, caches and alignment checking.
+
+TCR_ELn 	Determines which of the Translation Table Base Registers define the base address [...]
+
+TTBR0_ELn	Holds the base address of translation table 0, and information about the memory it occupies.
+
+TTBR1_ELn	Holds the base address of translation table 1, and information about the memory it occupies.
+
+
+Output:  (the meaning of the bits given is "when 1")
+
+SCTLR_EL2 = 30c51835
+                   5 M (enable MMU) ~A (alignment check) C (data cache enable) ~SA (stack alignment check)
+                  3 ?? (two unknown bits set)
+                 8   ? (unknown bit set to 1)
+                1    1 (fixed bit)
+               5     ?? (two unknown bits set) ~WXN (write ==> XN)
+              c      two unknown bits set
+             0       ~EE (big endian) (i.e. processor is little-endian)
+            3        ?? (two unknown bits set)
+
+SCTLR_EL1 = 00c50838
+                   8 ~M (enable MMU) ~A (alignment check) ~C (data cache enable) SA (stack alignment check)
+                  3  SA0 (stack align check for EL0) CP15BEN (enable AA32 CP15 DMB/DSB/ISB) ~ITD (IT instr. disable)
+                 8   ~SED (SETEND disable AA32) ~UMA (User mask access) ? (unknown bit set to 1)
+                1    1 (fixed bit)  ~DZE (ZVA instr. in EL0) ~UCT (enable access to CTR_EL0 in EL0)
+               5     nTWI (WFI is not a trap) nTWE (WFE is not a trap) ~WXN (write ==> XN)
+              c      two unknown bits set
+             0       ~EOE (explicit access at EL0 is big-endian) ~EE (big endian) ~UCI (user cache instructions)
+            0        
+
+TCR_EL2 = 0000000080803520
+                  T0SZ = 0x20
+                  IRGN0 = 0x1
+                  ORGN0 = 0x1
+                  SH0 = 0x3
+                  TG0 = 0
+                  T1SZ = 0
+                  Unknown bit set to 1
+                  IRGN1 = 0
+                  ORGN1 = 0
+                  SH1 = 0
+                  TG1 = 0x2
+                  IPS size = 0
+                  TBI 0/1 = 0
+TCR_EL1 = 00000000
+TTBR0_EL2 = 000000003aff0000
+TTBR0_EL1 = cc24c9c7f3a7bb00
+
+
+
+
+
+
