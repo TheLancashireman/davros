@@ -1,0 +1,2 @@
+#!/bin/sh
+exec seyon -modem $1 -noemulator
