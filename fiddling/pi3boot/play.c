@@ -16,6 +16,7 @@ int uart_getc(void);
 void uart_putc(char c);
 void uart_write(const char *s);
 void print_u64(u64 x);
+void print_u32(u32 x);
 
 #if xx_RELEASE_METHOD == xx_UBOOT_RELEASE
 #define CPU_RELEASE_ADDR	0xffffff0		/* From uboot */
@@ -54,6 +55,7 @@ void print_u64(u64 x);
 })
 
 extern int _start0, _start1, _start2, _start3;
+void go_el1(void *addr, u64 psr);
 
 void *const coreStartAddr[4] =
 {	&_start0,
@@ -146,6 +148,9 @@ void play(void)
 	uart_write("\n");
 
 #if 0
+	/* Disabling the cache causes constant stream of U in the UART.
+	 * Disabling MMU (with or without cache) causes trap.
+	*/
 	uart_write("Disabling cache in SCTRL_EL2\n");
 	rrr = ARM64_MRS(SCTLR_EL2);
 	uart_write("Old value = ");
@@ -164,21 +169,82 @@ void play(void)
 	}
 
 #if 0
+	/* Not sure what happened. No more UART output.
+	*/
+	if ( current_el == 8 )
+	{
+		uart_write("Trying to drop to EL1\n");
+		ARM64_MSR(SCTLR_EL1, 0);
+		rrr = ARM64_MRS(HCR_EL2);
+		uart_write("HCR_EL2 (old) = ");
+		print_u64(rrr);
+		uart_write("\n");
+		rrr |= 0x80000000;		/* Set execution state to AARCH64 */
+		uart_write("HCR_EL2 (new) = ");
+		print_u64(rrr);
+		uart_write("\n");
+		ARM64_MSR(HCR_EL2, rrr);
+		uart_write("go_el1()...\n");
+		go_el1(&_start0, 0x00000005);	/* DAIF = 0, M[4:0] = 5 (EL1h must match HCR_EL2.RW */
+		uart_write("Oops ... go_el1() returned :-(\n");
+	}
+#endif
+
+#if 1
 	uart_write("Contents of TT0\n");
 	u64 *p = (u64*)ARM64_MRS(TTBR0_EL2);
-	u64 i;
+	u32 i;
     u64 l = 0xffffffffffffffff;
-	for ( i = 0; i < 8193; i++, p++ )
+	for ( i = 0; i < 8192; i++, p++ )
 	{
 		if ( *p != l )
 		{
-			print_u64(i);
-			uart_write(" = ");
+			print_u32(i);
+			uart_write(" (");
+			print_u64((u64)p);
+			uart_write(") = ");
 			print_u64(*p);
 			uart_write("\n");
 			l = *p;
 		}
 	}
+#if 0
+	uart_write("Contents of TT1\n");
+	p = (u64*)ARM64_MRS(TTBR0_EL2);
+	p = (u64*)((*p) & ~0xfff);
+	l = 0xffffffffffffffff;
+	for ( i = 0; i < 512; i++, p++ )
+	{
+		if ( *p != l )
+		{
+			print_u32(i);
+			uart_write(" (");
+			print_u64((u64)p);
+			uart_write(") = ");
+			print_u64(*p);
+			uart_write("\n");
+			l = *p;
+		}
+	}
+	uart_write("Contents of TT2\n");
+	p = (u64*)ARM64_MRS(TTBR0_EL2);
+	p = (u64*)((*p) & ~0xfff);
+	p = (u64*)((*p) & ~0xfff);
+	l = 0xffffffffffffffff;
+	for ( i = 0; i < 512; i++, p++ )
+	{
+		if ( *p != l )
+		{
+			print_u32(i);
+			uart_write(" (");
+			print_u64((u64)p);
+			uart_write(") = ");
+			print_u64(*p);
+			uart_write("\n");
+			l = *p;
+		}
+	}
+#endif
 #endif
 
 	while ( this_cpuid != my_cpuid )
@@ -253,7 +319,7 @@ void play(void)
 	}
 }
 
-char buf[128];
+char buf[128];		/* Watch out! core contention! */
 
 void print_u64(u64 x)
 {
@@ -271,6 +337,25 @@ void print_u64(u64 x)
 		buf[15-i] = c;
 	}
 	buf[16] = '\0';
+	uart_write(buf);
+}
+
+void print_u32(u32 x)
+{
+	int i;
+	char c;
+
+	for ( i=0; i<8; i++ )
+	{
+		c = (char)(x & 0x0f);
+		x >>= 4;
+		if ( c >= 10 )
+			c += 'a' - 10;
+		else
+			c += '0';
+		buf[7-i] = c;
+	}
+	buf[8] = '\0';
 	uart_write(buf);
 }
 

@@ -44,3 +44,15 @@ _start3:
     mov	sp,#0x8000
 	sub	sp,sp,#0xc00
     b	play
+
+/* go_el1(entry, psr)
+ *
+ *	entry = address of startup code
+ *	psr   = program state to use
+*/
+.globl go_el1
+go_el1:
+	msr	spsr_el2, x1
+	msr	elr_el2, x0
+	eret
+
