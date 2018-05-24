@@ -13,7 +13,7 @@ TOOLPRE		= aarch64-elf-
 CC			= $(TOOLBASE)/bin/$(TOOLPRE)gcc
 LD			= $(TOOLBASE)/bin/$(TOOLPRE)ld
 OBJCOPY		= $(TOOLBASE)/bin/$(TOOLPRE)objcopy
-CCOPT		= -Wall
+CCOPT		= -Wall -fno-common
 
 $(info TOOLDIR = $(TOOLDIR))
 $(info TFTPDIR = $(TFTPDIR))

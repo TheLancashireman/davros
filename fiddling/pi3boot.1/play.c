@@ -4,7 +4,7 @@
 #define xx_RELEASE_E0_E8_F0	3
 #define xx_RELEASE_MBOX3	4
 
-//#define xx_RELEASE_METHOD	xx_RELEASE_MBOX3
+#define xx_RELEASE_METHOD	xx_RELEASE_MBOX3
 
 #ifndef xx_RELEASE_METHOD
 #define xx_RELEASE_METHOD	xx_NO_RELEASE
@@ -56,6 +56,7 @@ void print_u32(u32 x);
 
 extern int _start0, _start1, _start2, _start3;
 void go_el1(void *addr, u64 psr);
+void flush_cache(void);
 
 void *const coreStartAddr[4] =
 {	&_start0,
@@ -168,7 +169,82 @@ void play(void)
 		this_cpuid = my_cpuid;
 	}
 
-#if 0
+#if 1
+	uart_write("Initialising new level3 table at 0x3aff4000\n");
+	{
+		u64 *p = (u64 *)0x3aff4000;		/* This is where the page tables appear to end */
+		u32 i;
+
+		*p++ = 0x0060000040000401;
+		for ( i = 1; i < 512; i++, p++ )
+		{
+			*p = 0;
+		}
+		p = (u64*)ARM64_MRS(TTBR0_EL2);
+		p++;
+		*p = 0x000000003aff4003;
+	}
+#endif
+
+#if 1
+	uart_write("Contents of TT0\n");
+	{
+		u64 *p = (u64*)ARM64_MRS(TTBR0_EL2);
+		u32 i;
+    	u64 l = 0xffffffffffffffff;
+		for ( i = 0; i < 512; i++, p++ )
+		{
+			if ( *p != l )
+			{
+				print_u32(i);
+				uart_write(" (");
+				print_u64((u64)p);
+				uart_write(") = ");
+				print_u64(*p);
+				uart_write("\n");
+				l = *p;
+			}
+		}
+		p = (u64*)ARM64_MRS(TTBR0_EL2);
+		p = (u64*)((*p) & 0x0000fffffffff000);	/* Mask out the attribute bits */
+    	l = 0xffffffffffffffff;
+		for ( i = 0; i < 512; i++, p++ )
+		{
+			if ( *p != l )
+			{
+				print_u32(i);
+				uart_write(" (");
+				print_u64((u64)p);
+				uart_write(") = ");
+				print_u64(*p);
+				uart_write("\n");
+				l = *p;
+			}
+		}
+		p = (u64*)ARM64_MRS(TTBR0_EL2);
+		p++;
+		p = (u64*)((*p) & 0x0000fffffffff000);	/* Mask out the attribute bits */
+    	l = 0xffffffffffffffff;
+		for ( i = 0; i < 512; i++, p++ )
+		{
+			if ( *p != l )
+			{
+				print_u32(i);
+				uart_write(" (");
+				print_u64((u64)p);
+				uart_write(") = ");
+				print_u64(*p);
+				uart_write("\n");
+				l = *p;
+			}
+		}
+	}
+#endif
+
+	uart_write("Flush cache to ensure code is visible to other cores with caches disabled.\n");
+	flush_cache();
+
+#if 1
 	/* Not sure what happened. No more UART output.
 	*/
 	if ( current_el == 8 )
@@ -188,63 +264,6 @@ void play(void)
 		go_el1(&_start0, 0x00000005);	/* DAIF = 0, M[4:0] = 5 (EL1h must match HCR_EL2.RW */
 		uart_write("Oops ... go_el1() returned :-(\n");
 	}
-#endif
-
-#if 1
-	uart_write("Contents of TT0\n");
-	u64 *p = (u64*)ARM64_MRS(TTBR0_EL2);
-	u32 i;
-    u64 l = 0xffffffffffffffff;
-	for ( i = 0; i < 8192; i++, p++ )
-	{
-		if ( *p != l )
-		{
-			print_u32(i);
-			uart_write(" (");
-			print_u64((u64)p);
-			uart_write(") = ");
-			print_u64(*p);
-			uart_write("\n");
-			l = *p;
-		}
-	}
-#if 0
-	uart_write("Contents of TT1\n");
-	p = (u64*)ARM64_MRS(TTBR0_EL2);
-	p = (u64*)((*p) & ~0xfff);
-	l = 0xffffffffffffffff;
-	for ( i = 0; i < 512; i++, p++ )
-	{
-		if ( *p != l )
-		{
-			print_u32(i);
-			uart_write(" (");
-			print_u64((u64)p);
-			uart_write(") = ");
-			print_u64(*p);
-			uart_write("\n");
-			l = *p;
-		}
-	}
-	uart_write("Contents of TT2\n");
-	p = (u64*)ARM64_MRS(TTBR0_EL2);
-	p = (u64*)((*p) & ~0xfff);
-	p = (u64*)((*p) & ~0xfff);
-	l = 0xffffffffffffffff;
-	for ( i = 0; i < 512; i++, p++ )
-	{
-		if ( *p != l )
-		{
-			print_u32(i);
-			uart_write(" (");
-			print_u64((u64)p);
-			uart_write(") = ");
-			print_u64(*p);
-			uart_write("\n");
-			l = *p;
-		}
-	}
-#endif
 #endif
 
 	while ( this_cpuid != my_cpuid )

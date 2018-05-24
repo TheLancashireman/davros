@@ -1,6 +1,6 @@
 PWD	:= $(shell pwd)
 
-ifeq ($(PWD), /data1/projects/davros/fiddling/pi3boot)
+ifeq ($(PWD), /data1/projects/davros/fiddling/pi3boot.1)
 TOOLDIR		= /data1/gnu
 TFTPDIR		= /srv/tftp
 else
