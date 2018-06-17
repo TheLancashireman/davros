@@ -32,6 +32,10 @@
 #define DV_CPU			DV_ARM1176
 #define DV_COMPILER		DV_COMPILER_GNU
 
+/* PBASE - base address for the peripherals.
+*/
+#define DV_PBASE			0x20000000
+
 /* DV_COVERAGE
  *	0		- don't trace code coverage
  *	other	- trace code coverage

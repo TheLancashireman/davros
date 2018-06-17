@@ -23,6 +23,10 @@
 #include <kernel/h/dv-kconfig.h>
 #include <kernel/h/dv-types.h>
 
+#ifndef DV_PBASE
+#error	"No definition of DV_PBASE in the board headers. Please fix!"
+#endif
+
 #if !DV_ASM
 
 /* BCM2835 auxiliary peripherals (as used on Raspberry Pi CPUs).
@@ -37,7 +41,7 @@ struct dv_arm_bcm2835_aux_s
 	dv_reg32_t enable;		/* 0x04	peripheral enable */
 };
 
-#define dv_arm_bcm2835_aux	((dv_arm_bcm2835_aux_t *)0x20215000)[0]
+#define dv_arm_bcm2835_aux	((dv_arm_bcm2835_aux_t *)(DV_PBASE+0x215000))[0]
 
 static inline void dv_arm_bcm2835_enable(dv_u32_t per)
 {

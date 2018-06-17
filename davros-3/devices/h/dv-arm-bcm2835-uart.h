@@ -23,6 +23,10 @@
 #include <kernel/h/dv-kconfig.h>
 #include <kernel/h/dv-types.h>
 
+#ifndef DV_PBASE
+#error	"No definition of DV_PBASE in the board headers. Please fix!"
+#endif
+
 #if !DV_ASM
 
 /* BCM2835 mini uart (as used on Raspberry Pi CPUs).
@@ -63,7 +67,7 @@ struct dv_arm_bcm2835_uart_s
 	dv_reg32_t baud;		/* 0x28	baudrate			*/
 };
 
-#define dv_arm_bcm2835_uart	((dv_arm_bcm2835_uart_t *)0x20215040)[0]
+#define dv_arm_bcm2835_uart	((dv_arm_bcm2835_uart_t *)(DV_PBASE+0x215040))[0]
 
 void dv_arm_bcm2835_uart_init(dv_u32_t baud, dv_u32_t bits, dv_u32_t parity);
 void dv_arm_bcm2835_uart_console(void);

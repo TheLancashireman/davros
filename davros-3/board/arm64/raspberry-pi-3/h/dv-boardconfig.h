@@ -38,6 +38,10 @@
 */
 #define DV_COVERAGE		0
 
+/* PBASE - base address for the peripherals.
+*/
+#define DV_PBASE			0x3f000000
+
 /* See dv-arm-bcm2835-interruptcontroller.c for the list of supported interrupt sources.
  * ToDo: make the table configurable.
  *
