@@ -17,11 +17,14 @@ extern unsigned int GETPC ( void );
 extern void BRANCHTO ( unsigned int );
 extern void dummy ( unsigned int );
 
+#if 0
 extern unsigned int uart_lcr ( void );
 extern void uart_flush ( void );
 extern void uart_send ( unsigned int );
 extern unsigned int uart_recv ( void );
 extern unsigned int uart_check ( void );
+#endif
+
 extern void hexstring ( unsigned int );
 extern void hexstrings ( unsigned int );
 extern void timer_init ( void );
