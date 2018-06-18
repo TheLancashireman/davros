@@ -23,6 +23,10 @@
 #include <kernel/h/dv-kconfig.h>
 #include <kernel/h/dv-types.h>
 
+#ifndef DV_PBASE
+#error	"No definition of DV_PBASE in the board headers. Please fix!"
+#endif
+
 #if !DV_ASM
 
 /* There are 54 GPIO outputs, most of which have at least one more function
@@ -95,7 +99,7 @@ struct dv_arm_bcm2835_gpio_s
 	dv_reg32_t pudclk[2];	/* Pull up/down enable clock */
 };
 
-#define dv_arm_bcm2835_gpio	((dv_arm_bcm2835_gpio_t *)0x20200000)[0]
+#define dv_arm_bcm2835_gpio	((dv_arm_bcm2835_gpio_t *)(DV_PBASE+0x200000))[0]
 
 void dv_arm_bcm2835_gpio_pinconfig(dv_u32_t pin, dv_u32_t fsel, dv_u32_t pud);
 
