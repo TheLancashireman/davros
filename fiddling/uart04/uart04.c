@@ -8,13 +8,15 @@
 // 8  TX out
 // 10 RX in
 
+#include <devices/h/dv-arm-bcm2835-aux.h>
+#include <devices/h/dv-arm-bcm2835-uart.h>
+
 extern void PUT32 ( unsigned int, unsigned int );
 extern unsigned int GET32 ( unsigned int );
 extern unsigned int GETPC ( void );
 extern void BRANCHTO ( unsigned int );
 extern void dummy ( unsigned int );
 
-extern void uart_init ( void );
 extern unsigned int uart_lcr ( void );
 extern void uart_flush ( void );
 extern void uart_send ( unsigned int );
@@ -103,7 +105,11 @@ int notmain ( void )
 {
     unsigned int ra;
 
-    uart_init();
+/* Enable the UART, then initialise it.
+*/
+	dv_arm_bcm2835_enable(DV_AUX_uart);
+	dv_arm_bcm2835_uart_init(115200, 8, 0);
+
     hexstring(0x12345678);
     hexstring(GETPC());
     timer_init();

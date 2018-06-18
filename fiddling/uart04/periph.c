@@ -2,6 +2,9 @@
 //-------------------------------------------------------------------------
 //-------------------------------------------------------------------------
 
+#include <devices/h/dv-arm-bcm2835-aux.h>
+#include <devices/h/dv-arm-bcm2835-uart.h>
+
 #define PBASE 0x3F000000
 
 extern void PUT32 ( unsigned int, unsigned int );
@@ -95,11 +98,18 @@ void hexstring ( unsigned int d )
     uart_send(0x0A);
 }
 //------------------------------------------------------------------------
+#if 0
 void uart_init ( void )
 {
     unsigned int ra;
 
+#if 0
     PUT32(AUX_ENABLES,1);
+#else
+	dv_arm_bcm2835_enable(DV_AUX_uart);
+#endif
+
+#if 0
     PUT32(AUX_MU_IER_REG,0);
     PUT32(AUX_MU_CNTL_REG,0);
     PUT32(AUX_MU_LCR_REG,3);
@@ -119,7 +129,11 @@ void uart_init ( void )
     for(ra=0;ra<150;ra++) dummy(ra);
     PUT32(GPPUDCLK0,0);
     PUT32(AUX_MU_CNTL_REG,3);
+#else
+	dv_arm_bcm2835_uart_init(115200, 8, 0);
+#endif
 }
+#endif
 //------------------------------------------------------------------------
 void  timer_init ( void )
 {
