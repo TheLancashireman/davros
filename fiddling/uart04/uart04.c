@@ -18,16 +18,6 @@ extern unsigned int GETPC ( void );
 extern void BRANCHTO ( unsigned int );
 extern void dummy ( unsigned int );
 
-#if 0
-extern unsigned int uart_lcr ( void );
-extern void uart_flush ( void );
-extern void uart_send ( unsigned int );
-extern unsigned int uart_recv ( void );
-extern unsigned int uart_check ( void );
-#endif
-
-extern void hexstring ( unsigned int );
-extern void hexstrings ( unsigned int );
 extern void timer_init ( void );
 extern unsigned int timer_tick ( void );
 
@@ -45,11 +35,7 @@ void enter_one ( void )
         {
             if((timer_tick()&0x000F0000)==0x00010000)
             {
-#if 1
 				dv_consoledriver.putc('1');
-#else
-                PUT32(0x3F215040,0x31);
-#endif
                 break;
             }
         }
@@ -72,11 +58,7 @@ void enter_two ( void )
         {
             if((timer_tick()&0x000F0000)==0x00020000)
             {
-#if 1
 				dv_consoledriver.putc('2');
-#else
-                PUT32(0x3F215040,0x32);
-#endif
                 break;
             }
         }
@@ -99,11 +81,7 @@ void enter_three ( void )
         {
             if((timer_tick()&0x000F0000)==0x00030000)
             {
-#if 1
 				dv_consoledriver.putc('3');
-#else
-                PUT32(0x3F215040,0x33);
-#endif
                 break;
             }
         }
@@ -129,8 +107,8 @@ int notmain ( void )
 	dv_kprintf("Hello, world!\n");
 	dv_kprintf("version %d\n", 2);
 
-    hexstring(0x12345678);
-    hexstring(GETPC());
+    dv_kprintf("0x%08x\n", 0x12345678);
+    dv_kprintf("0x%08x\n", GETPC());
     timer_init();
 
     //gave up trying to get the compiler warning to go away
@@ -138,15 +116,15 @@ int notmain ( void )
         unsigned long la;
         la=(unsigned long)enter_one;
         ra=la&0xFFFFFFFF;
-        hexstring(ra);
+        dv_kprintf("0x%08x\n", ra);
         PUT32(0x6000,ra);
         la=(unsigned long)enter_two;
         ra=la&0xFFFFFFFF;
-        hexstring(ra);
+        dv_kprintf("0x%08x\n", ra);
         PUT32(0x4000,ra);
         la=(unsigned long)enter_three;
         ra=la&0xFFFFFFFF;
-        hexstring(ra);
+        dv_kprintf("0x%08x\n", ra);
         PUT32(0x2000,ra);
     }
 
@@ -156,7 +134,7 @@ int notmain ( void )
         {
             if((timer_tick()&0x000F0000)==0x00000000)
             {
-                PUT32(0x3F215040,0x30);
+				dv_consoledriver.putc('0');
                 break;
             }
         }
@@ -164,7 +142,7 @@ int notmain ( void )
         {
             if((timer_tick()&0x000F0000)==0x000E0000)
             {
-                PUT32(0x3F215040,0x0D);
+				dv_consoledriver.putc('\r');
                 break;
             }
         }
@@ -172,7 +150,7 @@ int notmain ( void )
         {
             if((timer_tick()&0x000F0000)==0x000F0000)
             {
-                PUT32(0x3F215040,0x0A);
+				dv_consoledriver.putc('\n');
                 break;
             }
         }
