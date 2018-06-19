@@ -10,6 +10,7 @@
 
 #include <devices/h/dv-arm-bcm2835-aux.h>
 #include <devices/h/dv-arm-bcm2835-uart.h>
+#include <kernel/h/dv-stdio.h>
 
 extern void PUT32 ( unsigned int, unsigned int );
 extern unsigned int GET32 ( unsigned int );
@@ -44,7 +45,11 @@ void enter_one ( void )
         {
             if((timer_tick()&0x000F0000)==0x00010000)
             {
+#if 1
+				dv_consoledriver.putc('1');
+#else
                 PUT32(0x3F215040,0x31);
+#endif
                 break;
             }
         }
@@ -67,7 +72,11 @@ void enter_two ( void )
         {
             if((timer_tick()&0x000F0000)==0x00020000)
             {
+#if 1
+				dv_consoledriver.putc('2');
+#else
                 PUT32(0x3F215040,0x32);
+#endif
                 break;
             }
         }
@@ -90,7 +99,11 @@ void enter_three ( void )
         {
             if((timer_tick()&0x000F0000)==0x00030000)
             {
+#if 1
+				dv_consoledriver.putc('3');
+#else
                 PUT32(0x3F215040,0x33);
+#endif
                 break;
             }
         }
@@ -112,6 +125,9 @@ int notmain ( void )
 */
 	dv_arm_bcm2835_enable(DV_AUX_uart);
 	dv_arm_bcm2835_uart_init(115200, 8, 0);
+	dv_arm_bcm2835_uart_console();
+	dv_kprintf("Hello, world!\n");
+	dv_kprintf("version %d\n", 2);
 
     hexstring(0x12345678);
     hexstring(GETPC());
