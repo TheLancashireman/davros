@@ -1,21 +1,25 @@
-
-//-------------------------------------------------------------------------
-//-------------------------------------------------------------------------
-
-// 2  outer corner
-// 4
-// 6
-// 8  TX out
-// 10 RX in
-
 #include <devices/h/dv-arm-bcm2835-aux.h>
 #include <devices/h/dv-arm-bcm2835-uart.h>
 #include <devices/h/dv-arm-bcm2835-armtimer.h>
 #include <kernel/h/dv-stdio.h>
 
+/* Cores wait for an address to appear at the top of their stack.
+*/
+#define CORE1_SP	0x6000
+#define CORE2_SP	0x4000
+#define CORE3_SP	0x2000
+
+static inline void release_core(int c, dv_u32_t rel_addr, dv_u32_t entry)
+{
+	dv_kprintf("Release core %d at 0x%08x\n", c, entry);
+	*(dv_u32_t *)(dv_u64_t)rel_addr = entry;
+}
+
+#if 0
 extern void PUT32 ( unsigned int, unsigned int );
-extern unsigned int GET32 ( unsigned int );
-extern unsigned int GETPC ( void );
+#endif
+
+extern unsigned int GETPC(void);	/* Implemented in assembler; we don't need no optimisation! */
 
 static inline dv_u32_t timer_tick(void)
 {
@@ -102,23 +106,26 @@ void enter_three ( void )
 //-------------------------------------------------------------------
 int notmain ( void )
 {
-    unsigned int ra;
-
 /* Enable the UART, then initialise it.
 */
 	dv_arm_bcm2835_enable(DV_AUX_uart);
 	dv_arm_bcm2835_uart_init(115200, 8, 0);
 	dv_arm_bcm2835_uart_console();
+
+/* Friendly greeting.
+*/
 	dv_kprintf("Hello, world!\n");
-	dv_kprintf("version %d\n", 2);
+	dv_kprintf("version %d\n", 3);
 
     dv_kprintf("0x%08x\n", 0x12345678);
     dv_kprintf("0x%08x\n", GETPC());
     timer_init();
 
+#if 0
     //gave up trying to get the compiler warning to go away
     {
         unsigned long la;
+    	unsigned int ra;
         la=(unsigned long)enter_one;
         ra=la&0xFFFFFFFF;
         dv_kprintf("0x%08x\n", ra);
@@ -132,6 +139,13 @@ int notmain ( void )
         dv_kprintf("0x%08x\n", ra);
         PUT32(0x2000,ra);
     }
+#endif
+
+/* Start the other cores.
+*/
+	release_core(1, CORE1_SP, (dv_u32_t)(dv_u64_t)enter_one);
+	release_core(2, CORE2_SP, (dv_u32_t)(dv_u64_t)enter_two);
+	release_core(3, CORE3_SP, (dv_u32_t)(dv_u64_t)enter_three);
 
     while(1)
     {
