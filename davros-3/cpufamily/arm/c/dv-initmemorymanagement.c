@@ -25,7 +25,7 @@
 #include <devices/h/dv-arm-bcm2835-aux.h>
 #include <devices/h/dv-arm-bcm2835-gpio.h>
 #include <devices/h/dv-arm-bcm2835-interruptcontroller.h>
-#include <devices/h/dv-arm-bcm2835-timer.h>
+#include <devices/h/dv-arm-bcm2835-systimer.h>
 #include <cpufamily/arm/h/dv-arm-cache.h>
 #include <cpufamily/arm/h/dv-arm-cp15.h>
 #include <kernel/h/dv-stdio.h>
@@ -105,7 +105,8 @@ void dv_init_memory_management(dv_kernel_t *kvars)
 	dv_mmu_map_page(kvars, (void *)&dv_arm_bcm2835_interruptcontroller, (void *)&dv_arm_bcm2835_interruptcontroller,
 																							DV_L1_ATTR, DV_L2_ATTR_IO);
 	DV_DBG(dv_kprintf("dv_init_memory_management() - map page for I/O timer\n"));
-	dv_mmu_map_page(kvars, (void *)&dv_arm_bcm2835_timer, (void *)&dv_arm_bcm2835_timer, DV_L1_ATTR, DV_L2_ATTR_IO);
+	dv_mmu_map_page(kvars, (void *)&dv_arm_bcm2835_systimer, (void *)&dv_arm_bcm2835_systimer,
+																							DV_L1_ATTR, DV_L2_ATTR_IO);
 
 	/* Map pages for the page tables.
 	*/

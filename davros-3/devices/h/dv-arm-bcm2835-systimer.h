@@ -1,4 +1,4 @@
-/*  dv-arm-bcm2835-timer.h - system timer on bcm2835 (raspberry pi)
+/*  dv-arm-bcm2835-systimer.h - system timer on bcm2835 (raspberry pi)
  *
  *  Copyright 2017 David Haworth
  *
@@ -17,8 +17,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef dv_arm_bcm2835_timer_h
-#define dv_arm_bcm2835_timer_h	1
+#ifndef dv_arm_bcm2835_systimer_h
+#define dv_arm_bcm2835_systimer_h	1
 
 #include <kernel/h/dv-kconfig.h>
 #include <kernel/h/dv-types.h>
@@ -26,9 +26,9 @@
 /* It looks like the GPU is using compare registers 0 and 2, so only 1 and 3 are available for the ARM
 */
 
-typedef struct dv_arm_bcm2835_timer_s dv_arm_bcm2835_timer_t;
+typedef struct dv_arm_bcm2835_systimer_s dv_arm_bcm2835_systimer_t;
 
-struct dv_arm_bcm2835_timer_s
+struct dv_arm_bcm2835_systimer_s
 {
 	dv_reg32_t cs;		/* Status. Write 1 to clear a bit. */
 	dv_reg32_t clo;		/* Counter (low) */
@@ -36,17 +36,17 @@ struct dv_arm_bcm2835_timer_s
 	dv_reg32_t c[4];	/* Compare 0..3  */
 };
 
-#define dv_arm_bcm2835_timer	((dv_arm_bcm2835_timer_t *)0x20003000)[0]
+#define dv_arm_bcm2835_systimer	((dv_arm_bcm2835_systimer_t *)0x20003000)[0]
 
 static inline dv_u64_t dv_readtime(void)
 {
 	dv_u32_t u1, u2, l;
 
-	u2 = dv_arm_bcm2835_timer.chi;
+	u2 = dv_arm_bcm2835_systimer.chi;
 	do {
 		u1 = u2;
-		l = dv_arm_bcm2835_timer.clo;
-		u2 = dv_arm_bcm2835_timer.chi;
+		l = dv_arm_bcm2835_systimer.clo;
+		u2 = dv_arm_bcm2835_systimer.chi;
 	} while ( u1 != u2 );
 
 	return (((dv_u64_t)u2) << 32) + (dv_u64_t)l;
@@ -54,26 +54,26 @@ static inline dv_u64_t dv_readtime(void)
 
 static inline dv_u32_t dv_getcmp(int i)
 {
-	return dv_arm_bcm2835_timer.c[i];
+	return dv_arm_bcm2835_systimer.c[i];
 }
 
 static inline void dv_setcmp(int i, dv_u32_t v)
 {
-	dv_arm_bcm2835_timer.c[i] = v;
+	dv_arm_bcm2835_systimer.c[i] = v;
 }
 
 static inline int dv_getmatch(int i)
 {
-	return (dv_arm_bcm2835_timer.cs & (1<<i)) != 0;
+	return (dv_arm_bcm2835_systimer.cs & (1<<i)) != 0;
 }
 
 static inline void dv_clrmatch(int i)
 {
-	dv_arm_bcm2835_timer.cs = (1<<i);
+	dv_arm_bcm2835_systimer.cs = (1<<i);
 }
 
-void dv_arm_bcm2835_timerinterrupt(dv_kernel_t *kvars, dv_address_t param);
-void dv_init_system_timer(dv_kernel_t *kvars);
+void dv_arm_bcm2835_systimerinterrupt(dv_kernel_t *kvars, dv_address_t param);
+void dv_init_systimer(dv_kernel_t *kvars);
 void dv_set_system_timer_alarm(dv_u64_t);
 
 /* Bits in cs register. 1 means "matched".

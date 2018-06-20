@@ -1,4 +1,4 @@
-/*	dv-arm-bcm2835-timer.c - system timer on bcm2835 (raspberry pi)
+/*	dv-arm-bcm2835-systimer.c - system timer on bcm2835 (raspberry pi)
  *
  *	Copyright 2017 David Haworth
  *
@@ -19,12 +19,12 @@
 */
 #include <kernel/h/dv-kconfig.h>
 #include <kernel/h/dv-types.h>
-#include <devices/h/dv-arm-bcm2835-timer.h>
+#include <devices/h/dv-arm-bcm2835-systimer.h>
 #include <devices/h/dv-arm-bcm2835-interruptcontroller.h>
 #include <kernel/h/dv-interrupt.h>
 #include <kernel/h/dv-executable.h>
 
-/* dv_arm_bcm2835_timerinterrupt() - handle a timer interrupt from the BCM2835 system timer
+/* dv_arm_bcm2835_systimerinterrupt() - handle a timer interrupt from the BCM2835 system timer
  *
  * This function is intended to be used as a "software vectoring" function for an
  * interrupt from the system timer.
@@ -36,12 +36,12 @@
  * In the absence of any programmed timing requirements (e.g. from dv_sleep() etc.), a regular
  * 1 second tick is generated.
 */
-void dv_arm_bcm2835_timerinterrupt(dv_kernel_t *kvars, dv_address_t param)
+void dv_arm_bcm2835_systimerinterrupt(dv_kernel_t *kvars, dv_address_t param)
 {
 	int chan = (int)param;
 	dv_u64_t next;
 
-	DV_DBG(dv_kprintf("dv_arm_bcm2835_timerinterrupt(): param = %d\n", chan));
+	DV_DBG(dv_kprintf("dv_arm_bcm2835_systimerinterrupt(): param = %d\n", chan));
 
 	dv_clrmatch(chan);
 
@@ -69,7 +69,7 @@ void dv_init_system_timer(dv_kernel_t *kvars)
 {
 	dv_u64_t t = dv_readtime();
 	dv_setcmp(CMP, (t & 0xffffffff) + 1000000);
-	dv_attach_irq(IID, dv_arm_bcm2835_timerinterrupt, CMP);
+	dv_attach_irq(IID, dv_arm_bcm2835_systimerinterrupt, CMP);
 	dv_enable_irq(IID);
 }
 
