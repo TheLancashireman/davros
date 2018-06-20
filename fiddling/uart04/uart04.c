@@ -34,74 +34,49 @@ static inline void timer_init(void)
 	dv_arm_bcm2835_armtimer_enable_frc();
 }
 
-//-------------------------------------------------------------------
-void enter_one ( void )
-{
+#define COUNTER_MASK	0x000F0000
 
+void loop(dv_u32_t core_index, dv_u32_t match)
+{
     while(1)
     {
         while(1)
         {
-            if((timer_tick()&0x000F0000)==0x00010000)
+            if ( (timer_tick() & COUNTER_MASK) == match)
             {
-				dv_consoledriver.putc('1');
+				if ( core_index == 0 )
+				{
+					dv_consoledriver.putc('\r');
+					dv_consoledriver.putc('\n');
+				}
+				dv_consoledriver.putc('0' + core_index);
                 break;
             }
         }
         while(1)
         {
-            if((timer_tick()&0x000F0000)!=0x00010000)
+            if ( (timer_tick() & COUNTER_MASK) != match )
             {
                 break;
             }
         }
     }
+}
+
+//-------------------------------------------------------------------
+void enter_one ( void )
+{
+	loop(1, 0x00010000);
 }
 //-------------------------------------------------------------------
 void enter_two ( void )
 {
-
-    while(1)
-    {
-        while(1)
-        {
-            if((timer_tick()&0x000F0000)==0x00020000)
-            {
-				dv_consoledriver.putc('2');
-                break;
-            }
-        }
-        while(1)
-        {
-            if((timer_tick()&0x000F0000)!=0x00020000)
-            {
-                break;
-            }
-        }
-    }
+	loop(2, 0x00020000);
 }
 //-------------------------------------------------------------------
 void enter_three ( void )
 {
-
-    while(1)
-    {
-        while(1)
-        {
-            if((timer_tick()&0x000F0000)==0x00030000)
-            {
-				dv_consoledriver.putc('3');
-                break;
-            }
-        }
-        while(1)
-        {
-            if((timer_tick()&0x000F0000)!=0x00030000)
-            {
-                break;
-            }
-        }
-    }
+	loop(3, 0x00030000);
 }
 //-------------------------------------------------------------------
 int notmain ( void )
@@ -115,7 +90,7 @@ int notmain ( void )
 /* Friendly greeting.
 */
 	dv_kprintf("Hello, world!\n");
-	dv_kprintf("version %d\n", 3);
+	dv_kprintf("version %d\n", 5);
 
     dv_kprintf("0x%08x\n", 0x12345678);
     dv_kprintf("0x%08x\n", GETPC());
