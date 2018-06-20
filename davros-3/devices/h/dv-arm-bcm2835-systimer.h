@@ -23,6 +23,10 @@
 #include <kernel/h/dv-kconfig.h>
 #include <kernel/h/dv-types.h>
 
+#ifndef DV_PBASE
+#error	"No definition of DV_PBASE in the board headers. Please fix!"
+#endif
+
 /* It looks like the GPU is using compare registers 0 and 2, so only 1 and 3 are available for the ARM
 */
 
@@ -36,7 +40,7 @@ struct dv_arm_bcm2835_systimer_s
 	dv_reg32_t c[4];	/* Compare 0..3  */
 };
 
-#define dv_arm_bcm2835_systimer	((dv_arm_bcm2835_systimer_t *)0x20003000)[0]
+#define dv_arm_bcm2835_systimer	((dv_arm_bcm2835_systimer_t *)(DV_PBASE+0x003000))[0]
 
 static inline dv_u64_t dv_readtime(void)
 {

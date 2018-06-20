@@ -23,6 +23,10 @@
 #include <kernel/h/dv-kconfig.h>
 #include <kernel/h/dv-types.h>
 
+#ifndef DV_PBASE
+#error	"No definition of DV_PBASE in the board headers. Please fix!"
+#endif
+
 #if !DV_ASM
 
 /* BCM2835 interrupt controller (as used on Raspberry Pi CPUs).
@@ -49,7 +53,7 @@ struct dv_arm_bcm2835_interruptcontroller_s
 	dv_reg32_t irq_disable[3];		/* Write 1 to disable. Basic is index 2 */
 };
 
-#define dv_arm_bcm2835_interruptcontroller	((dv_arm_bcm2835_interruptcontroller_t *)0x2000b200)[0]
+#define dv_arm_bcm2835_interruptcontroller	((dv_arm_bcm2835_interruptcontroller_t *)(DV_PBASE+0x00b200))[0]
 
 static inline void dv_init_interrupt_controller(void)
 {
