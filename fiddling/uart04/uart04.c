@@ -10,20 +10,25 @@
 
 #include <devices/h/dv-arm-bcm2835-aux.h>
 #include <devices/h/dv-arm-bcm2835-uart.h>
+#include <devices/h/dv-arm-bcm2835-armtimer.h>
 #include <kernel/h/dv-stdio.h>
 
 extern void PUT32 ( unsigned int, unsigned int );
 extern unsigned int GET32 ( unsigned int );
 extern unsigned int GETPC ( void );
-extern void BRANCHTO ( unsigned int );
-extern void dummy ( unsigned int );
 
-extern void timer_init ( void );
-extern unsigned int timer_tick ( void );
+static inline dv_u32_t timer_tick(void)
+{
+	return dv_arm_bcm2835_armtimer_read_frc();
+}
 
-extern void timer_init ( void );
-extern unsigned int timer_tick ( void );
-
+static inline void timer_init(void)
+{
+	/* Need 1 MHz clock, so divier 250 MHz sysclock by 250.
+	*/
+	dv_arm_bcm2835_armtimer_set_frc_prescale(250);
+	dv_arm_bcm2835_armtimer_enable_frc();
+}
 
 //-------------------------------------------------------------------
 void enter_one ( void )

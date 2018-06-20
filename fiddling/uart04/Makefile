@@ -48,9 +48,9 @@ dv-xprintf.o:	$(DV_ROOT)/kernel/c/dv-xprintf.c
 dv-strlen.o:	$(DV_ROOT)/kernel/c/dv-strlen.c
 	$(ARMGNU)-gcc $(COPS) -c $(DV_ROOT)/kernel/c/dv-strlen.c -o dv-strlen.o
 
-uart04.bin : memmap vectors.o periph7.o uart04.o dv-arm-bcm2835-uart.o dv-arm-bcm2835-gpio.o dv-kprintf.o \
+uart04.bin : memmap vectors.o uart04.o dv-arm-bcm2835-uart.o dv-arm-bcm2835-gpio.o dv-kprintf.o \
 				dv-xprintf.o dv-strlen.o
-	$(ARMGNU)-ld vectors.o periph7.o uart04.o \
+	$(ARMGNU)-ld vectors.o uart04.o \
 			dv-arm-bcm2835-uart.o dv-arm-bcm2835-gpio.o dv-kprintf.o dv-xprintf.o dv-strlen.o \
 			-T memmap -o uart04.elf
 	$(ARMGNU)-objdump -D uart04.elf > uart04.list
