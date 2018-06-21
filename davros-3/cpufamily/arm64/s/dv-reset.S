@@ -32,7 +32,7 @@
 	.globl	dv_reset
 	.extern	dv_board_start
 
-	.section	reset
+	.section	.reset
 
 /* Jump past the area reserved for a startup stack.
 */
@@ -62,7 +62,9 @@ skip:
 /* Core 0 - go to dv_board_start
 */
 core_zero:
-	mov		sp, #(dv_reset+0x8000)
+	mov		sp, #0x8000
+	mov		x1, #dv_reset 
+	add		sp, sp, x1
 	bl		dv_board_start
 
 /* If dv_board_start (or the release function) returns, wait here.
@@ -71,19 +73,22 @@ hang:
 	b		hang
 
 core_one:
-	mov		sp, #(dv_reset+0x6000-4)
+	mov		sp, #0x6000
 	b		core_common
 
 core_two:
-	mov		sp, #(dv_reset+0x4000-4)
+	mov		sp, #0x4000
 	b		core_common
 
 core_three:
-	mov		sp, #(dv_reset+0x2000-4)
+	mov		sp, #0x2000
 
 /* Cores 1, 2 and 3 wait here until a release address appears at the top of their stack.
 */
 core_common:
+	mov		x1, #dv_reset
+	add		sp, sp, x1
+	sub		sp, sp, #4
 	mov		x1, #0
 	str		w1, [sp]
 	mov		x0, #0
