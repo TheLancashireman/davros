@@ -32,7 +32,7 @@
 	.globl	dv_reset
 	.extern	dv_board_start
 
-	.section	.reset
+	.section	reset, "ax"
 
 /* Jump past the area reserved for a startup stack.
 */
@@ -42,7 +42,7 @@ dv_reset:
 /* Reserve 0x8000 bytes for the startup stacks; 0x2000 per core
  * The "-0x0004" is for the "b skip" instruction above.
 */
-.space 0x8000-0x0004,0
+	.space 0x8000-0x0004,0
 
 skip:
 	mrs		x0, mpidr_el1
@@ -63,8 +63,19 @@ skip:
 */
 core_zero:
 	mov		sp, #0x8000
-	mov		x1, #dv_reset 
-	add		sp, sp, x1
+	mov		x4, #dv_reset 
+	add		sp, sp, x4
+	mov		x0, sp
+	mov		x1, #0x6000
+	add		x1, x1, x4
+	sub		x1, x1, #4
+	mov		x2, #0x4000
+	add		x2, x2, x4
+	sub		x2, x2, #4
+	mov		x3, #0x6000
+	add		x3, x3, x4
+	sub		x3, x3, #4
+	
 	bl		dv_board_start
 
 /* If dv_board_start (or the release function) returns, wait here.
@@ -86,18 +97,34 @@ core_three:
 /* Cores 1, 2 and 3 wait here until a release address appears at the top of their stack.
 */
 core_common:
+#if 0
 	mov		x1, #dv_reset
 	add		sp, sp, x1
 	sub		sp, sp, #4
+#endif
 	mov		x1, #0
 	str		w1, [sp]
 	mov		x0, #0
 
 core_loop:
-	ldr		w0,[sp]
-	cbz		w0,core_loop
+	ldr		w0, [sp]
+	cbz		w0, core_loop
 	bl		trampoline
 	b		hang
 
 trampoline:
 	br		x0
+
+/* Temporary
+*/
+	.globl	foo
+foo:
+	mov		x4, sp
+	mov		sp, #0x4000
+	mov		x1, #dv_reset
+	add		sp, sp, x1
+	sub		sp, sp, #4
+	mov		x0, sp
+	mov		sp, x4
+	ret
+	
