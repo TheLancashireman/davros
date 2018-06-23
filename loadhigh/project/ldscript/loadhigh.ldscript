@@ -5,7 +5,9 @@ MEMORY
 
 SECTIONS
 {
-	.reset	: { *(.reset) } > ram
+	.reset	: { *(reset) } > ram
     .text	: { *(.text*) } > ram
+	.rodata	: { *(.rodata) } > ram
+	.data	: { *(.data) } > ram
     .bss	: { *(.bss*) } > ram
 }

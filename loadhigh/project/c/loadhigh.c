@@ -1,3 +1,22 @@
+/*	loadhigh.c - a stub program to boot another program high in memory.
+ *
+ *	Copyright 2018 David Haworth
+ *
+ *	This file is part of davros.
+ *
+ *	davros is free software: you can redistribute it and/or modify
+ *	it under the terms of the GNU General Public License as published by
+ *	the Free Software Foundation, either version 3 of the License, or
+ *	(at your option) any later version.
+ *
+ *	davros is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU General Public License for more details.
+ *
+ *	You should have received a copy of the GNU General Public License
+ *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
+*/
 #include <devices/h/dv-arm-bcm2835-aux.h>
 #include <devices/h/dv-arm-bcm2835-uart.h>
 #include <devices/h/dv-arm-bcm2835-armtimer.h>
@@ -9,13 +28,17 @@
 #define CORE2_SP	0x4000
 #define CORE3_SP	0x2000
 
+extern void	dv_reset(void);
+
 static inline void release_core(int c, dv_u32_t rel_addr, dv_u32_t entry)
 {
-	dv_kprintf("Release core %d at 0x%08x\n", c, entry);
+#if 0
+	rel_addr += (dv_u32_t)(dv_u64_t)&dv_reset;
+	rel_addr -= 4;
+#endif
+	dv_kprintf("Release core %d at 0x%08x, rel_addr = 0x%08x\n", c, entry, rel_addr);
 	*(dv_u32_t *)(dv_u64_t)rel_addr = entry;
 }
-
-extern unsigned int GETPC(void);	/* Implemented in assembler; we don't need no optimisation! */
 
 static inline dv_u32_t timer_tick(void)
 {
@@ -60,22 +83,22 @@ void loop(dv_u32_t core_index, dv_u32_t match)
 }
 
 //-------------------------------------------------------------------
-void enter_one ( void )
+void enter_one(void)
 {
 	loop(1, 0x00010000);
 }
 //-------------------------------------------------------------------
-void enter_two ( void )
+void enter_two(void)
 {
 	loop(2, 0x00020000);
 }
 //-------------------------------------------------------------------
-void enter_three ( void )
+void enter_three(void)
 {
 	loop(3, 0x00030000);
 }
 //-------------------------------------------------------------------
-int notmain ( void )
+void dv_board_start(unsigned long x0, unsigned long x1, unsigned long x2, unsigned long x3)
 {
 	/* Enable the UART, then initialise it.
 	*/
@@ -89,36 +112,22 @@ int notmain ( void )
 	dv_kprintf("version %d\n", 6);
 
     dv_kprintf("0x%08x\n", 0x12345678);
-    dv_kprintf("0x%08x\n", GETPC());
+
+    dv_kprintf("x0 = 0x%08x%08x\n", (dv_u32_t)(x0>>32), (dv_u32_t)(x0&0xffffffff));
+    dv_kprintf("x1 = 0x%08x%08x\n", (dv_u32_t)(x1>>32), (dv_u32_t)(x1&0xffffffff));
+    dv_kprintf("x2 = 0x%08x%08x\n", (dv_u32_t)(x2>>32), (dv_u32_t)(x2&0xffffffff));
+    dv_kprintf("x3 = 0x%08x%08x\n", (dv_u32_t)(x3>>32), (dv_u32_t)(x3&0xffffffff));
+
+    dv_kprintf("0x%08x\n", 0x12345678);
     timer_init();
 
 	/* Start the other cores.
 	*/
-	release_core(1, CORE1_SP, (dv_u32_t)(dv_u64_t)enter_one);
-	release_core(2, CORE2_SP, (dv_u32_t)(dv_u64_t)enter_two);
-	release_core(3, CORE3_SP, (dv_u32_t)(dv_u64_t)enter_three);
+	release_core(1, x1, (dv_u32_t)(dv_u64_t)enter_one);
+	release_core(2, x2, (dv_u32_t)(dv_u64_t)enter_two);
+	release_core(3, x3, (dv_u32_t)(dv_u64_t)enter_three);
 
 	/* Go to the loop myself.
 	*/
 	loop(0, 0x00000000);
-
-	/*	Not reached.
-	*/
-    return(0);
 }
-//-------------------------------------------------------------------
-//-------------------------------------------------------------------
-
-
-//-------------------------------------------------------------------------
-//
-// Copyright (c) 2016 David Welch dwelch@dwelch.com
-// Modified by David Haworth 2018
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//-------------------------------------------------------------------------
