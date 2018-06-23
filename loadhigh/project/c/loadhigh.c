@@ -19,85 +19,43 @@
 */
 #include <devices/h/dv-arm-bcm2835-aux.h>
 #include <devices/h/dv-arm-bcm2835-uart.h>
-#include <devices/h/dv-arm-bcm2835-armtimer.h>
 #include <kernel/h/dv-stdio.h>
 
-/* Cores wait for an address to appear at the top of their stack.
-*/
-#define CORE1_SP	0x6000
-#define CORE2_SP	0x4000
-#define CORE3_SP	0x2000
+extern const char bin_name[];
+extern const unsigned char bin_array[];
+extern const unsigned bin_length;
+extern const unsigned bin_loadaddr;
 
-extern void	dv_reset(void);
+typedef void (*fptr)(void);
+
+/* loadhigh contains a copy of the binary of a different program that was
+ * linked at a high address in RAM.
+ *
+ * loadhigh moves the program to its rightful place and then starts it.
+ *
+ * Assumptions:
+ *	1. The program also contains a copy of dv-reset that catches all cores and puts three of them
+ *	   to sleep until it needs them.
+ *	2. The load address of the program is also the entry point.
+*/
 
 static inline void release_core(int c, dv_u32_t rel_addr, dv_u32_t entry)
 {
-#if 0
-	rel_addr += (dv_u32_t)(dv_u64_t)&dv_reset;
-	rel_addr -= 4;
-#endif
 	dv_kprintf("Release core %d at 0x%08x, rel_addr = 0x%08x\n", c, entry, rel_addr);
 	*(dv_u32_t *)(dv_u64_t)rel_addr = entry;
 }
 
-static inline dv_u32_t timer_tick(void)
+static inline void wait_return(void)
 {
-	return dv_arm_bcm2835_armtimer_read_frc();
+	int c;
+	for (;;)
+	{
+		c = dv_consoledriver.getc();
+		if ( c == '\r' || c == '\n' )
+			return;
+	}
 }
 
-static inline void timer_init(void)
-{
-	/* Need 1 MHz clock, so divier 250 MHz sysclock by 250.
-	*/
-	dv_arm_bcm2835_armtimer_set_frc_prescale(250);
-	dv_arm_bcm2835_armtimer_enable_frc();
-}
-
-#define COUNTER_MASK	0x000F0000
-
-void loop(dv_u32_t core_index, dv_u32_t match)
-{
-    while(1)
-    {
-        while(1)
-        {
-            if ( (timer_tick() & COUNTER_MASK) == match)
-            {
-				if ( core_index == 0 )
-				{
-					dv_consoledriver.putc('\r');
-					dv_consoledriver.putc('\n');
-				}
-				dv_consoledriver.putc('0' + core_index);
-                break;
-            }
-        }
-        while(1)
-        {
-            if ( (timer_tick() & COUNTER_MASK) != match )
-            {
-                break;
-            }
-        }
-    }
-}
-
-//-------------------------------------------------------------------
-void enter_one(void)
-{
-	loop(1, 0x00010000);
-}
-//-------------------------------------------------------------------
-void enter_two(void)
-{
-	loop(2, 0x00020000);
-}
-//-------------------------------------------------------------------
-void enter_three(void)
-{
-	loop(3, 0x00030000);
-}
-//-------------------------------------------------------------------
 void dv_board_start(unsigned long x0, unsigned long x1, unsigned long x2, unsigned long x3)
 {
 	/* Enable the UART, then initialise it.
@@ -108,26 +66,38 @@ void dv_board_start(unsigned long x0, unsigned long x1, unsigned long x2, unsign
 
 	/* Friendly greeting.
 	*/
-	dv_kprintf("Hello, world!\n");
-	dv_kprintf("version %d\n", 6);
+	dv_kprintf("Loadhigh version 0.1!\n");
+	dv_kprintf("Parameters:\n");
+    dv_kprintf("  x0 = 0x%08x%08x\n", (dv_u32_t)(x0>>32), (dv_u32_t)(x0&0xffffffff));
+    dv_kprintf("  x1 = 0x%08x%08x\n", (dv_u32_t)(x1>>32), (dv_u32_t)(x1&0xffffffff));
+    dv_kprintf("  x2 = 0x%08x%08x\n", (dv_u32_t)(x2>>32), (dv_u32_t)(x2&0xffffffff));
+    dv_kprintf("  x3 = 0x%08x%08x\n", (dv_u32_t)(x3>>32), (dv_u32_t)(x3&0xffffffff));
 
-    dv_kprintf("0x%08x\n", 0x12345678);
+	dv_kprintf("Testing the %%s format: %s\n", "it works!");
 
-    dv_kprintf("x0 = 0x%08x%08x\n", (dv_u32_t)(x0>>32), (dv_u32_t)(x0&0xffffffff));
-    dv_kprintf("x1 = 0x%08x%08x\n", (dv_u32_t)(x1>>32), (dv_u32_t)(x1&0xffffffff));
-    dv_kprintf("x2 = 0x%08x%08x\n", (dv_u32_t)(x2>>32), (dv_u32_t)(x2&0xffffffff));
-    dv_kprintf("x3 = 0x%08x%08x\n", (dv_u32_t)(x3>>32), (dv_u32_t)(x3&0xffffffff));
+	/* Copy the data.
+	*/
+	dv_kprintf("Copying %s to 0x%08x\n", bin_name, bin_loadaddr);
+	unsigned char *d = (unsigned char *)(dv_u64_t)bin_loadaddr;
+	for ( unsigned i = 0; i < bin_length; i++ )
+	{
+		d[i] = bin_array[i];
+	}
+	dv_kprintf("Copied %u bytes to 0x%08x\n", bin_length, bin_loadaddr);
 
-    dv_kprintf("0x%08x\n", 0x12345678);
-    timer_init();
+	dv_kprintf("Press RETURN to start each core in turn\n");
 
 	/* Start the other cores.
 	*/
-	release_core(1, x1, (dv_u32_t)(dv_u64_t)enter_one);
-	release_core(2, x2, (dv_u32_t)(dv_u64_t)enter_two);
-	release_core(3, x3, (dv_u32_t)(dv_u64_t)enter_three);
-
-	/* Go to the loop myself.
-	*/
-	loop(0, 0x00000000);
+	wait_return();
+	release_core(1, x1, bin_loadaddr);
+	wait_return();
+	release_core(2, x2, bin_loadaddr);
+	wait_return();
+	release_core(3, x3, bin_loadaddr);
+	wait_return();
+	fptr x = (fptr)(dv_u64_t)bin_loadaddr;
+	x();
+	dv_kprintf("Oops! Loaded program returned!\n");
+	for (;;) {}
 }

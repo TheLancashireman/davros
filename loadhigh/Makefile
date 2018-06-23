@@ -22,6 +22,9 @@ PRJ_ROOT		?= $(shell pwd)
 DV_ROOT			?= $(PRJ_ROOT)/../davros-3
 
 PRJ_NAME		?= loader
+BIN_NAME		?= hello.bin
+BIN_FILE		?= bin/hello.bin
+LOAD_ADDR		?= 0x20000000
 
 # Select your board directory here
 DV_BOARD_D		?=	$(DV_ROOT)/board/arm64/raspberry-pi-3
@@ -37,6 +40,14 @@ DV_LD_OBJS		+= $(DV_OBJ_D)/loadhigh.$(DV_O)
 DV_LD_OBJS		+= $(DV_OBJ_D)/dv-kprintf.$(DV_O)
 DV_LD_OBJS		+= $(DV_OBJ_D)/dv-xprintf.$(DV_O)
 DV_LD_OBJS		+= $(DV_OBJ_D)/dv-strlen.$(DV_O)
+DV_LD_OBJS		+= $(DV_OBJ_D)/loadbin.$(DV_O)
+
+HELLO_OBJS		+= $(DV_OBJ_D)/hello.$(DV_O)
+HELLO_OBJS		+= $(DV_OBJ_D)/dv-kprintf.$(DV_O)
+HELLO_OBJS		+= $(DV_OBJ_D)/dv-xprintf.$(DV_O)
+HELLO_OBJS		+= $(DV_OBJ_D)/dv-strlen.$(DV_O)
+HELLO_OBJS		+= $(DV_OBJ_D)/dv-arm-bcm2835-uart.$(DV_O)
+HELLO_OBJS		+= $(DV_OBJ_D)/dv-arm-bcm2835-gpio.$(DV_O)
 
 # Include the board's file lists
 include $(DV_BOARD_D)/make/dv-board-list.make
@@ -45,7 +56,11 @@ include $(DV_BOARD_D)/make/dv-board-list.make
 LD_OPT		+= -e dv_reset
 LD_OPT		+= -T project/ldscript/loadhigh.ldscript
 
+HELLO_LD_OPT	+= -e hello
+HELLO_LD_OPT	+= -T project/ldscript/hello.ldscript
+
 VPATH 		+= project/c
+VPATH		+= bin
 
 DV_KLIB	= $(DV_LIB_D)/lib$(DV_KLIB_NAME).$(DV_A)
 DV_ULIB = $(DV_LIB_D)/lib$(DV_ULIB_NAME).$(DV_A)
@@ -59,13 +74,17 @@ include $(DV_ROOT)/make/dv-defs.make
 
 default:	all
 
-all:		bin
+all:		image
+
+shiny:
+	-rm bin/*
+	-rm bin/obj/*
 
 klib:		$(DV_KLIB)
 
 ulib:		$(DV_ULIB)
 
-bin:		$(DV_BIN_D)/$(PRJ_NAME).bin
+image:		$(DV_BIN_D)/$(PRJ_NAME).bin
 
 $(DV_BIN_D)/$(PRJ_NAME).bin:	 $(DV_BIN_D)/$(PRJ_NAME).elf
 	$(dv_elf2bin)
@@ -73,8 +92,24 @@ $(DV_BIN_D)/$(PRJ_NAME).bin:	 $(DV_BIN_D)/$(PRJ_NAME).elf
 $(DV_BIN_D)/$(PRJ_NAME).elf:	$(DV_LD_OBJS)
 	$(DV_GNU_D)/bin/$(DV_GNU_PRE)ld -o $@ $(DV_LD_OBJS) $(LD_OPT)
 
+$(DV_BIN_D)/loadbin.c:		$(BIN_FILE)
+	echo "const char bin_name[] = \"$(BIN_NAME)\";" > $@
+	echo "const unsigned char bin_array[] = {"  >> $@
+	hexdump -e '16/1 "0x%02X, ""\n"""' $(BIN_FILE) | sed -e 's/, 0x .*$///' >> $@
+	echo "};" >> $@
+	echo "const unsigned bin_length = sizeof(bin_array);" >> $@
+	echo "const unsigned bin_loadaddr = $(LOAD_ADDR);" >> $@
+
+$(DV_BIN_D)/hello.bin:	 	$(DV_BIN_D)/hello.elf
+	$(dv_elf2bin)
+
+$(DV_BIN_D)/hello.elf:		$(HELLO_OBJS)
+	$(DV_GNU_D)/bin/$(DV_GNU_PRE)ld -o $@ $(HELLO_OBJS) $(HELLO_LD_OPT)
+
 include $(DV_ROOT)/make/dv-commontargets.make
 include $(DV_ROOT)/cpufamily/$(DV_FAMILY)/make/dv-$(DV_FAMILY)-$(DV_COMPILER).make
 include $(DV_ROOT)/make/dv-rules.make
 include $(DV_ROOT)/make/dv-klib.make
 include $(DV_ROOT)/make/dv-ulib.make
+
+# cat bin/hello.bin | hexdump -e '16/1 "0x%02X, ""\n"""' | sed -e 's/, 0x .*$//'
