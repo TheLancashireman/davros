@@ -74,7 +74,7 @@ static int dv_arm_bcm2835_uart_putc(int c)
 
 static int dv_arm_bcm2835_uart_getc(void)
 {
-	while ( !dv_arm_bcm2835_uart_istx() )
+	while ( !dv_arm_bcm2835_uart_isrx() )
 	{
 		/* Wait till there's a character */
 	}
