@@ -1,4 +1,4 @@
-/*	mon-util.c - monitor and boot loader odds'n'sods
+/*	mon-davros3.h - monitor definitions for a davros-3 environment
  *
  *	Copyright 2001 David Haworth
  *
@@ -18,55 +18,31 @@
  *	Boston, MA 02111-1307, USA.
  *
  *
- *	This file contains some odds'n'ends used by the monitor and in other
- *	places.
+ *	This file contains definitions for monitor.
  *
 */
-#include <project/h/monitor.h>
+#ifndef mon_davros3_h
+#define mon_davros3_h
 
-char *skipspaces(char *p)
-{
-	while ( isspace(*p) )
-		p++;
-	return(p);
-}
+#include <kernel/h/dv-kconfig.h>
+#include <kernel/h/dv-types.h>
+#include <kernel/h/dv-stdio.h>
 
-int char2hex(char c)
-{
-	if ( c >= '0' && c <= '9' )
-		return(c - '0');
-	if ( c >= 'A' && c <= 'F' )
-		return(c - 'A' + 10);
-	if ( c >= 'a' && c <= 'f' )
-		return(c - 'a' + 10);
-	return(-1);
-}
+#include <user/h/ctype.h>
+#include <user/h/string.h>
 
-maxword_t gethex(char **pp, int max)
-{
-	char *p = *pp;
-	memaddr_t a = 0;
-	int v = 0;
+typedef dv_u8_t uint8_t;
+typedef dv_u16_t uint16_t;
+typedef dv_u32_t uint32_t;
+typedef dv_u64_t uint64_t;
+typedef dv_address_t memaddr_t;
+typedef dv_machineword_t maxword_t;
 
-	while ( max > 0 && v >= 0 && *p != '\0' )
-	{
-		v = char2hex(*p);
-		if ( v < 0 )
-		{
-			if ( p == *pp )
-			{
-				*pp = NULL;
-				return(0);
-			}
-		}
-		else
-		{
-			a = ( a << 4 ) | ( v & 0x0f );
-			p++;
-		}
-		max--;
-	}
+#define NULL	DV_NULL
 
-	*pp = p;
-	return(a);
-}
+#define readchar()					dv_consoledriver.getc()
+#define writechar(c)				dv_consoledriver.putc(c)
+#define xprintf(fmt, ap)			dv_xprintf(dv_consoledriver.putc, fmt, ap)
+
+
+#endif

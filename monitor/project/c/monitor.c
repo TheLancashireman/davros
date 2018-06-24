@@ -54,11 +54,7 @@
  *		ADDRSIZE - size of an address, in bits.
  *
 */
-
-#include "arch-cpudef.h"
-#include "arch-mon.h"
-#include "monitor.h"
-#include "ctype.h"
+#include <project/h/monitor.h>
 
 /*	Messages etc. */
 const char what[]		= "What?";

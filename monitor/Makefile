@@ -21,9 +21,9 @@
 PRJ_ROOT		?= $(shell pwd)
 DV_ROOT			?= $(PRJ_ROOT)/../davros-3
 
-PRJ_NAME		?= loader
-BIN_NAME		?= hello.bin
-BIN_FILE		?= bin/hello.bin
+PRJ_NAME		?= monitor
+BIN_NAME		?= $(PRJ_NAME).bin
+BIN_FILE		?= bin/$(BIN_NAME)
 LOAD_ADDR		?= 0x20000000
 
 # Select your board directory here
@@ -34,36 +34,42 @@ DV_COMPILER		?=	gnu
 DV_GNU_D		?=	/data1/gnu/gcc-linaro-6.3.1-2017.02-x86_64_aarch64-elf
 
 DV_LD_OBJS		+= $(DV_OBJ_D)/dv-reset.$(DV_O)
-DV_LD_OBJS		+= $(DV_OBJ_D)/loadhigh.$(DV_O)
+DV_LD_OBJS		+= $(DV_OBJ_D)/monitor.$(DV_O)
+DV_LD_OBJS		+= $(DV_OBJ_D)/mon-srec.$(DV_O)
+DV_LD_OBJS		+= $(DV_OBJ_D)/mon-stdio.$(DV_O)
+DV_LD_OBJS		+= $(DV_OBJ_D)/mon-util.$(DV_O)
+DV_LD_OBJS		+= $(DV_OBJ_D)/board-start.$(DV_O)
+
 #DV_LD_OBJS		+= $(DV_OBJ_D)/dv-arm-bcm2835-uart.$(DV_O)
 #DV_LD_OBJS		+= $(DV_OBJ_D)/dv-arm-bcm2835-gpio.$(DV_O)
 DV_LD_OBJS		+= $(DV_OBJ_D)/dv-kprintf.$(DV_O)
 DV_LD_OBJS		+= $(DV_OBJ_D)/dv-xprintf.$(DV_O)
 DV_LD_OBJS		+= $(DV_OBJ_D)/dv-strlen.$(DV_O)
-DV_LD_OBJS		+= $(DV_OBJ_D)/loadbin.$(DV_O)
 
-HELLO_OBJS		+= $(DV_OBJ_D)/hello.$(DV_O)
-HELLO_OBJS		+= $(DV_OBJ_D)/dv-kprintf.$(DV_O)
-HELLO_OBJS		+= $(DV_OBJ_D)/dv-xprintf.$(DV_O)
-HELLO_OBJS		+= $(DV_OBJ_D)/dv-strlen.$(DV_O)
-HELLO_OBJS		+= $(DV_OBJ_D)/dv-arm-bcm2835-uart.$(DV_O)
-HELLO_OBJS		+= $(DV_OBJ_D)/dv-arm-bcm2835-gpio.$(DV_O)
+LOADER_NAME		?= moni-load
+
+LOADER_OBJS		+= $(DV_OBJ_D)/dv-reset.$(DV_O)
+LOADER_OBJS		+= $(DV_OBJ_D)/loadhigh.$(DV_O)
+LOADER_OBJS		+= $(DV_OBJ_D)/dv-kprintf.$(DV_O)
+LOADER_OBJS		+= $(DV_OBJ_D)/dv-xprintf.$(DV_O)
+LOADER_OBJS		+= $(DV_OBJ_D)/dv-strlen.$(DV_O)
+LOADER_OBJS		+= $(DV_OBJ_D)/dv-arm-bcm2835-uart.$(DV_O)
+LOADER_OBJS		+= $(DV_OBJ_D)/dv-arm-bcm2835-gpio.$(DV_O)
+LOADER_OBJS		+= $(DV_OBJ_D)/loadbin.$(DV_O)
 
 # Include the board's file lists
 include $(DV_BOARD_D)/make/dv-board-list.make
 
 #CC_OPT		+= -O2
 LD_OPT		+= -e dv_reset
-LD_OPT		+= -T project/ldscript/loadhigh.ldscript
+LD_OPT		+= -T project/ldscript/monitor-high.ldscript
 
-HELLO_LD_OPT	+= -e hello
-HELLO_LD_OPT	+= -T project/ldscript/hello.ldscript
+LOADER_LD_OPT	+= -e dv_reset
+LOADER_LD_OPT	+= -T project/ldscript/monitor-low.ldscript
 
 VPATH 		+= project/c
 VPATH		+= bin
-
-DV_KLIB	= $(DV_LIB_D)/lib$(DV_KLIB_NAME).$(DV_A)
-DV_ULIB = $(DV_LIB_D)/lib$(DV_ULIB_NAME).$(DV_A)
+VPATH		+= ../loadhigh/project/c
 
 # Include the board's make selections
 include $(DV_BOARD_D)/make/dv-board.make
@@ -80,11 +86,9 @@ shiny:
 	-rm bin/*
 	-rm bin/obj/*
 
-klib:		$(DV_KLIB)
-
-ulib:		$(DV_ULIB)
-
 image:		$(DV_BIN_D)/$(PRJ_NAME).bin
+
+loader:		$(DV_BIN_D)/$(LOADER_NAME).bin
 
 $(DV_BIN_D)/$(PRJ_NAME).bin:	 $(DV_BIN_D)/$(PRJ_NAME).elf
 	$(dv_elf2bin)
@@ -92,19 +96,19 @@ $(DV_BIN_D)/$(PRJ_NAME).bin:	 $(DV_BIN_D)/$(PRJ_NAME).elf
 $(DV_BIN_D)/$(PRJ_NAME).elf:	$(DV_LD_OBJS)
 	$(DV_GNU_D)/bin/$(DV_GNU_PRE)ld -o $@ $(DV_LD_OBJS) $(LD_OPT)
 
-$(DV_BIN_D)/loadbin.c:		$(BIN_FILE)
+$(DV_BIN_D)/loadbin.c:			$(BIN_FILE)
 	echo "const char bin_name[] = \"$(BIN_NAME)\";" > $@
 	echo "const unsigned char bin_array[] = {"  >> $@
-	hexdump -e '16/1 "0x%02X, ""\n"""' $(BIN_FILE) | sed -e 's/, 0x .*$///' >> $@
+	hexdump -v -e '16/1 "0x%02X, ""\n"""' $(BIN_FILE) | sed -e 's/, 0x .*$///' >> $@
 	echo "};" >> $@
 	echo "const unsigned bin_length = sizeof(bin_array);" >> $@
 	echo "const unsigned bin_loadaddr = $(LOAD_ADDR);" >> $@
 
-$(DV_BIN_D)/hello.bin:	 	$(DV_BIN_D)/hello.elf
+$(DV_BIN_D)/$(LOADER_NAME).bin:	 	$(DV_BIN_D)/$(LOADER_NAME).elf
 	$(dv_elf2bin)
 
-$(DV_BIN_D)/hello.elf:		$(HELLO_OBJS)
-	$(DV_GNU_D)/bin/$(DV_GNU_PRE)ld -o $@ $(HELLO_OBJS) $(HELLO_LD_OPT)
+$(DV_BIN_D)/$(LOADER_NAME).elf:		$(LOADER_OBJS)
+	$(DV_GNU_D)/bin/$(DV_GNU_PRE)ld -o $@ $(LOADER_OBJS) $(LOADER_LD_OPT)
 
 include $(DV_ROOT)/make/dv-commontargets.make
 include $(DV_ROOT)/cpufamily/$(DV_FAMILY)/make/dv-$(DV_FAMILY)-$(DV_COMPILER).make

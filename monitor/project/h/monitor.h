@@ -22,17 +22,42 @@
  *
 */
 
-#ifndef __mon_stdio_h
-#define __mon_stdio_h
+#ifndef monitor_h
+#define monitor_h
+
+#define MON_DAVROS3		1
+#define MON_LINUXTEST	99
+
+#ifndef MON_ENVIRONMENT
+#define MON_ENVIRONMENT	MON_DAVROS3
+#endif
+
+#if MON_ENVIRONMENT == MON_DAVROS3
+#include <project/h/mon-davros3.h>
+#else
+#error "Unknown value of MON_ENVIRONMENT; check your Makefiles"
+#endif
 
 #define MAXLINE	1024
 
+#define SREC_EOF		1
+#define SREC_BADTYP		-1
+#define SREC_BADLEN		-2
+#define SREC_NONHEX		-3
+#define SREC_BADCK		-4
+
+#define	peek8(a)		(*(uint8_t *)(a))
+#define	peek16(a)		(*(uint16_t *)(a))
+#define	peek32(a)		(*(uint32_t *)(a))
+#define	peek64(a)		(*(uint64_t *)(a))
+#define poke8(a, v)		(*(uint8_t *)(a) = (v))
+#define poke16(a, v)	(*(uint16_t *)(a) = (v))
+#define poke32(a, v)	(*(uint32_t *)(a) = (v))
+#define poke64(a, v)	(*(uint64_t *)(a) = (v))
+#define go(a)			((*(vfuncv_t)(a))())
+
 typedef void (*pokefunc_t)(memaddr_t a, uint8_t b);
-#define SREC_EOF	1
-#define SREC_BADTYP	-1
-#define SREC_BADLEN	-2
-#define SREC_NONHEX	-3
-#define SREC_BADCK	-4
+typedef void (*vfuncv_t)(void);
 
 void monitor(char *prompt);
 

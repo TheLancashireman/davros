@@ -29,16 +29,8 @@
  *			or whatever). Waits until space available in output buffer.
  *
 */
-
-#include "arch-cpudef.h"
-#include "arch-mon.h"
-#include "monitor.h"
-
-#include "stdarg.h"
-#include "ctype.h"
-
-#define __STDIO_PRIVATE
-#include "stdio.h"
+#include <project/h/monitor.h>
+#include <stdarg.h>
 
 static int isreturn(char c)
 {
@@ -83,19 +75,13 @@ char *mgets(char *buf, int max)
 	return(buf);
 }
 
-static int __putc(int c, void *dev)
-{
-	writechar(c);
-	return(0);
-}
-
 int mprintf(char *fmt, ...)
 {
 	int n;
 	va_list ap;
 	va_start(ap,fmt);
 
-	n = __xprintf(__putc, NULL, fmt, ap);
+	n = xprintf(fmt, ap);
 
 	va_end(ap);
 

@@ -20,15 +20,7 @@
  *
  *	This file contains S-record handling functions.
 */
-
-#include "arch-cpudef.h"
-#include "monitor.h"
-#include "ctype.h"
-#include "string.h"
-
-#ifdef __LINUX_TEST__
-#include "/usr/include/stdio.h"
-#endif
+#include <project/h/monitor.h>
 
 /* process_s_record
  *
@@ -66,7 +58,7 @@ int process_s_record(char *line, pokefunc_t _poke)
 		addrlen += 2;
 		/* Fall through */
 	case '1':
-#ifdef __LINUX_TEST__
+#if MON_ENVIRONMENT == MON_LINUXTEST
 		printf("S%c-record, len = %d\n", line[1], len);
 #endif
 		if ( len < 10 ||
@@ -89,7 +81,7 @@ int process_s_record(char *line, pokefunc_t _poke)
 		}
 		p = &line[4];
 		addr = gethex(&p, addrlen);
-#ifdef __LINUX_TEST__
+#if MON_ENVIRONMENT == MON_LINUXTEST
 		printf("S%c-record, addr = %04x, slen = %02x\n", line[1], addr, slen);
 #endif
 		slen -= (1 + addrlen/2);		/* Address & Checksum */
