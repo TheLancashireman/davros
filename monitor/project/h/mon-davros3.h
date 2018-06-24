@@ -40,9 +40,20 @@ typedef dv_machineword_t maxword_t;
 
 #define NULL	DV_NULL
 
-#define readchar()					dv_consoledriver.getc()
-#define writechar(c)				dv_consoledriver.putc(c)
-#define xprintf(fmt, ap)			dv_xprintf(dv_consoledriver.putc, fmt, ap)
+static inline char readchar(void)
+{
+	return dv_consoledriver.getc();
+}
 
+static inline void writechar(char c)
+{
+	if ( c == '\n' )
+		dv_consoledriver.putc('\r');
+	dv_consoledriver.putc(c);
+}
+
+#define mprintf	dv_kprintf
+
+#define xprintf(fmt, ap)	dv_xprintf(dv_consoledriver.putc, fmt, ap)
 
 #endif

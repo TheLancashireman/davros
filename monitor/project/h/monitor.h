@@ -63,7 +63,10 @@ void monitor(char *prompt);
 
 int process_s_record(char *line, pokefunc_t _poke);
 
+#if 0
 int mprintf(char *fmt, ...);
+#endif
+
 char *mgets(char *buf, int max);
 
 char *skipspaces(char *p);

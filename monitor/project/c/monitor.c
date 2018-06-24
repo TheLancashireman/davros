@@ -31,7 +31,6 @@
  *		Da,l,s	- dump l words memory starting at a. Word size is s.
  *		Ma,s	- modify memory starting at a. Word size is s.
  *		Ga		- call subroutine at address a
- *		Q		- quit
  *
  *  Requires architecture-dependent functions or macros:
  *
@@ -76,9 +75,10 @@ static void mypoke(memaddr_t a, uint8_t b)
 #define mypoke poke8
 #endif
 
+char line[MAXLINE+2];
+
 void monitor(char *prompt)
 {
-	char line[MAXLINE+2];
 	char *p;
 
 	for (;;)
@@ -128,6 +128,11 @@ void monitor(char *prompt)
 			word_op(4, p+1);
 			break;
 
+		case 'q':
+		case 'Q':
+			word_op(8, p+1);
+			break;
+
 		case 'd':
 		case 'D':
 			dump(p+1);
@@ -143,9 +148,11 @@ void monitor(char *prompt)
 			go_op(p+1);
 			break;
 
+#if 0
 		case 'q':
 		case 'Q':
 			return;
+#endif
 
 		default:
 			mprintf("%s\n", what);
@@ -157,7 +164,7 @@ void monitor(char *prompt)
 static void word_op(int s, char *p)
 {
 	memaddr_t a;
-	uint32_t v;
+	uint64_t v;
 
 	p = skipspaces(p);
 	a = gethex(&p, sizeof(memaddr_t)*2);
@@ -180,6 +187,10 @@ static void word_op(int s, char *p)
 				break;
 			case 4:
 				mprintf("%08x = %08x\n", a, peek32(a));
+				break;
+			case 8:
+				v = peek64(a);
+				mprintf("%08x = %08x%08x\n", a, (uint32_t)(v>>32), (uint32_t)(v&0xffffffff));
 				break;
 			}
 		}
@@ -205,6 +216,9 @@ static void word_op(int s, char *p)
 					break;
 				case 4:
 					poke32(a, v);
+					break;
+				case 8:
+					poke64(a, v);
 					break;
 				}
 			}

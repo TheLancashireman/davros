@@ -37,12 +37,15 @@ static int isreturn(char c)
 	return ( c == '\n' || c == '\r' );
 }
 
+extern dv_u64_t GetSP(void);
+
 char *mgets(char *buf, int max)
 {
 	char c;
 	char *p = buf;
 	int i = 0;
 
+	*p = '\0';
 	while ( !isreturn(c = readchar()) )
 	{
 		if ( c == BS ||
@@ -52,6 +55,7 @@ char *mgets(char *buf, int max)
 			{
 				i--;
 				p--;
+				*p = '\0';
 				writechar(BS);
 				writechar(' ');
 				writechar(BS);
@@ -70,11 +74,13 @@ char *mgets(char *buf, int max)
 		else
 			writechar(BEL);
 	}
+	*p = '\0';
 	writechar('\r');
 	writechar('\n');
 	return(buf);
 }
 
+#if 0
 int mprintf(char *fmt, ...)
 {
 	int n;
@@ -87,3 +93,4 @@ int mprintf(char *fmt, ...)
 
 	return(n);
 }
+#endif

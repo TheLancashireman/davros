@@ -33,6 +33,7 @@ DV_BOARD_D		?=	$(DV_ROOT)/board/arm64/raspberry-pi-3
 DV_COMPILER		?=	gnu
 DV_GNU_D		?=	/data1/gnu/gcc-linaro-6.3.1-2017.02-x86_64_aarch64-elf
 
+# The monitor
 DV_LD_OBJS		+= $(DV_OBJ_D)/dv-reset.$(DV_O)
 DV_LD_OBJS		+= $(DV_OBJ_D)/monitor.$(DV_O)
 DV_LD_OBJS		+= $(DV_OBJ_D)/mon-srec.$(DV_O)
@@ -46,6 +47,7 @@ DV_LD_OBJS		+= $(DV_OBJ_D)/dv-kprintf.$(DV_O)
 DV_LD_OBJS		+= $(DV_OBJ_D)/dv-xprintf.$(DV_O)
 DV_LD_OBJS		+= $(DV_OBJ_D)/dv-strlen.$(DV_O)
 
+# Loader
 LOADER_NAME		?= moni-load
 
 LOADER_OBJS		+= $(DV_OBJ_D)/dv-reset.$(DV_O)
@@ -71,6 +73,17 @@ VPATH 		+= project/c
 VPATH		+= bin
 VPATH		+= ../loadhigh/project/c
 
+# Test program
+HELLO_OBJS      += $(DV_OBJ_D)/hello.$(DV_O)
+HELLO_OBJS      += $(DV_OBJ_D)/dv-kprintf.$(DV_O)
+HELLO_OBJS      += $(DV_OBJ_D)/dv-xprintf.$(DV_O)
+HELLO_OBJS      += $(DV_OBJ_D)/dv-strlen.$(DV_O)
+HELLO_OBJS      += $(DV_OBJ_D)/dv-arm-bcm2835-uart.$(DV_O)
+HELLO_OBJS      += $(DV_OBJ_D)/dv-arm-bcm2835-gpio.$(DV_O)
+
+HELLO_LD_OPT    += -e hello
+HELLO_LD_OPT    += -T project/ldscript/hello.ldscript
+
 # Include the board's make selections
 include $(DV_BOARD_D)/make/dv-board.make
 
@@ -89,6 +102,8 @@ shiny:
 image:		$(DV_BIN_D)/$(PRJ_NAME).bin
 
 loader:		$(DV_BIN_D)/$(LOADER_NAME).bin
+
+testprog:	$(DV_BIN_D)/hello.srec
 
 $(DV_BIN_D)/$(PRJ_NAME).bin:	 $(DV_BIN_D)/$(PRJ_NAME).elf
 	$(dv_elf2bin)
@@ -109,6 +124,12 @@ $(DV_BIN_D)/$(LOADER_NAME).bin:	 	$(DV_BIN_D)/$(LOADER_NAME).elf
 
 $(DV_BIN_D)/$(LOADER_NAME).elf:		$(LOADER_OBJS)
 	$(DV_GNU_D)/bin/$(DV_GNU_PRE)ld -o $@ $(LOADER_OBJS) $(LOADER_LD_OPT)
+
+$(DV_BIN_D)/hello.elf:      $(HELLO_OBJS)
+	$(DV_GNU_D)/bin/$(DV_GNU_PRE)ld -o $@ $(HELLO_OBJS) $(HELLO_LD_OPT)
+
+$(DV_BIN_D)/hello.srec:      $(DV_BIN_D)/hello.elf
+	$(DV_GNU_D)/bin/$(DV_GNU_PRE)objcopy $< -O srec $@
 
 include $(DV_ROOT)/make/dv-commontargets.make
 include $(DV_ROOT)/cpufamily/$(DV_FAMILY)/make/dv-$(DV_FAMILY)-$(DV_COMPILER).make

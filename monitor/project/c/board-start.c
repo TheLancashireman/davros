@@ -16,43 +16,6 @@
  *	along with this program; see the file COPYING.  If not, write to
  *	the Free Software Foundation, 59 Temple Place - Suite 330,
  *	Boston, MA 02111-1307, USA.
- *
- *
- *	This file contains the main program of the boot monitor and loader.
- *
- *  Commands (not case sensitive):
- *		Sn....	- Type n S-Record 
- *		Ba		- display value of byte at location a
- *		Ha		- display value of 16-bit word at location a
- *		Wa		- display value of 32-bit word at location a
- *		Ba=v	- set byte at location a to v
- *		Ha=v	- set 16-bit word at location a to v
- *		Wa=v	- set 32-bit word at location a to v
- *		Da,l,s	- dump l words memory starting at a. Word size is s.
- *		Ma,s	- modify memory starting at a. Word size is s.
- *		Ga		- call subroutine at address a
- *		Q		- quit
- *
- *  Requires architecture-dependent functions or macros:
- *
- *		char readchar(void) - returns next character from input
- *			(serial port or whatever). Waits until available.
- *
- *		void writechar(char c) - writes character c to output (serial port
- *			or whatever). Waits until space available in output buffer.
- *
- *		uint8_t peek8(memaddr_t a) - returns the byte at address a.
- *		uint16_t peek16(memaddr_t a) - returns the 16-bit word at address a.
- *		uint32_t peek32(memaddr_t a) - returns the 32-bit word at address a.
- *
- *		void poke8(memaddr_t a, uint8_t v) - set the byte of memory at address a to v.
- *		void poke16(memaddr_t a, uint16_t v) - set the 16-bit word of memory at address a to v.
- *		void poke32(memaddr_t a, uint32_t v) - set the 32-bit word of memory at address a to v.
- *
- *		void go(memaddr_t a) - calls subroutine at a
- *
- *		ADDRSIZE - size of an address, in bits.
- *
 */
 #include <project/h/monitor.h>
 #include <devices/h/dv-arm-bcm2835-aux.h>
@@ -69,7 +32,7 @@ void dv_board_start(unsigned long x0, unsigned long x1, unsigned long x2, unsign
 
     /* Friendly greeting.
     */
-    dv_kprintf("Davros monitor version 0.1!\n");
+    dv_kprintf("Davros monitor version 0.2\n");
     dv_kprintf("Startup parameters:\n");
     dv_kprintf("  x0 = 0x%08x%08x\n", (dv_u32_t)(x0>>32), (dv_u32_t)(x0&0xffffffff));
     dv_kprintf("  x1 = 0x%08x%08x\n", (dv_u32_t)(x1>>32), (dv_u32_t)(x1&0xffffffff));
