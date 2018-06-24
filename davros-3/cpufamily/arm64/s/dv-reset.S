@@ -61,7 +61,7 @@ skip:
  *	The release mechanism doesn't seem to work when the release addresses are ***fc or ***f8 - why?
 */
 	mov		sp, #0x8000
-	mov		x4, #dv_reset 
+	ldr		x4, dv_reset_addr
 	add		sp, sp, x4
 	mov		x0, sp
 	mov		x1, #0x6000
@@ -95,6 +95,9 @@ skip:
 
 	mrs		x0, mpidr_el1
 	b		skip
+
+dv_reset_addr:
+	.quad	dv_reset
 
 /* Core 0 - go to dv_board_start
 */
