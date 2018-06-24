@@ -25,7 +25,15 @@
 #ifndef __string_h
 #define __string_h
 
-int strlen(const char *s);
+static inline int strlen(const char *str)
+{
+	const char *s = str;
+	while ( *s != '\0' )
+	{
+		s++;
+	}
+	return (s-str);
+}
 
 #if 0
 char *strcpy(char *d, const char *s);
