@@ -37,10 +37,12 @@ DV_LD_OBJS		+= $(DV_OBJ_D)/test-prj-trace.$(DV_O)
 include $(DV_BOARD_D)/make/dv-board-list.make
 
 #CC_OPT		+= -O2
-LD_OPT		+= -e dv_trap_reset
-LD_OPT		+= -T $(DV_BOARD_D)/ldscript/rpi3.ldscript
+LD_OPT		+= -e dv_reset
+LD_OPT		+= -T $(DV_BOARD_D)/ldscript/rpi3-0based.ldscript
 
 VPATH 		+= project/c
+VPATH		+= $(DV_BOARD_D)/c
+VPATH		+= $(DV_BOARD_D)/s
 
 DV_KLIB	= $(DV_LIB_D)/lib$(DV_KLIB_NAME).$(DV_A)
 DV_ULIB = $(DV_LIB_D)/lib$(DV_ULIB_NAME).$(DV_A)

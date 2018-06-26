@@ -1,24 +1,29 @@
-/* U-boot loads the binary at 0x10800000.
- * This script places the vectors there, so that "go 0x10800000" works like reset.
- * Immediately after the vectors comes the code and rom data
- * Variables are placed at 0x10900000 (i.e. 0x100000 above the ROM base)
+/* The rpi's internal bootloader can load a kernel at 0
+ * if you set kernel_old=1  in config.txt.
  *
- * All these addresses are in the DDR area.
+ * The davros serial montor can also load an SREC file at address 0.
+ * For the monitor we don't want the length to exceed 512 MiB (not that davros will ever get that big).
 */
 
 MEMORY
 {
-	ram	: org = 0x10800000,	len = 0x2d800000
+	ram	: org = 0x0,	len = 0x20000000	/* 512 MiB */
 }
 
 SECTIONS
 {
-    .text		:
+	.reset	:
+	{
+		*(reset)
+	} > ram
+
+    .text	:
 	{
 		dv_start_text = .;
 		*(.text*)
 		dv_end_text = .;
 	} > ram
+
 	.rodata		ALIGN(4096) :
 	{
 		dv_start_rodata = .;
@@ -46,6 +51,7 @@ SECTIONS
 		*(.data*)
 		dv_end_data_c0 = .;
 	} > ram
+
     .c0_bss		ALIGN(16)	:
 	{
 		dv_start_bss_c0 = .;
