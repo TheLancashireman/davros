@@ -21,19 +21,19 @@
 #include <kernel/h/dv-kernel.h>
 #include <cpufamily/arm64/h/dv-arm64-registers.h>
 
-	.globl	dv_vectortable
+	.globl		dv_vectortable
 
-	.extern		dv_catch_fiq_from_aarch32
-	.extern		dv_catch_fiq_from_kernel
-	.extern		dv_catch_fiq_from_thread
+	.extern		dv_catch_aarch32_fiq
+	.extern		dv_catch_kernel_fiq
+	.extern		dv_catch_thread_fiq
 
 	.extern		dv_catch_aarch32_irq
 	.extern		dv_catch_kernel_irq
 	.extern		dv_catch_thread_irq
 
+	.extern		dv_catch_aarch32_synchronous_exception
 	.extern		dv_catch_kernel_synchronous_exception
 	.extern		dv_catch_thread_synchronous_exception
-	.extern		dv_catch_aarch32_synchronous_exception
 
 	.extern		dv_catch_aarch32_syserror
 	.extern		dv_catch_kernel_syserror

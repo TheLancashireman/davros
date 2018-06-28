@@ -31,7 +31,7 @@ DV_KLIST_C	+= dv-initmemorymanagement
 DV_KLIST_S	+= dv-vectors
 DV_KLIST_S	+= dv-reset
 DV_KLIST_S	+= dv-arm64-returntothread
-#DV_KLIST_S	+= dv-setkvars
+DV_KLIST_S	+= dv-setkvars
 #DV_KLIST_S	+= dv-saveregs
 #DV_KLIST_S	+= dv-getconfigbase
 
