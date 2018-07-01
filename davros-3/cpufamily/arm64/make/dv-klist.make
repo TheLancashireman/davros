@@ -34,6 +34,7 @@ DV_KLIST_S	+= dv-arm64-returntothread
 DV_KLIST_S	+= dv-setkvars
 #DV_KLIST_S	+= dv-saveregs
 #DV_KLIST_S	+= dv-getconfigbase
+DV_KLIST_S	+= dv-catch-thread-synchronous-exception
 
 # DV_ULIST_S is a list of all the assembler source files that are in the user library.
 # Without the .s suffix.

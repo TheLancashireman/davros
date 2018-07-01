@@ -71,10 +71,12 @@ const dv_execonfig_t task_qxx_cfg =
 	DV_EXEFLAG_BLOCKING	/* Flags */
 };
 
+#if 0
 void dv_catch_thread_synchronous_exception(dv_kernel_t *kvars)
 {
 	dv_panic(dv_panic_unimplemented, "dv_catch_thread_synchronous_exception", "Oops! An exception occurred");
 }
+#endif
 
 void dv_catch_thread_irq(dv_kernel_t *kvars)
 {
