@@ -112,6 +112,7 @@ void dv_board_start(unsigned long x0, unsigned long x1, unsigned long x2, unsign
 	dv_kprintf("version %d\n", 6);
 
     dv_kprintf("0x%08x\n", 0x12345678);
+	dv_kprintf("Testing the %%s format: %s\n", "it works!");
 
     dv_kprintf("x0 = 0x%08x%08x\n", (dv_u32_t)(x0>>32), (dv_u32_t)(x0&0xffffffff));
     dv_kprintf("x1 = 0x%08x%08x\n", (dv_u32_t)(x1>>32), (dv_u32_t)(x1&0xffffffff));
