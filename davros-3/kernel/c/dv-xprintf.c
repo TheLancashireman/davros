@@ -57,132 +57,141 @@ int dv_xprintf
 
 	while ( (ch = *fmt++) != '\0' )
 	{
-		if ( ch != '%' )
+		if ( ch == '%' )
 		{
-			(*xputc)(ch);
-			nprinted++;
-		}
-		else
-		{
-			sign = ljust = longarg = 0;
-			fmin = 0;
-			fmax = 255;
-			fill = ' ';
 			ch = *fmt++;
 
-			if ( ch == '-' )
+			if ( ch == '%' )
 			{
-				ljust = 1;
-				ch = *fmt++;
-			}
-			if ( ch == '0' )
-			{
-				fill = '0';
-				ch = *fmt++;
-			}
-			if ( ch == '*' )
-			{
-				fmin = va_arg(ap,int);
-				ch = *fmt++;
+				(*xputc)(ch);
+				nprinted++;
 			}
 			else
-			while ( isdigit(ch) )
 			{
-				fmin = fmin * 10 + (ch - '0');
-				ch = *fmt++;
-			}
-			if ( ch == '.' )
-			{
-				ch = *fmt++;
+				sign = ljust = longarg = 0;
+				fmin = 0;
+				fmax = 255;
+				fill = ' ';
+
+				if ( ch == '-' )
+				{
+					ljust = 1;
+					ch = *fmt++;
+				}
+				if ( ch == '0' )
+				{
+					fill = '0';
+					ch = *fmt++;
+				}
 				if ( ch == '*' )
 				{
-					fmax = va_arg(ap,int);
+					fmin = va_arg(ap,int);
 					ch = *fmt++;
 				}
 				else
+				while ( isdigit(ch) )
 				{
-					fmax = 0;
-					while ( isdigit(ch) )
+					fmin = fmin * 10 + (ch - '0');
+					ch = *fmt++;
+				}
+				if ( ch == '.' )
+				{
+					ch = *fmt++;
+					if ( ch == '*' )
 					{
-						fmax = fmax * 10 + (ch - '0');
+						fmax = va_arg(ap,int);
 						ch = *fmt++;
 					}
+					else
+					{
+						fmax = 0;
+						while ( isdigit(ch) )
+						{
+							fmax = fmax * 10 + (ch - '0');
+							ch = *fmt++;
+						}
+					}
 				}
-			}
-			if ( ch == 'l' )
-			{
-				longarg = 1;
-				ch = *fmt++;
-			}
-			str = string;
-
-			switch (ch)
-			{
-			case '\0':
-				(*xputc)('%');
-				nprinted++;
-				return(nprinted);
-				break;
-
-			case 'c':
-				if ( longarg )
-					string[0] = (char) va_arg(ap, long);
-				else
-					string[0] = (char) va_arg(ap, int);
-				string[1] = '\0';
-				break;
-
-			case 's':
-				str = va_arg(ap, char*);
-				break;
-
-			case 'd':
-			case 'u':
-			case 'x':
-			case 'X':
-				if ( longarg )
-					num = va_arg(ap, long);
-				else
-					num = va_arg(ap, int);
-				if ( ch == 'd' && num < 0 )
+				if ( ch == 'l' )
 				{
-					sign = 1;
-					num = -num;
+					longarg = 1;
+					ch = *fmt++;
 				}
-				if ( !longarg )
-					num &= DV_LONG_TO_INT;
-				if ( ch == 'd' || ch == 'u' )
-					str = prt10(num, str);
-				else
-					str = prt16(num, str, ch=='x' ? "abcdef" : "ABCDEF");
-				break;
+				str = string;
 
-			default:
-				str = "***";
-				break;
+				switch (ch)
+				{
+				case '\0':
+					(*xputc)('%');
+					nprinted++;
+					return(nprinted);
+					break;
+
+				case 'c':
+					if ( longarg )
+						string[0] = (char) va_arg(ap, long);
+					else
+						string[0] = (char) va_arg(ap, int);
+					string[1] = '\0';
+					break;
+
+				case 's':
+					str = va_arg(ap, char*);
+					break;
+
+				case 'd':
+				case 'u':
+				case 'x':
+				case 'X':
+					if ( longarg )
+						num = va_arg(ap, long);
+					else
+						num = va_arg(ap, int);
+					if ( ch == 'd' && num < 0 )
+					{
+						sign = 1;
+						num = -num;
+					}
+					if ( !longarg )
+						num &= DV_LONG_TO_INT;
+					if ( ch == 'd' || ch == 'u' )
+						str = prt10(num, str);
+					else
+						str = prt16(num, str, ch=='x' ? "abcdef" : "ABCDEF");
+					break;
+
+				default:
+					str = "***";
+					break;
+				}
+				leading = 0;
+				len = dv_strlen(str);
+				if ( len > fmax )
+					len = fmax;
+				if ( len < fmin )
+					leading = fmin - len - sign;
+				nprinted += len + leading + sign;
+				if ( sign && ( fill == '0' ) )
+				{
+					sign = 0;
+					(*xputc)('-');
+				}
+				if ( !ljust )
+					for ( i=leading; i>0; i-- )
+						(*xputc)(fill);
+				if ( sign )
+					(*xputc)('-');
+				for ( i=len; i>0; i-- )
+					(*xputc)(*str++);
+				if ( ljust )
+					for ( i=leading; i>0; i-- )
+						(*xputc)(fill);
 			}
-			leading = 0;
-			len = dv_strlen(str);
-			if ( len > fmax )
-				len = fmax;
-			if ( len < fmin )
-				leading = fmin - len - sign;
-			nprinted += len + leading + sign;
-			if ( sign && ( fill == '0' ) )
-			{
-				sign = 0;
-				(*xputc)('-');
-			}
-			if ( !ljust )
-				for ( i=leading; i>0; i-- )
-					(*xputc)(fill);
-			if ( sign )
-				(*xputc)('-');
-			for ( i=len; i>0; i-- )
-				(*xputc)(*str++);
-			if ( ljust )
-				for ( i=leading; i>0; i-- )
-					(*xputc)(fill);
+		}
+		else
+		{
+			(*xputc)(ch);
+			nprinted++;
 		}
 	}
 	return(nprinted);
