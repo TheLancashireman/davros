@@ -3,6 +3,28 @@
 #include <devices/h/dv-arm-bcm2835-armtimer.h>
 #include <kernel/h/dv-stdio.h>
 
+#define ARM64_MRS(regname) \
+({	dv_u64_t MRSresult;								\
+	__asm__ volatile ("mrs %[result], " #regname	\
+	: [result] "=r" (MRSresult)						\
+	: /* no inputs */								\
+	: /* nothing clobbered */);						\
+	MRSresult;										\
+})
+
+#define ARM64_MSR(regname, value) \
+({	__asm__ volatile ("msr " #regname ", %[val]"	\
+	: /* no outputs */								\
+	: [val] "r" (value)								\
+	: /* nothing clobbered */);						\
+})
+
+#define GetMyCoreId() \
+({	dv_u64_t GMCI_rv;				\
+	GMCI_rv = ARM64_MRS(MPIDR_EL1);	\
+	GMCI_rv;						\
+})
+
 /* Cores wait for an address to appear at the top of their stack.
 */
 #define CORE1_SP	0x6000
@@ -75,6 +97,54 @@ void enter_three ( void )
 	loop(3, 0x00030000);
 }
 //-------------------------------------------------------------------
+void init_core(void)
+{
+	dv_u64_t mpidr = GetMyCoreId();
+	dv_kprintf("MPIDR_EL1 = 0x%08x%08x\n", (dv_u32_t)(mpidr>>32), (dv_u32_t)mpidr);
+
+	dv_u64_t current_el = ARM64_MRS(CurrentEL);
+	dv_kprintf("CurrentEL = 0x%08x\n", (dv_u32_t)current_el);
+	int el = (current_el>>2) & 3;
+
+	dv_kprintf("msr     DAIFSet, 0xf\n");
+	__asm__ volatile ("msr DAIFSet, 0xf");
+
+	if ( el >= 3 )
+	{
+		dv_kprintf("ARM64_MSR(ELR_EL3, 0);\n");
+		ARM64_MSR(ELR_EL3, 0);
+		dv_kprintf("ARM64_MSR(VBAR_EL3, 0);\n");
+		ARM64_MSR(VBAR_EL3, 0);
+		dv_kprintf("ARM64_MSR(SCR_EL3, 0xc80);\n");
+		ARM64_MSR(SCR_EL3, 0xc80);
+		dv_kprintf("ARM64_MSR(SCTLR_EL3, 0);\n");
+		ARM64_MSR(SCTLR_EL3, 0);
+	}
+
+	if ( el >= 2 )
+	{
+		dv_kprintf("ARM64_MSR(ELR_EL2, 0);\n");
+		ARM64_MSR(ELR_EL2, 0);
+		dv_kprintf("ARM64_MSR(VBAR_EL2, 0);\n");
+		ARM64_MSR(VBAR_EL2, 0);
+		dv_kprintf("ARM64_MSR(HCR_EL2, 0x80000000);\n");
+		ARM64_MSR(HCR_EL2, 0x80000000);
+	}
+
+	if ( el >= 1 )
+	{
+		dv_kprintf("ARM64_MSR(ELR_EL1, 0);\n");
+		ARM64_MSR(ELR_EL1, 0);
+		dv_kprintf("ARM64_MSR(SPSR_EL1, 0);\n");
+		ARM64_MSR(SPSR_EL1, 0);
+	}
+	else
+	{
+		dv_kprintf("PANIC! Started at EL0\n");
+	}
+}
+
+//-------------------------------------------------------------------
 int notmain ( void )
 {
 	/* Enable the UART, then initialise it.
@@ -86,10 +156,11 @@ int notmain ( void )
 	/* Friendly greeting.
 	*/
 	dv_kprintf("Hello, world!\n");
-	dv_kprintf("version %d\n", 6);
+	dv_kprintf("uart05 version %d\n", 1);
 
-    dv_kprintf("0x%08x\n", 0x12345678);
-    dv_kprintf("0x%08x\n", GETPC());
+	init_core();
+
+	dv_kprintf("timer_init();\n");	
     timer_init();
 
 	/* Start the other cores.
