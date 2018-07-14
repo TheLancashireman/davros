@@ -46,3 +46,4 @@ clean:
 .PHONY: install
 install:	play.elf
 	$(OBJCOPY) -Obinary --gap-fill 0 play.elf play.abs
+	$(OBJCOPY) -Osrec play.elf play.srec
