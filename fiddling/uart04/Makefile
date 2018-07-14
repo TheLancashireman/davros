@@ -21,6 +21,7 @@ clean :
 	rm -f *.bin
 	rm -f *.hex
 	rm -f *.elf
+	rm -f *.srec
 	rm -f *.list
 
 
