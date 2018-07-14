@@ -56,5 +56,6 @@ uart04.bin : memmap vectors.o uart04.o dv-arm-bcm2835-uart.o dv-arm-bcm2835-gpio
 	$(ARMGNU)-objdump -D uart04.elf > uart04.list
 	$(ARMGNU)-objcopy uart04.elf -O ihex uart04.hex
 	$(ARMGNU)-objcopy uart04.elf -O binary uart04.bin
+	$(ARMGNU)-objcopy uart04.elf -O srec --srec-forceS3 /dev/stdout | dos2unix | egrep -v '^S3..........00*..$$' > uart04.srec
 
 
