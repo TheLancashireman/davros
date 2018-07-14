@@ -64,6 +64,9 @@ ulib:		$(DV_ULIB)
 
 bin:		$(DV_BIN_D)/davros.bin
 
+$(DV_BIN_D)/davros.srec: $(DV_BIN_D)/davros.elf
+	$(dv_elf2srec)
+
 $(DV_BIN_D)/davros.bin:	 $(DV_BIN_D)/davros.elf
 	$(dv_elf2bin)
 

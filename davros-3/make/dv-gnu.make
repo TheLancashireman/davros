@@ -69,3 +69,10 @@ define dv_elf2bin
     $(DV_GNU_D)/bin/$(DV_GNU_PRE)objcopy $< -O binary $@
 endef
 endif
+
+# Make a raw binary from an ELF file
+ifndef dv_elf2srec
+define dv_elf2srec
+    $(DV_GNU_D)/bin/$(DV_GNU_PRE)objcopy $< -O srec --srec-forceS3 /dev/stdout | dos2unix | egrep -v '^S3..........00*..$$' > $@
+endef
+endif

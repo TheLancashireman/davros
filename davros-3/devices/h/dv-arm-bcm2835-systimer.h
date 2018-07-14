@@ -77,7 +77,7 @@ static inline void dv_clrmatch(int i)
 }
 
 void dv_arm_bcm2835_systimerinterrupt(dv_kernel_t *kvars, dv_address_t param);
-void dv_init_systimer(dv_kernel_t *kvars);
+void dv_init_system_timer(dv_kernel_t *kvars);
 void dv_set_system_timer_alarm(dv_u64_t);
 
 /* Bits in cs register. 1 means "matched".

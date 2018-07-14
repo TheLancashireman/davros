@@ -30,6 +30,8 @@ DV_KLIST_C	+= dv-initmemorymanagement
 # Without the .s suffix.
 DV_KLIST_S	+= dv-vectors
 DV_KLIST_S	+= dv-reset
+DV_KLIST_S	+= dv-switch-el1
+DV_KLIST_S	+= dv-switch-el2
 DV_KLIST_S	+= dv-arm64-returntothread
 DV_KLIST_S	+= dv-setkvars
 #DV_KLIST_S	+= dv-saveregs

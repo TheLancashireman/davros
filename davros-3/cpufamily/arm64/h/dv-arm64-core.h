@@ -31,7 +31,7 @@
 */
 
 #define dv_arm64_mrs(regname) \
-({	u64 MRSresult;									\
+({	dv_u64_t MRSresult;									\
 	__asm__ volatile ("mrs %[result], " #regname	\
 		: [result] "=r" (MRSresult)					\
 		: /* no inputs */							\
@@ -51,6 +51,9 @@ static inline void dv_set_vbar_el1(dv_u64_t vbar) \
 	dv_arm64_msr(VBAR_EL1, vbar);
 	__asm__ volatile ("isb	sy");
 }
+
+void dv_switch_el1(dv_u64_t psr);
+void dv_switch_el2(dv_u64_t psr);
 
 
 #endif
