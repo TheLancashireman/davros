@@ -31,6 +31,8 @@
 #define CORE2_SP	0x4000
 #define CORE3_SP	0x2000
 
+void go_el1(void);
+
 static inline void release_core(int c, dv_u32_t rel_addr, dv_u32_t entry)
 {
 	dv_kprintf("Release core %d at 0x%08x\n", c, entry);
@@ -119,6 +121,12 @@ void init_core(void)
 		ARM64_MSR(SCR_EL3, 0xc80);
 		dv_kprintf("ARM64_MSR(SCTLR_EL3, 0);\n");
 		ARM64_MSR(SCTLR_EL3, 0);
+		dv_kprintf("ARM64_MSR(SCTLR_EL3, 0);\n");
+		ARM64_MSR(SCTLR_EL3, 0);
+		dv_kprintf("ARM64_MSR(CPTR_EL3, 0);\n");
+		ARM64_MSR(CPTR_EL3, 0);
+		dv_kprintf("ARM64_MSR(MDCR_EL3, 0);\n");
+		ARM64_MSR(MDCR_EL3, 0);
 	}
 
 	if ( el >= 2 )
@@ -129,6 +137,16 @@ void init_core(void)
 		ARM64_MSR(VBAR_EL2, 0);
 		dv_kprintf("ARM64_MSR(HCR_EL2, 0x80000000);\n");
 		ARM64_MSR(HCR_EL2, 0x80000000);
+		dv_kprintf("ARM64_MSR(SCTLR_EL2, 0);\n");
+		ARM64_MSR(SCTLR_EL2, 0);
+		dv_kprintf("ARM64_MSR(VTTBR_EL2, 0);\n");
+		ARM64_MSR(VTTBR_EL2, 0);
+		dv_kprintf("ARM64_MSR(CPTR_EL2, 0);\n");
+		ARM64_MSR(CPTR_EL2, 0);
+		dv_kprintf("ARM64_MSR(MDCR_EL2, 0);\n");
+		ARM64_MSR(MDCR_EL2, 0);
+		dv_kprintf("ARM64_MSR(CNTVOFF_EL2, 0);\n");
+		ARM64_MSR(CNTVOFF_EL2, 0);
 	}
 
 	if ( el >= 1 )
@@ -137,11 +155,29 @@ void init_core(void)
 		ARM64_MSR(ELR_EL1, 0);
 		dv_kprintf("ARM64_MSR(SPSR_EL1, 0);\n");
 		ARM64_MSR(SPSR_EL1, 0);
+		dv_kprintf("ARM64_MSR(SCTLR_EL1, 0);\n");
+		ARM64_MSR(SCTLR_EL1, 0);
+
+		dv_kprintf("tlbi ALLE1\n");
+		__asm__ volatile("tlbi ALLE1");
+
+		dv_u64_t cpacr = ARM64_MRS(CPACR_EL1)|0x300000;
+		dv_kprintf("ARM64_MSR(CPACR_EL1, 0x%08x);\n", (dv_u32_t)cpacr);
+		ARM64_MSR(CPACR_EL1, cpacr|0x300000);		/* FPEN = 11 */
+
+		dv_kprintf("ARM64_MSR(S3_1_C15_C2_1, 0x40);  (S3_1_C15_C2_1 is CPUECTLR_EL1)\n");
+		ARM64_MSR(S3_1_C15_C2_1, 0x40);
 	}
 	else
 	{
 		dv_kprintf("PANIC! Started at EL0\n");
 	}
+
+	go_el1();
+
+	current_el = ARM64_MRS(CurrentEL);
+	dv_kprintf("CurrentEL = 0x%08x\n", (dv_u32_t)current_el);
+	int new_el = (current_el>>2) & 3;
 }
 
 //-------------------------------------------------------------------
