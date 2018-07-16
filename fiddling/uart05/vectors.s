@@ -134,8 +134,8 @@ GETPC:
     mov x0,x30
     ret
 
-.globl go_el1
-go_el1:
+.globl go_el3_el1
+go_el3_el1:
 	mov		x0, sp			/* All stack pointers same as EL3 */
 	msr		SP_EL2, x0
 	msr		SP_EL1, x0
@@ -144,6 +144,29 @@ go_el1:
 	msr		ELR_EL3, x30	/* Exception return address = function return address */
 	mov		x0, #5			/* PSTATE = EL1h */
 	msr		SPSR_EL3, x0
+	eret
+
+.globl go_el3_el2
+go_el3_el2:
+	mov		x0, sp			/* All stack pointers same as EL3 */
+	msr		SP_EL2, x0
+	msr		SP_EL1, x0
+	msr		SP_EL0, x0
+
+	msr		ELR_EL3, x30	/* Exception return address = function return address */
+	mov		x0, #9			/* PSTATE = EL2 */
+	msr		SPSR_EL3, x0
+	eret
+
+.globl go_el2_el1
+go_el2_el1:
+	mov		x0, sp			/* All stack pointers same as EL2 */
+	msr		SP_EL1, x0
+	msr		SP_EL0, x0
+
+	msr		ELR_EL2, x30	/* Exception return address = function return address */
+	mov		x0, #5			/* PSTATE = EL2 */
+	msr		SPSR_EL2, x0
 	eret
 
 //-------------------------------------------------------------------------

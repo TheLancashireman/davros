@@ -31,7 +31,9 @@
 #define CORE2_SP	0x4000
 #define CORE3_SP	0x2000
 
-void go_el1(void);
+void go_el3_el1(void);
+void go_el3_el2(void);
+void go_el2_el1(void);
 
 static inline void release_core(int c, dv_u32_t rel_addr, dv_u32_t entry)
 {
@@ -105,8 +107,8 @@ void init_core(void)
 	dv_kprintf("MPIDR_EL1 = 0x%08x%08x\n", (dv_u32_t)(mpidr>>32), (dv_u32_t)mpidr);
 
 	dv_u64_t current_el = ARM64_MRS(CurrentEL);
-	dv_kprintf("CurrentEL = 0x%08x\n", (dv_u32_t)current_el);
 	int el = (current_el>>2) & 3;
+	dv_kprintf("CurrentEL = 0x%08x (el%d)\n", (dv_u32_t)current_el, el);
 
 	dv_kprintf("msr     DAIFSet, 0xf\n");
 	__asm__ volatile ("msr DAIFSet, 0xf");
@@ -117,10 +119,13 @@ void init_core(void)
 		ARM64_MSR(ELR_EL3, 0);
 		dv_kprintf("ARM64_MSR(VBAR_EL3, 0);\n");
 		ARM64_MSR(VBAR_EL3, 0);
-		dv_kprintf("ARM64_MSR(SCR_EL3, 0xc80);\n");
+#if 1
+		dv_kprintf("ARM64_MSR(SCR_EL3, 0xc81);\n");		/* NS = 1 */
+		ARM64_MSR(SCR_EL3, 0xc81);
+#else
+		dv_kprintf("ARM64_MSR(SCR_EL3, 0xc80);\n");		/* NS = 0 means no EL2 */
 		ARM64_MSR(SCR_EL3, 0xc80);
-		dv_kprintf("ARM64_MSR(SCTLR_EL3, 0);\n");
-		ARM64_MSR(SCTLR_EL3, 0);
+#endif
 		dv_kprintf("ARM64_MSR(SCTLR_EL3, 0);\n");
 		ARM64_MSR(SCTLR_EL3, 0);
 		dv_kprintf("ARM64_MSR(CPTR_EL3, 0);\n");
@@ -173,11 +178,28 @@ void init_core(void)
 		dv_kprintf("PANIC! Started at EL0\n");
 	}
 
-	go_el1();
+	if ( el == 3 )
+	{
+		dv_kprintf("CurrentEL = 0x%08x (el%d)\n", (dv_u32_t)current_el, el);
+		dv_kprintf("go_el3_el2()\n");
+		go_el3_el2();
 
-	current_el = ARM64_MRS(CurrentEL);
-	dv_kprintf("CurrentEL = 0x%08x\n", (dv_u32_t)current_el);
-	int new_el = (current_el>>2) & 3;
+		current_el = ARM64_MRS(CurrentEL);
+		el = (current_el>>2) & 3;
+	}
+
+	if ( el == 2 )
+	{
+		dv_kprintf("CurrentEL = 0x%08x (el%d)\n", (dv_u32_t)current_el, el);
+		dv_kprintf("go_el2_el1()\n");
+		go_el2_el1();
+
+		current_el = ARM64_MRS(CurrentEL);
+		el = (current_el>>2) & 3;
+	}
+
+	dv_kprintf("CurrentEL = 0x%08x (el%d)\n", (dv_u32_t)current_el, el);
+	dv_kprintf("Initialization complete!\n");
 }
 
 //-------------------------------------------------------------------
