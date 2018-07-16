@@ -94,7 +94,9 @@ core_zero:
 hang: b hang
 
 core_one:
-    mov sp,#0x6000
+    mov x1,#0x6000
+	sub	x1,x1,#16
+	mov	sp,x1
     mov x1,#0
     str w1,[sp]
     mov x0,#0
@@ -105,7 +107,9 @@ core_one_loop:
     b hang
 
 core_two:
-    mov sp,#0x4000
+    mov x1,#0x4000
+	sub	x1,x1,#16
+	mov	sp,x1
     mov x1,#0
     str w1,[sp]
     mov x0,#0
@@ -116,7 +120,9 @@ core_two_loop:
     b hang
 
 core_three:
-    mov sp,#0x2000
+    mov x1,#0x2000
+	sub	x1,x1,#16
+	mov	sp,x1
     mov x1,#0
     str w1,[sp]
     mov x0,#0

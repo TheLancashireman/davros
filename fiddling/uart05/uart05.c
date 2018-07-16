@@ -223,9 +223,9 @@ int notmain ( void )
 
 	/* Start the other cores.
 	*/
-	release_core(1, CORE1_SP, (dv_u32_t)(dv_u64_t)enter_one);
-	release_core(2, CORE2_SP, (dv_u32_t)(dv_u64_t)enter_two);
-	release_core(3, CORE3_SP, (dv_u32_t)(dv_u64_t)enter_three);
+	release_core(1, CORE1_SP-16, (dv_u32_t)(dv_u64_t)enter_one);
+	release_core(2, CORE2_SP-16, (dv_u32_t)(dv_u64_t)enter_two);
+	release_core(3, CORE3_SP-16, (dv_u32_t)(dv_u64_t)enter_three);
 
 	/* Go to the loop myself.
 	*/
