@@ -20,7 +20,7 @@
 #include <kernel/h/dv-asm.h>
 
 #ifndef DV_N_CORES
-#error "DV_N_CORES is nto defined"
+#error "DV_N_CORES is not defined"
 #endif
 
 /* dv_reset() - startup code after reset
@@ -53,6 +53,75 @@ dv_reset:
 	.space 0x8000-0x0004,0
 
 skip:
+	msr		DAIFSet, 0xf	/* Disable interrupts and exceptions */
+
+/* Clear all registers
+*/
+	mov		x0, xzr
+	mov		x1, xzr
+	mov		x2, xzr
+	mov		x3, xzr
+	mov		x4, xzr
+	mov		x5, xzr
+	mov		x6, xzr
+	mov		x7, xzr
+	mov		x8, xzr
+	mov		x9, xzr
+	mov		x10, xzr
+	mov		x11, xzr
+	mov		x12, xzr
+	mov		x13, xzr
+	mov		x14, xzr
+	mov		x15, xzr
+	mov		x16, xzr
+	mov		x17, xzr
+	mov		x18, xzr
+	mov		x19, xzr
+	mov		x20, xzr
+	mov		x21, xzr
+	mov		x22, xzr
+	mov		x23, xzr
+	mov		x24, xzr
+	mov		x25, xzr
+	mov		x26, xzr
+	mov		x27, xzr
+	mov		x28, xzr
+	mov		x29, xzr
+	mov		x30, xzr
+
+	fmov	d0, xzr
+	fmov	d1, xzr
+	fmov	d2, xzr
+	fmov	d3, xzr
+	fmov	d4, xzr
+	fmov	d5, xzr
+	fmov	d6, xzr
+	fmov	d7, xzr
+	fmov	d8, xzr
+	fmov	d9, xzr
+	fmov	d10, xzr
+	fmov	d11, xzr
+	fmov	d12, xzr
+	fmov	d13, xzr
+	fmov	d14, xzr
+	fmov	d15, xzr
+	fmov	d16, xzr
+	fmov	d17, xzr
+	fmov	d18, xzr
+	fmov	d19, xzr
+	fmov	d20, xzr
+	fmov	d21, xzr
+	fmov	d22, xzr
+	fmov	d23, xzr
+	fmov	d24, xzr
+	fmov	d25, xzr
+	fmov	d26, xzr
+	fmov	d27, xzr
+	fmov	d28, xzr
+	fmov	d29, xzr
+	fmov	d30, xzr
+	fmov	d31, xzr
+
 /*	Calculate the stack pointers for the four cores.
  *	The initial value of the SP (on cores 1..3) is the release address.
  *	Core 0 runs dv_board_start().
@@ -61,23 +130,31 @@ skip:
  *	The release mechanism doesn't seem to work when the release addresses are ***fc or ***f8 - why?
 */
 	mov		sp, #0x8000
+#if 0
 	ldr		x4, dv_reset_addr
 	add		sp, sp, x4
+#endif
 	mov		x0, sp
 	mov		x1, #0x6000
-	add		x1, x1, x4
 #if 0
-	sub		x1, x1, #8
+	add		x1, x1, x4
+#endif
+#if 1
+	sub		x1, x1, #16
 #endif
 	mov		x2, #0x4000
-	add		x2, x2, x4
 #if 0
-	sub		x2, x2, #8
+	add		x2, x2, x4
+#endif
+#if 1
+	sub		x2, x2, #16
 #endif
 	mov		x3, #0x2000
-	add		x3, x3, x4
 #if 0
-	sub		x3, x3, #8
+	add		x3, x3, x4
+#endif
+#if 1
+	sub		x3, x3, #16
 #endif
 
 /*	Now find out which core we're on.
@@ -96,8 +173,10 @@ skip:
 	mrs		x0, mpidr_el1
 	b		skip
 
+#if 1
 dv_reset_addr:
 	.quad	dv_reset
+#endif
 
 /* Core 0 - go to dv_board_start
 */

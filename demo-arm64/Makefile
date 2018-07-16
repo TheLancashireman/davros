@@ -56,13 +56,15 @@ include $(DV_ROOT)/make/dv-defs.make
 
 default:	all
 
-all:		klib ulib bin
+all:		klib ulib bin srec
 
 klib:		$(DV_KLIB)
 
 ulib:		$(DV_ULIB)
 
 bin:		$(DV_BIN_D)/davros.bin
+
+srec:		$(DV_BIN_D)/davros.srec
 
 $(DV_BIN_D)/davros.srec: $(DV_BIN_D)/davros.elf
 	$(dv_elf2srec)

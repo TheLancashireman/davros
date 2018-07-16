@@ -1,4 +1,4 @@
-/*	dv-switch-el1.S - arm64 "switch to el1" function
+/*	dv-switch-el3el1.S - arm64 "switch from el3 to el1" function
  *
  *	Copyright 2018 David Haworth
  *
@@ -19,29 +19,21 @@
 */
 #include <kernel/h/dv-asm.h>
 
-	.globl	dv_switch_el1
+	.globl	dv_switch_el3el1
 	.text
 
-/* dv_switch_el1() - drop from EL2 to EL1
+/* dv_switch_el3el1() - drop from EL3 to EL1
  *
- * Returns to caller, but in EL1
+ * Returns to caller, but in EL1. For use when secure EL1 is needed (no EL2 in that case).
  *
- * Parameters:
- *	x0 - desired program state (SPSR_EL2 restored to PSR)
- *
- * Preconditions
  * See DAI0527A_baremetal_boot_code_for_ARMv8_A_processors.pdf page 51
 */
 
-dv_switch_el1:
-	msr		sctlr_el1, xzr		/* Set SCTLR_EL1 to safe state */
-	msr		spsr_el2, x0		/* Place selected program state into SPSR */
-
-	mrs		x0, hcr_el2
-	orr		x0, x0, #0x80000000	/* Set RW=1: execution state of lower level is aarch64 */
-	msr		hcr_el2, x0
-
-	msr		elr_el2, x30		/* Place function return address (lr) into exception return address */
-	mov		x0, sp				/* Copy EL2 SP to EL1 SP */
+dv_switch_el3el1:
+	mov		x0, sp				/* Copy current sp to EL2 and EL1 sp */
+	msr		sp_el2, x0
 	msr		sp_el1, x0
+	msr		elr_el3, x30		/* Place function return address (lr) into exception return address */
+	mov		x0, #5				/* PSTATE = EL3 */	
+	msr		spsr_el3, x0
 	eret						/* Return to caller of function, but switch EL */

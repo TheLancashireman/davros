@@ -37,6 +37,8 @@ extern dv_u32_t dv_start_bss_c0, dv_end_bss_c0;
 */
 void dv_board_start(dv_u64_t x0, dv_u64_t x1, dv_u64_t x2, dv_u64_t x3)
 {
+	dv_u32_t el;
+
 	/* data sections are already initialised by the loader.
 	 * The bss sections are cleared here.
 	*/
@@ -51,20 +53,22 @@ void dv_board_start(dv_u64_t x0, dv_u64_t x1, dv_u64_t x2, dv_u64_t x3)
 	dv_kprintf("Davros starting on Raspberry Pi\n");
 	dv_kprintf("********************************************************************************\n");
 
-	dv_u64_t el;
-	el = dv_arm64_mrs(CurrentEL);
-	dv_kprintf("Current EL = 0x%08x%08x\n", (dv_u32_t)(el >> 32), (dv_u32_t)(el & 0xffffffff));
-	dv_kprintf("Dropping to EL2\n");
-	dv_switch_el2(0x00000009);	/* DAIF = 0, M[4:0] = 9 (EL2 must match SCR_EL3.RW) */
-	dv_kprintf("Dropped to EL2\n");
-	el = dv_arm64_mrs(CurrentEL);
-	dv_kprintf("Current EL = 0x%08x%08x\n", (dv_u32_t)(el >> 32), (dv_u32_t)(el & 0xffffffff));
-	dv_kprintf("Dropping to EL1\n");
-	dv_switch_el1(0x00000005);	/* DAIF = 0, M[4:0] = 5 (EL1h must match HCR_EL2.RW) */
-	dv_kprintf("Dropped to EL1\n");
-	el = dv_arm64_mrs(CurrentEL);
-	dv_kprintf("Current EL = 0x%08x%08x\n", (dv_u32_t)(el >> 32), (dv_u32_t)(el & 0xffffffff));
+	dv_init_core();
 
+	el = dv_get_el();
+	dv_kprintf("Current EL = %d\n", el);
+	dv_kprintf("Dropping to EL2\n");
+	dv_switch_el3el2();
+	dv_kprintf("Dropped to EL2\n");
+
+	el = dv_get_el();
+	dv_kprintf("Current EL = %d\n", el);
+	dv_kprintf("Dropping to EL1\n");
+	dv_switch_el2el1();
+	dv_kprintf("Dropped to EL1\n");
+
+	el = dv_get_el();
+	dv_kprintf("Current EL = %d\n", el);
 
 	dv_start(0);
 }

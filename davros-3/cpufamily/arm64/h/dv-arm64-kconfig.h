@@ -35,7 +35,7 @@
 
 /* Size of kernel stack in stackwords.
 */
-#define DV_KSTACK_WORDS		200
+#define DV_KSTACK_WORDS		(DV_MEM_PAGESIZE/sizeof(dv_stackword_t))
 
 /* Parameters for memory regions, including stacks.
  *

@@ -1,4 +1,4 @@
-/*	dv-initvectors.c - initialise vectors for ARM64 cpu
+/*	dv-switch-el3el2.S - arm64 "switch from el3 to el2" function
  *
  *	Copyright 2018 David Haworth
  *
@@ -17,22 +17,22 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <kernel/h/dv-kconfig.h>
-#include <kernel/h/dv-types.h>
-#include <kernel/h/dv-coreconfig.h>
-#include <cpufamily/arm64/h/dv-arm64-vectors.h>
-#include <cpufamily/arm64/h/dv-arm64-core.h>
-#include <kernel//h/dv-stdio.h>
+#include <kernel/h/dv-asm.h>
 
-DV_COVDEF(init_vectors);
+	.globl	dv_switch_el3el2
+	.text
 
-/* dv_init_vectors() - initialise the ARM64 vector table.
+/* dv_switch_el3el2() - drop from EL3 to EL2
  *
- * ARMv8 has a vector base address register. We just load it with the address of the vector table.
+ * Returns to caller, but in EL2
+ *
+ * See DAI0527A_baremetal_boot_code_for_ARMv8_A_processors.pdf page 51
 */
-void dv_init_vectors(void)
-{
-	dv_u64_t vba = (dv_u64_t)&dv_vectortable;
-	dv_kprintf("Setting VBAR_EL1 to 0x%08x%08x\n", (dv_u32_t)(vba>>32), (dv_u32_t)(vba));
-	dv_set_vbar_el1(vba);
-}
+
+dv_switch_el3el2:
+	mov		x0, sp				/* Copy current sp to EL2 sp */
+	msr		sp_el2, x0
+	msr		elr_el3, x30		/* Place function return address (lr) into exception return address */
+	mov		x0, #9				/* PSTATE = EL2 */	
+	msr		spsr_el3, x0
+	eret						/* Return to caller of function, but switch EL */
