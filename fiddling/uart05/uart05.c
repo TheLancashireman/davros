@@ -3,6 +3,10 @@
 #include <devices/h/dv-arm-bcm2835-armtimer.h>
 #include <kernel/h/dv-stdio.h>
 
+#define go_el3_el2	dv_switch_el3el2
+#define go_el2_el1	dv_switch_el2el1
+#define notmain		dv_board_start
+
 #define ARM64_MRS(regname) \
 ({	dv_u64_t MRSresult;								\
 	__asm__ volatile ("mrs %[result], " #regname	\

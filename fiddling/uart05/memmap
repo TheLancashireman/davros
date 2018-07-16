@@ -6,6 +6,7 @@ MEMORY
 
 SECTIONS
 {
+    .reset : { *(reset*) } > ram
     .text : { *(.text*) } > ram
     .bss : { *(.bss*) } > ram
 }
