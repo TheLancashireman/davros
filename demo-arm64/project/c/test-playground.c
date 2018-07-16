@@ -149,6 +149,8 @@ void prj_init(void)
 	dv_kprintf("prj_init: started.\n");
 
 	kvars = dv_get_kvars();
+	dv_u64_t xx = (dv_u64_t)kvars;
+	dv_kprintf("kvars = 0x%08x%08x\n", (dv_u32_t)(xx>>32), (dv_u32_t)xx);
 
 	/* Four GPIO pins for the LEDs.
 	*/
@@ -157,6 +159,7 @@ void prj_init(void)
 	dv_arm_bcm2835_gpio_pinconfig(27, DV_pinfunc_output, DV_pinpull_none);
 	dv_arm_bcm2835_gpio_pinconfig(22, DV_pinfunc_output, DV_pinpull_none);
 
+	dv_kprintf("prj_init: calling null system call.\n");
 	dv_nullsc(0x42, 0xdeadbeef, 0x12345678, 0x98765432);
 	dv_kprintf("prj_init: returned from null system call.\n");
 
