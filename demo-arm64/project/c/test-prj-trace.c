@@ -8,6 +8,25 @@
 #include DV_H_REGISTERS
 #include <kernel/h/dv-error.h>
 
+void print64(char *s, dv_u64_t v64);
+
+void prj_dumpregs(const char *str, const dv_registers_t *r)
+{
+	int i;
+
+	dv_kprintf("dumpregs: %s\n", str);
+
+	print64("  registers", (dv_u64_t)r);
+
+	for ( i=0; i<31; i++ )
+	{
+		dv_kprintf("  r%-2d  : 0x%x%08x\n", i, (dv_u32_t)(r->gpr[i]>>32), (dv_u32_t)r->gpr[i]);
+	}
+	print64("  pc   ", r->pc);
+	print64("  psr  ", r->psr);
+	print64("  sp   ", r->sp);
+}
+
 #if DV_TRACE
 
 const char *tstates[dv_thread_nstates] = { DV_THREADSTATES };
@@ -34,18 +53,7 @@ void dv_trace_api_done(dv_thread_t *thread, dv_index_t sci, const dv_syscall_t *
 
 void dv_trace_dumpregs(const char *str, const dv_registers_t *r)
 {
-	int i;
-
-	dv_kprintf("dumpregs: %s r = 0x%08x\n", str, r);
-
-	for ( i=0; i<13; i++ )
-	{
-		dv_kprintf("r%-2d  = 0x%08x\n", i, r->gpr[i]);
-	}
-	dv_kprintf("pc   = 0x%08x\n", r->pc);
-	dv_kprintf("cpsr = 0x%08x\n", r->cpsr);
-	dv_kprintf("sp   = 0x%08x\n", r->sp);
-	dv_kprintf("lr   = 0x%08x\n", r->lr);
+	prj_dumpregs(str, r);
 }
 
 void dv_trace_dumpcpuregs(void)

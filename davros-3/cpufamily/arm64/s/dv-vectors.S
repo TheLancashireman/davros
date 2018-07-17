@@ -122,32 +122,40 @@ dv_exc_priv_sync:				/* Synchronous exception from privileged thread */
 	dv_exc_save_most			/* Save registers to thread (macro) */
     ldr     x1, _dv_syncexc_from_thread
 	b		dv_exc_common
+
+	.balign	8
 _dv_syncexc_from_thread:
-	.dword	dv_catch_thread_synchronous_exception
+	.quad	dv_catch_thread_synchronous_exception
 
 	.balign	128
 dv_exc_priv_irq:				/* Irq from privileged thread */
 	dv_exc_save_most			/* Save registers to thread (macro) */
     ldr     x1, _dv_irq_from_thread
 	b		dv_exc_common
+
+	.balign	8
 _dv_irq_from_thread:
-	.dword	dv_catch_thread_irq
+	.quad	dv_catch_thread_irq
 
 	.balign	128
 dv_exc_priv_fiq:				/* Fiq from privileged thread */
 	dv_exc_save_most			/* Save registers to thread (macro) */
     ldr     x1, _dv_fiq_from_thread
 	b		dv_exc_common
+
+	.balign	8
 _dv_fiq_from_thread:
-	.dword	dv_catch_thread_fiq
+	.quad	dv_catch_thread_fiq
 
 	.balign	128
 dv_exc_priv_serror:				/* SError from privileged thread */
 	dv_exc_save_most			/* Save registers to thread (macro) */
     ldr     x1, _dv_syserror_from_thread
 	b		dv_exc_common
+
+	.balign	8
 _dv_syserror_from_thread:
-	.dword	dv_catch_thread_syserror
+	.quad	dv_catch_thread_syserror
 
 /* =================================
  * Exceptions from kernel (EL1, SP1)
@@ -158,32 +166,40 @@ dv_exc_kernel_sync:				/* Synchronous exception from kernel */
 	dv_exc_save_most			/* Save registers to thread (macro) */
     ldr     x1, _dv_syncexc_from_kernel
 	b		dv_exc_common
+
+	.balign	8
 _dv_syncexc_from_kernel:
-	.dword	dv_catch_kernel_synchronous_exception
+	.quad	dv_catch_kernel_synchronous_exception
 
 	.balign	128
 dv_exc_kernel_irq:				/* Irq exception from kernel */
 	dv_exc_save_most			/* Save registers to thread (macro) */
     ldr     x1, _dv_irq_from_kernel
 	b		dv_exc_common
+
+	.balign	8
 _dv_irq_from_kernel:
-	.dword	dv_catch_kernel_irq
+	.quad	dv_catch_kernel_irq
 
 	.balign	128
 dv_exc_kernel_fiq:				/* Fiq exception from kernel */
 	dv_exc_save_most			/* Save registers to thread (macro) */
     ldr     x1, _dv_fiq_from_kernel
 	b		dv_exc_common
+
+	.balign	8
 _dv_fiq_from_kernel:
-	.dword	dv_catch_kernel_fiq
+	.quad	dv_catch_kernel_fiq
 
 	.balign	128
 dv_exc_kernel_serror:			/* SError from kernel */
 	dv_exc_save_most			/* Save registers to thread (macro) */
     ldr     x1, _dv_syserror_from_kernel
 	b		dv_exc_common
+
+	.balign	8
 _dv_syserror_from_kernel:
-	.dword	dv_catch_kernel_syserror
+	.quad	dv_catch_kernel_syserror
 
 /* ================================================
  * Exceptions from non-privileged thread (EL0, SP0)
@@ -195,11 +211,15 @@ dv_exc_nonpriv_sync:			/* Synchronous exception from non-privileged thread */
     ldr     x1, _dv_syncexc_from_thread
 	b		dv_exc_common
 
+	.balign	8
+
 	.balign	128
 dv_exc_nonpriv_irq:				/* Irq from non-privileged thread */
 	dv_exc_save_most			/* Save registers to thread (macro) */
     ldr     x1, _dv_irq_from_thread
 	b		dv_exc_common
+
+	.balign	8
 
 	.balign	128
 dv_exc_nonpriv_fiq:				/* Fiq from non-privileged thread */
@@ -207,11 +227,15 @@ dv_exc_nonpriv_fiq:				/* Fiq from non-privileged thread */
     ldr     x1, _dv_fiq_from_thread
 	b		dv_exc_common
 
+	.balign	8
+
 	.balign	128
 dv_exc_nonpriv_serror:			/* SError from non-privileged thread */
 	dv_exc_save_most			/* Save registers to thread (macro) */
     ldr     x1, _dv_syserror_from_thread
 	b		dv_exc_common
+
+	.balign	8
 
 /* ==============================================
  * Exceptions from aarch32 thread (not supported)
@@ -222,32 +246,40 @@ dv_exc_aa32_sync:				/* Synchronous exception from aarch32 thread */
 	dv_exc_save_most			/* Save registers to thread (macro) */
     ldr     x1, _dv_syncexc_from_aarch32
 	b		dv_exc_common
+
+	.balign	8
 _dv_syncexc_from_aarch32:
-	.dword	dv_catch_aarch32_synchronous_exception
+	.quad	dv_catch_aarch32_synchronous_exception
 
 	.balign	128
 dv_exc_aa32_irq:				/* Irq from aarch32 thread */
 	dv_exc_save_most			/* Save registers to thread (macro) */
     ldr     x1, _dv_irq_from_aarch32
 	b		dv_exc_common
+
+	.balign	8
 _dv_irq_from_aarch32:
-	.dword	dv_catch_aarch32_irq
+	.quad	dv_catch_aarch32_irq
 
 	.balign	128
 dv_exc_aa32_fiq:				/* Fiq from aarch32 thread */
 	dv_exc_save_most			/* Save registers to thread (macro) */
     ldr     x1, _dv_fiq_from_aarch32
 	b		dv_exc_common
+
+	.balign	8
 _dv_fiq_from_aarch32:
-	.dword	dv_catch_aarch32_fiq
+	.quad	dv_catch_aarch32_fiq
 
 	.balign	128
 dv_exc_aa32_serror:				/* SError from aarch32 thread */
 	dv_exc_save_most			/* Save registers to thread (macro) */
     ldr     x1, _dv_syserror_from_aarch32
 	b		dv_exc_common
+
+	.balign	8
 _dv_syserror_from_aarch32:
-	.dword	dv_catch_aarch32_syserror
+	.quad	dv_catch_aarch32_syserror
 
 /* ==============================================
  * Common exception handler.
@@ -267,4 +299,6 @@ dv_exc_common:
 	mrs		x6, ESR_EL1										/* Exception syndrome */
 	str		w6, [x30, #DV_OFFSET_regs_esr]
 	mrs		x0, TPIDRRO_EL0									/* kvars */
+	ldr		x3, [x0, #DV_OFFSET_kvars_kernelsp]				/* kvars->kernelsp */
+	mov		sp, x3
 	br		x1

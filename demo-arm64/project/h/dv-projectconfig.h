@@ -43,9 +43,13 @@
 
 #define DV_PRJ_STARTUP			1
 
+#define DV_PRJ_VBAR_EL2			((dv_u64_t)&prj_vectors)
+#define DV_PRJ_VBAR_EL3			((dv_u64_t)&prj_vectors)
+
 #if !DV_ASM
 void prj_init(void);
 void prj_startup(dv_kernel_t *kvars);
+extern dv_u64_t prj_vectors;
 #endif
 
 #endif

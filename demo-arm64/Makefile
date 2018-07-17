@@ -32,6 +32,7 @@ DV_LD_OBJS		+= $(DV_OBJ_D)/dv-vectors.$(DV_O)
 DV_LD_OBJS		+= $(DV_OBJ_D)/dv-c0.$(DV_O)
 DV_LD_OBJS		+= $(DV_OBJ_D)/test-playground.$(DV_O)
 DV_LD_OBJS		+= $(DV_OBJ_D)/test-prj-trace.$(DV_O)
+DV_LD_OBJS		+= $(DV_OBJ_D)/prj-vectors.$(DV_O)
 
 # Include the board's file lists
 include $(DV_BOARD_D)/make/dv-board-list.make
@@ -41,6 +42,7 @@ LD_OPT		+= -e dv_reset
 LD_OPT		+= -T $(DV_BOARD_D)/ldscript/rpi3-0based.ldscript
 
 VPATH 		+= project/c
+VPATH 		+= project/s
 VPATH		+= $(DV_BOARD_D)/c
 VPATH		+= $(DV_BOARD_D)/s
 

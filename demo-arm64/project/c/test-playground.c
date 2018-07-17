@@ -20,6 +20,11 @@
 #include <kernel/h/dv-interrupt.h>
 
 #include <devices/h/dv-arm-bcm2835-gpio.h>
+#include <cpufamily/arm64/h/dv-arm64-core.h>
+
+extern dv_u64_t prj_vectors;
+
+void prj_dumpregs(const char *str, const dv_registers_t *r);
 
 /* Task id variables
 */
@@ -71,6 +76,11 @@ const dv_execonfig_t task_qxx_cfg =
 	DV_EXEFLAG_BLOCKING	/* Flags */
 };
 
+void print64(char *s, dv_u64_t v64)
+{
+	dv_kprintf("%s = 0x%x%08x\n", s, (dv_u32_t)(v64>>32), (dv_u32_t)v64);
+}
+
 #if 0
 void dv_catch_thread_synchronous_exception(dv_kernel_t *kvars)
 {
@@ -80,7 +90,7 @@ void dv_catch_thread_synchronous_exception(dv_kernel_t *kvars)
 
 void dv_catch_thread_irq(dv_kernel_t *kvars)
 {
-	dv_panic(dv_panic_unimplemented, "v_catch_thread_irq", "Oops! An exception occurred");
+	dv_panic(dv_panic_unimplemented, "dv_catch_thread_irq", "Oops! An exception occurred");
 }
 
 void dv_catch_thread_fiq(dv_kernel_t *kvars)
@@ -145,19 +155,43 @@ void prj_init(void)
 {
 	dv_errorid_t e;
 	dv_kernel_t *kvars;
+	dv_u64_t v;
 
 	dv_kprintf("prj_init: started.\n");
+	dv_kprintf("Current EL = %d\n", dv_get_el());
 
 	kvars = dv_get_kvars();
-	dv_u64_t xx = (dv_u64_t)kvars;
-	dv_kprintf("kvars = 0x%08x%08x\n", (dv_u32_t)(xx>>32), (dv_u32_t)xx);
+	print64("kvars", (dv_u64_t)kvars);
+	print64("kvars->current_thread", (dv_u64_t)kvars->current_thread);
+	print64("kvars->kernel_sp", (dv_u64_t)kvars->kernel_sp);
+	dv_kprintf("kvars->core_index = %d\n", kvars->core_index);
+	prj_dumpregs(kvars->current_thread->executable->name, kvars->current_thread->regs);
 
+	v = dv_arm64_mrs(VBAR_EL1);
+	print64("VBAR_EL1", v);
+
+#if 0		/* svc instruction seems to trigger the project exception handler */
+	v = (dv_u64_t)&prj_vectors;
+	dv_arm64_msr(VBAR_EL1, v);
+	v = dv_arm64_mrs(VBAR_EL1);
+	print64("VBAR_EL1 changed to", v);
+#endif
+	
+#if 0		/* Can't read those from here. */
+	v = dv_arm64_mrs(VBAR_EL2);
+	print64("VBAR_EL2", v);
+	v = dv_arm64_mrs(VBAR_EL3);
+	print64("VBAR_EL3", v);
+#endif
+
+#if 0
 	/* Four GPIO pins for the LEDs.
 	*/
 	dv_arm_bcm2835_gpio_pinconfig(17, DV_pinfunc_output, DV_pinpull_none);
 	dv_arm_bcm2835_gpio_pinconfig(18, DV_pinfunc_output, DV_pinpull_none);
 	dv_arm_bcm2835_gpio_pinconfig(27, DV_pinfunc_output, DV_pinpull_none);
 	dv_arm_bcm2835_gpio_pinconfig(22, DV_pinfunc_output, DV_pinpull_none);
+#endif
 
 	dv_kprintf("prj_init: calling null system call.\n");
 	dv_nullsc(0x42, 0xdeadbeef, 0x12345678, 0x98765432);
@@ -360,6 +394,41 @@ void Task_Qxx(void)
 		e = dv_spawn(task_fot);		/* should run when qxx finishes */
 		dv_kprintf("Task_Qxx dv_spawn(task_fot) returned %d\n", e);
 	}
+}
+
+void prj_exc_handler(dv_u64_t x0, dv_u64_t x1, dv_u64_t x2, dv_u64_t x3)
+{
+	int el;
+	dv_u64_t v;
+
+	dv_kprintf("prj_exc_handler() invoked\n");
+
+	el = dv_get_el();
+	dv_kprintf("Currentl EL : %d\n", el);
+
+	if ( el == 1 )
+	{
+		v = dv_arm64_mrs(ELR_EL1);
+		print64(" ELR_EL1 ", v);
+		v = dv_arm64_mrs(SPSR_EL1);
+		print64(" SPSR_EL1", v);
+		v = dv_arm64_mrs(ESR_EL1);
+		print64(" ESR_EL1 ", v);
+	}
+
+	v = dv_arm64_mrs(TPIDRRO_EL0);
+	dv_kernel_t *kvars = (dv_kernel_t *)v;
+
+	print64("  kvars", (dv_u64_t)kvars);
+	print64("  kvars->current_thread", (dv_u64_t)(kvars->current_thread));
+	print64("  kvars->current_thread->regs", (dv_u64_t)(kvars->current_thread->regs));
+
+	print64("  x0", x0);
+	print64("  x1", x1);
+	print64("  x2", x2);
+	print64("  x3", x3);
+
+	for (;;) { }
 }
 
 #if 0

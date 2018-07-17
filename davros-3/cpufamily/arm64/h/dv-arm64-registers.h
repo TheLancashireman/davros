@@ -27,6 +27,8 @@
 #include <kernel/h/dv-api.h>
 
 /* Bit fields in PSR
+ *
+ * ToDo: this is duplicated in dv-arm64-core.h - remove duplication
 */
 #define DV_A64_PSR_MODE		0x0000000f
 #define DV_A64_PSR_M4		0x00000010		/* 0 = 64-bit, 1 = 32-bit */
@@ -36,10 +38,10 @@
 #define DV_A64_PSR_D		0x00000100		/* 0 = Debug enabled */
 #define DV_A64_PSR_IL		0x00100000		/* Illegal execution state */
 #define DV_A64_PSR_SS		0x00200000		/* Software step */
-#define DV_A64_PSR_V		0x10000000	`	/* Overflow */
-#define DV_A64_PSR_C		0x20000000	`	/* Carry */
-#define DV_A64_PSR_Z		0x40000000	`	/* Zero */
-#define DV_A64_PSR_N		0x80000000	`	/* Negative */
+#define DV_A64_PSR_V		0x10000000		/* Overflow */
+#define DV_A64_PSR_C		0x20000000		/* Carry */
+#define DV_A64_PSR_Z		0x40000000		/* Zero */
+#define DV_A64_PSR_N		0x80000000		/* Negative */
 
 #define DV_A64_MODE_EL1t	0x4		/* "Thread mode" EL1 (uses EL0_SP) */
 #define DV_A64_MODE_EL0		0x0

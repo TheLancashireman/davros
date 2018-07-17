@@ -21,6 +21,14 @@
 #include <cpufamily/arm64/h/dv-arm64-core.h>
 #include <kernel/h/dv-stdio.h>
 
+#ifndef DV_PRJ_VBAR_EL2
+#define DV_PRJ_VBAR_EL2		0
+#endif
+
+#ifndef DV_PRJ_VBAR_EL3
+#define DV_PRJ_VBAR_EL3		0
+#endif
+
 /* dv_init_core() - initialise the core
  *
  * Most of the register values are "safe" values. Some of them get overwritten later.
@@ -35,8 +43,8 @@ void dv_init_core(void)
 	{
 		dv_kprintf("dv_arm64_msr(ELR_EL3, 0);\n");
 		dv_arm64_msr(ELR_EL3, 0);
-		dv_kprintf("dv_arm64_msr(VBAR_EL3, 0);\n");
-		dv_arm64_msr(VBAR_EL3, 0);							/* ToDo: create a stub EL2/3 vector table */
+		dv_kprintf("dv_arm64_msr(VBAR_EL3, 0x%x%08x);\n", (dv_u32_t)(DV_PRJ_VBAR_EL3>>32), (dv_u32_t)DV_PRJ_VBAR_EL3);
+		dv_arm64_msr(VBAR_EL3, DV_PRJ_VBAR_EL3);
 		dv_kprintf("dv_arm64_msr(SCR_EL3, 0xc81);\n");	
 		dv_arm64_msr(SCR_EL3, 0xc81);						/* ToDo: explain "magic number" */
 		dv_kprintf("dv_arm64_msr(SCTLR_EL3, 0);\n");
@@ -51,8 +59,8 @@ void dv_init_core(void)
 	{
 		dv_kprintf("dv_arm64_msr(ELR_EL2, 0);\n");
 		dv_arm64_msr(ELR_EL2, 0);
-		dv_kprintf("dv_arm64_msr(VBAR_EL2, 0);\n");
-		dv_arm64_msr(VBAR_EL2, 0);							/* ToDo: create a stub EL2/3 vector table */
+		dv_kprintf("dv_arm64_msr(VBAR_EL2, 0x%x%08x);\n", (dv_u32_t)(DV_PRJ_VBAR_EL2>>32), (dv_u32_t)DV_PRJ_VBAR_EL2);
+		dv_arm64_msr(VBAR_EL2, DV_PRJ_VBAR_EL2);
 		dv_kprintf("dv_arm64_msr(HCR_EL2, 0x80000000);\n");
 		dv_arm64_msr(HCR_EL2, 0x80000000);					/* RW = 1 ==> execution state for EL1 is aarch64 */
 		dv_kprintf("dv_arm64_msr(SCTLR_EL2, 0);\n");
