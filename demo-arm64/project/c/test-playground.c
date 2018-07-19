@@ -166,28 +166,17 @@ void prj_init(void)
 	dv_kprintf("Current EL = %d\n", dv_get_el());
 
 	kvars = dv_get_kvars();
-	print64("kvars", (dv_u64_t)kvars);
-	print64("kvars->current_thread", (dv_u64_t)kvars->current_thread);
-	print64("kvars->kernel_sp", (dv_u64_t)kvars->kernel_sp);
+	dv_kprintf("kvars : 0x%08lx\n", (dv_u64_t)kvars);
+	dv_kprintf("kvars->current_thread : 0x%08lx\n", (dv_u64_t)kvars->current_thread);
+	dv_kprintf("kvars->kernel_sp : 0x%08lx\n", (dv_u64_t)kvars->kernel_sp);
 	dv_kprintf("kvars->core_index = %d\n", kvars->core_index);
 	prj_dumpregs(kvars->current_thread->executable->name, kvars->current_thread->regs);
 
 	v = dv_arm64_mrs(VBAR_EL1);
-	print64("VBAR_EL1", v);
+	dv_kprintf("VBAR_EL1 : 0x%08lx\n", v);
 
-#if 0		/* svc instruction seems to trigger the project exception handler */
-	v = (dv_u64_t)&prj_vectors;
-	dv_arm64_msr(VBAR_EL1, v);
-	v = dv_arm64_mrs(VBAR_EL1);
-	print64("VBAR_EL1 changed to", v);
-#endif
-	
-#if 0		/* Can't read those from here. */
-	v = dv_arm64_mrs(VBAR_EL2);
-	print64("VBAR_EL2", v);
-	v = dv_arm64_mrs(VBAR_EL3);
-	print64("VBAR_EL3", v);
-#endif
+	v = dv_arm64_mrs(S3_1_C15_C3_0);		/* CBAR_EL1 */
+	dv_kprintf("CBAR_EL1 : 0x%08lx (PeriphBase)\n", v);
 
 #if 0
 	/* Four GPIO pins for the LEDs.
@@ -386,7 +375,7 @@ void Task_Qxx(void)
 	dv_arm_bcm2835_gpio_pin_set_group(led_mask);	/* All LEDs off */
 
 	dv_u64_t next = dv_readtime();
-	print64("Task_Qxx() next", next);
+	dv_kprintf("Task_Qxx() next = %ld\n", next);
 	for (;;)
 	{
 		next += 1000000;
@@ -415,24 +404,24 @@ void prj_exc_handler(dv_u64_t x0, dv_u64_t x1, dv_u64_t x2, dv_u64_t x3)
 	if ( el == 1 )
 	{
 		v = dv_arm64_mrs(ELR_EL1);
-		print64(" ELR_EL1 ", v);
+		dv_kprintf(" ELR_EL1  : 0x%08lx\n", v);
 		v = dv_arm64_mrs(SPSR_EL1);
-		print64(" SPSR_EL1", v);
+		dv_kprintf(" SPSR_EL1 : 0x%08lx\n", v);
 		v = dv_arm64_mrs(ESR_EL1);
-		print64(" ESR_EL1 ", v);
+		dv_kprintf(" ESR_EL1 : 0x%08lx\n", v);
 	}
 
 	v = dv_arm64_mrs(TPIDRRO_EL0);
 	dv_kernel_t *kvars = (dv_kernel_t *)v;
 
-	print64("  kvars", (dv_u64_t)kvars);
-	print64("  kvars->current_thread", (dv_u64_t)(kvars->current_thread));
-	print64("  kvars->current_thread->regs", (dv_u64_t)(kvars->current_thread->regs));
+	dv_kprintf("  kvars : 0x%08lx\n", (dv_u64_t)kvars);
+	dv_kprintf("  kvars->current_thread : 0x%08lx\n", (dv_u64_t)(kvars->current_thread));
+	dv_kprintf("  kvars->current_thread->regs : 0x%08lx\n", (dv_u64_t)(kvars->current_thread->regs));
 
-	print64("  x0", x0);
-	print64("  x1", x1);
-	print64("  x2", x2);
-	print64("  x3", x3);
+	dv_kprintf("  x0 : 0x%08lx\n", x0);
+	dv_kprintf("  x1 : 0x%08lx\n", x1);
+	dv_kprintf("  x2 : 0x%08lx\n", x2);
+	dv_kprintf("  x3 : 0x%08lx\n", x3);
 
 	for (;;) { }
 }
