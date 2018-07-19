@@ -178,8 +178,7 @@ static inline void dv_set_level(int lvl)
 	*/
 }
 
-
-
+void dv_irq_handler(dv_kernel_t *kvars);
 
 #endif
 
