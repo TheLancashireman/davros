@@ -38,14 +38,19 @@ DV_COVDEF(sys_sleep);
 void dv_sys_sleep_until(dv_kernel_t *kvars, dv_index_t sci)
 {
 	dv_machineword_t p0 = dv_get_p0(kvars->current_thread->regs);
+	dv_u64_t t;
 
-#if 1	/* 32-bit version */
-	dv_machineword_t p1 = dv_get_p1(kvars->current_thread->regs);
-	dv_u64_t t = ((dv_u64_t)p1) << 32 | (dv_u64_t)p0;
-	DV_DBG(dv_kprintf("dv_sleep_until(0x%08x%08x)\n", p1, p0));
-#else
-	dv_u64_t t = (dv_u64_t)p0;
-#endif
+	if (sizeof(dv_machineword_t) == 4)	/* ToDo: need a function to get 64-bit argument */
+	{
+		dv_machineword_t p1 = dv_get_p1(kvars->current_thread->regs);
+		t = ((dv_u64_t)p1) << 32 | (dv_u64_t)p0;
+		DV_DBG(dv_kprintf("dv_sleep_until(0x%08x%08x)\n", p1, p0));
+	}
+	else
+	{
+		t = (dv_u64_t)p0;
+	}
+
 	dv_errorid_t e = dv_eid_UnknownError;
 	dv_executable_t *exe;
 
