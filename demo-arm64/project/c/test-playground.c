@@ -90,7 +90,12 @@ void dv_catch_thread_synchronous_exception(dv_kernel_t *kvars)
 
 void dv_catch_thread_irq(dv_kernel_t *kvars)
 {
+#if 1
+	dv_kprintf("dv_catch_thread_irq() - calling dv_irq_handler()\n");
+	dv_irq_handler(kvars);
+#else
 	dv_panic(dv_panic_unimplemented, "dv_catch_thread_irq", "Oops! An exception occurred");
+#endif
 }
 
 void dv_catch_thread_fiq(dv_kernel_t *kvars)
@@ -381,6 +386,7 @@ void Task_Qxx(void)
 	dv_arm_bcm2835_gpio_pin_set_group(led_mask);	/* All LEDs off */
 
 	dv_u64_t next = dv_readtime();
+	print64("Task_Qxx() next", next);
 	for (;;)
 	{
 		next += 1000000;
