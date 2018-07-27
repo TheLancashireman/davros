@@ -3,3 +3,27 @@ arm64 (aarch64) notes
 System call is "svc #n". The number n is made available in the exception syndrome register.
 
 Exception vectors and levels - see dv-vectors.S
+
+VBAR	+0		+128	+256	+384
++0		Sync	IRQ		FIQ		SError		from aarch64 EL1 with SP0
++512	Sync	IRQ		FIQ		SError		from aarch64 EL1 with SP1
++1024	Sync	IRQ		FIQ		SError		from aarch64 EL0
++1536	Sync	IRQ		FIQ		SError		from aarch32
+
+
+Assorted hardware notes:
+
+Raspberry pi SoC (BCM2837):
+	Same shitty peripherals as the 1176-based p and pi-zero :-(
+	CBAR_EL1 is zero ...
+	No GIC - crappy interrupt controller from BCM2835.
+    Block of registers (mailboxes, timers and interrupt control registers) at 0x40000000
+		(see QA7_rev3.4.pdf)
+		What happens on other cores?
+			-- IRQ/FIQ outputs seem to be fed to the "GPU" interrupt in the BCM2836 block.
+		How to control interrupt-->core mapping?
+			-- Register in BCM2836 block controls which core gets IRQ and which core gets FIQ from BCM2835 block.
+		How to do inter-core interrupts?
+			-- mailboxes in BCM2836 block. Each core has 4 mailboxes, each with 32 separate flags.
+	No generic global timer. Have to use systimer/armtimer (no great problem)
+		There's also a 64-bit core timer and a 28 bit PIT/watchdog in the BCM2836 block 
