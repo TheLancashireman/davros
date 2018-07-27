@@ -22,8 +22,28 @@
 
 #include <kernel/h/dv-kconfig.h>
 #include <kernel/h/dv-types.h>
+#include <kernel/h/dv-kernel.h>
+
+#ifndef DV_PBASE2
+#error	"No definition of DV_PBASE2 in the board headers. Please fix!"
+#endif
 
 #if !DV_ASM
+
+typedef struct dv_bcm2836_mb_s dv_bcm2836_mb_t;
+typedef struct dv_bcm2836_s dv_bcm2836_t;
+
+/* dv_bcm2836_mb_s - a block of mailbox registers.
+ *
+ * Each core has four mailboxes. Each mailbox has 32 bits.
+ * There's a "write-1-to-set" register and a "read and write-1-to-clear" register for each mailbox.
+ *
+ * A mailbox interrupt is signalled whenever the mailbox register is non-zero.
+*/
+struct dv_bcm2836_mb_s
+{
+	dv_reg32_t mb[4];				/* Four mailbox registers (indexed by mailbox no.) */
+};
 
 /* BCM2836 ARM peripherals derived from QA7_rev3.4.pdf
  *
@@ -31,14 +51,6 @@
  *	Read LS causes MS to latch.
  *	Write LS is held until write MS
 */
-
-typedef struct dv_bcm2836_mb_s dv_bcm2836_mb_t;
-struct dv_bcm2836_mb_s
-{
-	dv_reg32_t mb[4];				/* Four mailbox registers (indexed by mailbox no.) */
-};
-
-typedef struct dv_bcm2836_s dv_bcm2836_t;
 struct dv_bcm2836_s
 {
 	dv_reg32_t	control;			/* 0x00 - Control register */
@@ -149,6 +161,10 @@ struct dv_bcm2836_s
 #define DV_BCM2836_SRC_AXI		0x0400	/* AXI interrupt requested */
 #define DV_BCM2836_SRC_LT		0x0800	/* Local timer interrupt requested */
 #define DV_BCM2836_SRC_PERIPH	0x3f000	/* Peripheral interrupt(s) requested (currently not used) */
+
+/* Interrupt handler function
+*/
+void dv_bcm2836_interrupt_handler(dv_kernel_t *);
 
 #endif
 

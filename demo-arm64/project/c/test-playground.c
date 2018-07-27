@@ -20,6 +20,7 @@
 #include <kernel/h/dv-interrupt.h>
 
 #include <devices/h/dv-arm-bcm2835-gpio.h>
+#include <devices/h/dv-arm-bcm2836.h>
 #include <cpufamily/arm64/h/dv-arm64-core.h>
 
 extern dv_u64_t prj_vectors;
@@ -88,15 +89,27 @@ void dv_catch_thread_synchronous_exception(dv_kernel_t *kvars)
 }
 #endif
 
+# if 0	/* Moved to board file */
 void dv_catch_thread_irq(dv_kernel_t *kvars)
 {
 #if 1
-	dv_kprintf("dv_catch_thread_irq() - calling dv_irq_handler()\n");
-	dv_irq_handler(kvars);
+	dv_u32_t src = dv_bcm2836_periphs.irq_source[0];
+	dv_kprintf("dv_catch_thread_irq() - irq_source = 0x%08x\n", src);
+
+	if ( src & DV_BCM2836_SRC_GPU )
+	{
+		dv_kprintf("   ... calling dv_irq_handler()\n");
+		dv_irq_handler(kvars);
+	}
+	else
+	{
+		dv_panic(dv_panic_unimplemented, "dv_catch_thread_irq", "Oops! An unknown interrupt occurred");
+	}
 #else
 	dv_panic(dv_panic_unimplemented, "dv_catch_thread_irq", "Oops! An exception occurred");
 #endif
 }
+#endif
 
 void dv_catch_thread_fiq(dv_kernel_t *kvars)
 {

@@ -20,6 +20,7 @@
 #include <kernel/h/dv-kconfig.h>
 #include <kernel/h/dv-kernel.h>
 #include <devices//h/dv-arm-bcm2835-uart.h>
+#include <devices//h/dv-arm-bcm2835-interruptcontroller.h>
 #include <kernel/h/dv-stdio.h>
 #include <lib/h/dv-string.h>
 
@@ -27,6 +28,10 @@
 */
 extern dv_u32_t dv_start_bss_c0, dv_end_bss_c0;
 
+/* dv_board_start() - the board start function
+ *
+ * Initialises data/bss, initialises the uart, then calls dv_start()
+*/
 void dv_board_start(int core_index)
 {
 	/* data sections are already initialised by the loader.
@@ -44,4 +49,18 @@ void dv_board_start(int core_index)
 	dv_kprintf("********************************************************************************\n");
 
 	dv_start(core_index);
+}
+
+/* dv_irq_handler() - handles IRQ interrupt requests
+ *
+ * aarch32 requires an IRQ handler function that gets called from the exception vector table.
+ * The handler function must process all the known interrupts and then call the dispatcher.
+ * Interrupt processing is performed by dv_bcm2835_interrupt_handler()
+ *
+ * FIXME: error handling for interrupt in the kernel?
+*/
+void dv_irq_handler(dv_kernel_t *kvars)
+{
+	dv_bcm2835_interrupt_handler(kvars);
+	dv_dispatch(kvars);
 }

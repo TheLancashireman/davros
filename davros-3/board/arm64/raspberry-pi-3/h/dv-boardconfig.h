@@ -40,15 +40,14 @@
 
 /* PBASE - base address for the peripherals.
 */
-#define DV_PBASE			0x3f000000
+#define DV_PBASE			0x3f000000		/* Base address of BCM2835 peripherals */
+#define DV_PBASE2			0x40000000		/* Base address of BCM2836 peripherals */
 
 /* See dv-arm-bcm2835-interruptcontroller.c for the list of supported interrupt sources.
  * ToDo: make the table configurable.
  *
  * On a single-core CPU there are no banked interrupts, so the number of vectors
  * is the same as the number of interrupts.
- *
- * FIXME: there's probably a GIC on this SoC
 */
 #define DV_N_IID			3
 #define DV_N_SOFTVECTOR		DV_N_IID
@@ -56,8 +55,6 @@
 #include <cpufamily/arm64/h/dv-arm64-kconfig.h>
 
 /* Header files for BCM2835
- *
- * FIXME: there's probably a GTIMER on this SoC
 */
 #define DV_H_SYSTEMTIMER			<devices/h/dv-arm-bcm2835-systimer.h>
 #define DV_H_INTERRUPTCONTROLLER	<devices/h/dv-arm-bcm2835-interruptcontroller.h>

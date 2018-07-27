@@ -25,7 +25,7 @@
 #include <devices/h/dv-arm-bcm2835-interruptcontroller.h>
 #include <cpufamily/arm/h/dv-arm-dispatch.h>
 
-/* dv_irq_handler() - interrupt handler (BCM2835 version)
+/* dv_bcm2835_interrupt_handler() - interrupt handler (BCM2835 version)
  *
  * The BCM2835 interrupt controller is a very simple unit. There is no vectoring, and
  * there are no priority levels.
@@ -51,7 +51,7 @@
  * when the ISR terminates.
 */
 
-const bcm2835_irq_t bcm2835_irq_list[dv_n_iid] =
+const bcm2835_irq_t bcm2835_irq_list[dv_n_bcm2835_iid] =
 {
 	[dv_iid_syst_cm1]	= {	0,	DV_INT_SYST_CM1		},
 	[dv_iid_syst_cm3]	= {	0,	DV_INT_SYST_CM3		},
@@ -92,7 +92,7 @@ static const dv_u32_t known_irq[3] =
 		DV_INT_GPU0HALT | DV_INT_GPU1HALT | DV_INT_ILLEGAL0 | DV_INT_ILLEGAL1
 };
 
-void dv_irq_handler(dv_kernel_t *kvars)
+void dv_bcm2835_interrupt_handler(dv_kernel_t *kvars)
 {
 	dv_u32_t pend[3];	/* 2 = basic, 0 = IRQ0, 1 = IRQ1. This order makes enable/disable easier. */
 	int i, idx;
@@ -105,7 +105,7 @@ void dv_irq_handler(dv_kernel_t *kvars)
 	pend[1] = dv_arm_bcm2835_interruptcontroller.irq_pending[1];
 	pend[2] = dv_arm_bcm2835_interruptcontroller.basic_pending;
 
-	DV_DBG(dv_kprintf("dv_irq_handler() called\n"));
+	DV_DBG(dv_kprintf("dv_bcm2835_interrupt_handler() called\n"));
 	DV_DBG(dv_kprintf(" -- pend[0] = 0x%08x\n", pend[0]));
 	DV_DBG(dv_kprintf(" -- pend[1] = 0x%08x\n", pend[1]));
 	DV_DBG(dv_kprintf(" -- pend[2] = 0x%08x\n", pend[2]));
@@ -135,7 +135,8 @@ void dv_irq_handler(dv_kernel_t *kvars)
 	pend[2] &= known_irq[2];
 	if ( (pend[0] | pend[1] | pend[2]) != 0)
 	{
-		dv_kprintf("dv_irq_handler() - unknown interrupts: 0x%08x, 0x%08x, 0x%08x\n", pend[0], pend[1], pend[2]);
+		dv_kprintf("dv_bcm2835_interrupt_handler() - unknown interrupts: 0x%08x, 0x%08x, 0x%08x\n",
+					pend[0], pend[1], pend[2]);
 	}
 
 	dv_dispatch(kvars);

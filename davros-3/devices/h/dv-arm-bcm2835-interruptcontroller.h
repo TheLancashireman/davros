@@ -113,7 +113,7 @@ static inline void dv_init_interrupt_controller(void)
  *
  * The SoC does not define any vector numbers, so we define them here.
 */
-typedef enum dv_bcd2835_softvector_e
+typedef enum dv_bcm2835_softvector_e
 {
 	/* IRQ0	*/
 	dv_iid_syst_cm1,
@@ -145,8 +145,8 @@ typedef enum dv_bcd2835_softvector_e
 	dv_iid_illegal0,
 	dv_iid_illegal1,
 #endif
-	dv_n_iid				/* Must be last */
-} dv_bcd2835_softvector_t;
+	dv_n_bcm2835_iid				/* Must be last */
+} dv_bcm2835_softvector_t;
 
 typedef struct bcm2835_irq_s
 {
@@ -154,7 +154,7 @@ typedef struct bcm2835_irq_s
 	dv_u32_t mask;
 } bcm2835_irq_t;
 
-extern const bcm2835_irq_t bcm2835_irq_list[dv_n_iid];
+extern const bcm2835_irq_t bcm2835_irq_list[dv_n_bcm2835_iid];
 
 static inline void dv_config_irq(int unused_index, int unused_core, int unused_prio)
 {
@@ -178,7 +178,7 @@ static inline void dv_set_level(int lvl)
 	*/
 }
 
-void dv_irq_handler(dv_kernel_t *kvars);
+void dv_bcm2835_interrupt_handler(dv_kernel_t *kvars);
 
 #endif
 

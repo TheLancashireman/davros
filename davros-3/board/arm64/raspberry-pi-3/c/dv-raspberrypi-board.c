@@ -20,6 +20,7 @@
 #include <kernel/h/dv-kconfig.h>
 #include <kernel/h/dv-kernel.h>
 #include <devices//h/dv-arm-bcm2835-uart.h>
+#include <devices//h/dv-arm-bcm2836.h>
 #include <cpufamily/arm64/h/dv-arm64-core.h>
 #include <kernel/h/dv-stdio.h>
 #include <lib/h/dv-string.h>
@@ -28,7 +29,11 @@
 */
 extern dv_u32_t dv_start_bss_c0, dv_end_bss_c0;
 
-/* The 64-bit version of dv_reset passes 4 parameters to dv_board_start:
+/* dv_board_start() - the board start function
+ *
+ * Initialises data/bss, initialises the uart, then calls dv_start()
+ *
+ * The 64-bit version of dv_reset passes 4 parameters to dv_board_start:
  *
  *	x0		- the intial value of the stack pointer
  *	x1..3	- the release addresses for cores 1..3 respectively.
@@ -71,4 +76,16 @@ void dv_board_start(dv_u64_t x0, dv_u64_t x1, dv_u64_t x2, dv_u64_t x3)
 	dv_kprintf("Current EL = %d\n", el);
 
 	dv_start(0);
+}
+
+/* dv_catch_thread_irq() - handles IRQ interrupt requests from a thread
+ *
+ * The handler function must process all the known interrupts and then call the dispatcher.
+ * Interrupt processing is performed by dv_bcm2836_interrupt_handler(), which in turn might call
+ * the dv_bcm2835_interrupt_handler() function
+*/
+void dv_catch_thread_irq(dv_kernel_t *kvars)
+{
+	dv_bcm2836_interrupt_handler(kvars);
+	dv_dispatch(kvars);
 }
