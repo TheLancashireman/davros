@@ -69,7 +69,7 @@ void dv_bcm2836_interrupt_handler(dv_kernel_t *kvars)
 	{
 		if ( pend & DV_BCM2836_SRC_GPU )
 		{
-			pend &= DV_BCM2836_SRC_GPU;
+			pend &= ~DV_BCM2836_SRC_GPU;
 			dv_bcm2835_interrupt_handler(kvars);
 		}
 
