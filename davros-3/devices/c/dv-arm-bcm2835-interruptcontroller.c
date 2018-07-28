@@ -38,7 +38,7 @@
  * After processing all the known IRQs, if there are any left they are reported as unknown
  * and disabled.
  *
- * bcm2835_irq_list[] is a table of all the interrupt sources that can be used.
+ * dv_bcm2835_irq_list[] is a table of all the interrupt sources that can be used.
  * The index in this list gives the vector number of the IRQ.
  * The list is minimal at the moment but can be extended later.
  *
@@ -51,7 +51,7 @@
  * when the ISR terminates.
 */
 
-const bcm2835_irq_t bcm2835_irq_list[dv_n_bcm2835_iid] =
+const dv_bcm2835_irq_t dv_bcm2835_irq_list[dv_n_bcm2835_iid] =
 {
 	[dv_iid_syst_cm1]	= {	0,	DV_INT_SYST_CM1		},
 	[dv_iid_syst_cm3]	= {	0,	DV_INT_SYST_CM3		},
@@ -92,10 +92,14 @@ static const dv_u32_t known_irq[3] =
 		DV_INT_GPU0HALT | DV_INT_GPU1HALT | DV_INT_ILLEGAL0 | DV_INT_ILLEGAL1
 };
 
+#ifndef DV_CFG_BCM2835_VECTOR_START
+#define DV_CFG_BCM2835_VECTOR_START	0
+#endif
+
 void dv_bcm2835_interrupt_handler(dv_kernel_t *kvars)
 {
 	dv_u32_t pend[3];	/* 2 = basic, 0 = IRQ0, 1 = IRQ1. This order makes enable/disable easier. */
-	int i, idx;
+	int i, idx, vecidx;
 	dv_u32_t mask;
 
 	/* Only consider the IRQs that are documented. There are others that appear to be used
@@ -117,14 +121,15 @@ void dv_bcm2835_interrupt_handler(dv_kernel_t *kvars)
 
 	/* Loop over all interrupt sources. Clear and handle the configured sources.
 	*/
-	for ( i = 0; i < DV_N_SOFTVECTOR; i++ )
+	for ( i = 0; i < dv_n_bcm2835_iid; i++ )
 	{
-		idx =  bcm2835_irq_list[i].idx;
-		mask = bcm2835_irq_list[i].mask;
+		idx =  dv_bcm2835_irq_list[i].idx;
+		mask = dv_bcm2835_irq_list[i].mask;
 		if ( pend[idx] & mask )
 		{
 			pend[idx] &= ~mask;
-			(*dv_softvector[i].handler)(kvars, dv_softvector[i].parameter);
+			vecidx = DV_CFG_BCM2835_VECTOR_START+i;
+			(*dv_softvector[vecidx].handler)(kvars, dv_softvector[vecidx].parameter);
 		}
 	}
 
@@ -138,6 +143,4 @@ void dv_bcm2835_interrupt_handler(dv_kernel_t *kvars)
 		dv_kprintf("dv_bcm2835_interrupt_handler() - unknown interrupts: 0x%08x, 0x%08x, 0x%08x\n",
 					pend[0], pend[1], pend[2]);
 	}
-
-	dv_dispatch(kvars);
 }

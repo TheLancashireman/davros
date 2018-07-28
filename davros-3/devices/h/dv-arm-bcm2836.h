@@ -162,6 +162,37 @@ struct dv_bcm2836_s
 #define DV_BCM2836_SRC_LT		0x0800	/* Local timer interrupt requested */
 #define DV_BCM2836_SRC_PERIPH	0x3f000	/* Peripheral interrupt(s) requested (currently not used) */
 
+/* Interrupt identifiers
+ *
+ * ToDo: find a way of enabling/disabling individual interrupt sources.
+*/
+typedef enum dv_bcm2836_softvector_e
+{
+	dv_iid_cntps,
+	dv_iid_cntpns,
+	dv_iid_cnthp,
+	dv_iid_cntv,
+	dv_iid_mb0,
+	dv_iid_mb1,
+	dv_iid_mb2,
+	dv_iid_mb3,
+	dv_iid_pmu,
+	dv_iid_axi,
+	dv_iid_lt,
+#if 0
+	dv_iid_gpu,
+	dv_iid_periph,
+#endif
+	dv_n_bcm2836_iid				/* Must be last */
+} dv_bcm2836_softvector_t;
+
+typedef struct dv_bcm2836_irq_s
+{
+	dv_u32_t mask;
+} dv_bcm2836_irq_t;
+
+extern const dv_bcm2836_irq_t dv_bcm2836_irq_list[dv_n_bcm2836_iid];
+
 /* Interrupt handler function
 */
 void dv_bcm2836_interrupt_handler(dv_kernel_t *);

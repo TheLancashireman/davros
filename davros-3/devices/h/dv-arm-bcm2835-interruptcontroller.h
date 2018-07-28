@@ -148,13 +148,13 @@ typedef enum dv_bcm2835_softvector_e
 	dv_n_bcm2835_iid				/* Must be last */
 } dv_bcm2835_softvector_t;
 
-typedef struct bcm2835_irq_s
+typedef struct dv_bcm2835_irq_s
 {
 	int idx;
 	dv_u32_t mask;
-} bcm2835_irq_t;
+} dv_bcm2835_irq_t;
 
-extern const bcm2835_irq_t bcm2835_irq_list[dv_n_bcm2835_iid];
+extern const dv_bcm2835_irq_t dv_bcm2835_irq_list[dv_n_bcm2835_iid];
 
 static inline void dv_config_irq(int unused_index, int unused_core, int unused_prio)
 {
@@ -164,12 +164,12 @@ static inline void dv_config_irq(int unused_index, int unused_core, int unused_p
 
 static inline void dv_enable_irq(int index)
 {
-	dv_arm_bcm2835_interruptcontroller.irq_enable[bcm2835_irq_list[index].idx] = bcm2835_irq_list[index].mask;
+	dv_arm_bcm2835_interruptcontroller.irq_enable[dv_bcm2835_irq_list[index].idx] = dv_bcm2835_irq_list[index].mask;
 }
 
 static inline void dv_disable_irq(int index)
 {
-	dv_arm_bcm2835_interruptcontroller.irq_disable[bcm2835_irq_list[index].idx] = bcm2835_irq_list[index].mask;
+	dv_arm_bcm2835_interruptcontroller.irq_disable[dv_bcm2835_irq_list[index].idx] = dv_bcm2835_irq_list[index].mask;
 }
 
 static inline void dv_set_level(int lvl)
