@@ -246,14 +246,6 @@ void prj_init(void)
 	}
 }
 
-/* This function is called at startup so the system-call API is not available.
- * Use direct function calls to internal functions instead.
-*/
-void prj_startup(dv_kernel_t *kvars)
-{
-	dv_kprintf("prj_startup(): called on core %d\n", kvars->core_index);
-}
-
 void Task_Foo(void)
 {
 	dv_errorid_t e;
