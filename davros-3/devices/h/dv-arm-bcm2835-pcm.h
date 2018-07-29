@@ -35,6 +35,8 @@ struct dv_arm_bcm2835_pcm_s
 	dv_reg32_t	pcm_gray;		/* 0x20 - Gray mode control */
 };
 
+#define dv_bcm2835_pcm		((dv_arm_bcm2835_pcm_t *)(DV_PBASE+0x203000))[0]
+
 /* Bits in pcm_cs
 */
 #define DV_PCM_CS_STBY			0x02000000
@@ -106,5 +108,32 @@ struct dv_arm_bcm2835_pcm_s
 #define DV_PCM_GRAY_FLUSH		0x00000004
 #define DV_PCM_GRAY_CLR			0x00000002
 #define DV_PCM_GRAY_EN			0x00000001
+
+
+/* Write a sample to the output FIFO
+*/
+static inline int dv_pcm_write(dv_i32_t w)
+{
+	while ( (dv_bcm2835_pcm.pcm_cs & DV_PCM_CS_TXD) == 0 )
+	{
+		/* ToDo: check for errors; return error code
+		*/
+	}
+	dv_bcm2835_pcm.pcm_fifo = (dv_u32_t)w;
+	return 0;
+}
+
+/* Read a sample from the input FIFO
+*/
+static inline int dv_pcm_read(dv_i32_t *w)
+{
+	while ( (dv_bcm2835_pcm.pcm_cs & DV_PCM_CS_RXD) == 0 )
+	{
+		/* ToDo: check for errors; return error code
+		*/
+	}
+	*w = (dv_i32_t)dv_bcm2835_pcm.pcm_fifo;
+	return 0;
+}
 
 #endif
