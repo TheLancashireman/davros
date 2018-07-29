@@ -41,7 +41,7 @@
 #define DV_TRACE				0
 #define DV_DEBUG				1
 
-#define DV_PRJ_STARTUP			1
+#define DV_PRJ_STARTUP			0
 
 #define DV_PRJ_VBAR_EL2			((dv_u64_t)&prj_vectors)
 #define DV_PRJ_VBAR_EL3			((dv_u64_t)&prj_vectors)
