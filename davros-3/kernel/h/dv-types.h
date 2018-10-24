@@ -47,6 +47,13 @@ typedef volatile dv_u16_t	dv_reg16_t;
 typedef volatile dv_u32_t	dv_reg32_t;
 typedef volatile dv_u64_t	dv_reg64_t;
 
+/* Signed registers: rarely used, but sometimes needed for ADC and DAC
+*/
+typedef volatile dv_i8_t	dv_reg8s_t;
+typedef volatile dv_i16_t	dv_reg16s_t;
+typedef volatile dv_i32_t	dv_reg32s_t;
+typedef volatile dv_u64_t	dv_reg64s_t;
+
 typedef struct
 {	dv_machineword_t rv0;
 	dv_machineword_t rv1;

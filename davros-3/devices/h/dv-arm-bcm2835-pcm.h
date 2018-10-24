@@ -25,7 +25,7 @@ typedef struct dv_arm_bcm2835_pcm_s dv_arm_bcm2835_pcm_t;
 struct dv_arm_bcm2835_pcm_s
 {
 	dv_reg32_t	pcm_cs;			/* 0x00 - Control/status */
-	dv_reg32_t	pcm_fifo;		/* 0x04 - FIFO data */
+	dv_reg32s_t	pcm_fifo;		/* 0x04 - FIFO data */
 	dv_reg32_t	pcm_mode;		/* 0x08 - Mode */
 	dv_reg32_t	pcm_rxc;		/* 0x0c - Receive configuration */
 	dv_reg32_t	pcm_txc;		/* 0x10 - Transmit configuration */
@@ -119,7 +119,7 @@ static inline int dv_pcm_write(dv_i32_t w)
 		/* ToDo: check for errors; return error code
 		*/
 	}
-	dv_bcm2835_pcm.pcm_fifo = (dv_u32_t)w;
+	dv_bcm2835_pcm.pcm_fifo = w;
 	return 0;
 }
 
@@ -132,7 +132,7 @@ static inline int dv_pcm_read(dv_i32_t *w)
 		/* ToDo: check for errors; return error code
 		*/
 	}
-	*w = (dv_i32_t)dv_bcm2835_pcm.pcm_fifo;
+	*w = dv_bcm2835_pcm.pcm_fifo;
 	return 0;
 }
 
