@@ -136,4 +136,8 @@ static inline int dv_pcm_read(dv_i32_t *w)
 	return 0;
 }
 
+/* Initialise the PCM device for i2s
+*/
+void dv_pcm_init_i2s(void);
+
 #endif

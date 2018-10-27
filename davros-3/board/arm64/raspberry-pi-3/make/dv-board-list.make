@@ -24,6 +24,7 @@ DV_KLIST_C += dv-arm-bcm2835-systimer
 DV_KLIST_C += dv-init-core
 DV_KLIST_C += dv-arm-bcm2835-uart
 DV_KLIST_C += dv-arm-bcm2835-gpio
+DV_KLIST_C += dv-arm-bcm2835-pcm
 
 #DV_LD_OBJS += $(DV_OBJ_D)/dv-arm-bcm2835-uart.$(DV_O)
 #DV_LD_OBJS += $(DV_OBJ_D)/dv-arm-bcm2835-gpio.$(DV_O)
