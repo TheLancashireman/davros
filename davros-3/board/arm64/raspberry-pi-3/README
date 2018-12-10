@@ -1,2 +1,12 @@
 Files in this directory support the Cortex A53 (ARMv8) based Raspberry Pi boards such as the
 Pi3 in 64-bit mode.
+
+Memory map of this board:
+
+0x00000000 - 0x3effffff  RAM
+0x3f000000 - 0x3fffffff  BCM2835 peripherals (same as pi-zero & co)
+0x40000000 - ???         BCM2836 peripherals (same as pi2)
+
+So for 1:1 address mapping, MMU can be configured with "input" address range = "output" address range = 32 bits.
+This means (I hope) that we can use a 4-entry L1 table (bits 31-30) to get 4KiB pages.
+
