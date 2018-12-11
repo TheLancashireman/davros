@@ -1,0 +1,17 @@
+Single-stack OSEK-like OS
+========================
+
+Basic concept:
+	* everything done by direct function calls
+		* all privileged, no memory protection, etc.
+	* activate a task
+		* if higher priority than current, just "call" it
+			* "call" wrapper: use setjmp() or similar to record position
+			* "terminate" longjmp()
+			* return from top level
+		* otherwise enqueue it
+			* during termination, "call" next exe
+	* extended task
+		* use stub stackframe on main stack
+		* switch to private stack for task
+		* switch back to main stack on termination or wait
