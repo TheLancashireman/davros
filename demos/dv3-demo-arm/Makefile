@@ -19,7 +19,7 @@
 
 # Find out where we are :-)
 PRJ_ROOT		?= $(shell pwd)
-DV_ROOT			= $(PRJ_ROOT)/../davros-3
+DV_ROOT			= $(PRJ_ROOT)/../../davros-3
 
 # Select your board directory here
 DV_BOARD_D 	?=	$(DV_ROOT)/board/arm/raspberry-pi
