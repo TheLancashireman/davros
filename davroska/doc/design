@@ -1,17 +1,33 @@
 Single-stack OSEK-like OS
-========================
+=========================
 
 Basic concept:
 	* everything done by direct function calls
 		* all privileged, no memory protection, etc.
 	* activate a task
-		* if higher priority than current, just "call" it
+		* if higher priority than current, just "call" it otherwise enqueue it
 			* "call" wrapper: use setjmp() or similar to record position
-			* "terminate" longjmp()
-			* return from top level
-		* otherwise enqueue it
-			* during termination, "call" next exe
+			* on return from task or non-zero return from longjmp
+				* "call" all queued executables
+					* from priority of cwpreempting task
+					* down to (but not including) priority of task that called activatetask
+		* idle loop is just an executable with 0 priority. Always index 0, so tasks start at 1
+	* terminate a task
+		* longjmp() to the task's jumpbuf
+	* chain a task
+		* a bit tricky - a simple implementation like activatetask will use some stack for each chain.
+		* need to use the runqueued in the stackframe of the task that activated the chaining task.
 	* extended task
 		* use stub stackframe on main stack
 		* switch to private stack for task
 		* switch back to main stack on termination or wait
+	* queueing
+		* one ringbuffer per priority
+		* head == tail ==> empty
+		* (tail+1)(mod length) == head ==> full  (the "gap")
+		* entries are 
+		* each queue has:
+			* one entry for the gap
+			* one entry to accomodate an executable with elevated priority (resource, interrupt lock etc)
+			* one entry per activation per executable with matching priority
+			

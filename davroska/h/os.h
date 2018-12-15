@@ -1,29 +1,33 @@
-/* os.h - public header file for davroska
+/* os.h - OSEK compatibility header for davroska
  *
  * (c) David Haworth
 */
-#ifndef DV_davrosek_h
-#define DV_davrosek_h	1
+#ifndef os_h
+#define dv_davroska_api_h	1
 
-typedef short dv_qty_t;
-typedef short dv_taskid_t;
-typedef unsigned short dv_prio_t;
+#include <davroska-api.h>
 
-typedef struct dv_q_s
+/* StatusType has to be defined in conformance with the OSEK Binding Specification.
+*/
+#ifndef STATUSTYPEDEFINED
+#define STATUSTYPEDEFINED   1
+typedef unsigned char StatusType;
+#endif
+
+/* OSEK-like data types
+*/
+typedef dv_id_t TaskType;
+
+/* OSEK-like "services"
+*/
+static inline StatusType ActivateTask(TaskType t)
 {
-	dv_taskid_t *slots;		/* Start of a buffer for the ring buffer for this priority slot. */
-    dv_qty_t nslots;		/* No. of slots in this ring buffer */
-	dv_qty_t head;			/* Current position */
-	dv_qty_t tail;			/* Current insertion position */
-    dv_prio_t prio;			/* Priority of this queue */
-} dv_q_t;
+	return (StatusType)dv_activatetask(t);
+}
 
-typedef void (*dv_taskf_t)(void);
-
-typedef struct dv_task_t
+static inline StatusType TerminateTask(void)
 {
-	dv_taskf_t func;
-	dv_qty_t maxact;
-	dv_qty_t nact;
-	dv_prio_t prio;
-};
+	return (StatusType)dv_terminatetask();
+}
+
+#endif
