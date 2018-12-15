@@ -36,6 +36,7 @@ static void dv_postexehook(void);
 static void dv_panic(dv_panic_t p);
 static void dv_createqueues(void);
 static dv_statustype_t dv_activateexe(dv_id_t e);
+static dv_statustype_t dv_activateexe2(dv_id_t ei, dv_intstatus_t is);
 static void dv_runexe(dv_id_t e, dv_intstatus_t is);
 static void dv_runqueued(dv_qty_t p, dv_intstatus_t is);
 static dv_statustype_t dv_reporterror(dv_sid_t sid, dv_statustype_t e, dv_qty_t nParam, dv_param_t *p);
@@ -56,18 +57,39 @@ dv_statustype_t dv_activatetask(dv_id_t t)
 	return dv_activateexe(t);
 }
 
+/* dv_chaintask() - terminate the called and activate a task
+ *
+ * If it's a task, terminate me then activate it.
+*/
+dv_statustype_t dv_chaintask(dv_id_t t)
+{
+	if ( (t < 1) || (t > dv_ntask) )
+	{
+		dv_param_t p = (dv_param_t)t;
+		return dv_reporterror(dv_sid_activatetask, dv_e_id, 1, &p);
+	}
+
+	dv_intstatus_t is = dv_disable();
+
+	if ( (t != dv_currentexe) && (dv_exe[t].nact >= dv_exe[t].maxact) )
+	{
+		dv_param_t p = (dv_param_t)t;
+		return dv_reporterror(dv_sid_activatetask, dv_e_limit, 1, &p);
+	}
+
+	return dv_activateexe2(t, is);
+}
+
 /* dv_terminatetask() - terminate the calling task
 */
 dv_statustype_t dv_terminatetask(void)
 {
-	/* Sanity check
+	(void)dv_disable();
+
+	/* Sanity checks
 	*/
 	if ( (dv_currentexe < 0) || (dv_currentexe >= dv_nexe) )
 		dv_panic(dv_panic_CurrentExeCorrupt);
-
-	/* ToDo: shall we have a calling context check, resource occupation check etc. here?
-	 * Gut feeling says no.
-	*/
 
 	/* Sanity check
 	*/
@@ -83,6 +105,8 @@ dv_statustype_t dv_terminatetask(void)
 */
 dv_statustype_t dv_startos(dv_id_t mode)
 {
+	(void)dv_disable();
+
 	/* Initialise the priority queues
 	*/
 	for (int i = 0; i <= dv_maxprio; i++ )
@@ -103,7 +127,7 @@ dv_statustype_t dv_startos(dv_id_t mode)
 	dv_exe[0].maxact = 1;
 	dv_exe[0].nact = 0;
 	dv_exe[0].prio = 0;
-	dv_exe[0].state = dv_running;
+	dv_exe[0].state = dv_ready;
 
 	callout_addtasks(mode);
 #if 0
@@ -122,6 +146,8 @@ dv_statustype_t dv_startos(dv_id_t mode)
 	/* If the task - or the other tasks that it starts - ever die,
 	 * we enable interrupts and drop into the idle loop waiting for an interrupt.
 	*/
+	dv_currentexe = 0;
+	dv_currentprio = 0;
 	dv_exe[0].state = dv_running;
 	dv_restore(DV_INTENABLED);
 	dv_idle();
@@ -191,31 +217,35 @@ static dv_statustype_t dv_activateexe(dv_id_t e)
 		return dv_reporterror(dv_sid_activatetask, dv_e_limit, 1, &p);
 	}
 
+	/* Go to part 2
+	*/
+	dv_activateexe2(e, is);
+}
+
+static dv_statustype_t dv_activateexe2(dv_id_t e, dv_intstatus_t is)
+{
 	dv_exe[e].nact++;
+
+	if ( dv_exe[e].state != dv_running )	/* Self-activation doesn't change the state */
+		dv_exe[e].state = dv_ready;
 
 	/* Priority check: call or enqueue
 	*/
 	dv_q_t *q = &dv_queue[dv_exe[e].prio];
 
+	q->slots[q->tail] = e;
+
+	q->tail++;
+	if ( q->tail >= q->nslots )
+		q->tail = 0;
+
+	/* Sanity check
+	*/
+	if ( q->tail == q->head )	
+		dv_panic(dv_panic_QueueOverflow);
+
 	if ( dv_exe[e].prio <= dv_currentprio )
 	{
-		/* Task is lower or same priority: enqueue it.
-		 *
-		 * On 2nd or subsequent concurrent activation of same task this branch is always taken.
-		*/
-		dv_exe[e].state = dv_ready;
-
-		q->slots[q->tail] = e;
-
-		q->tail++;
-		if ( q->tail >= q->nslots )
-			q->tail = 0;
-
-		/* Sanity check
-		*/
-		if ( q->tail == q->head )	
-			dv_panic(dv_panic_QueueOverflow);
-
 		dv_restore(is);
 		return dv_e_ok;
 	}
@@ -269,6 +299,7 @@ static void dv_runexe(dv_id_t e, dv_intstatus_t is)
 		/* Switch to incoming exe, set to RUNNING
 		*/
 		dv_currentexe = e;
+		dv_currentprio = dv_exe[dv_currentexe].prio;
 		dv_exe[e].state = dv_running;
 		dv_exe[e].jb = &jb;
 
@@ -298,6 +329,21 @@ static void dv_runexe(dv_id_t e, dv_intstatus_t is)
 	dv_exe[e].state = dv_suspended;
 	dv_exe[e].nact--;
 	dv_exe[e].jb = DV_NULL;
+
+	if ( dv_queue[dv_currentprio].slots[dv_queue[dv_currentprio].head] != dv_currentexe )
+		dv_panic(dv_panic_QueueCorrupt);
+
+	/* ToDo: shall we have a calling context check, resource occupation check etc. here?
+	 * Gut feeling says no.
+	*/
+
+	/* Dequeue the executable
+	*/
+	dv_queue[dv_currentprio].slots[dv_queue[dv_currentprio].head] = -1;
+	dv_queue[dv_currentprio].head++;
+	if ( dv_queue[dv_currentprio].head >= dv_queue[dv_currentprio].nslots )
+		dv_queue[dv_currentprio].head = 0;
+
 }
 
 /* dv_runqueued() - run all higher-priority executables
@@ -309,12 +355,9 @@ static void dv_runqueued(dv_qty_t p, dv_intstatus_t is)
 		dv_q_t *q = &dv_queue[dv_currentprio];
 		if ( q->head != q->tail )
 		{
-			/* Remove an executable from head of queue.
+			/* Queue is not empty; get the first executable
 			*/
 			dv_id_t e = q->slots[q->head];
-			q->head++;
-			if ( q->head >= q->nslots )
-				q->head = 0;
 
 			/* Run the excutable
 			*/

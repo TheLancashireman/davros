@@ -20,6 +20,7 @@ typedef enum
 	dv_panic_none,
 	dv_panic_ConfigNslotsInsufficient,
 	dv_panic_QueueOverflow,
+	dv_panic_QueueCorrupt,
 	dv_panic_CurrentExeCorrupt,
 	dv_panic_CurrentExeDead,
 	dv_panic_ReturnFromLongjmp
