@@ -139,7 +139,8 @@ dv_statustype_t dv_startos(dv_id_t mode)
 	dv_exe[0].func = dv_idle;
 	dv_exe[0].maxact = 1;
 	dv_exe[0].nact = 0;
-	dv_exe[0].prio = 0;
+	dv_exe[0].baseprio = 0;
+	dv_exe[0].currprio = 0;
 	dv_exe[0].state = dv_ready;
 
 	callout_addtasks(mode);
@@ -208,7 +209,8 @@ dv_id_t dv_addtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_qty_t 
 	dv_exe[id].func = fn;
 	dv_exe[id].maxact = maxact;
 	dv_exe[id].nact = 0;
-	dv_exe[id].prio = prio;
+	dv_exe[id].baseprio = prio;
+	dv_exe[id].currprio = prio;
 	dv_exe[id].state = dv_suspended;
 
 	dv_queue[prio].nslots += maxact;
@@ -248,7 +250,7 @@ static dv_statustype_t dv_activateexe2(dv_id_t e, dv_intstatus_t is)
 
 	/* Priority check: call or enqueue
 	*/
-	dv_q_t *q = &dv_queue[dv_exe[e].prio];
+	dv_q_t *q = &dv_queue[dv_exe[e].baseprio];
 
 	q->slots[q->tail] = e;
 
@@ -261,7 +263,7 @@ static dv_statustype_t dv_activateexe2(dv_id_t e, dv_intstatus_t is)
 	if ( q->tail == q->head )	
 		dv_panic(dv_panic_QueueOverflow);
 
-	if ( dv_exe[e].prio <= dv_currentprio )
+	if ( dv_exe[e].baseprio <= dv_currentprio )
 	{
 		dv_restore(is);
 		return dv_e_ok;
@@ -274,7 +276,7 @@ static dv_statustype_t dv_activateexe2(dv_id_t e, dv_intstatus_t is)
 	/* Remember current priority and set the new priority
 	*/
 	dv_qty_t p = dv_currentprio;
-	dv_currentprio = dv_exe[e].prio;
+	dv_currentprio = dv_exe[e].baseprio;
 
 	/* Remember current executable
 	*/
@@ -317,7 +319,7 @@ static void dv_runexe(dv_id_t e, dv_intstatus_t is)
 		/* Switch to incoming exe, set to RUNNING
 		*/
 		dv_currentexe = e;
-		dv_currentprio = dv_exe[dv_currentexe].prio;
+		dv_currentprio = dv_exe[dv_currentexe].currprio = dv_exe[dv_currentexe].baseprio;
 		dv_exe[e].state = dv_running;
 		dv_exe[e].jb = &jb;
 

@@ -45,8 +45,19 @@ typedef struct dv_exe_s
 	dv_jmpbuf_t *jb;
 	dv_qty_t maxact;
 	dv_qty_t nact;
-	dv_prio_t prio;
+	dv_prio_t baseprio;
+	dv_prio_t currprio;
 	dv_tstate_t state;
 } dv_exe_t;
+
+typedef struct dv_lock_s
+{
+	dv_id_t owner;
+	dv_id_t next;
+	dv_prio_t ceiling;
+	dv_prio_t oldprio;
+	dv_qty_t ntake;
+	dv_qty_t maxtake;
+} dv_lock_t;
 
 #endif
