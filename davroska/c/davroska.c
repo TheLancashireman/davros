@@ -16,7 +16,6 @@ const dv_qty_t dv_maxslot = DV_NSLOT+1;
 
 static dv_qty_t dv_nexe;						/* No. of executables created */
 static dv_qty_t dv_ntask;						/* No. of tasks created */
-static dv_qty_t dv_nprio;						/* No. of priorities created */
 
 dv_id_t dv_currenttask;							/* Convenience variables for GetTaskID and GetISRID */
 dv_id_t dv_currentisr;
@@ -77,7 +76,21 @@ dv_statustype_t dv_chaintask(dv_id_t t)
 		return dv_reporterror(dv_sid_activatetask, dv_e_limit, 1, &p);
 	}
 
-	return dv_activateexe2(t, is);
+	/* Sanity checks
+	*/
+	if ( (dv_currentexe < 0) || (dv_currentexe >= dv_nexe) )
+		dv_panic(dv_panic_CurrentExeCorrupt);
+
+	/* Sanity check
+	*/
+	if ( dv_exe[dv_currentexe].jb == DV_NULL )
+		dv_panic(dv_panic_CurrentExeDead);
+
+	(void)dv_activateexe2(t, is);
+
+	dv_longjmp(*dv_exe[dv_currentexe].jb, dv_e_longjmp_ok);
+
+	dv_panic(dv_panic_ReturnFromLongjmp);
 }
 
 /* dv_terminatetask() - terminate the calling task
@@ -151,6 +164,10 @@ dv_statustype_t dv_startos(dv_id_t mode)
 	dv_exe[0].state = dv_running;
 	dv_restore(DV_INTENABLED);
 	dv_idle();
+
+	/* To keep the compiler happy
+	*/
+	return dv_e_ok;
 }
 
 /* dv_addtask() - add a task to the set of executables
@@ -219,7 +236,7 @@ static dv_statustype_t dv_activateexe(dv_id_t e)
 
 	/* Go to part 2
 	*/
-	dv_activateexe2(e, is);
+	return dv_activateexe2(e, is);
 }
 
 static dv_statustype_t dv_activateexe2(dv_id_t e, dv_intstatus_t is)
@@ -278,6 +295,7 @@ static dv_statustype_t dv_activateexe2(dv_id_t e, dv_intstatus_t is)
 	dv_currentexe = me;
 	dv_preexehook();
 	dv_restore(is);
+	return dv_e_ok;
 }
 
 /* dv_runexe() - execute an executable
@@ -326,8 +344,11 @@ static void dv_runexe(dv_id_t e, dv_intstatus_t is)
 	/* Post-exe hook for terminated exe.
 	*/
 	dv_postexehook();
-	dv_exe[e].state = dv_suspended;
 	dv_exe[e].nact--;
+	if ( dv_exe[e].nact <= 0 )
+		dv_exe[e].state = dv_suspended;
+	
+	dv_exe[e].state = dv_suspended;
 	dv_exe[e].jb = DV_NULL;
 
 	if ( dv_queue[dv_currentprio].slots[dv_queue[dv_currentprio].head] != dv_currentexe )
@@ -407,7 +428,7 @@ static dv_statustype_t dv_reporterror(dv_sid_t sid, dv_statustype_t e, dv_qty_t 
 	/* Todo: implement */
 	dv_printf("dv_reporterror(%d, %d, ...) called\n", sid, e);
 	for (int i = 0; i < nparam; i++ )
-		dv_printf("    0x%08x\n", param[i]);
+		dv_printf("    0x%08x\n", (unsigned)param[i]);
 	return e;
 }
 

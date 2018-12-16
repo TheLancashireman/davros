@@ -30,6 +30,7 @@ DV_OBJ_D	= obj
 
 CC_OPT		+= -I h
 CC_OPT		+= -I $(DV_ROOT)/h
+CC_OPT		+= -Wall
 
 DV_LD_OBJS	+= $(DV_OBJ_D)/demo.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/davroska.o
