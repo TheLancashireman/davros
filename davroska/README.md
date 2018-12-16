@@ -1,17 +1,19 @@
-Davroska : a tiny little operating system.
+# Davroska : a tiny little operating system.
 
 Any similarities with OSEK are purely intentional :-)
 
 The contents of this sub-tree are unrelated to the main davros-3 tree.
 
-Status:
+## Status:
 
 * tested on a linux host - no timing, no interrupts
 * activation and termination of basic tasks appears to work.
 * chaining a task appears to work
 * taking and dropping locks seems to work.
 
-Quick user's guide
+## Quick user's guide
+
+### Basics
 
 You really need access to the OSEK spec, but here's a summary.
 
@@ -41,7 +43,7 @@ Extended tasks and events: not implemented yet.
 Hooks: not implemented yet.
 Anything else in the OSEK spec that isn't mentioned: not implemented yet.
 
-Configuration:
+### Configuration:
 
 The actual configuration of tasks, ISRs, locks etc. is done at startup. The compile time configuration
 simple sets limits on what you can configure.
@@ -53,8 +55,7 @@ You provide a header file (dv-config.h) that defines the following macros:
 * DV_CFG_MAXLOCK - the maximum number of locks that you can have
 * DV_CFG_NSLOT_EXTRA - the number of extra queue elements you need (to cover multiple activations)
 
-
-Booting davroska:
+### Booting davroska:
 
 From main(): call dv_startos(0). Getting to main() involves setting up the CPU, caches, page tables
 and everyhting else and is your problem, not mine. Though you might find some help in the various
@@ -63,18 +64,36 @@ demos....
 dv_startos() calls various callout functions that you supply:
 
 * callout_addtasks() - create the tasks that you need.
-  ** this function calls dv_addtask() for every task in your application
+..* this function calls dv_addtask() for every task in your application
 * callout_addlocks() - create the locks that you need.
-  ** this function calls dv_addlock() for each lock in your application
-  ** in addition, it calls dv_addlockuser for each executable that uses each lock
+..* this function calls dv_addlock() for each lock in your application
+..* in addition, it calls dv_addlockuser for each executable that uses each lock
 * callout_autostart
-  ** this function calls dv_activatetask() for every task that you want to run automatically after startup
-  ** (not implemented yet) automatic alarm activation etc.
+..* this function calls dv_activatetask() for every task that you want to run automatically after startup
+..* (not implemented yet) automatic alarm activation etc.
 
 For advanced users: the parameter that you give to dv_startos() is passed to each of the above callout
 functions. This way, you can select various operating modes of your application.
 
 When dv_startos() is done, davroska will schedule the tasks and ISRs of your application.
-  
+
+### API reference
+
+* dv_id_t dv_addtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_qty_t maxact)
+..* adds a task to the list of executables
+....* name is the name of the task
+....* fn is the address of the "main" function of the task (the one that's "called" when the task runs
+....* prio is the (base) priority of the task
+....* maxact is the maximum number of concurrent activations
+..* dv_addtask() returns the identifier for the task. (-1) indicates an error
+* dv_id_t dv_addlock(const char *name, dv_qty_t maxtake)
+..* adds a lock to the list of locks
+....* name is the name of the lock
+....* maxtake is the highest number of times the lock can be taken (without dropping) by the same executable
+..* dv_addlock() returns the identifer for the lock. (-1) indicates an error
+* void dv_addlockuser(dv_id_t l, dv_id_t e)
+..* adds an executable (e) as a "user" of the lock (l).
+..* all executables that are added to a lock will be prevented from running when an executable occupies the lock
+..* the blocking is done by means of the "immediate priority ceiling protocol", so other executables might be blocked
 
 
