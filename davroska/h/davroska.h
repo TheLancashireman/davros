@@ -23,7 +23,8 @@ typedef enum
 	dv_panic_QueueCorrupt,
 	dv_panic_CurrentExeCorrupt,
 	dv_panic_CurrentExeDead,
-	dv_panic_ReturnFromLongjmp
+	dv_panic_ReturnFromLongjmp,
+	dv_panic_LockOccupied
 } dv_panic_t;
 
 typedef struct dv_q_s
@@ -48,16 +49,18 @@ typedef struct dv_exe_s
 	dv_prio_t baseprio;
 	dv_prio_t currprio;
 	dv_tstate_t state;
+	dv_id_t locklist;
 } dv_exe_t;
 
 typedef struct dv_lock_s
 {
-	dv_id_t owner;
-	dv_id_t next;
+	const char *name;
 	dv_prio_t ceiling;
-	dv_prio_t oldprio;
-	dv_qty_t ntake;
 	dv_qty_t maxtake;
+	dv_qty_t ntake;
+	dv_id_t owner;
+	dv_prio_t saveprio;
+	dv_id_t next;
 } dv_lock_t;
 
 #endif

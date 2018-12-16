@@ -19,4 +19,8 @@
 */
 #define DV_CFG_NSLOT_EXTRA	10
 
+/* DV_CFG_MAXLOCK is the maximum number of locks that you can have
+*/
+#define DV_CFG_MAXLOCK		10
+
 #endif

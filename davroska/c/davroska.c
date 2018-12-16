@@ -13,9 +13,11 @@
 const dv_qty_t dv_maxexe = DV_NEXE;
 const dv_qty_t dv_maxprio = DV_CFG_MAXPRIO;
 const dv_qty_t dv_maxslot = DV_NSLOT+1;
+const dv_qty_t dv_maxlock = DV_CFG_MAXLOCK;
 
 static dv_qty_t dv_nexe;						/* No. of executables created */
 static dv_qty_t dv_ntask;						/* No. of tasks created */
+static dv_qty_t dv_nlock;						/* No. of locks dreated */
 
 dv_id_t dv_currenttask;							/* Convenience variables for GetTaskID and GetISRID */
 dv_id_t dv_currentisr;
@@ -26,6 +28,7 @@ static dv_prio_t dv_currentprio;				/* Current priority */
 static dv_exe_t dv_exe[DV_NEXE];				/* Executables */
 static dv_q_t dv_queue[DV_NQUEUE];				/* Priority queues (one per priority) */
 static dv_id_t dv_slots[DV_NSLOT];				/* Ring buffers for the queues */
+static dv_lock_t dv_lock[DV_CFG_MAXLOCK];		/* Locks */
 
 /* Forward function declaractions
 */
@@ -40,6 +43,54 @@ static void dv_runexe(dv_id_t e, dv_intstatus_t is);
 static void dv_runqueued(dv_qty_t p, dv_intstatus_t is);
 static dv_statustype_t dv_reporterror(dv_sid_t sid, dv_statustype_t e, dv_qty_t nParam, dv_param_t *p);
 
+/*	dv_enqueue() - insert executable at tail of priority queue
+*/
+static inline void dv_enqueue(dv_prio_t p, dv_id_t e)
+{
+	dv_q_t *q = &dv_queue[p];
+
+	q->slots[q->tail] = e;
+
+	q->tail++;
+	if ( q->tail >= q->nslots )
+		q->tail = 0;
+
+	/* Sanity check
+	*/
+	if ( q->tail == q->head )	
+		dv_panic(dv_panic_QueueOverflow);
+}
+
+/* dv_qhead() - return head of queue without removing it
+*/
+static inline dv_id_t dv_qhead(dv_prio_t p)
+{
+	dv_q_t *q = &dv_queue[p];
+
+	if ( q->head == q->tail )
+		return -1;
+
+	return q->slots[q->head];
+}
+
+/* dv_dequeue() - remove executable from head of priority queue
+*/
+static inline dv_id_t dv_dequeue(dv_prio_t p)
+{
+	dv_q_t *q = &dv_queue[p];
+
+	if ( q->head == q->tail )
+		return -1;
+
+	dv_id_t e = q->slots[q->head];
+	q->slots[q->head] = -1;
+
+	q->head++;
+	if ( q->head >= q->nslots )
+		q->head = 0;
+
+	return e;
+}
 
 /* dv_activatetask() - activate a task
  *
@@ -72,6 +123,7 @@ dv_statustype_t dv_chaintask(dv_id_t t)
 
 	if ( (t != dv_currentexe) && (dv_exe[t].nact >= dv_exe[t].maxact) )
 	{
+		dv_restore(is);
 		dv_param_t p = (dv_param_t)t;
 		return dv_reporterror(dv_sid_activatetask, dv_e_limit, 1, &p);
 	}
@@ -114,6 +166,125 @@ dv_statustype_t dv_terminatetask(void)
 	dv_panic(dv_panic_ReturnFromLongjmp);
 }
 
+/* dv_takelock() - take a lock
+ *
+ * The lock's ceiling priority must be higher than the caller's base priority
+*/
+dv_statustype_t dv_takelock(dv_id_t lock)
+{
+	if ( (lock < 0) || (lock >= dv_nlock) )
+	{
+		dv_param_t p = (dv_param_t)lock;
+		return dv_reporterror(dv_sid_takelock, dv_e_id, 1, &p);
+	}
+
+	if ( dv_lock[lock].ceiling <= dv_exe[dv_currentexe].baseprio )
+	{
+		dv_param_t p = (dv_param_t)lock;
+		return dv_reporterror(dv_sid_takelock, dv_e_access, 1, &p);
+	}
+
+	dv_intstatus_t is = dv_disable();
+
+	if ( dv_lock[lock].owner == dv_currentexe )
+	{
+		if ( dv_lock[lock].ntake >= dv_lock[lock].maxtake )
+		{
+			(void)dv_restore(is);
+			dv_param_t p = (dv_param_t)lock;
+			return dv_reporterror(dv_sid_takelock, dv_e_nesting, 1, &p);
+		}
+		else
+		{
+			dv_lock[lock].ntake++;
+			(void)dv_restore(is);
+			return dv_e_ok;
+		}
+	}
+
+	if ( dv_lock[lock].owner >= 0 )			/* Indicates that an exe of lower priority than the owner is running */
+		dv_panic(dv_panic_LockOccupied);
+
+	/* Mark lock as owned by current executable
+	*/
+	dv_lock[lock].owner = dv_currentexe;
+	dv_lock[lock].ntake = 1;
+
+	/* Insert the lock at the head of the current executable's list
+	*/
+	dv_lock[lock].next = dv_exe[dv_currentexe].locklist;
+	dv_exe[dv_currentexe].locklist = lock;
+
+	/* Save the current priority in the lock and increase the executable's priority to the ceiling.
+	 * Put executable into ceiling queue if the priority actually increases
+	*/
+	dv_lock[lock].saveprio = dv_currentprio;
+	if ( dv_currentprio < dv_lock[lock].ceiling )
+	{
+		dv_currentprio = dv_exe[dv_currentexe].currprio = dv_lock[lock].ceiling;
+		dv_enqueue(dv_currentprio, dv_currentexe);
+	}
+
+	(void)dv_restore(is);
+	return dv_e_ok;
+}
+
+/* dv_droplock() - drop a lock
+ *
+ * The lock must have been taken by the executable, and if it is the last drop (ntake will become zero)
+ * the lock must be the most recently taken lock (i.e. at the head of the exe's lock list)
+*/
+dv_statustype_t dv_droplock(dv_id_t lock)
+{
+	if ( (lock < 0) || (lock >= dv_nlock) )
+	{
+		dv_param_t p = (dv_param_t)lock;
+		return dv_reporterror(dv_sid_droplock, dv_e_id, 1, &p);
+	}
+
+	dv_intstatus_t is = dv_disable();
+
+	if ( dv_lock[lock].owner != dv_currentexe )
+	{
+		dv_param_t p = (dv_param_t)lock;
+		dv_restore(is);
+		return dv_reporterror(dv_sid_droplock, dv_e_nofunc, 1, &p);
+	}
+
+	if ( dv_lock[lock].ntake > 1 )
+	{
+		dv_lock[lock].ntake--;
+		dv_restore(is);
+		return dv_e_ok;
+	}
+
+	dv_lock[lock].ntake = 0;
+	dv_lock[lock].owner = -1;
+	dv_exe[dv_currentexe].locklist = dv_lock[lock].next;
+	dv_lock[lock].next = -1;
+
+	dv_exe[dv_currentexe].currprio = dv_lock[lock].saveprio;
+
+	if ( dv_lock[lock].saveprio < dv_lock[lock].ceiling )
+	{
+		dv_prio_t p = dv_lock[lock].saveprio;
+		dv_id_t me = dv_currentexe;
+
+		if ( dv_dequeue(dv_lock[lock].ceiling) != me )
+			dv_panic(dv_panic_QueueCorrupt);
+
+		dv_runqueued(dv_lock[lock].saveprio, is);
+
+		/* When all higher-priority activity is done, back to the original caller
+		*/
+		dv_currentprio = p;
+		dv_currentexe = me;
+	}
+	
+	(void)dv_restore(is);
+	return dv_e_ok;
+}
+
 /* dv_startos() - start the OS
 */
 dv_statustype_t dv_startos(dv_id_t mode)
@@ -142,6 +313,7 @@ dv_statustype_t dv_startos(dv_id_t mode)
 	dv_exe[0].baseprio = 0;
 	dv_exe[0].currprio = 0;
 	dv_exe[0].state = dv_ready;
+	dv_exe[0].locklist = -1;
 
 	callout_addtasks(mode);
 #if 0
@@ -149,6 +321,8 @@ dv_statustype_t dv_startos(dv_id_t mode)
 #endif
 
 	dv_createqueues();
+
+	callout_addlocks(mode);
 
 	dv_activateexe(0);
 
@@ -175,7 +349,7 @@ dv_statustype_t dv_startos(dv_id_t mode)
 */
 dv_id_t dv_addtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_qty_t maxact)
 {
-	if ( dv_nexe > dv_maxexe )
+	if ( dv_nexe >= dv_maxexe )
 	{
 		/* ToDo: dv_reporterror */
 		dv_printf("dv_addtask(%s,...) :: Config error - DV_CFG_MAXEXE is insufficient\n", name);
@@ -212,10 +386,66 @@ dv_id_t dv_addtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_qty_t 
 	dv_exe[id].baseprio = prio;
 	dv_exe[id].currprio = prio;
 	dv_exe[id].state = dv_suspended;
+	dv_exe[id].locklist = -1;
 
 	dv_queue[prio].nslots += maxact;
 
 	return id;
+}
+
+/* dv_addlock() - add a lock to the set of locks
+ *
+ * The ceiling priority is detemined later....
+*/
+dv_id_t dv_addlock(const char *name, dv_qty_t maxtake)
+{
+	if ( dv_nlock >= dv_maxlock )
+	{
+		/* ToDo: dv_reporterror */
+		dv_printf("dv_addlock(%s,...) :: Config error - DV_CFG_MAXLOCK is insufficient\n", name);
+		return -1;
+	}
+
+	if ( maxtake < 1 )
+	{
+		/* ToDo: dv_reporterror */
+		dv_printf("dv_addlock(%s,...) :: Warning - lock with maxtake 0 or less defaults to 1\n", name);
+		maxtake = 1;
+	}
+
+	dv_id_t id = dv_nlock++;
+
+	dv_lock[id].name = name;
+	dv_lock[id].ceiling = 0;
+	dv_lock[id].maxtake = maxtake;
+	dv_lock[id].ntake = 0;
+	dv_lock[id].owner = -1;
+	dv_lock[id].saveprio = -1;
+	dv_lock[id].next = -1;
+
+	return id;
+}
+
+/* dv_addlockuser() - add an executable to the notional list of users of a lock
+ *
+ * The ceiling priority of the lock is determined by one or more calls to this function
+*/
+void dv_addlockuser(dv_id_t l, dv_id_t e)
+{
+	if ( (l < 0) || (l >= dv_nlock) )
+	{
+		/* ToDo: dv_reporterror */
+		dv_printf("dv_addlockuser(%d, %d) :: Error - lock doesn't exist\n", l, e);
+	}
+
+	if ( (e < 0) || (e >= dv_nexe) )
+	{
+		/* ToDo: dv_reporterror */
+		dv_printf("dv_addlockuser(%d, %d) :: Error - executable doesn't exist\n", l, e);
+	}
+
+	if ( dv_lock[l].ceiling < dv_exe[e].baseprio )
+		dv_lock[l].ceiling = dv_exe[e].baseprio;
 }
 
 /* dv_activateexe() - activate an executable
@@ -241,6 +471,10 @@ static dv_statustype_t dv_activateexe(dv_id_t e)
 	return dv_activateexe2(e, is);
 }
 
+/* dv_activateexe2() - activate an executable, part 2
+ *
+ * Used in dv_chaintask, when the max. activations check is omitted (chaining self)
+*/
 static dv_statustype_t dv_activateexe2(dv_id_t e, dv_intstatus_t is)
 {
 	dv_exe[e].nact++;
@@ -248,21 +482,12 @@ static dv_statustype_t dv_activateexe2(dv_id_t e, dv_intstatus_t is)
 	if ( dv_exe[e].state != dv_running )	/* Self-activation doesn't change the state */
 		dv_exe[e].state = dv_ready;
 
-	/* Priority check: call or enqueue
+	/* Enqueue executable
 	*/
-	dv_q_t *q = &dv_queue[dv_exe[e].baseprio];
+	dv_enqueue(dv_exe[e].baseprio, e);
 
-	q->slots[q->tail] = e;
-
-	q->tail++;
-	if ( q->tail >= q->nslots )
-		q->tail = 0;
-
-	/* Sanity check
+	/* Priority check: return if not preempted
 	*/
-	if ( q->tail == q->head )	
-		dv_panic(dv_panic_QueueOverflow);
-
 	if ( dv_exe[e].baseprio <= dv_currentprio )
 	{
 		dv_restore(is);
@@ -353,20 +578,10 @@ static void dv_runexe(dv_id_t e, dv_intstatus_t is)
 	dv_exe[e].state = dv_suspended;
 	dv_exe[e].jb = DV_NULL;
 
-	if ( dv_queue[dv_currentprio].slots[dv_queue[dv_currentprio].head] != dv_currentexe )
+	/* Dequeue the executable (with sanity check)
+	*/
+	if ( dv_dequeue(dv_currentprio) != dv_currentexe )
 		dv_panic(dv_panic_QueueCorrupt);
-
-	/* ToDo: shall we have a calling context check, resource occupation check etc. here?
-	 * Gut feeling says no.
-	*/
-
-	/* Dequeue the executable
-	*/
-	dv_queue[dv_currentprio].slots[dv_queue[dv_currentprio].head] = -1;
-	dv_queue[dv_currentprio].head++;
-	if ( dv_queue[dv_currentprio].head >= dv_queue[dv_currentprio].nslots )
-		dv_queue[dv_currentprio].head = 0;
-
 }
 
 /* dv_runqueued() - run all higher-priority executables
@@ -375,14 +590,17 @@ static void dv_runqueued(dv_qty_t p, dv_intstatus_t is)
 {
 	while ( dv_currentprio > p )
 	{
-		dv_q_t *q = &dv_queue[dv_currentprio];
-		if ( q->head != q->tail )
+		dv_id_t e = dv_qhead(dv_currentprio);
+		if ( e == 0 )
 		{
-			/* Queue is not empty; get the first executable
+			/* The idle executable is never in a higher-priority queue
 			*/
-			dv_id_t e = q->slots[q->head];
-
-			/* Run the excutable
+			dv_panic(dv_panic_QueueCorrupt);
+		}
+		else
+		if ( e > 0 )
+		{
+			/* Run the excutable. When it finally terminates it gets removed from the queue
 			*/
 			dv_runexe(e, is);
 		}
