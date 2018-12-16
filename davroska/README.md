@@ -136,4 +136,4 @@ When dv_startos() is done, davroska will schedule the tasks and ISRs of your app
   * may call dv_activatetask() to activate a task at startup
     * one call per task that should run after startup
     * subject to normal maxact limits
- * may call dv_setrelalarm()/dv_setabsalarm()/... (not implemented yet)
+  * may call dv_setrelalarm()/dv_setabsalarm()/... (not implemented yet)
