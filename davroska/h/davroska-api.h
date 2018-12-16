@@ -57,5 +57,4 @@ void callout_addtasks(dv_id_t mode);
 void callout_addlocks(dv_id_t mode);
 void callout_autostart(dv_id_t mode);
 
-
 #endif
