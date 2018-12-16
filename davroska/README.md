@@ -46,7 +46,7 @@ Anything else in the OSEK spec that isn't mentioned: not implemented yet.
 ### Configuration:
 
 The actual configuration of tasks, ISRs, locks etc. is done at startup. The compile time configuration
-simple sets limits on what you can configure.
+simply sets limits on what you can configure.
 
 You provide a header file (dv-config.h) that defines the following macros:
 
@@ -80,20 +80,20 @@ When dv_startos() is done, davroska will schedule the tasks and ISRs of your app
 ### API reference
 
 * dv_id_t dv_addtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_qty_t maxact)
-..* adds a task to the list of executables
-....* name is the name of the task
-....* fn is the address of the "main" function of the task (the one that's "called" when the task runs
-....* prio is the (base) priority of the task
-....* maxact is the maximum number of concurrent activations
-..* dv_addtask() returns the identifier for the task. (-1) indicates an error
+  * adds a task to the list of executables
+    * name is the name of the task
+    * fn is the address of the "main" function of the task (the one that's "called" when the task runs
+    * prio is the (base) priority of the task
+    * maxact is the maximum number of concurrent activations
+  * dv_addtask() returns the identifier for the task. (-1) indicates an error
 * dv_id_t dv_addlock(const char *name, dv_qty_t maxtake)
-..* adds a lock to the list of locks
-....* name is the name of the lock
-....* maxtake is the highest number of times the lock can be taken (without dropping) by the same executable
-..* dv_addlock() returns the identifer for the lock. (-1) indicates an error
+  * adds a lock to the list of locks
+    * name is the name of the lock
+    * maxtake is the highest number of times the lock can be taken (without dropping) by the same executable
+  * dv_addlock() returns the identifer for the lock. (-1) indicates an error
 * void dv_addlockuser(dv_id_t l, dv_id_t e)
-..* adds an executable (e) as a "user" of the lock (l).
-..* all executables that are added to a lock will be prevented from running when an executable occupies the lock
-..* the blocking is done by means of the "immediate priority ceiling protocol", so other executables might be blocked
+  * adds an executable (e) as a "user" of the lock (l).
+    * all executables that are added to a lock will be prevented from running when an executable occupies the lock
+    * the blocking is done by means of the "immediate priority ceiling protocol", so other executables might be blocked
 
 
