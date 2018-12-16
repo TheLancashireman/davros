@@ -64,13 +64,13 @@ demos....
 dv_startos() calls various callout functions that you supply:
 
 * callout_addtasks() - create the tasks that you need.
-..* this function calls dv_addtask() for every task in your application
+  * this function calls dv_addtask() for every task in your application
 * callout_addlocks() - create the locks that you need.
-..* this function calls dv_addlock() for each lock in your application
-..* in addition, it calls dv_addlockuser for each executable that uses each lock
+  * this function calls dv_addlock() for each lock in your application
+  * in addition, it calls dv_addlockuser for each executable that uses each lock
 * callout_autostart
-..* this function calls dv_activatetask() for every task that you want to run automatically after startup
-..* (not implemented yet) automatic alarm activation etc.
+  * this function calls dv_activatetask() for every task that you want to run automatically after startup
+  * (not implemented yet) automatic alarm activation etc.
 
 For advanced users: the parameter that you give to dv_startos() is passed to each of the above callout
 functions. This way, you can select various operating modes of your application.
@@ -79,6 +79,7 @@ When dv_startos() is done, davroska will schedule the tasks and ISRs of your app
 
 ### API reference
 
+#### Creating objects
 * dv_id_t dv_addtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_qty_t maxact)
   * adds a task to the list of executables
     * name is the name of the task
@@ -96,4 +97,43 @@ When dv_startos() is done, davroska will schedule the tasks and ISRs of your app
     * all executables that are added to a lock will be prevented from running when an executable occupies the lock
     * the blocking is done by means of the "immediate priority ceiling protocol", so other executables might be blocked
 
+#### Runtime stuff
+* dv_statustype_t dv_terminatetask(void)
+  * terminates the calling task
+  * allows other tasks of same or lower priority to run, in descending priority order
+    * including further instances of caller
+* dv_statustype_t dv_activatetask(dv_id_t task)
+  * activates the indicated task
+    * if the task has a higher priority that the caller's cuerrent priority, it runs immediately (preemption)
+    * otherwise it waits in a queue until its turn comes around
+* dv_statustype_t dv_chaintask(dv_id_t task)
+  * terminates the caller and activates the indicated task
+* dv_statustype_t dv_takelock(dv_id_t lock)
+  * takes the indicated lock
+  * raises the priority of the caller to the ceiling priority of the lock
+    * never lowers the priority of the caller
+* dv_statustype_t dv_droplock(dv_id_t lock)
+  * drops the indicated lock
+  * reduces the priority of the caller to the priority before taking the lock
+  * allows other tasks of intermediate priority to run
 
+#### Callouts provided by the application
+* void callout_addtasks(dv_id_t mode)
+  * called during dv_startos()
+  * may call dv_addtask() to create tasks
+    * one call per task
+  * must not call any other API
+* void callout_addlocks(dv_id_t mode)
+  * called during dv_startos()
+  * may call dv_addlock() to create locks
+    * one call per lock
+  * should call dv_addlockuser() at least once for each lock created
+    * one call per user per lock
+    * can be "optimised" by adding just the highest-priority user
+  * must not call any other API
+* void callout_autostart(dv_id_t mode)
+  * called during dv_startos()
+  * may call dv_activatetask() to activate a task at startup
+    * one call per task that should run after startup
+    * subject to normal maxact limits
+ * may call dv_setrelalarm()/dv_setabsalarm()/... (not implemented yet)
