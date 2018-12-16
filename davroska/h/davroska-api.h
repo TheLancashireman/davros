@@ -57,4 +57,10 @@ void callout_addtasks(dv_id_t mode);
 void callout_addlocks(dv_id_t mode);
 void callout_autostart(dv_id_t mode);
 
+void callout_startup(void);
+void callout_preexe(void);
+void callout_postexe(void);
+void callout_error(dv_statustype_t e);
+void callout_shutdown(dv_statustype_t e);
+
 #endif

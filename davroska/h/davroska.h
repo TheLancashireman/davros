@@ -63,4 +63,12 @@ typedef struct dv_lock_s
 	dv_id_t next;
 } dv_lock_t;
 
+typedef struct dv_errorinfo_s
+{
+	dv_sid_t sid;
+	dv_statustype_t e;
+	dv_param_t p[4];
+	dv_id_t culprit;
+} dv_errorinfo_t;
+
 #endif

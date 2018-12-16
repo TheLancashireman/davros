@@ -110,7 +110,7 @@ void main_Ping(void)
 				}
 				else
 				{
-					printf("Task Ping: dv_activatetaks(Pong) successful\n");
+					printf("Task Ping: dv_activatetask(Pong) successful\n");
 				}
 			}
 

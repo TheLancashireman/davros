@@ -643,12 +643,23 @@ static void dv_postexehook(void)
 
 /* dv_reporterror() - report an error
 */
+static dv_errorinfo_t dv_lasterror;
+
 static dv_statustype_t dv_reporterror(dv_sid_t sid, dv_statustype_t e, dv_qty_t nparam, dv_param_t *param)
 {
-	/* Todo: implement */
-	dv_printf("dv_reporterror(%d, %d, ...) called\n", sid, e);
-	for (int i = 0; i < nparam; i++ )
-		dv_printf("    0x%08x\n", (unsigned)param[i]);
+	dv_lasterror.sid = sid;
+	dv_lasterror.e = e;
+	for (int i = 0; i < 4; i++ )
+	{
+		if ( i < nparam )
+			dv_lasterror.p[i] = param[i];
+		else
+			dv_lasterror.p[i] = 0;
+	}
+	dv_lasterror.culprit = dv_currentexe;
+
+	callout_error(e);
+
 	return e;
 }
 
