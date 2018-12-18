@@ -58,7 +58,7 @@ You provide a header file (dv-config.h) that defines the following macros:
 ### Booting davroska:
 
 From main(): call dv_startos(0). Getting to main() involves setting up the CPU, caches, page tables
-and everyhting else and is your problem, not mine. Though you might find some help in the various
+and everything else is your problem, not mine. Though you might find some help in the various
 demos....
 
 dv_startos() calls various callout functions that you supply:
