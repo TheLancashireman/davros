@@ -129,3 +129,8 @@ void main_Pong(void)
 
 	(void)dv_terminatetask();
 }
+
+void callout_error(dv_statustype_t e)
+{
+	printf("callout_error(%d) called\n", e);
+}
