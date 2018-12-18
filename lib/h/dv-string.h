@@ -39,4 +39,28 @@ static inline dv_u32_t *dv_memset32(dv_u32_t *d, dv_u32_t v, dv_size_t n)
 	return (dv_u32_t *)d;
 }
 
+/* dv_strlen() - return length of a string
+*/
+static inline int dv_strlen(const char *str)
+{
+	const char *s = str;
+	while ( *s != '\0' )
+	{
+		s++;
+	}
+	return (s-str);
+}
+
+#if 0
+char *strcpy(char *d, const char *s);
+char *strncpy(char *d, const char *s, size_t n);
+int strcmp(const char *s1, const char *s2);
+int strncmp(const char *s1, const char *s2, size_t n);
+int strcasecmp(const char *s1, const char *s2);
+int strncasecmp(const char *s1, const char *s2, size_t n);
+
+void *memset(void *s, int c, size_t n);
+int memcmp(const void *s1, const void *s2, size_t n);
+#endif
+
 #endif
