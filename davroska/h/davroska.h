@@ -5,7 +5,9 @@
 #ifndef dv_davroska_h
 #define dv_davroska_h	1
 
-#ifndef DV_TARGET
+#ifdef DV_TARGET
+#include DV_TARGET
+#else
 /* No target defined, so assume we're compiling for a (linux) host
 */
 #include <dv_target_linux.h>
