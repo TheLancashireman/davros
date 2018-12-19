@@ -22,7 +22,8 @@
 
 #if !DV_ASM
 
-#include <kernel/h/dv-types.h>
+#include <kernel/h/dv-kconfig.h>
+#include <dv-types.h>
 #include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-thread.h>
 #include <kernel/h/dv-stdio.h>

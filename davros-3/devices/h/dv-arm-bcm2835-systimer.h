@@ -21,7 +21,7 @@
 #define dv_arm_bcm2835_systimer_h	1
 
 #include <kernel/h/dv-kconfig.h>
-#include <kernel/h/dv-types.h>
+#include <dv-types.h>
 
 #ifndef DV_PBASE
 #error	"No definition of DV_PBASE in the board headers. Please fix!"

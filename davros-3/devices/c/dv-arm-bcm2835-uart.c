@@ -18,7 +18,7 @@
  *  along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <kernel/h/dv-kconfig.h>
-#include <kernel/h/dv-types.h>
+#include <dv-types.h>
 #include <devices/h/dv-arm-bcm2835-uart.h>
 #include <devices/h/dv-arm-bcm2835-aux.h>
 #include <devices/h/dv-arm-bcm2835-gpio.h>

@@ -21,7 +21,7 @@
 #define dv_executable_h	1
 
 #include <kernel/h/dv-kconfig.h>
-#include <kernel/h/dv-types.h>
+#include <dv-types.h>
 #include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-doublylinkedlist.h>
 #include <kernel/h/dv-error.h>

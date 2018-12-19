@@ -21,7 +21,7 @@
 #define dv_arm_start_h	1
 
 #include <kernel/h/dv-kconfig.h>
-#include <kernel/h/dv-types.h>
+#include <dv-types.h>
 #include <kernel/h/dv-kernel-types.h>
 
 #if !DV_ASM

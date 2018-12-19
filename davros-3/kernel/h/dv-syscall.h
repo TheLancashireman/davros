@@ -20,7 +20,8 @@
 #ifndef dv_syscall_h
 #define dv_syscall_h	1
 
-#include <kernel/h/dv-types.h>
+#include <kernel/h/dv-kconfig.h>
+#include <dv-types.h>
 #include <kernel/h/dv-kernel-types.h>
 
 #define DV_SC_null				0

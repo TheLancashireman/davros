@@ -21,7 +21,7 @@
 
 #if DV_N_CORES > 0
 
-#include <kernel/h/dv-types.h>
+#include <dv-types.h>
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-executable.h>
 #include <kernel/h/dv-thread.h>

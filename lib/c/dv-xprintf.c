@@ -148,7 +148,7 @@ int dv_xprintf
 						num = -num;
 					}
 					if ( !longarg )
-						num &= DV_LONG_TO_INT;
+						num = (long)(int)num;
 					if ( ch == 'd' || ch == 'u' )
 						str = prt10(num, str);
 					else

@@ -18,7 +18,7 @@
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <kernel/h/dv-kconfig.h>
-#include <kernel/h/dv-types.h>
+#include <dv-types.h>
 
 typedef struct arm_uart_s arm_uart_t;
 

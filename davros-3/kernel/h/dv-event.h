@@ -20,7 +20,7 @@
 #ifndef dv_event_h
 #define dv_event_h	1
 
-#include <kernel/h/dv-types.h>
+#include <dv-types.h>
 
 #if !DV_ASM
 

@@ -23,7 +23,7 @@
 #if DV_N_CORES > 0
 
 #include <kernel/h/dv-kconfig.h>
-#include <kernel/h/dv-types.h>
+#include <dv-types.h>
 #include <kernel/h/dv-kernel-types.h>
 
 extern const dv_coreconfig_t dv_c0_coreconfig;

@@ -21,7 +21,7 @@
 #define dv_arm64_exceptions_h	1
 
 #include <kernel/h/dv-kconfig.h>
-#include <kernel/h/dv-types.h>
+#include <dv-types.h>
 
 /* ESR_ELx - exception syndrome register
 */

@@ -20,7 +20,8 @@
 #ifndef dv_arm_gic_h
 #define dv_arm_gic_h	1
 
-#include <kernel/h/dv-types.h>
+#include <kernel/h/dv-kconfig.h>
+#include <dv-types.h>
 #include <cpufamily/arm/h/dv-arm-configbase.h>
 
 #if !DV_ASM

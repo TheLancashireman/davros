@@ -21,7 +21,7 @@
 #define dv_mempage_h	1
 
 #include <kernel/h/dv-kconfig.h>
-#include <kernel/h/dv-types.h>
+#include <dv-types.h>
 #include <kernel/h/dv-kernel-types.h>
 
 /* This is a very simple way of allocating memory (e.g. for stacks)s, designed for use

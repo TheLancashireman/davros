@@ -1,6 +1,6 @@
 
 #include <kernel/h/dv-kconfig.h>
-#include <kernel/h/dv-types.h>
+#include <dv-types.h>
 #include <kernel/h/dv-error.h>
 #include <kernel/h/dv-syscall.h>
 #include <kernel/h/dv-thread.h>

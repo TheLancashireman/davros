@@ -21,7 +21,7 @@
 #define dv_arm64_registers_h	1
 
 #include <kernel/h/dv-kconfig.h>
-#include <kernel/h/dv-types.h>
+#include <dv-types.h>
 #include <kernel/h/dv-thread.h>
 #include <kernel/h/dv-executable.h>
 #include <kernel/h/dv-api.h>

@@ -20,15 +20,12 @@
 #ifndef dv_string_h
 #define dv_string_h	1
 
-#include <kernel/h/dv-kconfig.h>
-#include <kernel/h/dv-types.h>
-
 /* dv_memset32() - initialise an array.
  *
- * dv_memset32(dv_u32_t *d, dv_u32_t v, size_t n) initialises every element of
+ * dv_memset32(unsigned *d, unsigned v, unsigned n) initialises every element of
  * the array d to the value v. n is the number of elements.
 */
-static inline dv_u32_t *dv_memset32(dv_u32_t *d, dv_u32_t v, dv_size_t n)
+static inline unsigned *dv_memset32(unsigned *d, unsigned v, unsigned n)
 {
 	while ( n > 0 )
 	{
@@ -36,7 +33,7 @@ static inline dv_u32_t *dv_memset32(dv_u32_t *d, dv_u32_t v, dv_size_t n)
 		d[n] = v;
 	}
 
-	return (dv_u32_t *)d;
+	return d;
 }
 
 /* dv_strlen() - return length of a string

@@ -21,7 +21,7 @@
 #define dv_arm_cache_h	1
 
 #include <kernel/h/dv-kconfig.h>
-#include <kernel/h/dv-types.h>
+#include <dv-types.h>
 
 /*
  * mcr = "send command to coprocessor and pass some data in"

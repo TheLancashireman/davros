@@ -20,7 +20,7 @@
 #ifndef dv_arm_globaltimer_h
 #define dv_arm_globaltimer_h	1
 
-#include <kernel/h/dv-types.h>
+#include <dv-types.h>
 #include <cpufamily/arm/h/dv-arm-configbase.h>
 
 #if !DV_ASM

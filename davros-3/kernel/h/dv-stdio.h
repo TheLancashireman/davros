@@ -26,10 +26,7 @@
 
 #if !DV_ASM
 
-#include "stdarg.h"
-
-typedef int (*dv_xprintf_putc_t)(int);
-typedef int (*dv_xprintf_getc_t)(void);	/* Also used for the get-status functions */
+#include <dv-xstdio.h>
 
 typedef struct dv_uartdriver_s dv_uartdriver_t;
 
@@ -42,8 +39,6 @@ struct dv_uartdriver_s
 };
 
 extern dv_uartdriver_t dv_consoledriver;		/* Must be set up by the board init. */
-
-int dv_xprintf(dv_xprintf_putc_t xputc, const char *fmt, va_list ap);
 
 /*	Functions for kprintf.
  *	kprintf is in the library

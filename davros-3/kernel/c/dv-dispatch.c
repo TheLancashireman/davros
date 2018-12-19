@@ -18,7 +18,7 @@
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <kernel/h/dv-kconfig.h>
-#include <kernel/h/dv-types.h>
+#include <dv-types.h>
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-thread.h>
 #include <kernel/h/dv-trace.h>

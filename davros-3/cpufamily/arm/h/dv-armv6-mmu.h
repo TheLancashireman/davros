@@ -22,7 +22,8 @@
 
 #if !DV_ASM
 
-#include <kernel/h/dv-types.h>
+#include <kernel/h/dv-kconfig.h>
+#include <dv-types.h>
 #include <kernel/h/dv-kernel.h>
 
 /* A page table consists of an array of 32-bit words, each of which

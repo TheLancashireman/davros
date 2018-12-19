@@ -1,4 +1,4 @@
-/*	ctype.h - character types
+/*	dv-ctype.h - character types
  *
  *	Copyright 2001 David Haworth
  *
@@ -21,8 +21,8 @@
  *	This file contains functions and macros to identify character types.
  *
 */
-#ifndef __ctype_h
-#define __ctype_h
+#ifndef dv_ctype_h
+#define dv_ctype_h	1
 
 /* Names for ASCII control codes */
 

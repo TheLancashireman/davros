@@ -1,4 +1,4 @@
-/*	stdio.h - stdio (subset of)
+/*	dv-xstdio.h - stdio (subset of)
  *
  *	Copyright 2001 David Haworth
  *
@@ -21,8 +21,10 @@
  *	This file contains the "stdio" functions
  *
 */
-#ifndef __stdio_h
-#define __stdio_h
+#ifndef dv_xstdio_h
+#define dv_xstdio_h
+
+#include <stdarg.h>
 
 #ifndef NULL
 #define NULL	((void *)0)
@@ -40,5 +42,10 @@ int fputc(int c, void *stream);
 
 #define printf(f...)	fprintf(stdout, ## f)
 #define getc(s)			fgetc(s)
+
+typedef int (*dv_xprintf_putc_t)(int);
+typedef int (*dv_xprintf_getc_t)(void);
+
+int dv_xprintf(dv_xprintf_putc_t xputc, const char *fmt, va_list ap);
 
 #endif

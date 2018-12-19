@@ -1,4 +1,4 @@
-/*	stdlib.h - stdlib (subset of)
+/*	dv-stdlib.h - stdlib (subset of)
  *
  *	Copyright 2001 David Haworth
  *
@@ -22,8 +22,8 @@
  *
 */
 
-#ifndef __stdlib_h
-#define __stdlib_h
+#ifndef dv_stdlib_h
+#define dv_stdlib_h	1
 
 unsigned long strtoul(const char *s, char **e, int b);
 

@@ -21,7 +21,7 @@
 #define dv_arm64_core_h	1
 
 #include <kernel/h/dv-kconfig.h>
-#include <kernel/h/dv-types.h>
+#include <dv-types.h>
 
 /* Moving data to and from CP15 registers.
  * On arm64 it's much easier because each register has a mnemonic that the assembler understands.
