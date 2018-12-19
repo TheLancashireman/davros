@@ -19,8 +19,8 @@
 */
 #include <kernel/h/dv-kconfig.h>
 #include <dv-types.h>
-#include <devices/h/dv-arm-bcm2835-gpio.h>
-#include <devices/h/dv-arm-bcm2835-pcm.h>
+#include <dv-arm-bcm2835-gpio.h>
+#include <dv-arm-bcm2835-pcm.h>
 
 /* dv_pcm_init_i2s() - initialise for i2s operation
  *

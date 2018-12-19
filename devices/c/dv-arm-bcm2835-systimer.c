@@ -19,8 +19,8 @@
 */
 #include <kernel/h/dv-kconfig.h>
 #include <dv-types.h>
-#include <devices/h/dv-arm-bcm2835-systimer.h>
-#include <devices/h/dv-arm-bcm2835-interruptcontroller.h>
+#include <dv-arm-bcm2835-systimer.h>
+#include <dv-arm-bcm2835-interruptcontroller.h>
 #include <kernel/h/dv-interrupt.h>
 #include <kernel/h/dv-executable.h>
 

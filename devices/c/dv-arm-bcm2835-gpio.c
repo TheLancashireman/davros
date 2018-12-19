@@ -19,7 +19,7 @@
 */
 #include <kernel/h/dv-kconfig.h>
 #include <dv-types.h>
-#include <devices/h/dv-arm-bcm2835-gpio.h>
+#include <dv-arm-bcm2835-gpio.h>
 
 /* dv_arm_bcm2835_gpio_pinconfig() - set up GPIO pin
  *

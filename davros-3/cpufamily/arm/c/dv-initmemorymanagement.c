@@ -22,10 +22,10 @@
 #include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-kernel.h>
 #include DV_H_MMU
-#include <devices/h/dv-arm-bcm2835-aux.h>
-#include <devices/h/dv-arm-bcm2835-gpio.h>
-#include <devices/h/dv-arm-bcm2835-interruptcontroller.h>
-#include <devices/h/dv-arm-bcm2835-systimer.h>
+#include <dv-arm-bcm2835-aux.h>
+#include <dv-arm-bcm2835-gpio.h>
+#include <dv-arm-bcm2835-interruptcontroller.h>
+#include <dv-arm-bcm2835-systimer.h>
 #include <cpufamily/arm/h/dv-arm-cache.h>
 #include <cpufamily/arm/h/dv-arm-cp15.h>
 #include <kernel/h/dv-stdio.h>

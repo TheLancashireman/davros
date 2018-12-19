@@ -19,9 +19,9 @@
 */
 #include <kernel/h/dv-kconfig.h>
 #include <dv-types.h>
-#include <devices/h/dv-arm-bcm2835-uart.h>
-#include <devices/h/dv-arm-bcm2835-aux.h>
-#include <devices/h/dv-arm-bcm2835-gpio.h>
+#include <dv-arm-bcm2835-uart.h>
+#include <dv-arm-bcm2835-aux.h>
+#include <dv-arm-bcm2835-gpio.h>
 #include <kernel/h/dv-stdio.h>
 
 static int dv_arm_bcm2835_uart_putc(int c);

@@ -55,8 +55,8 @@
 
 /* Header files for BCM2835
 */
-#define DV_H_SYSTEMTIMER			<devices/h/dv-arm-bcm2835-systimer.h>
-#define DV_H_INTERRUPTCONTROLLER	<devices/h/dv-arm-bcm2835-interruptcontroller.h>
-#define DV_H_CONSOLEUART			<devices/h/dv-arm-bcm2835-uart.h>
+#define DV_H_SYSTEMTIMER			<dv-arm-bcm2835-systimer.h>
+#define DV_H_INTERRUPTCONTROLLER	<dv-arm-bcm2835-interruptcontroller.h>
+#define DV_H_CONSOLEUART			<dv-arm-bcm2835-uart.h>
 
 #endif

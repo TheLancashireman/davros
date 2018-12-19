@@ -22,8 +22,8 @@
 #include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-interrupt.h>
-#include <devices/h/dv-arm-bcm2835-interruptcontroller.h>
-#include <devices/h/dv-arm-bcm2836.h>
+#include <dv-arm-bcm2835-interruptcontroller.h>
+#include <dv-arm-bcm2836.h>
 
 /* dv_bcm2836_interrupt_handler() - interrupt handler (BCM2836 version)
  *

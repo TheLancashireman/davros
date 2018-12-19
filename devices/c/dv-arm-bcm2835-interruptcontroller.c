@@ -22,7 +22,7 @@
 #include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-interrupt.h>
-#include <devices/h/dv-arm-bcm2835-interruptcontroller.h>
+#include <dv-arm-bcm2835-interruptcontroller.h>
 #include <cpufamily/arm/h/dv-arm-dispatch.h>
 
 /* dv_bcm2835_interrupt_handler() - interrupt handler (BCM2835 version)

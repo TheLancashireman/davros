@@ -19,8 +19,8 @@
 
 #include <kernel/h/dv-interrupt.h>
 
-#include <devices/h/dv-arm-bcm2835-gpio.h>
-#include <devices/h/dv-arm-bcm2836.h>
+#include <dv-arm-bcm2835-gpio.h>
+#include <dv-arm-bcm2836.h>
 #include <cpufamily/arm64/h/dv-arm64-core.h>
 
 extern dv_u64_t prj_vectors;

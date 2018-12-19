@@ -42,7 +42,7 @@ DV_CPUFAM_D	?= $(DV_ROOT)/cpufamily/$(DV_FAMILY)
 
 DV_KERNEL_D	?= $(DV_ROOT)/kernel
 DV_USER_D	?= $(DV_ROOT)/user
-DV_DEVS_D	?= $(DV_ROOT)/devices
+DV_DEVS_D	?= $(DV_ROOT)/../devices
 DV_CLIB_D	?= $(DV_ROOT)/../lib
 
 # Add source directories to the search path
@@ -58,5 +58,8 @@ VPATH += $(DV_CLIB_D)/c
 # Files to put into the include path
 DV_INCLUDE_PATH	+= $(PRJ_ROOT)
 DV_INCLUDE_PATH	+= $(DV_BOARD_D)/h
+DV_INCLUDE_PATH += $(DV_DEVS_D)
 DV_INCLUDE_PATH	+= $(DV_ROOT)
+DV_INCLUDE_PATH	+= $(DV_DEVS_D)/h
 DV_INCLUDE_PATH	+= $(DV_CLIB_D)/h
+
