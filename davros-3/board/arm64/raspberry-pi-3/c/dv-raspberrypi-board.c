@@ -23,7 +23,7 @@
 #include <devices//h/dv-arm-bcm2836.h>
 #include <cpufamily/arm64/h/dv-arm64-core.h>
 #include <kernel/h/dv-stdio.h>
-#include <lib/h/dv-string.h>
+#include <dv-string.h>
 
 /* These are not really C data objects, just linker script labels.
 */

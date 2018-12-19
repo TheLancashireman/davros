@@ -23,7 +23,7 @@
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-executable.h>
 #include <kernel/h/dv-mempage.h>
-#include <lib/h/dv-string.h>
+#include <dv-string.h>
 #include DV_H_MMU
 
 DV_COVDEF(allocatepage);

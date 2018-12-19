@@ -29,8 +29,8 @@
 
 /* 32-bit processor with no oddities.
 */
-#include <kernel/h/dv-types-32.h>
-#include <kernel/h/dv-types.h>
+#include <dv-types-32.h>
+#include <dv-types.h>
 #include <kernel/h/dv-kernel-types.h>
 
 /* Size of kernel stack in stackwords.

@@ -55,7 +55,6 @@ int dv_xprintf(dv_xprintf_putc_t xputc, const char *fmt, va_list ap);
 */
 int dv_kprintf(const char *fmt, ...);
 int dv_kputc(int c);
-int dv_strlen(const char *s);
 
 #if 0
 int dv_kmode(int m);

@@ -23,7 +23,7 @@
  *
 */
 #include <kernel//h/dv-kconfig.h>
-#include <user/h/stdio.h>
+#include <dv-xstdio.h>
 #include <kernel/h/dv-stdio.h>
 
 #include "stdarg.h"

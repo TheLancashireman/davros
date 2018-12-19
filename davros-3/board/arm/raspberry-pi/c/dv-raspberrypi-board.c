@@ -22,7 +22,7 @@
 #include <devices//h/dv-arm-bcm2835-uart.h>
 #include <devices//h/dv-arm-bcm2835-interruptcontroller.h>
 #include <kernel/h/dv-stdio.h>
-#include <lib/h/dv-string.h>
+#include <dv-string.h>
 
 /* These are not really C data objects, just linker script labels.
 */

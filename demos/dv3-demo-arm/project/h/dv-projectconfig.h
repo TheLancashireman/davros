@@ -20,7 +20,7 @@
 #ifndef dv_projectconfig_h
 #define dv_projectconfig_h	1
 
-#include <kernel/h/dv-types.h>
+#include <dv-types.h>
 #include <kernel/h/dv-kernel-types.h>
 
 #define DV_MEMSIZE_MB			480

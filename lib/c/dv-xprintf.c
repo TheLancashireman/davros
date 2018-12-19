@@ -22,14 +22,9 @@
  *	the whole family of *printf functions.
  *
 */
-#include <kernel/h/dv-kconfig.h>
-#include <kernel/h/dv-types.h>
-
-#include <user/h/ctype.h>
-#include <user/h/string.h>
-#include <user/h/stdio.h>
-
-#include <kernel/h/dv-stdio.h>
+#include <dv-ctype.h>
+#include <dv-string.h>
+#include <dv-xstdio.h>
 
 #include <stdarg.h>
 
