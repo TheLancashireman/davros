@@ -7,7 +7,7 @@
 #ifndef dv_config_h
 #define dv_config_h	1
 
-#define DV_TARGET			<arm/board/pi-zero/dv-target-pi-zero.h>
+#define DV_TARGET			<arm/h/dv-target-pi-zero.h>
 
 /* DV_CFG_MAXEXE is the maximum number of executables that you can create.
 */

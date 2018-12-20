@@ -6,5 +6,6 @@
 #define dv_target_pi_zero_h	1
 
 #include <arm/h/dv-types-arm.h>
+#include <dv-stdio.h>
 
 #endif

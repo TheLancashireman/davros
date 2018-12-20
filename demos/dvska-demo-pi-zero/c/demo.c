@@ -16,7 +16,7 @@ dv_id_t Lock1;
 
 int main(int argc, char **argv)
 {
-	printf("davroska starting ...\n");
+	dv_printf("davroska starting ...\n");
 
 	dv_startos(0);
 
@@ -50,15 +50,15 @@ void main_Init(void)
 {
 	dv_statustype_t ee;
 
-	printf("Task Init starting ...\n");
+	dv_printf("Task Init starting ...\n");
 
 	if ( (ee = dv_activatetask(Loop)) != dv_e_ok )
-		printf("Task Init: dv_activatetask(Loop) returned %d\n", ee);
+		dv_printf("Task Init: dv_activatetask(Loop) returned %d\n", ee);
 
 	if ( (ee = dv_activatetask(Ping)) != dv_e_ok )
-		printf("Task Init: dv_activatetask(Ping) returned %d\n", ee);
+		dv_printf("Task Init: dv_activatetask(Ping) returned %d\n", ee);
 
-	printf("Task Init terminating ...\n");
+	dv_printf("Task Init terminating ...\n");
 	(void)dv_terminatetask();
 }
 
@@ -66,13 +66,13 @@ void main_Loop(void)
 {
 	dv_statustype_t ee;
 
-	printf("Task Loop starting ...\n");
+	dv_printf("Task Loop starting ...\n");
 
 	for ( int i = 0; i < 10; i++ )
 		if ( (ee = dv_activatetask(Ping)) != dv_e_ok )
-			 printf("Task Loop: dv_activatetask(Ping) returned %d\n", ee);
+			 dv_printf("Task Loop: dv_activatetask(Ping) returned %d\n", ee);
 
-	printf("Task Loop terminating ...\n");
+	dv_printf("Task Loop terminating ...\n");
 	(void)dv_terminatetask();
 }
 
@@ -83,54 +83,54 @@ void main_Ping(void)
 {
 	dv_statustype_t ee;
 
-	printf("Task Ping starting ...\n");
+	dv_printf("Task Ping starting ...\n");
 
 	if ( (ee = dv_chaintask(Loop)) != dv_e_limit )
-		 printf("Task Ping: dv_chaintask(Loop) returned %d\n", ee);
+		 dv_printf("Task Ping: dv_chaintask(Loop) returned %d\n", ee);
 
 	x++;
 	if ( x & 1 )
 	{
 		ee = dv_chaintask(Ping);
-		printf("Task Ping: dv_chaintask(Ping) returned unexpectedly : %d\n", ee);
+		dv_printf("Task Ping: dv_chaintask(Ping) returned unexpectedly : %d\n", ee);
 	}
 	else
 	{
 		pongCount = 0;
 
 		if ( (ee = dv_takelock(Lock1)) != dv_e_ok )
-			printf("Task Ping: dv_takelock(Lock1) returned %d\n", ee);
+			dv_printf("Task Ping: dv_takelock(Lock1) returned %d\n", ee);
 		else
 		{
 			for ( int i = 0; i < 3; i++ )
 			{
 				if ( (ee = dv_activatetask(Pong)) != dv_e_ok )
 				{
-					printf("Task Ping: dv_activatetask(Pong) returned %d\n", ee);
+					dv_printf("Task Ping: dv_activatetask(Pong) returned %d\n", ee);
 				}
 				else
 				{
-					printf("Task Ping: dv_activatetask(Pong) successful\n");
+					dv_printf("Task Ping: dv_activatetask(Pong) successful\n");
 				}
 			}
 
 			if ( (ee = dv_droplock(Lock1)) != dv_e_ok )
-				printf("Task Ping: dv_droplock(Lock1) returned %d\n", ee);
+				dv_printf("Task Ping: dv_droplock(Lock1) returned %d\n", ee);
 		}
 	}
 
-	printf("Task Ping terminating ...\n");
+	dv_printf("Task Ping terminating ...\n");
 	(void)dv_terminatetask();
 }
 
 void main_Pong(void)
 {
-	printf("Task Pong ... %d\n", pongCount++);
+	dv_printf("Task Pong ... %d\n", pongCount++);
 
 	(void)dv_terminatetask();
 }
 
 void callout_error(dv_statustype_t e)
 {
-	printf("callout_error(%d) called\n", e);
+	dv_printf("callout_error(%d) called\n", e);
 }
