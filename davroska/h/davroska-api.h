@@ -5,6 +5,8 @@
 #ifndef dv_davroska_api_h
 #define dv_davroska_api_h	1
 
+#include DV_TARGET
+
 typedef short dv_id_t;
 typedef unsigned short dv_prio_t;
 typedef short dv_qty_t;

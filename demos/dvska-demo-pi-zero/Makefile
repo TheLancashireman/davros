@@ -41,7 +41,11 @@ CC_OPT		+= -Wall
 
 LD_OPT		+= -e dv_trap_reset
 LD_OPT		+= -T $(DVSK_ROOT)/hardware/arm/ld/dv-pi-zero.ldscript
+LD_OPT		+=	-L $(DV_GNU_D)/arm-eabi/libc/usr/lib
+LD_OPT		+=	-lc
 
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-reset.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-traps.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/demo.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/davroska.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-printf.o
@@ -50,6 +54,8 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/dv-vectors.o
 
 
 VPATH 		+=	c
+VPATH 		+=	s
+VPATH		+=	$(DVSK_ROOT)/c
 VPATH		+=	$(DVSK_ROOT)/c
 VPATH		+=	$(DVSK_ROOT)/hardware/arm/c
 VPATH		+=	$(DVSK_ROOT)/hardware/arm/s

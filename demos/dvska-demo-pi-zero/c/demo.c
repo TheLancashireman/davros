@@ -2,8 +2,11 @@
  *
  * (c) David Haworth
 */
+#define DV_ASM	0
+#include <dv-config.h>
 #include <davroska-api.h>
-#include <stdio.h>
+#include <dv-stdio.h>
+#include <dv-string.h>
 
 void main_Init(void);
 void main_Loop(void);
@@ -134,3 +137,71 @@ void callout_error(dv_statustype_t e)
 {
 	dv_printf("callout_error(%d) called\n", e);
 }
+
+/* Startup and exception handling
+*/
+extern dv_u32_t dv_start_bss, dv_end_bss, dv_end_ram;
+
+const dv_u32_t dv_kernstacktop = (dv_u32_t)&dv_end_ram - 32;
+
+void dv_board_start(void)
+{
+	dv_memset32(&dv_start_bss, 0,
+		((dv_address_t)&dv_end_bss - (dv_address_t)&dv_start_bss + sizeof(dv_u32_t) - 1) / sizeof(dv_u32_t));
+}
+
+void dv_catch_data_abort(void)
+{
+    dv_printf("%s --- %s\n", "dv_catch_data_abort", "Oops! An exception occurred");
+	for (;;) {}
+}
+
+void dv_catch_prefetch_abort(void)
+{
+    dv_printf("%s --- %s\n", "dv_catch_prefetch_abort", "Oops! An exception occurred");
+	for (;;) {}
+}
+
+void dv_catch_reserved(void)
+{
+    dv_printf("%s --- %s\n", "dv_catch_reserved", "Oops! An exception occurred");
+	for (;;) {}
+}
+
+void dv_catch_undef(void)
+{
+    dv_printf("%s --- %s\n", "dv_catch_undef", "Oops! An exception occurred");
+	for (;;) {}
+}
+
+void dv_catch_unimplemented(void)
+{
+    dv_printf("%s --- %s\n", "dv_trap_unimplemented", "Oops! An exception occurred");
+	for (;;) {}
+}
+
+void dv_catch_sbreak(void)
+{
+    dv_printf("%s --- %s\n", "dv_trap_sbreak", "Oops! An exception occurred");
+	for (;;) {}
+}
+
+void dv_catch_fiq(void)
+{
+    dv_printf("%s --- %s\n", "dv_trap_fiq", "Oops! An exception occurred");
+	for (;;) {}
+}
+
+void dv_catch_reset(void)
+{
+    dv_printf("%s --- %s\n", "dv_trap_reset", "Oops! Return from dv_board_start");
+	for (;;) {}
+}
+
+#if 1
+void dv_catch_irq(void)
+{
+    dv_printf("%s --- %s\n", "dv_trap_irq", "Oops! An exception occurred");
+	for (;;) {}
+}
+#endif

@@ -34,7 +34,7 @@
  *     
  * Each vector loads the handler address directly into the PC using PC-relative addressing
 */
-	.text
+	.section	.vectors
 
 dv_vectortable:
 	ldr		pc, dv_hndlraddr_reset

@@ -8,6 +8,7 @@ SECTIONS
 {
     .text		:
 	{
+		*(.vectors*)
 		*(.text*)
 	} > ram
 
@@ -23,7 +24,9 @@ SECTIONS
 
     .bss		ALIGN(16)	:
 	{
+		dv_start_bss = .;
 		*(.bss*)
+		dv_end_bss = .;
 	} > ram
 
 	dv_end_ram = 0x1e000000;			/* Assumes GPU memory of 32 MB */
