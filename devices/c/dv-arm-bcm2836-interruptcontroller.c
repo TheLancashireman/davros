@@ -17,11 +17,17 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
+#ifdef DV_DAVROSKA
+#include <dv-config.h>
+#include DV_TARGET
+#else
 #include <kernel/h/dv-kconfig.h>
 #include <dv-types.h>
 #include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-interrupt.h>
+#endif
+
 #include <dv-arm-bcm2835-interruptcontroller.h>
 #include <dv-arm-bcm2836.h>
 

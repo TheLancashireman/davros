@@ -8,6 +8,8 @@
 #include <dv-stdio.h>
 #include <dv-string.h>
 
+#include <dv-arm-bcm2835-uart.h>
+
 void main_Init(void);
 void main_Loop(void);
 void main_Ping(void);
@@ -140,14 +142,34 @@ void callout_error(dv_statustype_t e)
 
 /* Startup and exception handling
 */
-extern dv_u32_t dv_start_bss, dv_end_bss, dv_end_ram;
+extern dv_u32_t dv_start_bss, dv_end_bss, dv_end_ram, dv_vectortable, dv_vectortable_end;
 
+#if 1
 const dv_u32_t dv_kernstacktop = (dv_u32_t)&dv_end_ram - 32;
+#else
+const dv_u32_t dv_kernstacktop = 0x10000000;
+#endif
 
 void dv_board_start(void)
 {
+	/* Initialise bss
+	*/
 	dv_memset32(&dv_start_bss, 0,
 		((dv_address_t)&dv_end_bss - (dv_address_t)&dv_start_bss + sizeof(dv_u32_t) - 1) / sizeof(dv_u32_t));
+
+	/* Initialise uart and connect it to the stdio functions
+	*/
+	dv_arm_bcm2835_uart_init(115200, 8, 0);
+	dv_arm_bcm2835_uart_console();
+
+	dv_putc('*');
+	dv_printf("pi-pzero starting ...\n");
+
+	/* Copy the vector table to 0
+	*/
+	dv_memcpy32(0, &dv_vectortable, &dv_vectortable_end - &dv_vectortable);
+
+	main(0, 0);
 }
 
 void dv_catch_data_abort(void)

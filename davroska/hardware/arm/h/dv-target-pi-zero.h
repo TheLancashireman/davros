@@ -8,4 +8,6 @@
 #include <arm/h/dv-types-arm.h>
 #include <dv-stdio.h>
 
+#define DV_PBASE	0x20000000
+
 #endif

@@ -20,8 +20,13 @@
 #ifndef dv_arm_bcm2835_systimer_h
 #define dv_arm_bcm2835_systimer_h	1
 
+#ifdef DV_DAVROSKA
+#include <dv-config.h>
+#include DV_TARGET
+#else
 #include <kernel/h/dv-kconfig.h>
 #include <dv-types.h>
+#endif
 
 #ifndef DV_PBASE
 #error	"No definition of DV_PBASE in the board headers. Please fix!"

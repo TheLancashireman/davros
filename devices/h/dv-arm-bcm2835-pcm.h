@@ -20,6 +20,14 @@
 #ifndef dv_arm_bcm2835_pcm_h
 #define dv_arm_bcm2835_pcm_h	1
 
+#ifdef DV_DAVROSKA
+#include <dv-config.h>
+#include DV_TARGET
+#else
+#include <kernel/h/dv-kconfig.h>
+#include <dv-types.h>
+#endif
+
 typedef struct dv_arm_bcm2835_pcm_s dv_arm_bcm2835_pcm_t;
 
 struct dv_arm_bcm2835_pcm_s

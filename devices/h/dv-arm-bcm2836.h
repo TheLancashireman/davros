@@ -20,9 +20,14 @@
 #ifndef dv_arm_bcm2836_h
 #define dv_arm_bcm2836_h	1
 
+#ifdef DV_DAVROSKA
+#include <dv-config.h>
+#include DV_TARGET
+#else
 #include <kernel/h/dv-kconfig.h>
 #include <dv-types.h>
 #include <kernel/h/dv-kernel.h>
+#endif
 
 #ifndef DV_PBASE2
 #error	"No definition of DV_PBASE2 in the board headers. Please fix!"

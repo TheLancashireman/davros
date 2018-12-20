@@ -36,6 +36,21 @@ static inline unsigned *dv_memset32(unsigned *d, unsigned v, unsigned n)
 	return d;
 }
 
+/* dv_memcpy32() - copy an array.
+ *
+ * dv_memcpy32(unsigned *d, unsigned *s, unsigned n) copies an array of n 32-bit variables from s to d
+*/
+static inline unsigned *dv_memcpy32(unsigned *d, unsigned *s, unsigned n)
+{
+	while ( n > 0 )
+	{
+		n--;
+		d[n] = s[n];
+	}
+
+	return d;
+}
+
 /* dv_strlen() - return length of a string
 */
 static inline int dv_strlen(const char *str)

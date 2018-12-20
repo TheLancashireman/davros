@@ -17,12 +17,20 @@
  *  You should have received a copy of the GNU General Public License
  *  along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
+#ifdef DV_DAVROSKA
+#include <dv-config.h>
+#include DV_TARGET
+#else
 #include <kernel/h/dv-kconfig.h>
 #include <dv-types.h>
+#endif
 #include <dv-arm-bcm2835-uart.h>
 #include <dv-arm-bcm2835-aux.h>
 #include <dv-arm-bcm2835-gpio.h>
+#ifdef DV_DAVROSKA
+#else
 #include <kernel/h/dv-stdio.h>
+#endif
 
 static int dv_arm_bcm2835_uart_putc(int c);
 static int dv_arm_bcm2835_uart_getc(void);
