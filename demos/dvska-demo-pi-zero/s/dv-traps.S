@@ -92,7 +92,7 @@ dv_trap_fiq:
 	msr		cpsr_c, #(DV_ARM_MODE_SVC+DV_ARM_IRQ_DIS+DV_ARM_FIQ_DIS)
 	b		dv_catch_fiq
 
-#if 1
+#if 0
 	.globl	dv_trap_irq
 	.extern	dv_catch_irq
 

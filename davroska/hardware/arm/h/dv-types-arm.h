@@ -24,6 +24,7 @@
 */
 #include <dv-types-32.h>
 #include <dv-types.h>
+#include <arm/h/dv-arm-registers.h>
 
 /* Use the compiler's setjmp/longjmp
 */
@@ -35,20 +36,21 @@ typedef jmp_buf dv_jmpbuf_t;
 #define dv_longjmp	longjmp
 
 /* Interrupt status, locking and unlocking
- * ToDo: change these to use the CPSR
 */
-#define DV_INTENABLED   0
-
 typedef dv_u32_t dv_intstatus_t;
 
 static inline dv_intstatus_t dv_disable()
 {
-    return 0;
+	dv_u32_t old = dv_arm_mrs(cpsr);
+	dv_arm_msr(cpsr_c, old|DV_ARM_IRQ_DIS);
+    return old;
 }
 
-static inline dv_intstatus_t dv_restore(dv_intstatus_t unused_x)
+static inline dv_intstatus_t dv_restore(dv_intstatus_t x)
 {
-    return 0;
+	dv_u32_t old = dv_arm_mrs(cpsr);
+	dv_arm_msr(cpsr_c, ((old&~DV_ARM_IRQ_DIS)|(x&DV_ARM_IRQ_DIS)));
+    return old;
 }
 
 #endif

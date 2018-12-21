@@ -9,6 +9,7 @@
 #include <dv-string.h>
 
 #include <dv-arm-bcm2835-uart.h>
+#include <dv-arm-bcm2835-interruptcontroller.h>
 
 void main_Init(void);
 void main_Loop(void);
@@ -19,6 +20,11 @@ dv_id_t Init, Loop, Ping, Pong;
 
 dv_id_t Lock1;
 
+/* Temporary: abt and undef stacks
+*/
+dv_u32_t dv_abtstack[256];
+dv_u32_t dv_undstack[256];
+
 int main(int argc, char **argv)
 {
 	dv_printf("davroska starting ...\n");
@@ -27,7 +33,6 @@ int main(int argc, char **argv)
 
 	return 0;
 }
-
 
 void callout_addtasks(dv_id_t mode)
 {
@@ -76,6 +81,12 @@ void main_Loop(void)
 	for ( int i = 0; i < 10; i++ )
 		if ( (ee = dv_activatetask(Ping)) != dv_e_ok )
 			 dv_printf("Task Loop: dv_activatetask(Ping) returned %d\n", ee);
+
+	/* Enable UART interrupt
+	*/
+	dv_init_interrupt_controller();
+	dv_arm_bcm2835_uart.ier |= DV_IER_RxInt;
+	dv_arm_bcm2835_interruptcontroller.irq_enable[0] = DV_INT_AUX;
 
 	dv_printf("Task Loop terminating ...\n");
 	(void)dv_terminatetask();
@@ -142,13 +153,10 @@ void callout_error(dv_statustype_t e)
 
 /* Startup and exception handling
 */
-extern dv_u32_t dv_start_bss, dv_end_bss, dv_end_ram, dv_vectortable, dv_vectortable_end;
+extern dv_u32_t dv_start_bss, dv_end_bss, dv_vectortable, dv_vectortable_end;
 
-#if 1
-const dv_u32_t dv_kernstacktop = (dv_u32_t)&dv_end_ram - 32;
-#else
-const dv_u32_t dv_kernstacktop = 0x10000000;
-#endif
+const dv_u32_t dv_initialsp_abt = (dv_u32_t)&dv_abtstack[256];
+const dv_u32_t dv_initialsp_und = (dv_u32_t)&dv_undstack[256];
 
 void dv_board_start(void)
 {
@@ -162,7 +170,6 @@ void dv_board_start(void)
 	dv_arm_bcm2835_uart_init(115200, 8, 0);
 	dv_arm_bcm2835_uart_console();
 
-	dv_putc('*');
 	dv_printf("pi-pzero starting ...\n");
 
 	/* Copy the vector table to 0
@@ -220,10 +227,12 @@ void dv_catch_reset(void)
 	for (;;) {}
 }
 
-#if 1
 void dv_catch_irq(void)
 {
-    dv_printf("%s --- %s\n", "dv_trap_irq", "Oops! An exception occurred");
-	for (;;) {}
+    dv_printf("%s --- %s\n", "dv_trap_irq", "An interrupt!");
 }
-#endif
+
+void dv_panic_failed_return_from_irq(void)
+{
+	dv_printf("%s --- %s\n", "dv_trap_irq", "Oops! Failed to return from an IRQ");
+}

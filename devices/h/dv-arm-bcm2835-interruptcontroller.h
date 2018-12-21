@@ -177,7 +177,9 @@ static inline void dv_set_level(int lvl)
 	*/
 }
 
+#ifndef DV_DAVROSKA
 void dv_bcm2835_interrupt_handler(dv_kernel_t *kvars);
+#endif
 
 #endif
 

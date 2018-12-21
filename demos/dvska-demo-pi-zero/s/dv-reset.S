@@ -27,18 +27,47 @@
 */
 	.globl	dv_trap_reset
 	.extern	dv_board_start
-	.extern dv_kernstacktop
+	.extern dv_initialsp_svc
+	.extern dv_initialsp_abt
+	.extern dv_initialsp_und
+	.extern dv_initialsp_irq
+	.extern dv_initialsp_fiq
 	.extern dv_catch_reset
 
 	.text
 
 dv_trap_reset:
 
-/* Go to supervisor mode, disable IRQ and FIQ.
+/* Go to fiq mode, disable IRQ and FIQ, load sp_fiq.
+*/
+	msr		cpsr_c, #(DV_ARM_MODE_FIQ+DV_ARM_IRQ_DIS+DV_ARM_FIQ_DIS)
+	ldr		r3, =dv_initialsp_fiq
+	ldr		sp, [r3]
+
+/* Go to irq mode, disable IRQ and FIQ, load sp_irq.
+*/
+	msr		cpsr_c, #(DV_ARM_MODE_IRQ+DV_ARM_IRQ_DIS+DV_ARM_FIQ_DIS)
+	ldr		r3, =dv_initialsp_irq
+	ldr		sp, [r3]
+
+/* Go to abt mode, disable IRQ and FIQ, load sp_abt.
+*/
+	msr		cpsr_c, #(DV_ARM_MODE_ABT+DV_ARM_IRQ_DIS+DV_ARM_FIQ_DIS)
+	ldr		r3, =dv_initialsp_abt
+	ldr		sp, [r3]
+
+/* Go to und mode, disable IRQ and FIQ, load sp_und.
+*/
+	msr		cpsr_c, #(DV_ARM_MODE_UNDEF+DV_ARM_IRQ_DIS+DV_ARM_FIQ_DIS)
+	ldr		r3, =dv_initialsp_und
+	ldr		sp, [r3]
+
+/* Go to svc mode, disable IRQ and FIQ, load sp_svc. This is the mode we will
+ * run the kernel and all basic tasks in.
+ * Pre-set lr with an exception catcher in case dv_board_start returns, then jump to dv_board_start.
 */
 	msr		cpsr_c, #(DV_ARM_MODE_SVC+DV_ARM_IRQ_DIS+DV_ARM_FIQ_DIS)
-
-	ldr		r3, =dv_kernstacktop
+	ldr		r3, =dv_initialsp_svc
 	ldr		sp, [r3]
 	ldr		lr, =dv_catch_reset
 	mov		r0, #0
