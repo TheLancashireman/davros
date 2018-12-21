@@ -17,13 +17,6 @@
  *  You should have received a copy of the GNU General Public License
  *  along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifdef DV_DAVROSKA
-#include <dv-config.h>
-#include DV_TARGET
-#else
-#include <kernel/h/dv-kconfig.h>
-#include <dv-types.h>
-#endif
 #include <dv-arm-bcm2835-gpio.h>
 
 /* dv_arm_bcm2835_gpio_pinconfig() - set up GPIO pin
