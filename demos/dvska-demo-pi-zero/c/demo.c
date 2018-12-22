@@ -227,10 +227,12 @@ void dv_catch_reset(void)
 	for (;;) {}
 }
 
+#if 0
 void dv_catch_irq(void)
 {
     dv_printf("%s --- %s\n", "dv_trap_irq", "An interrupt!");
 }
+#endif
 
 void dv_panic_failed_return_from_irq(void)
 {

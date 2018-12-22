@@ -10,4 +10,7 @@
 
 #define DV_PBASE	0x20000000
 
+#define DV_INCLUDE_INTERRUPTCONTROLLER	<dv-arm-bcm2835-interruptcontroller.h>
+#define DV_SUPPORT_INTLEVEL	1
+
 #endif

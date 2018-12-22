@@ -26,7 +26,9 @@ typedef enum
 	dv_panic_CurrentExeCorrupt,
 	dv_panic_CurrentExeDead,
 	dv_panic_ReturnFromLongjmp,
-	dv_panic_LockOccupied
+	dv_panic_LockOccupied,
+	dv_panic_UnconfiguredInterrupt,
+	dv_panic_UnknownPanic
 } dv_panic_t;
 
 typedef struct dv_q_s
@@ -72,5 +74,13 @@ typedef struct dv_errorinfo_s
 	dv_param_t p[4];
 	dv_id_t culprit;
 } dv_errorinfo_t;
+
+extern dv_id_t dv_currenttask;
+extern dv_id_t dv_currentisr;
+extern dv_prio_t dv_currentprio;
+extern dv_prio_t dv_highestprio;
+
+extern void dv_runqueued(dv_qty_t p, dv_intstatus_t is);
+extern void dv_softvector(int vector);
 
 #endif

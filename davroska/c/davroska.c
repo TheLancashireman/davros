@@ -6,6 +6,8 @@
 #include <davroska-api.h>
 #include <davroska.h>
 
+#include DV_INCLUDE_INTERRUPTCONTROLLER
+
 #define DV_NQUEUE	(DV_CFG_MAXPRIO+2)			/* Add extra queues for idle and kernel */
 #define DV_NEXE		(DV_CFG_MAXEXE+1)			/* Add an extra executable for the idle loop */
 #define DV_NSLOT	(DV_NQUEUE*2 + DV_NEXE + DV_CFG_NSLOT_EXTRA)
@@ -15,15 +17,18 @@ const dv_qty_t dv_maxprio = DV_CFG_MAXPRIO;
 const dv_qty_t dv_maxslot = DV_NSLOT+1;
 const dv_qty_t dv_maxlock = DV_CFG_MAXLOCK;
 
+dv_id_t dv_currenttask;							/* Convenience variable for GetTaskID and GetISRID */
+dv_id_t dv_currentisr;							/* Convenience variable for GetISRID */
+dv_prio_t dv_currentprio;						/* Current priority */
+dv_prio_t dv_highestprio;						/* Highest priority in use */
+
 static dv_qty_t dv_nexe;						/* No. of executables created */
 static dv_qty_t dv_ntask;						/* No. of tasks created */
+static dv_qty_t dv_nisr;						/* No. of ISRs created */
 static dv_qty_t dv_nlock;						/* No. of locks dreated */
 
-dv_id_t dv_currenttask;							/* Convenience variables for GetTaskID and GetISRID */
-dv_id_t dv_currentisr;
-
 static dv_id_t dv_currentexe;					/* Current executable */
-static dv_prio_t dv_currentprio;				/* Current priority */
+static dv_prio_t dv_maxtaskprio;				/* Highest-priority task */
 
 static dv_exe_t dv_exe[DV_NEXE];				/* Executables */
 static dv_q_t dv_queue[DV_NQUEUE];				/* Priority queues (one per priority) */
@@ -40,8 +45,19 @@ static void dv_createqueues(void);
 static dv_statustype_t dv_activateexe(dv_id_t e);
 static dv_statustype_t dv_activateexe2(dv_id_t ei, dv_intstatus_t is);
 static void dv_runexe(dv_id_t e, dv_intstatus_t is);
-static void dv_runqueued(dv_qty_t p, dv_intstatus_t is);
 static dv_statustype_t dv_reporterror(dv_sid_t sid, dv_statustype_t e, dv_qty_t nParam, dv_param_t *p);
+static dv_id_t dv_addexe(const char *name, void (*fn)(void), dv_prio_t prio, dv_qty_t maxact);
+
+/* Interrupt vectoring
+*/
+static int dv_isvectorfree(dv_id_t vec);
+static void dv_setvector(dv_id_t vec, dv_statustype_t (*fn)(dv_id_t p), dv_id_t p);
+static void dv_initvectors(void);
+
+/* ===================================================================================================================
+ * Static inline functions
+ * ===================================================================================================================
+*/
 
 /*	dv_enqueue() - insert executable at tail of priority queue
 */
@@ -91,6 +107,11 @@ static inline dv_id_t dv_dequeue(dv_prio_t p)
 
 	return e;
 }
+
+/* ===================================================================================================================
+ * Runtime API functions
+ * ===================================================================================================================
+*/
 
 /* dv_activatetask() - activate a task
  *
@@ -299,36 +320,36 @@ dv_statustype_t dv_startos(dv_id_t mode)
 		dv_queue[i].nslots = 2;		/* Reserve an entry for a raised priority and an entry for the gap */
 	}
 
+	/* Initialise the interrupt vectors
+	*/
+	dv_initvectors();
+
 	/* Ensure that no executables can preempt until everything is initialised
 	*/
 	dv_currentprio = dv_maxprio;
 
 	/* Create the idle loop executable
 	*/
-	dv_nexe = 1;
-	dv_exe[0].name = "idle-loop";
-	dv_exe[0].func = dv_idle;
-	dv_exe[0].maxact = 1;
-	dv_exe[0].nact = 0;
-	dv_exe[0].baseprio = 0;
-	dv_exe[0].currprio = 0;
-	dv_exe[0].state = dv_ready;
-	dv_exe[0].locklist = -1;
+	dv_id_t idle = dv_addexe("idle-loop", &dv_idle, 0, 1);
+
+	if ( idle < 0 )
+		dv_panic(dv_panic_UnknownPanic);		/* ToDo: proper panic code */
+
+	dv_ntask = 1;	/* Range check for tasks is from 1 to dv_ntask */
 
 	callout_addtasks(mode);
-#if 0
+
 	callout_addisrs(mode);
-#endif
 
 	dv_createqueues();
 
 	callout_addlocks(mode);
 
-	dv_activateexe(0);
+	dv_activateexe(idle);
 
 	callout_autostart(mode);
 
-	dv_exe[0].state = dv_ready;
+	dv_exe[idle].state = dv_ready;
 	dv_runqueued(0, DV_INTENABLED);
 
 	/* If the task - or the other tasks that it starts - ever die,
@@ -345,30 +366,15 @@ dv_statustype_t dv_startos(dv_id_t mode)
 	return dv_e_ok;
 }
 
+/* ===================================================================================================================
+ * Configuration API functions
+ * ===================================================================================================================
+*/
+
 /* dv_addtask() - add a task to the set of executables
 */
 dv_id_t dv_addtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_qty_t maxact)
 {
-	if ( dv_nexe >= dv_maxexe )
-	{
-		/* ToDo: dv_reporterror */
-		dv_printf("dv_addtask(%s,...) :: Config error - DV_CFG_MAXEXE is insufficient\n", name);
-		return -1;
-	}
-
-	if ( prio > dv_maxprio )
-	{
-		/* ToDo: dv_reporterror */
-		dv_printf("dv_addtask(%s,...) :: Error - priority exceeds DV_CFG_MAXPRIO\n", name);
-		return -1;
-	}
-
-	if ( prio < 1 )
-	{
-		/* ToDo: dv_reporterror */
-		dv_printf("dv_addtask(%s,...) :: Warning - task with priority 0 or less will never run\n", name);
-	}
-
 	if ( maxact < 1 )
 	{
 		/* ToDo: dv_reporterror */
@@ -376,19 +382,50 @@ dv_id_t dv_addtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_qty_t 
 		maxact = 1;
 	}
 
-	dv_id_t id = dv_nexe++;
-	dv_ntask++;
+	if ( prio < 1 )
+	{
+		/* ToDo: dv_reporterror */
+		dv_printf("dv_addtask(%s,...) :: Error - task with priority 0 or less will never run\n", name);
+		return -1;
+	}
 
-	dv_exe[id].name = name;
-	dv_exe[id].func = fn;
-	dv_exe[id].maxact = maxact;
-	dv_exe[id].nact = 0;
-	dv_exe[id].baseprio = prio;
-	dv_exe[id].currprio = prio;
-	dv_exe[id].state = dv_suspended;
-	dv_exe[id].locklist = -1;
+	dv_id_t id = dv_addexe(name, fn, prio, maxact);
 
-	dv_queue[prio].nslots += maxact;
+	if ( id >= 0 )
+	{
+		dv_ntask++;
+		if ( prio > dv_maxtaskprio )
+			dv_maxtaskprio = prio;
+	}
+
+	return id;
+}
+
+/* dv_addisr() - add an isr to the set of executables
+*/
+dv_id_t dv_addisr(const char *name, void (*fn)(void), dv_id_t irqid, dv_prio_t prio)
+{
+	if ( prio <= dv_maxtaskprio )
+	{
+		/* ToDo: dv_reporterror */
+		dv_printf("dv_addisr(%s,...) :: Error - ISR with priority less than or equal to highest task\n", name);
+		return -1;
+	}
+
+	if ( !dv_isvectorfree(irqid) )
+	{
+		/* ToDo: dv_reporterror */
+		dv_printf("dv_addisr(%s,...) :: Error - Vector is already in use.\n", name);
+		return -1;
+	}
+
+	dv_id_t id = dv_addexe(name, fn, prio, 1);
+
+	if ( id >= 0 )
+	{
+		dv_nisr++;
+		dv_setvector(irqid, dv_activateexe, id);
+	}
 
 	return id;
 }
@@ -448,6 +485,45 @@ void dv_addlockuser(dv_id_t l, dv_id_t e)
 		dv_lock[l].ceiling = dv_exe[e].baseprio;
 }
 
+/* ===================================================================================================================
+ * Internal functions
+ * ===================================================================================================================
+*/
+
+/* dv_addexe() - add an executable to the set of executables
+*/
+static dv_id_t dv_addexe(const char *name, void (*fn)(void), dv_prio_t prio, dv_qty_t maxact)
+{
+	if ( dv_nexe >= dv_maxexe )
+	{
+		/* ToDo: dv_reporterror */
+		dv_printf("dv_addexe(%s,...) :: Config error - DV_CFG_MAXEXE is insufficient\n", name);
+		return -1;
+	}
+
+	if ( prio > dv_maxprio )
+	{
+		/* ToDo: dv_reporterror */
+		dv_printf("dv_addexe(%s,...) :: Error - priority exceeds DV_CFG_MAXPRIO\n", name);
+		return -1;
+	}
+
+	dv_id_t id = dv_nexe++;
+
+	dv_exe[id].name = name;
+	dv_exe[id].func = fn;
+	dv_exe[id].maxact = maxact;
+	dv_exe[id].nact = 0;
+	dv_exe[id].baseprio = prio;
+	dv_exe[id].currprio = prio;
+	dv_exe[id].state = dv_suspended;
+	dv_exe[id].locklist = -1;
+
+	dv_queue[prio].nslots += maxact;
+
+	return id;
+}
+
 /* dv_activateexe() - activate an executable
  *
  * If the task has a higher priority than the caller, call it.
@@ -469,6 +545,35 @@ static dv_statustype_t dv_activateexe(dv_id_t e)
 	/* Go to part 2
 	*/
 	return dv_activateexe2(e, is);
+}
+
+/* dv_runqueued() - run all higher-priority executables
+*/
+void dv_runqueued(dv_qty_t p, dv_intstatus_t is)
+{
+	while ( dv_currentprio > p )
+	{
+		dv_id_t e = dv_qhead(dv_currentprio);
+		if ( e == 0 )
+		{
+			/* The idle executable is never in a higher-priority queue
+			*/
+			dv_panic(dv_panic_QueueCorrupt);
+		}
+		else
+		if ( e > 0 )
+		{
+			/* Run the excutable. When it finally terminates it gets removed from the queue
+			*/
+			dv_runexe(e, is);
+		}
+		else
+		{
+			/* Queue is empty. Drop down to next lower priority.
+			*/
+			dv_currentprio--;
+		}
+	}
 }
 
 /* dv_activateexe2() - activate an executable, part 2
@@ -584,35 +689,6 @@ static void dv_runexe(dv_id_t e, dv_intstatus_t is)
 		dv_panic(dv_panic_QueueCorrupt);
 }
 
-/* dv_runqueued() - run all higher-priority executables
-*/
-static void dv_runqueued(dv_qty_t p, dv_intstatus_t is)
-{
-	while ( dv_currentprio > p )
-	{
-		dv_id_t e = dv_qhead(dv_currentprio);
-		if ( e == 0 )
-		{
-			/* The idle executable is never in a higher-priority queue
-			*/
-			dv_panic(dv_panic_QueueCorrupt);
-		}
-		else
-		if ( e > 0 )
-		{
-			/* Run the excutable. When it finally terminates it gets removed from the queue
-			*/
-			dv_runexe(e, is);
-		}
-		else
-		{
-			/* Queue is empty. Drop down to next lower priority.
-			*/
-			dv_currentprio--;
-		}
-	}
-}
-
 /* dv_createqueues() - allocate the slots for the queueus
 */
 static void dv_createqueues(void)
@@ -678,4 +754,61 @@ static void dv_idle(void)
 {
 	dv_printf("dv_idle() reached\n");
 	for (;;) { }
+}
+
+/* ===================================================================================================================
+ * Interrupt vectoring functions
+ * ===================================================================================================================
+*/
+static struct
+{
+	dv_statustype_t (*fn)(dv_id_t p);
+	dv_id_t p;
+} dv_vectors[DV_NVECTOR];
+
+/* dv_unconfigured_interrupt() - report an unconfigured interrupt
+*/
+static dv_statustype_t dv_unconfigured_interrupt(dv_id_t p)
+{
+	dv_panic(dv_panic_UnconfiguredInterrupt);
+	return dv_e_id;
+}
+
+/* dv_initvectors() - initialise all the interrupt vectors to "unconfigured"
+*/
+static void dv_initvectors(void)
+{
+	for ( int i = 0; i < DV_NVECTOR; i++ )
+	{
+		dv_vectors[i].fn = &dv_unconfigured_interrupt;
+		dv_vectors[i].p = i;
+	}
+}
+
+/* dv_isvectorfree() - return true if the vector is in range an is unconfigured, false otherwise
+*/
+static int dv_isvectorfree(dv_id_t vec)
+{
+	if ( (vec < 0) || (vec >= DV_NVECTOR) )
+		return 0;
+
+	if ( dv_vectors[vec].fn == &dv_unconfigured_interrupt )
+		return 1;
+
+	return 0;
+}
+
+/* dv_setvector() - set the specified interupt vector
+*/
+static void dv_setvector(dv_id_t vec, dv_statustype_t (*fn)(dv_id_t p), dv_id_t p)
+{
+	dv_vectors[vec].fn = fn;
+	dv_vectors[vec].p = p;
+}
+
+/* dv_softvector() - called from the interrupt controller's interrupt handling function
+*/
+void dv_softvector(int vector)
+{
+	(void)(*dv_vectors[vector].fn)(dv_vectors[vector].p);
 }

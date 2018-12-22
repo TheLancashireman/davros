@@ -26,12 +26,16 @@
 #error	"No definition of DV_PBASE in the board headers. Please fix!"
 #endif
 
+#ifndef DV_SUPPORT_INTLEVEL
+#define DV_SUPPORT_INTLEVEL		0
+#endif
+
 #if !DV_ASM
 
 /* BCM2835 interrupt controller (as used on Raspberry Pi CPUs).
  *
  * The BCM2835 interrupt controller is a very simple unit. There is no vectoring, and
- * there are no priority levels. The only priority control is FIQ/IRQ. Only one source
+ * there are no hardware priority levels. The only priority control is FIQ/IRQ. Only one source
  * can be routed to FIQ.
  *
  * There are 3 sets of 3 registers for control and status related to the IRQ signal.
@@ -52,20 +56,15 @@ struct dv_arm_bcm2835_interruptcontroller_s
 	dv_reg32_t irq_disable[3];		/* Write 1 to disable. Basic is index 2 */
 };
 
+/* Data type for interrupt masks.
+*/
+typedef struct dv_bcm2835_imask_s dv_bcm2835_imask_t;
+
+struct dv_bcm2835_imask_s
+{	dv_u32_t mask[3];
+};
+
 #define dv_arm_bcm2835_interruptcontroller	((dv_arm_bcm2835_interruptcontroller_t *)(DV_PBASE+0x00b200))[0]
-
-static inline void dv_init_interrupt_controller(void)
-{
-	/* Disable all interrupt sources, including those used by the GPU.
-	*/
-	dv_arm_bcm2835_interruptcontroller.irq_disable[0] = 0xffffffff;
-	dv_arm_bcm2835_interruptcontroller.irq_disable[1] = 0xffffffff;
-	dv_arm_bcm2835_interruptcontroller.irq_disable[2] = 0xffffffff;
-
-	/* Disable FIQ.
-	*/
-	dv_arm_bcm2835_interruptcontroller.fiq_control = 0;
-}
 
 /* Bits in the "basic" registers
  * The remaining bits are used by the GPU.
@@ -112,13 +111,12 @@ static inline void dv_init_interrupt_controller(void)
  *
  * The SoC does not define any vector numbers, so we define them here.
 */
-typedef enum dv_bcm2835_softvector_e
+typedef enum dv_irqid_e
 {
 	/* IRQ0	*/
 	dv_iid_syst_cm1,
 	dv_iid_syst_cm3,
 	dv_iid_aux,
-#if 0
 	/* IRQ1 */
 	dv_iid_i2cspi_slv,
 	dv_iid_pwa0,
@@ -132,8 +130,6 @@ typedef enum dv_bcm2835_softvector_e
 	dv_iid_spi,
 	dv_iid_pcm,
 	dv_iid_uart,
-#endif
-#if 0
 	/* Basic */
 	dv_iid_timer,
 	dv_iid_mailbox,
@@ -143,9 +139,8 @@ typedef enum dv_bcm2835_softvector_e
 	dv_iid_gpu1halt,
 	dv_iid_illegal0,
 	dv_iid_illegal1,
-#endif
 	dv_n_bcm2835_iid				/* Must be last */
-} dv_bcm2835_softvector_t;
+} dv_irqid_t;
 
 typedef struct dv_bcm2835_irq_s
 {
@@ -153,31 +148,138 @@ typedef struct dv_bcm2835_irq_s
 	dv_u32_t mask;
 } dv_bcm2835_irq_t;
 
-extern const dv_bcm2835_irq_t dv_bcm2835_irq_list[dv_n_bcm2835_iid];
+typedef signed char dv_intlevel_t;
 
-static inline void dv_config_irq(int unused_index, int unused_core, int unused_prio)
+extern const dv_bcm2835_irq_t dv_bcm2835_irq_list[];
+
+#if DV_SUPPORT_INTLEVEL
+/* Support for artifical interrupt levels...
+ * Current level runs from 0 (all enabled) to 8 (all disabled)
+ * An individual IRQ can have a level from -1 (default; not configured) to 7.
+ * Comparison for enabling is "irq-level >= current-level"
+*/
+extern dv_intlevel_t dv_bcm2835_irq_level[dv_n_bcm2835_iid];
+extern dv_intlevel_t dv_currentlocklevel;
+extern dv_bcm2835_imask_t dv_bcm2835_irq_enabled;
+extern dv_bcm2835_imask_t dv_bcm2835_levelmasks[9];
+#endif
+
+/* dv_config_irq() - configure an interrupt request
+ *
+ * If artificial interrupt levels are supported, set the level
+ * otherwise nothing to do
+*/
+#if DV_SUPPORT_INTLEVEL
+static inline void dv_config_irq(dv_irqid_t index, dv_intlevel_t level, int unused_core)
 {
-	/* Nothing to do.
+	/* Constrain irq'ls level
+	*/
+	if ( level < 0 ) level = 0;
+	if ( level > 7 ) level = 7;
+	dv_bcm2835_irq_level[index] = level;
+}
+#else
+static inline void dv_config_irq(dv_irqid_t unused_index, dv_intlevel_t unused_level, int unused_core)
+{
+	/* Nothing to do
 	*/
 }
+#endif
 
-static inline void dv_enable_irq(int index)
+/* dv_enable_irq() - enable an interrupt request
+ *
+ * If artificial interrupt levels are supported, set the irq's bit in the global mask register and
+ * only enable if the irq's level is high enough
+ * Without levels: just enable the irq.
+*/
+static inline void dv_enable_irq(dv_irqid_t index)
 {
-	dv_arm_bcm2835_interruptcontroller.irq_enable[dv_bcm2835_irq_list[index].idx] = dv_bcm2835_irq_list[index].mask;
+	int reg = dv_bcm2835_irq_list[index].idx;
+	dv_u32_t mask = ~dv_bcm2835_irq_list[index].mask;
+
+#if DV_SUPPORT_INTLEVEL
+	dv_bcm2835_irq_enabled.mask[reg] |= mask;
+	if ( dv_bcm2835_irq_level[index] >= dv_currentlocklevel )
+		dv_arm_bcm2835_interruptcontroller.irq_enable[reg] = mask;	/* Register is "write 1 to enable" */
+#else
+	dv_arm_bcm2835_interruptcontroller.irq_enable[reg] = mask;	/* Register is "write 1 to enable" */
+#endif
 }
 
-static inline void dv_disable_irq(int index)
+/* dv_disable_irq() - disable an interrupt request
+ *
+ * If artificial interrupt levels are supported, clear the irq's bit in the global mask register
+ * With or without levels: disable the irq.
+*/
+static inline void dv_disable_irq(dv_irqid_t index)
 {
-	dv_arm_bcm2835_interruptcontroller.irq_disable[dv_bcm2835_irq_list[index].idx] = dv_bcm2835_irq_list[index].mask;
+	int reg = dv_bcm2835_irq_list[index].idx;
+	dv_u32_t mask = ~dv_bcm2835_irq_list[index].mask;
+
+#if DV_SUPPORT_INTLEVEL
+	dv_bcm2835_irq_enabled.mask[reg] &= ~mask;
+#endif
+	dv_arm_bcm2835_interruptcontroller.irq_disable[reg] = mask;		/* Register is "write 1 to disable" */
 }
 
-static inline void dv_set_level(int lvl)
+/* dv_setirqlevel() - sets the current IRQ lock level
+ *
+ * If artificial levels are not supported, this function does nothing
+*/
+static inline dv_intlevel_t dv_setirqlevel(dv_intlevel_t lvl)
 {
-	/* Nothing to do.
+#if DV_SUPPORT_INTLEVEL
+	if ( lvl < 0 )	lvl = 0;
+	if ( lvl > 8 ) 	lvl = 8;
+	if ( dv_currentlocklevel == lvl )
+		return lvl;
+
+	dv_intstatus_t is = dv_disable();
+
+	dv_intlevel_t old = dv_currentlocklevel;
+	dv_currentlocklevel = lvl;
+
+	for ( int i = 0; i < 3; i++ )
+	{
+		dv_arm_bcm2835_interruptcontroller.irq_disable[i] = 0xffffffff;
+		dv_arm_bcm2835_interruptcontroller.irq_enable[i] = dv_bcm2835_irq_enabled.mask[i];
+	}
+
+	dv_restore(is);
+	return old;
+#else
+	return 0;
+#endif
+}
+
+static inline void dv_init_interrupt_controller(void)
+{
+	/* Disable all interrupt sources, including those used by the GPU.
 	*/
+	dv_arm_bcm2835_interruptcontroller.irq_disable[0] = 0xffffffff;
+	dv_arm_bcm2835_interruptcontroller.irq_disable[1] = 0xffffffff;
+	dv_arm_bcm2835_interruptcontroller.irq_disable[2] = 0xffffffff;
+
+	/* Disable FIQ.
+	*/
+	dv_arm_bcm2835_interruptcontroller.fiq_control = 0;
+
+#if DV_SUPPORT_INTLEVEL
+	/* Initialise the configured levels of all interrupt sources
+	*/
+	for ( int i = 0; i < dv_n_bcm2835_iid; i++ )
+		dv_bcm2835_irq_level[i] = -1;
+#endif
 }
 
-#ifndef DV_DAVROSKA
+#ifdef DV_DAVROSKA
+void dv_bcm2835_interrupt_handler(void);
+static inline void dv_dispatch_interrupts(void)
+{
+	dv_bcm2835_interrupt_handler();
+}
+#define DV_NVECTOR		dv_n_bcm2835_iid
+#else
 void dv_bcm2835_interrupt_handler(dv_kernel_t *kvars);
 #endif
 

@@ -53,6 +53,7 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/dv-printf.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-xprintf.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-uart.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-gpio.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-interruptcontroller.o
 
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-vectors.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-reset.o

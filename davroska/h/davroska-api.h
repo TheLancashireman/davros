@@ -53,12 +53,16 @@ dv_statustype_t dv_chaintask(dv_id_t task);
 dv_statustype_t dv_takelock(dv_id_t lock);
 dv_statustype_t dv_droplock(dv_id_t lock);
 
-/* Callout functions: provided by the application
+/* Configuration callout functions: provided by the application
 */
 void callout_addtasks(dv_id_t mode);
 void callout_addlocks(dv_id_t mode);
 void callout_autostart(dv_id_t mode);
 
+/* Runtime callout functions: provided by the application
+*/
+void callout_addtasks(dv_id_t mode);
+void callout_addisrs(dv_id_t mode);
 void callout_startup(void);
 void callout_preexe(void);
 void callout_postexe(void);

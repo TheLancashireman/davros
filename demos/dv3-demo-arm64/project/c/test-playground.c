@@ -451,7 +451,7 @@ void cortex_a_stuff(void)
 	gt->ctrl = (DV_GT_INC | DV_GT_IEN | DV_GT_CEN | DV_GT_TEN);
 
 #if 0
-	dv_config_irq(27, 0, 254);
+	dv_config_irq(27, 254, 0);
 	dv_attach_irq(27, dv_gtimer_interrupt, 0);
 	dv_enable_irq(27);
 #endif
