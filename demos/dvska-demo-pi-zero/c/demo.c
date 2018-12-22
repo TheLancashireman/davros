@@ -42,6 +42,10 @@ void callout_addtasks(dv_id_t mode)
 	Pong = dv_addtask("Pong", &main_Pong, 3, 3);
 }
 
+void callout_addisrs(dv_id_t mode)
+{
+}
+
 void callout_addlocks(dv_id_t mode)
 {
 	Lock1 = dv_addlock("Lock1", 1);
@@ -81,12 +85,6 @@ void main_Loop(void)
 	for ( int i = 0; i < 10; i++ )
 		if ( (ee = dv_activatetask(Ping)) != dv_e_ok )
 			 dv_printf("Task Loop: dv_activatetask(Ping) returned %d\n", ee);
-
-	/* Enable UART interrupt
-	*/
-	dv_init_interrupt_controller();
-	dv_arm_bcm2835_uart.ier |= DV_IER_RxInt;
-	dv_arm_bcm2835_interruptcontroller.irq_enable[0] = DV_INT_AUX;
 
 	dv_printf("Task Loop terminating ...\n");
 	(void)dv_terminatetask();
