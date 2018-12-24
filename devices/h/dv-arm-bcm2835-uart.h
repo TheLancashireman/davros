@@ -73,8 +73,8 @@ void dv_arm_bcm2835_uart_console(void);
 
 #endif
 
-#define DV_IER_RxInt	0x02
-#define DV_IER_TxInt	0x01
+#define DV_IER_TxInt	0x02
+#define DV_IER_RxInt	0x01
 
 #define DV_IIR_Iid		0x06	/* Apparently both bits set isn't possible */
 #define DV_IIR_Iid_Rx	0x04
