@@ -789,7 +789,9 @@ void dv_panic(dv_panic_t p)
 static void dv_idle(void)
 {
 	dv_printf("dv_idle() reached\n");
+#if 1
 	print_interrupt_status(DV_NULL);
+#endif
 	for (;;)
 	{
 #if 0
