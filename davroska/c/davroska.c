@@ -365,11 +365,11 @@ dv_statustype_t dv_startos(dv_id_t mode)
 	/* If the task - or the other tasks that it starts - ever die,
 	 * we enable interrupts and drop into the idle loop waiting for an interrupt.
 	*/
-	dv_currentexe = 0;
+	dv_currentexe = idle;
 	dv_currentprio = 0;
 	dv_printf("dv_startos() - set IRQ level %d\n", 0);
 	dv_setirqlevel(0);
-	dv_exe[0].state = dv_running;
+	dv_exe[idle].state = dv_running;
 	dv_restore(DV_INTENABLED);
 	dv_idle();
 
@@ -565,7 +565,9 @@ static dv_statustype_t dv_activateexe(dv_id_t e)
 
 	/* Go to part 2
 	*/
-	return dv_activateexe2(e, is);
+	dv_statustype_t s = dv_activateexe2(e, is);
+	dv_printf("dv_activateexe() : dv_activateexe2() returned %d\n", s);
+	return s;
 }
 
 /* dv_runqueued() - run all higher-priority executables
@@ -815,7 +817,16 @@ static void dv_panic(dv_panic_t p)
 static void dv_idle(void)
 {
 	dv_printf("dv_idle() reached\n");
-	for (;;) { }
+	print_interrupt_status(DV_NULL);
+	for (;;)
+	{
+#if 0
+		print_interrupt_status(DV_NULL);
+#endif
+#if 0
+		for (volatile int j = 0; j < 2500000; j++) { }
+#endif
+	}
 }
 
 /* ===================================================================================================================
@@ -876,6 +887,8 @@ void dv_softvector(int vector)
 	dv_printf("dv_softvector() - %d --> %d\n", vector, dv_vectors[vector].p);
 
 	(void)(*dv_vectors[vector].fn)(dv_vectors[vector].p);
+
+	dv_printf("dv_softvector() - return\n");
 }
 
 /* Temporary ...

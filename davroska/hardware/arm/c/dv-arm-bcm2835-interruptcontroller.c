@@ -65,6 +65,7 @@ dv_bcm2835_imask_t dv_bcm2835_levelmasks[9];
 
 void dv_bcm2835_interrupt_handler(void)
 {
+	dv_printf("dv_bcm2835_interrupt_handler() - start\n");
 	dv_bcm2835_imask_t pending;
 
 	print_interrupt_status(&dv_bcm2835_irq_enabled);
@@ -90,14 +91,7 @@ void dv_bcm2835_interrupt_handler(void)
 			irq++;
 		}
 	}
-
-#if 1
-	static int count;
-
-	count++;
-	if ( count >= 5 )
-		for (;;) {}
-#endif
+	dv_printf("dv_bcm2835_interrupt_handler() - return\n");
 }
 
 /* dv_config_irq() - configure an irq
