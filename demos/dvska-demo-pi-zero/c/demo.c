@@ -131,9 +131,6 @@ void main_Ping(void)
 
 	dv_printf("Task Ping starting ...\n");
 
-	if ( (ee = dv_chaintask(Loop)) != dv_e_limit )
-		 dv_printf("Task Ping: dv_chaintask(Loop) returned %d\n", ee);
-
 	x++;
 	if ( x & 1 )
 	{
@@ -178,15 +175,30 @@ void main_Pong(void)
 
 void main_Uart(void)
 {
-	dv_printf("ISR Uart ...");
+	dv_printf("ISR Uart start");
 
 	while ( dv_consoledriver.isrx() )
 	{
 		int c = dv_consoledriver.getc();
 
-		dv_printf(" 0x%02x", c);
+		dv_printf("ISR Uart - 0x%02x", c);
+
+		if ( c == 'P' )
+		{
+			dv_statustype_t ee = dv_activatetask(Ping);
+			if ( ee != dv_e_ok )
+				dv_printf("ISR Uart : dv_activatetask(Ping) returned %d\n", ee);
+		}
+		if ( c == 'Q' )
+		{
+			dv_statustype_t ee = dv_activatetask(Pong);
+			if ( ee != dv_e_ok )
+				dv_printf("ISR Uart : dv_activatetask(Pong) returned %d\n", ee);
+		}
 	}
-	dv_printf("\n");
+	dv_printf("ISR Uart return\n");
+
+		
 }
 
 void callout_error(dv_statustype_t e)
