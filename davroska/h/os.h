@@ -3,9 +3,9 @@
  * (c) David Haworth
 */
 #ifndef os_h
-#define dv_davroska_api_h	1
+#define os_h	1
 
-#include <davroska-api.h>
+/* DON'T USE THIS! */
 
 /* StatusType has to be defined in conformance with the OSEK Binding Specification.
 */

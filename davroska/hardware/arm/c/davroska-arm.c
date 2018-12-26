@@ -4,7 +4,6 @@
 */
 #define DV_ASM  0
 #include <dv-config.h>
-#include <davroska-api.h>
 #include <davroska.h>
 #include <dv-string.h>
 
@@ -53,26 +52,33 @@ void dv_catch_irq(void)
 
 	/* Raise priority to maximum possible; save previous priority
 	*/
-	dv_printf("dv_catch_irq() : prio %d --> %d\n", dv_currentprio, dv_highestprio);
-	dv_prio_t p = dv_currentprio;
-	dv_currentprio = dv_highestprio;
 	dv_id_t me = dv_currentexe;
+	dv_prio_t my_p = dv_exe[me].currprio;
+	dv_printf("dv_catch_irq() : prio %d --> %d\n", my_p, dv_maxprio+1);
+	dv_exe[dv_currentexe].currprio = dv_maxprio+1;
 
 	/* Call all interrupt functions; most will activate executables
 	*/
 	dv_printf("dv_catch_irq() : dv_dispatch_interrupts()\n");
 	dv_dispatch_interrupts();
 
+	/* Sanity check
+	*/
+	if ( dv_currentexe != me )
+		dv_panic(dv_panic_UnknownPanic);		/* ToDo ...*/
+
+	/* Restore priority of current executable
+	*/
+	dv_exe[me].currprio = my_p;
+
 	/* Now run all queued executables down to saved priority
 	*/
-	dv_printf("dv_catch_irq() : dv_runqueued() %d\n", p);
-	dv_runqueued(p, DV_INTENABLED);
+	dv_printf("dv_catch_irq() : dv_runqueued() %d\n", my_p);
+	dv_runqueued(dv_maxprio, dv_exe[dv_currentexe].currprio, DV_INTENABLED);
 
 	/* When all higher-priority activity is done, back to the original caller
 	*/
-	dv_currentexe = me;
-	dv_currentprio = p;
-	dv_setqueueirqlevel(p);
+	dv_setqueueirqlevel(my_p);
 
 	dv_printf("     ctxt: 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x\n",
 		context[0], context[1], context[2], context[3],

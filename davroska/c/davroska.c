@@ -2,8 +2,8 @@
  *
  * (c) David Haworth
 */
+#define DV_ASM	0
 #include <dv-config.h>
-#include <davroska-api.h>
 #include <davroska.h>
 
 #include DV_INCLUDE_INTERRUPTCONTROLLER
@@ -17,35 +17,33 @@ const dv_qty_t dv_maxprio = DV_CFG_MAXPRIO;
 const dv_qty_t dv_maxslot = DV_NSLOT+1;
 const dv_qty_t dv_maxlock = DV_CFG_MAXLOCK;
 
-dv_id_t dv_currenttask;							/* Convenience variable for GetTaskID and GetISRID */
-dv_id_t dv_currentisr;							/* Convenience variable for GetISRID */
-dv_prio_t dv_currentprio;						/* Current priority */
+dv_prio_t dv_highprio;							/* Priority of highest activated exe (before running) */
 dv_prio_t dv_highestprio;						/* Highest priority in use */
 dv_id_t dv_currentexe;							/* Current executable */
 
-static dv_qty_t dv_nexe;						/* No. of executables created */
-static dv_qty_t dv_ntask;						/* No. of tasks created */
-static dv_qty_t dv_nisr;						/* No. of ISRs created */
-static dv_qty_t dv_nlock;						/* No. of locks dreated */
+dv_qty_t dv_nexe;						/* No. of executables created */
+dv_qty_t dv_ntask;						/* No. of tasks created */
+dv_qty_t dv_nisr;						/* No. of ISRs created */
+dv_qty_t dv_nlock;						/* No. of locks dreated */
 
-static dv_prio_t dv_maxtaskprio;				/* Highest-priority task */
+dv_prio_t dv_maxtaskprio;				/* Highest-priority task */
 
-static dv_exe_t dv_exe[DV_NEXE];				/* Executables */
-static dv_q_t dv_queue[DV_NQUEUE];				/* Priority queues (one per priority) */
-static dv_id_t dv_slots[DV_NSLOT];				/* Ring buffers for the queues */
-static dv_lock_t dv_lock[DV_CFG_MAXLOCK];		/* Locks */
+dv_exe_t dv_exe[DV_NEXE];				/* Executables */
+dv_q_t dv_queue[DV_NQUEUE];				/* Priority queues (one per priority) */
+dv_id_t dv_slots[DV_NSLOT];				/* Ring buffers for the queues */
+dv_lock_t dv_lock[DV_CFG_MAXLOCK];		/* Locks */
+
+void dv_panic(dv_panic_t p);
 
 /* Forward function declaractions
 */
 static void dv_idle(void);
-static void dv_preexehook(void);
-static void dv_postexehook(void);
-static void dv_panic(dv_panic_t p);
+static void dv_preexe(void);
+static void dv_postexe(void);
 static void dv_createqueues(void);
 static void dv_calculatelevels(void);
 static dv_statustype_t dv_activateexe(dv_id_t e);
 static dv_statustype_t dv_activateexe2(dv_id_t ei, dv_intstatus_t is);
-static void dv_runexe(dv_id_t e, dv_intstatus_t is);
 static dv_statustype_t dv_reporterror(dv_sid_t sid, dv_statustype_t e, dv_qty_t nParam, dv_param_t *p);
 static dv_id_t dv_addexe(const char *name, void (*fn)(void), dv_prio_t prio, dv_qty_t maxact);
 
@@ -240,13 +238,13 @@ dv_statustype_t dv_takelock(dv_id_t lock)
 	/* Save the current priority in the lock and increase the executable's priority to the ceiling.
 	 * Put executable into ceiling queue if the priority actually increases
 	*/
-	dv_lock[lock].saveprio = dv_currentprio;
-	if ( dv_currentprio < dv_lock[lock].ceiling )
+	dv_lock[lock].saveprio = dv_exe[dv_currentexe].currprio;
+	if ( dv_exe[dv_currentexe].currprio < dv_lock[lock].ceiling )
 	{
-		dv_currentprio = dv_exe[dv_currentexe].currprio = dv_lock[lock].ceiling;
-		dv_enqueue(dv_currentprio, dv_currentexe);
-		dv_printf("dv_takelock() - set IRQ level %d\n", dv_queue[dv_currentprio].level);
-		dv_setirqlevel(dv_queue[dv_currentprio].level);
+		dv_prio_t p = dv_exe[dv_currentexe].currprio = dv_lock[lock].ceiling;
+		dv_enqueue(p, dv_currentexe);
+		dv_printf("dv_takelock() - set IRQ level %d\n", dv_queue[p].level);
+		dv_setirqlevel(dv_queue[p].level);
 	}
 
 	(void)dv_restore(is);
@@ -287,24 +285,15 @@ dv_statustype_t dv_droplock(dv_id_t lock)
 	dv_exe[dv_currentexe].locklist = dv_lock[lock].next;
 	dv_lock[lock].next = -1;
 
-	dv_exe[dv_currentexe].currprio = dv_lock[lock].saveprio;
+	dv_prio_t high = dv_lock[lock].ceiling;
+	dv_prio_t low = dv_exe[dv_currentexe].currprio = dv_lock[lock].saveprio;
 
-	if ( dv_lock[lock].saveprio < dv_lock[lock].ceiling )
+	if ( low < high )
 	{
-		dv_prio_t p = dv_lock[lock].saveprio;
-		dv_id_t me = dv_currentexe;
-
-		if ( dv_dequeue(dv_lock[lock].ceiling) != me )
+		if ( dv_dequeue(high) != dv_currentexe )
 			dv_panic(dv_panic_QueueCorrupt);
 
-		dv_runqueued(dv_lock[lock].saveprio, is);
-
-		/* When all higher-priority activity is done, back to the original caller
-		*/
-		dv_currentexe = me;
-		dv_currentprio = p;
-		dv_printf("dv_droplock() - set IRQ level %d\n", dv_queue[p].level);
-		dv_setirqlevel(dv_queue[p].level);
+		dv_runqueued(high, low, is);
 	}
 	
 	(void)dv_restore(is);
@@ -332,7 +321,6 @@ dv_statustype_t dv_startos(dv_id_t mode)
 
 	/* Ensure that no executables can preempt until everything is initialised
 	*/
-	dv_currentprio = dv_maxprio;
 	dv_printf("dv_startos() - set IRQ level %d\n", 8);
 	dv_setirqlevel(8);			/* ToDo: lock-all level depends on hardware */
 
@@ -355,21 +343,30 @@ dv_statustype_t dv_startos(dv_id_t mode)
 
 	callout_addlocks(mode);
 
-	dv_activateexe(idle);
+	/* Now activate the idle loop.
+	 * Can't use dv_activatexe here because the idle loop must not run!
+	 * Afterwards, increase the priority to maximum so that autostart tasks cannot run.
+	*/
+	dv_exe[idle].nact++;
+	dv_enqueue(dv_exe[idle].currprio, idle);
+	dv_exe[idle].currprio = dv_maxprio;
+	dv_enqueue(dv_exe[idle].currprio, idle);
+	dv_exe[idle].state = dv_running;
 
 	callout_autostart(mode);
 
-	dv_exe[idle].state = dv_ready;
-	dv_runqueued(0, DV_INTENABLED);
+	if ( dv_dequeue(dv_exe[idle].currprio) != idle )
+		dv_panic(dv_panic_QueueCorrupt);
+
+	dv_exe[idle].currprio = dv_exe[idle].baseprio;
+
+	dv_runqueued(dv_maxprio, dv_exe[idle].baseprio, DV_INTENABLED);
 
 	/* If the task - or the other tasks that it starts - ever die,
 	 * we enable interrupts and drop into the idle loop waiting for an interrupt.
 	*/
-	dv_currentexe = idle;
-	dv_currentprio = 0;
 	dv_printf("dv_startos() - set IRQ level %d\n", 0);
 	dv_setirqlevel(0);
-	dv_exe[idle].state = dv_running;
 	dv_restore(DV_INTENABLED);
 	dv_idle();
 
@@ -572,11 +569,15 @@ static dv_statustype_t dv_activateexe(dv_id_t e)
 
 /* dv_runqueued() - run all higher-priority executables
 */
-void dv_runqueued(dv_qty_t p, dv_intstatus_t is)
+void dv_runqueued(dv_prio_t high, dv_prio_t low, dv_intstatus_t is)
 {
-	while ( dv_currentprio > p )
+	dv_prio_t p = high;
+	dv_id_t exe = dv_currentexe;
+
+	while ( p > low )
 	{
-		dv_id_t e = dv_qhead(dv_currentprio);
+		dv_id_t e = dv_qhead(p);
+
 		if ( e == 0 )
 		{
 			/* The idle executable is never in a higher-priority queue
@@ -586,16 +587,85 @@ void dv_runqueued(dv_qty_t p, dv_intstatus_t is)
 		else
 		if ( e > 0 )
 		{
+			if ( dv_exe[exe].state == dv_running )
+			{
+				dv_postexe();
+				dv_exe[exe].state = dv_ready;
+			}
+
 			/* Run the excutable. When it finally terminates it gets removed from the queue
 			*/
-			dv_runexe(e, is);
+			dv_jmpbuf_t jb;
+			dv_currentexe = e;
+			dv_exe[dv_currentexe].currprio = dv_exe[dv_currentexe].baseprio;
+			dv_exe[e].state = dv_running;
+			dv_exe[e].jb = &jb;
+
+			/* Todo: raise priority to for internal resources, non-preemptable, etc.
+			*/
+
+			/* Set the interrupt lock level
+			*/
+			dv_prio_t eprio = dv_exe[e].currprio;
+			dv_prio_t level = dv_queue[eprio].level;
+
+			dv_printf("dv_runqueued() - new exe %d; prio %d, set IRQ level %d\n", e, eprio, level);
+			(void)dv_setirqlevel(level);
+
+			/* Pre-exe hook for incoming exe
+			*/
+			dv_preexe();
+
+			if ( dv_setjmp(jb) == 0 )	/* TerminateTask() causes non-zero return here */
+			{
+				/* Interrupt state of caller is preserved for incoming exe
+				*/
+				dv_restore(is);
+
+				/* Run the exe
+				*/
+				(*dv_exe[e].func)();
+			}
+
+			/* On return or termination don't propagate the interrupt state
+			*/
+			(void)dv_disable();
+
+			dv_postexe();
+
+			/* Dequeue the executable (with sanity check)
+			*/
+			if ( dv_dequeue(eprio) != e )
+				dv_panic(dv_panic_QueueCorrupt);
+
+			dv_exe[e].nact--;
+			if ( dv_exe[e].nact <= 0 )
+				dv_exe[e].state = dv_suspended;
+			else
+				dv_exe[e].state = dv_ready;
+			dv_exe[e].jb = DV_NULL;
 		}
 		else
 		{
 			/* Queue is empty. Drop down to next lower priority.
 			*/
-			dv_currentprio--;
+			p--;
 		}
+	}
+
+	/* When all higher-priority activity is done, back to the original caller
+	*/
+	if ( dv_currentexe != exe )
+	{
+		/* Executable was preempted while running the queue
+		*/
+		dv_currentexe = exe;
+		dv_prio_t eprio = dv_exe[dv_currentexe].currprio;
+		dv_prio_t level = dv_queue[eprio].level;
+		dv_printf("dv_runqueued() - resume old exe %d; prio %d set IRQ level %d\n", eprio, level);
+		dv_setirqlevel(level);
+		dv_exe[dv_currentexe].state = dv_running;
+		dv_preexe();
 	}
 }
 
@@ -606,8 +676,8 @@ void dv_runqueued(dv_qty_t p, dv_intstatus_t is)
 static dv_statustype_t dv_activateexe2(dv_id_t e, dv_intstatus_t is)
 {
 	dv_printf("dv_activateexe2() - %d\n", e);
-	dv_exe[e].nact++;
 
+	dv_exe[e].nact++;
 	if ( dv_exe[e].state != dv_running )	/* Self-activation doesn't change the state */
 		dv_exe[e].state = dv_ready;
 
@@ -615,110 +685,12 @@ static dv_statustype_t dv_activateexe2(dv_id_t e, dv_intstatus_t is)
 	*/
 	dv_enqueue(dv_exe[e].baseprio, e);
 
-	/* Priority check: return if not preempted
+	/* Now run any executables that are of higher priority than caller.
 	*/
-	if ( dv_exe[e].baseprio <= dv_currentprio )
-	{
-		dv_printf(" ... queued at %d\n", dv_exe[e].baseprio);
-		dv_restore(is);
-		return dv_e_ok;
-	}
+	dv_runqueued(dv_exe[e].baseprio, dv_exe[dv_currentexe].currprio, is);
 
-	dv_printf(" ... run immediately\n", dv_exe[e].baseprio);
-
-	/* Post-exe hook for outgoing exe
-	*/
-	dv_postexehook();
-
-	/* Remember current priority and set the new priority
-	*/
-	dv_printf("dv_activateexe2() - prio %d --> %d\n", dv_currentprio, dv_exe[e].baseprio);
-	dv_qty_t p = dv_currentprio;
-	dv_currentprio = dv_exe[e].baseprio;
-
-	/* Remember current executable
-	*/
-	dv_id_t me = dv_currentexe;
-
-	/* Run the incoming exe
-	*/
-	dv_runexe(e, is);
-
-	/* After that little excursion there might be lots more executables waiting to run.
-	 * Those that are of higher priority than the caller have to run here.
-	*/
-	dv_runqueued(p, is);
-
-	/* When all higher-priority activity is done, back to the original caller
-	*/
-	dv_currentexe = me;
-	dv_currentprio = p;
-	dv_printf("dv_activateexe2() - set IRQ level %d\n", dv_queue[p].level);
-	dv_setirqlevel(dv_queue[p].level);
-	dv_preexehook();
 	dv_restore(is);
 	return dv_e_ok;
-}
-
-/* dv_runexe() - execute an executable
- *
- * Execute a task or ISR that is either:
- *		- preempting the current task or ISR, or
- *		- the next most eligible task or ISR after a termination.
-*/
-static void dv_runexe(dv_id_t e, dv_intstatus_t is)
-{
-	dv_jmpbuf_t jb;
-
-	if ( dv_setjmp(jb) == 0 )	/* TerminateTask() causes non-zero return here */
-	{
-		/* Set outgoing exe to READY
-		*/
-		dv_exe[dv_currentexe].state = dv_ready;
-
-		/* Switch to incoming exe, set to RUNNING
-		*/
-		dv_currentexe = e;
-		dv_currentprio = dv_exe[dv_currentexe].currprio = dv_exe[dv_currentexe].baseprio;
-		dv_exe[e].state = dv_running;
-		dv_exe[e].jb = &jb;
-
-		/* Todo: raise priority to for internal resources, non-preemptable, etc.
-		*/
-		dv_printf("dv_runexe() - currentprio %d, set IRQ level %d\n", dv_currentprio, dv_queue[dv_currentprio].level);
-		(void)dv_setirqlevel(dv_queue[dv_currentprio].level);
-
-		/* Pre-exe hook for incoming exe
-		*/
-		dv_preexehook();
-
-		/* Interrupt state of caller is preserved for incoming exe
-		*/
-		dv_restore(is);
-
-		/* Run the exe
-		*/
-		(*dv_exe[e].func)();
-	}
-
-	/* On return or termination don't propagate the interrupt state
-	*/
-	(void)dv_disable();
-
-	/* Post-exe hook for terminated exe.
-	*/
-	dv_postexehook();
-	dv_exe[e].nact--;
-	if ( dv_exe[e].nact <= 0 )
-		dv_exe[e].state = dv_suspended;
-	
-	dv_exe[e].state = dv_suspended;
-	dv_exe[e].jb = DV_NULL;
-
-	/* Dequeue the executable (with sanity check)
-	*/
-	if ( dv_dequeue(dv_currentprio) != dv_currentexe )
-		dv_panic(dv_panic_QueueCorrupt);
 }
 
 /* dv_createqueues() - allocate the slots for the queueus
@@ -767,16 +739,16 @@ static void dv_calculatelevels(void)
 	}
 }
 
-/* dv_preexehook() - call the PreTaskHook or PreISRHook if configured
+/* dv_preexe() - stuff to do just before (re)starting an executable
 */
-static void dv_preexehook(void)
+static void dv_preexe(void)
 {
 	/* Todo: implement */
 }
 
-/* dv_postexehook() - call the PostTaskHook or PostISRHook if configured
+/* dv_postexe() - stuff to do just after terminating an executable
 */
-static void dv_postexehook(void)
+static void dv_postexe(void)
 {
 	/* Todo: implement */
 }
@@ -805,7 +777,7 @@ static dv_statustype_t dv_reporterror(dv_sid_t sid, dv_statustype_t e, dv_qty_t 
 
 /* dv_panic() - report a fatal error
 */
-static void dv_panic(dv_panic_t p)
+void dv_panic(dv_panic_t p)
 {
 	/* Todo: implement */
 	dv_printf("dv_panic(%d) called\n", p);

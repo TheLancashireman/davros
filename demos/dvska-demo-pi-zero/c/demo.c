@@ -4,7 +4,7 @@
 */
 #define DV_ASM	0
 #include <dv-config.h>
-#include <davroska-api.h>
+#include <davroska.h>
 #include <dv-stdio.h>
 #include <dv-string.h>
 

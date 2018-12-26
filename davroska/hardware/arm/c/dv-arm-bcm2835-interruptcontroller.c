@@ -18,7 +18,6 @@
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <dv-config.h>
-#include <davroska-api.h>
 #include <davroska.h>
 #include <dv-arm-bcm2835-interruptcontroller.h>
 
