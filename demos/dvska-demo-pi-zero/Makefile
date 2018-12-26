@@ -39,6 +39,7 @@ CC_OPT		+= -I $(DVSK_ROOT)/hardware
 CC_OPT		+= -I $(DV_ROOT)/devices/h
 CC_OPT		+= -I $(DV_ROOT)/lib/h
 CC_OPT		+= -Wall
+CC_OPT		+= -fno-common
 #CC_OPT		+= -O2
 
 LD_OPT		+= -e dv_trap_reset

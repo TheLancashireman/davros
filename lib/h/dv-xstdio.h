@@ -40,8 +40,10 @@ int fprintf(void *stream, const char *fmt, ...);
 int fgetc(void *stream);
 int fputc(int c, void *stream);
 
+#if 0
 #define printf(f...)	fprintf(stdout, ## f)
 #define getc(s)			fgetc(s)
+#endif
 
 typedef int (*dv_xprintf_putc_t)(int);
 typedef int (*dv_xprintf_getc_t)(void);

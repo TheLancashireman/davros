@@ -35,24 +35,57 @@ void dv_catch_irq(void)
 {
 	dv_u32_t context[8];
 
+	dv_printf(" irqstack: 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x\n",
+		dv_irqstack[0], dv_irqstack[1], dv_irqstack[2], dv_irqstack[3],
+		dv_irqstack[4], dv_irqstack[5], dv_irqstack[6], dv_irqstack[7]);
+
 	/* Save irq context on stack
 	*/
 	dv_memcpy32(context, dv_irqstack, 8);
 
+	/* For an irq, have to adjust the return address by -4
+	*/
+	context[5] -= 4;
+
+	dv_printf("     ctxt: 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x\n",
+		context[0], context[1], context[2], context[3],
+		context[4], context[5], context[6], context[7]);
+
 	/* Raise priority to maximum possible; save previous priority
 	*/
+	dv_printf("dv_catch_irq() : prio %d --> %d\n", dv_currentprio, dv_highestprio);
 	dv_prio_t p = dv_currentprio;
 	dv_currentprio = dv_highestprio;
+	dv_id_t me = dv_currentexe;
 
 	/* Call all interrupt functions; most will activate executables
 	*/
+	dv_printf("dv_catch_irq() : dv_dispatch_interrupts()\n");
 	dv_dispatch_interrupts();
 
 	/* Now run all queued executables down to saved priority
 	*/
+	dv_printf("dv_catch_irq() : dv_runqueued() %d\n", p);
 	dv_runqueued(p, DV_INTENABLED);
 
+	/* When all higher-priority activity is done, back to the original caller
+	*/
+	dv_currentexe = me;
+	dv_currentprio = p;
+	dv_setqueueirqlevel(p);
+
+	dv_printf("     ctxt: 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x\n",
+		context[0], context[1], context[2], context[3],
+		context[4], context[5], context[6], context[7]);
+
+	dv_printf("dv_catch_irq() : restore context\n");
 	/* Restore the saved irq context
 	*/
 	dv_memcpy32(dv_irqstack, context, 8);
+
+	dv_printf(" irqstack: 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x\n",
+		dv_irqstack[0], dv_irqstack[1], dv_irqstack[2], dv_irqstack[3],
+		dv_irqstack[4], dv_irqstack[5], dv_irqstack[6], dv_irqstack[7]);
+
+	dv_printf("dv_catch_irq() : return\n");
 }

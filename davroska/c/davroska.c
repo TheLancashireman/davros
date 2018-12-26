@@ -21,13 +21,13 @@ dv_id_t dv_currenttask;							/* Convenience variable for GetTaskID and GetISRID
 dv_id_t dv_currentisr;							/* Convenience variable for GetISRID */
 dv_prio_t dv_currentprio;						/* Current priority */
 dv_prio_t dv_highestprio;						/* Highest priority in use */
+dv_id_t dv_currentexe;							/* Current executable */
 
 static dv_qty_t dv_nexe;						/* No. of executables created */
 static dv_qty_t dv_ntask;						/* No. of tasks created */
 static dv_qty_t dv_nisr;						/* No. of ISRs created */
 static dv_qty_t dv_nlock;						/* No. of locks dreated */
 
-static dv_id_t dv_currentexe;					/* Current executable */
 static dv_prio_t dv_maxtaskprio;				/* Highest-priority task */
 
 static dv_exe_t dv_exe[DV_NEXE];				/* Executables */
@@ -42,6 +42,7 @@ static void dv_preexehook(void);
 static void dv_postexehook(void);
 static void dv_panic(dv_panic_t p);
 static void dv_createqueues(void);
+static void dv_calculatelevels(void);
 static dv_statustype_t dv_activateexe(dv_id_t e);
 static dv_statustype_t dv_activateexe2(dv_id_t ei, dv_intstatus_t is);
 static void dv_runexe(dv_id_t e, dv_intstatus_t is);
@@ -119,7 +120,7 @@ static inline dv_id_t dv_dequeue(dv_prio_t p)
 */
 dv_statustype_t dv_activatetask(dv_id_t t)
 {
-	if ( (t < 1) || (t > dv_ntask) )
+	if ( (t < 1) || (t >= dv_ntask) )
 	{
 		dv_param_t p = (dv_param_t)t;
 		return dv_reporterror(dv_sid_activatetask, dv_e_id, 1, &p);
@@ -134,7 +135,7 @@ dv_statustype_t dv_activatetask(dv_id_t t)
 */
 dv_statustype_t dv_chaintask(dv_id_t t)
 {
-	if ( (t < 1) || (t > dv_ntask) )
+	if ( (t < 1) || (t >= dv_ntask) )
 	{
 		dv_param_t p = (dv_param_t)t;
 		return dv_reporterror(dv_sid_activatetask, dv_e_id, 1, &p);
@@ -244,6 +245,8 @@ dv_statustype_t dv_takelock(dv_id_t lock)
 	{
 		dv_currentprio = dv_exe[dv_currentexe].currprio = dv_lock[lock].ceiling;
 		dv_enqueue(dv_currentprio, dv_currentexe);
+		dv_printf("dv_takelock() - set IRQ level %d\n", dv_queue[dv_currentprio].level);
+		dv_setirqlevel(dv_queue[dv_currentprio].level);
 	}
 
 	(void)dv_restore(is);
@@ -298,8 +301,10 @@ dv_statustype_t dv_droplock(dv_id_t lock)
 
 		/* When all higher-priority activity is done, back to the original caller
 		*/
-		dv_currentprio = p;
 		dv_currentexe = me;
+		dv_currentprio = p;
+		dv_printf("dv_droplock() - set IRQ level %d\n", dv_queue[p].level);
+		dv_setirqlevel(dv_queue[p].level);
 	}
 	
 	(void)dv_restore(is);
@@ -320,13 +325,16 @@ dv_statustype_t dv_startos(dv_id_t mode)
 		dv_queue[i].nslots = 2;		/* Reserve an entry for a raised priority and an entry for the gap */
 	}
 
-	/* Initialise the interrupt vectors
+	/* Initialise the interrupt systems
 	*/
 	dv_initvectors();
+	dv_init_interrupt_controller();
 
 	/* Ensure that no executables can preempt until everything is initialised
 	*/
 	dv_currentprio = dv_maxprio;
+	dv_printf("dv_startos() - set IRQ level %d\n", 8);
+	dv_setirqlevel(8);			/* ToDo: lock-all level depends on hardware */
 
 	/* Create the idle loop executable
 	*/
@@ -343,6 +351,8 @@ dv_statustype_t dv_startos(dv_id_t mode)
 
 	dv_createqueues();
 
+	dv_calculatelevels();
+
 	callout_addlocks(mode);
 
 	dv_activateexe(idle);
@@ -357,6 +367,8 @@ dv_statustype_t dv_startos(dv_id_t mode)
 	*/
 	dv_currentexe = 0;
 	dv_currentprio = 0;
+	dv_printf("dv_startos() - set IRQ level %d\n", 0);
+	dv_setirqlevel(0);
 	dv_exe[0].state = dv_running;
 	dv_restore(DV_INTENABLED);
 	dv_idle();
@@ -424,6 +436,9 @@ dv_id_t dv_addisr(const char *name, void (*fn)(void), dv_id_t irqid, dv_prio_t p
 	if ( id >= 0 )
 	{
 		dv_nisr++;
+		dv_exe[id].irqid = irqid;
+		dv_printf("dv_addisr() = added %s id %d baseprio %d runprio %d irqid %d\n",
+			dv_exe[id].name, id, dv_exe[id].baseprio, dv_exe[id].runprio, dv_exe[id].irqid);
 		dv_setvector(irqid, dv_activateexe, id);
 	}
 
@@ -515,11 +530,16 @@ static dv_id_t dv_addexe(const char *name, void (*fn)(void), dv_prio_t prio, dv_
 	dv_exe[id].maxact = maxact;
 	dv_exe[id].nact = 0;
 	dv_exe[id].baseprio = prio;
+	dv_exe[id].runprio = prio;
 	dv_exe[id].currprio = prio;
 	dv_exe[id].state = dv_suspended;
 	dv_exe[id].locklist = -1;
+	dv_exe[id].irqid = -1;
 
 	dv_queue[prio].nslots += maxact;
+
+	if ( prio > dv_highestprio )
+		dv_highestprio = prio;
 
 	return id;
 }
@@ -531,6 +551,7 @@ static dv_id_t dv_addexe(const char *name, void (*fn)(void), dv_prio_t prio, dv_
 */
 static dv_statustype_t dv_activateexe(dv_id_t e)
 {
+	dv_printf("dv_activateexe() - %d\n", e);
 	dv_intstatus_t is = dv_disable();
 
 	/* Max activations check
@@ -582,6 +603,7 @@ void dv_runqueued(dv_qty_t p, dv_intstatus_t is)
 */
 static dv_statustype_t dv_activateexe2(dv_id_t e, dv_intstatus_t is)
 {
+	dv_printf("dv_activateexe2() - %d\n", e);
 	dv_exe[e].nact++;
 
 	if ( dv_exe[e].state != dv_running )	/* Self-activation doesn't change the state */
@@ -595,9 +617,12 @@ static dv_statustype_t dv_activateexe2(dv_id_t e, dv_intstatus_t is)
 	*/
 	if ( dv_exe[e].baseprio <= dv_currentprio )
 	{
+		dv_printf(" ... queued at %d\n", dv_exe[e].baseprio);
 		dv_restore(is);
 		return dv_e_ok;
 	}
+
+	dv_printf(" ... run immediately\n", dv_exe[e].baseprio);
 
 	/* Post-exe hook for outgoing exe
 	*/
@@ -605,6 +630,7 @@ static dv_statustype_t dv_activateexe2(dv_id_t e, dv_intstatus_t is)
 
 	/* Remember current priority and set the new priority
 	*/
+	dv_printf("dv_activateexe2() - prio %d --> %d\n", dv_currentprio, dv_exe[e].baseprio);
 	dv_qty_t p = dv_currentprio;
 	dv_currentprio = dv_exe[e].baseprio;
 
@@ -623,8 +649,10 @@ static dv_statustype_t dv_activateexe2(dv_id_t e, dv_intstatus_t is)
 
 	/* When all higher-priority activity is done, back to the original caller
 	*/
-	dv_currentprio = p;
 	dv_currentexe = me;
+	dv_currentprio = p;
+	dv_printf("dv_activateexe2() - set IRQ level %d\n", dv_queue[p].level);
+	dv_setirqlevel(dv_queue[p].level);
 	dv_preexehook();
 	dv_restore(is);
 	return dv_e_ok;
@@ -655,6 +683,8 @@ static void dv_runexe(dv_id_t e, dv_intstatus_t is)
 
 		/* Todo: raise priority to for internal resources, non-preemptable, etc.
 		*/
+		dv_printf("dv_runexe() - currentprio %d, set IRQ level %d\n", dv_currentprio, dv_queue[dv_currentprio].level);
+		(void)dv_setirqlevel(dv_queue[dv_currentprio].level);
 
 		/* Pre-exe hook for incoming exe
 		*/
@@ -700,6 +730,38 @@ static void dv_createqueues(void)
 		s += dv_queue[q].nslots;
 		if ( s > dv_maxslot )
 			dv_panic(dv_panic_ConfigNslotsInsufficient);
+	}
+}
+
+/* dv_calculatelevels() - calculate the levels for IRQs
+ *
+ * Allocate a lock level > 0 for every queue of higher priority than the highest task. Ignore queues
+ * that aren't in use.
+*/
+static void dv_calculatelevels(void)
+{
+	dv_printf("dv_calculatelevels() - dv_ntask %d dv_nexe %d\n", dv_ntask, dv_nexe);
+	dv_prio_t l = 0;
+	for ( dv_prio_t p = dv_maxtaskprio + 1; p <= dv_maxprio; p++ )
+	{
+		dv_printf("dv_calculatelevels() - prio %d\n", p);
+		int c = 0;
+		for ( dv_id_t e = dv_ntask; e < dv_nexe; e++ )
+		{
+			dv_printf("dv_calculatelevels() - prio %d, exe %d", p, e);
+			if ( dv_exe[e].baseprio == p )
+			{
+				c++;
+				dv_printf("\ndv_calculatelevels() - confg_irq exe %d, irqid %d, level l\n", e, dv_exe[e].irqid, l);
+				dv_config_irq(dv_exe[e].irqid, l, 0);
+			}
+			else
+				dv_printf(" ... not at this prio\n");
+		}
+		if ( c > 0 )
+			l++;
+		dv_queue[p].level = l;
+		dv_printf("dv_calculatelevels() - queue prio %d, level %d\n", p, dv_queue[p].level);
 	}
 }
 
@@ -802,6 +864,7 @@ static int dv_isvectorfree(dv_id_t vec)
 */
 static void dv_setvector(dv_id_t vec, dv_statustype_t (*fn)(dv_id_t p), dv_id_t p)
 {
+	dv_printf("dv_setvector() - %d = %d\n", vec, p);
 	dv_vectors[vec].fn = fn;
 	dv_vectors[vec].p = p;
 }
@@ -810,5 +873,14 @@ static void dv_setvector(dv_id_t vec, dv_statustype_t (*fn)(dv_id_t p), dv_id_t 
 */
 void dv_softvector(int vector)
 {
+	dv_printf("dv_softvector() - %d --> %d\n", vector, dv_vectors[vector].p);
+
 	(void)(*dv_vectors[vector].fn)(dv_vectors[vector].p);
+}
+
+/* Temporary ...
+*/
+void dv_setqueueirqlevel(dv_prio_t p)
+{
+	dv_setirqlevel(dv_queue[p].level);
 }

@@ -44,6 +44,7 @@ typedef enum
 dv_statustype_t dv_startos(dv_id_t mode);
 
 dv_id_t dv_addtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_qty_t maxact);
+dv_id_t dv_addisr(const char *name, void (*fn)(void), dv_id_t irqid, dv_prio_t prio);
 dv_id_t dv_addlock(const char *name, dv_qty_t maxtake);
 void dv_addlockuser(dv_id_t lock, dv_id_t executable);
 
@@ -56,13 +57,12 @@ dv_statustype_t dv_droplock(dv_id_t lock);
 /* Configuration callout functions: provided by the application
 */
 void callout_addtasks(dv_id_t mode);
+void callout_addisrs(dv_id_t mode);
 void callout_addlocks(dv_id_t mode);
 void callout_autostart(dv_id_t mode);
 
 /* Runtime callout functions: provided by the application
 */
-void callout_addtasks(dv_id_t mode);
-void callout_addisrs(dv_id_t mode);
 void callout_startup(void);
 void callout_preexe(void);
 void callout_postexe(void);

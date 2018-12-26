@@ -28,33 +28,38 @@
 
 /* dv_trap_irq() - low level IRQ handler
  *
- * sp_irq is initialised at startup to point to an array where registers can be stored temporarily.
+ * sp_irq is initialised at startup to point to a context array where registers can be stored temporarily.
  * The sp_irq register is not used as a stack pointer, so we refer to it with its generic name r13 here.
  *
- * It is the responsibility of the irq handler to save the array in an automatic variable before re-enabling IRQ,
- * and to restore the contents before returning.
- *	array[0] = r0
- *	array[1] = r1
- *	array[2] = r2
- *	array[3] = r3
- *	array[4] = r12
- *	array[5] = pc (lr - 4)
- *	array[6] = spsr
+ * It is the responsibility of the irq handler to save the context array in an automatic variable before
+ * re-enabling IRQ, and to restore the contents before returning.
+ *	context[0] = r0
+ *	context[1] = r1
+ *	context[2] = r2
+ *	context[3] = r3
+ *	context[4] = r12
+ *	context[5] = lr (pc of interrupted context) (dv_catch_irq needs to subtract 4)
+ *	context[6] = spsr
+ *	context[7] = lr_svc
 */
 
 dv_trap_irq:
-	stmia	r13, {r0-r3,r12}	/* Save the volatile registers (r0-r3 and r12) and exception pc in the irq array */
-	sub		r3, lr, #4			/* IRQ needs a 4-byte adjustment */
-	str		r3, [r13,#20]		/* Save adusted lr in array */
+	stmia	r13, {r0-r3,r12,lr}	/* Save the volatile registers (r0-r3 and r12) and exception pc in the context array */
 	mrs		r0, spsr			/* Get spsr */
-	str		r0, [r13,#24]		/* Save spsr in array */
+	str		r0, [r13,#24]		/* Save spsr in context array */
+	mov		r1, r13				/* Transfer r13 over mode switch */
 
 	mrs		r12, cpsr			/* Switch to svc mode: */
 	bic		r12, r12, #DV_ARM_MODE		/* Clear all mode bits */
 	orr		r12, r12, #DV_ARM_MODE_SVC	/* Set svc mode */
 	msr		cpsr_c, r12
 
+	str		lr, [r1,#28]		/* Save lr_svc in context array */
+
 	bl		dv_catch_irq		/* Handle the interrupt */
+
+	ldr		r1, =dv_irqstack
+	ldr		lr, [r1,#28]		/* Restore lr_svc from context array */
 
 	mrs		r12, cpsr			/* Switch to irq mode: */
 	bic		r12, r12, #DV_ARM_MODE		/* Clear all mode bits */

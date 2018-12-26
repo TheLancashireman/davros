@@ -26,6 +26,8 @@
 #error	"No definition of DV_PBASE in the board headers. Please fix!"
 #endif
 
+#include <dv-stdio.h>
+
 #ifndef DV_SUPPORT_INTLEVEL
 #define DV_SUPPORT_INTLEVEL		0
 #endif
@@ -170,14 +172,7 @@ extern dv_bcm2835_imask_t dv_bcm2835_levelmasks[9];
  * otherwise nothing to do
 */
 #if DV_SUPPORT_INTLEVEL
-static inline void dv_config_irq(dv_irqid_t index, dv_intlevel_t level, int unused_core)
-{
-	/* Constrain irq'ls level
-	*/
-	if ( level < 0 ) level = 0;
-	if ( level > 7 ) level = 7;
-	dv_bcm2835_irq_level[index] = level;
-}
+extern void dv_config_irq(dv_irqid_t index, dv_intlevel_t level, int unused_core);
 #else
 static inline void dv_config_irq(dv_irqid_t unused_index, dv_intlevel_t unused_level, int unused_core)
 {
@@ -195,12 +190,17 @@ static inline void dv_config_irq(dv_irqid_t unused_index, dv_intlevel_t unused_l
 static inline void dv_enable_irq(dv_irqid_t index)
 {
 	int reg = dv_bcm2835_irq_list[index].idx;
-	dv_u32_t mask = ~dv_bcm2835_irq_list[index].mask;
+	dv_u32_t mask = dv_bcm2835_irq_list[index].mask;
 
 #if DV_SUPPORT_INTLEVEL
 	dv_bcm2835_irq_enabled.mask[reg] |= mask;
+	dv_printf("dv_enable_irq() - dv_bcm2835_irq_enabled.mask[%d] set to 0x%08x, irqlevel %d, current %d\n",
+							reg, dv_bcm2835_irq_enabled.mask[reg], dv_bcm2835_irq_level[index], dv_currentlocklevel);
 	if ( dv_bcm2835_irq_level[index] >= dv_currentlocklevel )
+	{
+		dv_printf("dv_enable_irq() - writing 0x%08x to .irq_enable[%d]\n", mask, reg);
 		dv_arm_bcm2835_interruptcontroller.irq_enable[reg] = mask;	/* Register is "write 1 to enable" */
+	}
 #else
 	dv_arm_bcm2835_interruptcontroller.irq_enable[reg] = mask;	/* Register is "write 1 to enable" */
 #endif
@@ -242,7 +242,8 @@ static inline dv_intlevel_t dv_setirqlevel(dv_intlevel_t lvl)
 	for ( int i = 0; i < 3; i++ )
 	{
 		dv_arm_bcm2835_interruptcontroller.irq_disable[i] = 0xffffffff;
-		dv_arm_bcm2835_interruptcontroller.irq_enable[i] = dv_bcm2835_irq_enabled.mask[i];
+		dv_arm_bcm2835_interruptcontroller.irq_enable[i] =
+				dv_bcm2835_irq_enabled.mask[i] & dv_bcm2835_levelmasks[lvl].mask[i];
 	}
 
 	dv_restore(is);

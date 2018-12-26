@@ -39,6 +39,7 @@ typedef struct dv_q_s
 	dv_qty_t tail;			/* Current insertion position */
 	dv_qty_t nq;			/* No of executables in queue */
     dv_prio_t prio;			/* Priority of this queue */
+    dv_prio_t level;		/* Interrupt lock level of this queue */
 } dv_q_t;
 
 typedef void (*dv_taskf_t)(void);
@@ -51,15 +52,18 @@ typedef struct dv_exe_s
 	dv_qty_t maxact;
 	dv_qty_t nact;
 	dv_prio_t baseprio;
+	dv_prio_t runprio;
 	dv_prio_t currprio;
 	dv_tstate_t state;
 	dv_id_t locklist;
+	dv_id_t irqid;
 } dv_exe_t;
 
 typedef struct dv_lock_s
 {
 	const char *name;
 	dv_prio_t ceiling;
+	dv_prio_t locklevel;
 	dv_qty_t maxtake;
 	dv_qty_t ntake;
 	dv_id_t owner;
@@ -79,6 +83,7 @@ extern dv_id_t dv_currenttask;
 extern dv_id_t dv_currentisr;
 extern dv_prio_t dv_currentprio;
 extern dv_prio_t dv_highestprio;
+extern dv_id_t dv_currentexe;
 
 extern void dv_runqueued(dv_qty_t p, dv_intstatus_t is);
 extern void dv_softvector(int vector);

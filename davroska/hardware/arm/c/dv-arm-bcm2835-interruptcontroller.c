@@ -55,7 +55,7 @@ const dv_bcm2835_irq_t dv_bcm2835_irq_list[dv_n_bcm2835_iid+1] =
 };
 
 dv_intlevel_t dv_bcm2835_irq_level[dv_n_bcm2835_iid];
-dv_intlevel_t dv_currentlocklevel;
+dv_intlevel_t dv_currentlocklevel = -1;
 dv_bcm2835_imask_t dv_bcm2835_irq_enabled;
 dv_bcm2835_imask_t dv_bcm2835_levelmasks[9];
 
@@ -67,6 +67,8 @@ void dv_bcm2835_interrupt_handler(void)
 {
 	dv_bcm2835_imask_t pending;
 
+	print_interrupt_status(&dv_bcm2835_irq_enabled);
+
 	/* Only consider interrupts that are enabled
 	*/
 	pending.mask[0] = dv_arm_bcm2835_interruptcontroller.irq_pending[0]	& dv_bcm2835_irq_enabled.mask[0];
@@ -76,18 +78,51 @@ void dv_bcm2835_interrupt_handler(void)
 	/* Loop over all interrupt sources. Clear and handle the configured sources.
 	*/
 	dv_irqid_t irq = 0;
-	int reg = 0;
-	for ( int i = 0; i < 3; i++ )
+	for ( int reg = 0; reg < 3; reg++ )
 	{
-		dv_u32_t p = pending.mask[i];
+		dv_u32_t p = pending.mask[reg];
 		while ( dv_bcm2835_irq_list[irq].idx == reg )
 		{
 			if ( (p & dv_bcm2835_irq_list[irq].mask) != 0 )
 			{
-				dv_softvector(i);
+				dv_softvector(irq);
 			}
 			irq++;
 		}
-		reg = dv_bcm2835_irq_list[irq].idx;
+	}
+
+#if 1
+	static int count;
+
+	count++;
+	if ( count >= 5 )
+		for (;;) {}
+#endif
+}
+
+/* dv_config_irq() - configure an irq
+ *
+ *		- set its level in the config array
+ *		- set its bit in its mask in all levels where it is enabled
+*/
+void dv_config_irq(dv_irqid_t irq, dv_intlevel_t level, int unused_core)
+{
+	/* Constrain irq'ls level
+	*/
+	if ( level < 0 ) level = 0;
+	if ( level > 7 ) level = 7;
+
+	/* Store level
+	*/
+	dv_bcm2835_irq_level[irq] = level;
+
+	/* Set enable bit in each level where the irq is enabled
+	*/
+	for ( int i = 0; i <= level; i++ )
+	{
+		dv_bcm2835_levelmasks[i].mask[dv_bcm2835_irq_list[irq].idx] |= dv_bcm2835_irq_list[irq].mask;
+
+		dv_printf("dv_config_irq() - level %d, enabled = 0x%08x\n",
+								i, dv_bcm2835_levelmasks[i].mask[dv_bcm2835_irq_list[irq].idx]);
 	}
 }
