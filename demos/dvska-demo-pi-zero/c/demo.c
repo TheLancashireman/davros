@@ -11,6 +11,7 @@
 #include <dv-arm-bcm2835-uart.h>
 #include <dv-arm-bcm2835-aux.h>
 #include <dv-arm-bcm2835-interruptcontroller.h>
+#include <dv-armv6-mmu.h>
 
 void main_Init(void);
 void main_Loop(void);
@@ -231,6 +232,10 @@ void dv_board_start(void)
 	/* Copy the vector table to 0
 	*/
 	dv_memcpy32(0, &dv_vectortable, &dv_vectortable_end - &dv_vectortable);
+
+	/* Set up the MMU
+	*/
+	dv_armv6_mmu_setup();
 
 	main(0, 0);
 }

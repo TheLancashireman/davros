@@ -78,6 +78,30 @@ struct dv_armv6_l1pagetable_s
 #define DV_V6MMUL1_P		0x00000200		/* P - enables ECC (not supported on 1176) */
 #define DV_V6MMUL1_L2B_ADDR	0xfffffc00		/* Base address of L2 table */
 
+#define DV_V6MMUL1_SEC		0x00000002		/* Entry is a section */
+#define DV_V6MMUL1_S_B		0x00000004
+#define DV_V6MMUL1_S_C		0x00000008
+#define DV_V6MMUL1_S_XN		0x00000010
+											/* The DOM field also applies */
+#define DV_V6MMUL1_S_AP		0x00000c00		/* 2 bits */
+#define DV_V6MMUL1_S_AP_NO		0x00000000	/* No access */
+#define DV_V6MMUL1_S_AP_UNO		0x00000400	/* Supervisor read+write, user no access */
+#define DV_V6MMUL1_S_AP_URO		0x00000800	/* Supervisor read+write, user read-only */
+#define DV_V6MMUL1_S_AP_URW		0x00000c00	/* Supervisor read+write, user read+write */
+#define DV_V6MMUL1_S_TEX	0x00007000		/* 3 bits */
+#define DV_V6MMUL1_S_TEX_1		0x00001000
+#define DV_V6MMUL1_S_TEX_2		0x00002000
+#define DV_V6MMUL1_S_TEX_3		0x00003000
+#define DV_V6MMUL1_S_APX	0x00008000
+#define DV_V6MMUL1_S_S		0x00010000
+#define DV_V6MMUL1_S_nG		0x00020000
+#define DV_V6MMUL1_S_16MiB	0x00040000		/* If this is 1, DOM and 4 LSBs of phys. addr. take new meaning */
+
+/* Memory attribute shortcuts. See arm_arm.pdf table B5-5 (page B5-11)
+*/
+#define DV_V6MMUL1_ATTR_MEMORY	(DV_V6MMUL1_S_TEX_1 | DV_V6MMUL1_S_C | DV_V6MMUL1_S_B)
+#define DV_V6MMUL1_ATTR_SH_DEV	(DV_V6MMUL1_S_B)	/* TEX=0, C=0 */
+
 /* A level 2 page table (whose base address is in an L1 page table entry) is
  * an array of 256 (2**8) page table entries.
  * Each page table entry represents 4 KiB of the address space and is either:
@@ -119,7 +143,9 @@ struct dv_armv6_l2pagetable_s
 #define DV_V6MMUL2_NG		0x00000800		/* nG */
 #define DV_V6MMUL2_ADDR		0xfffff000		/* Physical page address */
 
-#ifndef DV_DAVROSKA
+#ifdef DV_DAVROSKA
+void dv_armv6_mmu_setup(void);
+#else
 void dv_armv6_mmu_init_pagetable(dv_kernel_t *kvars);
 void dv_armv6_mmu_map_page(dv_kernel_t *kvars, void *phys, void *virt, dv_u32_t l1_attr, dv_u32_t l2_attr);
 #endif
@@ -258,6 +284,14 @@ static inline dv_u32_t dv_get_domain_access_control(void)
 #define DV_DAC_CLIENT		0x01
 #define DV_DAC_MANAGER		0x03
 
+/* The TTB registers
+*/
+#define DV_TTB_C	0x01	/* Page table walk is inner-cacheable */
+#define DV_TTB_S	0x02	/* Page table walk is to shareable memory */
+#define DV_TTB_RGN	0x18	/* Outer cacheable ... */
+#define DV_TTB_RGN_N	0x00	/* Normal memory noncacheable */
+#define DV_TTB_RGN_WT	0x10	/* Outer cacheable write-through */
+#define DV_TTB_RGN_WB	0x18	/* Outer cacheable write-back */
 
 #endif
 
