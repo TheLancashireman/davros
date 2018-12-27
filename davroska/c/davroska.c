@@ -8,6 +8,12 @@
 
 #include DV_INCLUDE_INTERRUPTCONTROLLER
 
+#include <davroska-inline.h>
+
+#ifndef DV_DEBUG
+#define DV_DEBUG	0
+#endif
+
 #define DV_NQUEUE	(DV_CFG_MAXPRIO+2)			/* Add extra queues for idle and kernel */
 #define DV_NEXE		(DV_CFG_MAXEXE+1)			/* Add an extra executable for the idle loop */
 #define DV_NSLOT	(DV_NQUEUE*2 + DV_NEXE + DV_CFG_NSLOT_EXTRA)
@@ -33,7 +39,7 @@ dv_q_t dv_queue[DV_NQUEUE];				/* Priority queues (one per priority) */
 dv_id_t dv_slots[DV_NSLOT];				/* Ring buffers for the queues */
 dv_lock_t dv_lock[DV_CFG_MAXLOCK];		/* Locks */
 
-void dv_panic(dv_panic_t p);
+dv_softvector_t dv_vectors[DV_NVECTOR];
 
 /* Forward function declaractions
 */
@@ -52,60 +58,6 @@ static dv_id_t dv_addexe(const char *name, void (*fn)(void), dv_prio_t prio, dv_
 static int dv_isvectorfree(dv_id_t vec);
 static void dv_setvector(dv_id_t vec, dv_statustype_t (*fn)(dv_id_t p), dv_id_t p);
 static void dv_initvectors(void);
-
-/* ===================================================================================================================
- * Static inline functions
- * ===================================================================================================================
-*/
-
-/*	dv_enqueue() - insert executable at tail of priority queue
-*/
-static inline void dv_enqueue(dv_prio_t p, dv_id_t e)
-{
-	dv_q_t *q = &dv_queue[p];
-
-	q->slots[q->tail] = e;
-
-	q->tail++;
-	if ( q->tail >= q->nslots )
-		q->tail = 0;
-
-	/* Sanity check
-	*/
-	if ( q->tail == q->head )	
-		dv_panic(dv_panic_QueueOverflow);
-}
-
-/* dv_qhead() - return head of queue without removing it
-*/
-static inline dv_id_t dv_qhead(dv_prio_t p)
-{
-	dv_q_t *q = &dv_queue[p];
-
-	if ( q->head == q->tail )
-		return -1;
-
-	return q->slots[q->head];
-}
-
-/* dv_dequeue() - remove executable from head of priority queue
-*/
-static inline dv_id_t dv_dequeue(dv_prio_t p)
-{
-	dv_q_t *q = &dv_queue[p];
-
-	if ( q->head == q->tail )
-		return -1;
-
-	dv_id_t e = q->slots[q->head];
-	q->slots[q->head] = -1;
-
-	q->head++;
-	if ( q->head >= q->nslots )
-		q->head = 0;
-
-	return e;
-}
 
 /* ===================================================================================================================
  * Runtime API functions
@@ -243,7 +195,9 @@ dv_statustype_t dv_takelock(dv_id_t lock)
 	{
 		dv_prio_t p = dv_exe[dv_currentexe].currprio = dv_lock[lock].ceiling;
 		dv_enqueue(p, dv_currentexe);
+#if DV_DEBUG
 		dv_printf("dv_takelock() - set IRQ level %d\n", dv_queue[p].level);
+#endif
 		dv_setirqlevel(dv_queue[p].level);
 	}
 
@@ -321,7 +275,9 @@ dv_statustype_t dv_startos(dv_id_t mode)
 
 	/* Ensure that no executables can preempt until everything is initialised
 	*/
+#if DV_DEBUG
 	dv_printf("dv_startos() - set IRQ level %d\n", 8);
+#endif
 	dv_setirqlevel(8);			/* ToDo: lock-all level depends on hardware */
 
 	/* Create the idle loop executable
@@ -365,7 +321,9 @@ dv_statustype_t dv_startos(dv_id_t mode)
 	/* If the task - or the other tasks that it starts - ever die,
 	 * we enable interrupts and drop into the idle loop waiting for an interrupt.
 	*/
+#if DV_DEBUG
 	dv_printf("dv_startos() - set IRQ level %d\n", 0);
+#endif
 	dv_setirqlevel(0);
 	dv_restore(DV_INTENABLED);
 	dv_idle();
@@ -434,8 +392,10 @@ dv_id_t dv_addisr(const char *name, void (*fn)(void), dv_id_t irqid, dv_prio_t p
 	{
 		dv_nisr++;
 		dv_exe[id].irqid = irqid;
+#if DV_DEBUG
 		dv_printf("dv_addisr() = added %s id %d baseprio %d runprio %d irqid %d\n",
 			dv_exe[id].name, id, dv_exe[id].baseprio, dv_exe[id].runprio, dv_exe[id].irqid);
+#endif
 		dv_setvector(irqid, dv_activateexe, id);
 	}
 
@@ -548,7 +508,9 @@ static dv_id_t dv_addexe(const char *name, void (*fn)(void), dv_prio_t prio, dv_
 */
 static dv_statustype_t dv_activateexe(dv_id_t e)
 {
+#if DV_DEBUG
 	dv_printf("dv_activateexe() - %d\n", e);
+#endif
 	dv_intstatus_t is = dv_disable();
 
 	/* Max activations check
@@ -560,10 +522,12 @@ static dv_statustype_t dv_activateexe(dv_id_t e)
 		return dv_reporterror(dv_sid_activatetask, dv_e_limit, 1, &p);
 	}
 
-	/* Go to part 2
+	/* Do part 2
 	*/
 	dv_statustype_t s = dv_activateexe2(e, is);
+#if DV_DEBUG
 	dv_printf("dv_activateexe() : dv_activateexe2() returned %d\n", s);
+#endif
 	return s;
 }
 
@@ -609,7 +573,9 @@ void dv_runqueued(dv_prio_t high, dv_prio_t low, dv_intstatus_t is)
 			dv_prio_t eprio = dv_exe[e].currprio;
 			dv_prio_t level = dv_queue[eprio].level;
 
+#if DV_DEBUG
 			dv_printf("dv_runqueued() - new exe %d; prio %d, set IRQ level %d\n", e, eprio, level);
+#endif
 			(void)dv_setirqlevel(level);
 
 			/* Pre-exe hook for incoming exe
@@ -662,7 +628,9 @@ void dv_runqueued(dv_prio_t high, dv_prio_t low, dv_intstatus_t is)
 		dv_currentexe = exe;
 		dv_prio_t eprio = dv_exe[dv_currentexe].currprio;
 		dv_prio_t level = dv_queue[eprio].level;
+#if DV_DEBUG
 		dv_printf("dv_runqueued() - resume old exe %d; prio %d set IRQ level %d\n", eprio, level);
+#endif
 		dv_setirqlevel(level);
 		dv_exe[dv_currentexe].state = dv_running;
 		dv_preexe();
@@ -675,7 +643,9 @@ void dv_runqueued(dv_prio_t high, dv_prio_t low, dv_intstatus_t is)
 */
 static dv_statustype_t dv_activateexe2(dv_id_t e, dv_intstatus_t is)
 {
+#if DV_DEBUG
 	dv_printf("dv_activateexe2() - %d\n", e);
+#endif
 
 	dv_exe[e].nact++;
 	if ( dv_exe[e].state != dv_running )	/* Self-activation doesn't change the state */
@@ -714,28 +684,40 @@ static void dv_createqueues(void)
 */
 static void dv_calculatelevels(void)
 {
+#if DV_DEBUG
 	dv_printf("dv_calculatelevels() - dv_ntask %d dv_nexe %d\n", dv_ntask, dv_nexe);
+#endif
 	dv_prio_t l = 0;
 	for ( dv_prio_t p = dv_maxtaskprio + 1; p <= dv_maxprio; p++ )
 	{
+#if DV_DEBUG
 		dv_printf("dv_calculatelevels() - prio %d\n", p);
+#endif
 		int c = 0;
 		for ( dv_id_t e = dv_ntask; e < dv_nexe; e++ )
 		{
+#if DV_DEBUG
 			dv_printf("dv_calculatelevels() - prio %d, exe %d", p, e);
+#endif
 			if ( dv_exe[e].baseprio == p )
 			{
 				c++;
+#if DV_DEBUG
 				dv_printf("\ndv_calculatelevels() - confg_irq exe %d, irqid %d, level l\n", e, dv_exe[e].irqid, l);
+#endif
 				dv_config_irq(dv_exe[e].irqid, l, 0);
 			}
+#if DV_DEBUG
 			else
 				dv_printf(" ... not at this prio\n");
+#endif
 		}
 		if ( c > 0 )
 			l++;
 		dv_queue[p].level = l;
+#if DV_DEBUG
 		dv_printf("dv_calculatelevels() - queue prio %d, level %d\n", p, dv_queue[p].level);
+#endif
 	}
 }
 
@@ -789,17 +771,11 @@ void dv_panic(dv_panic_t p)
 static void dv_idle(void)
 {
 	dv_printf("dv_idle() reached\n");
-#if 1
+#if 0
 	print_interrupt_status(DV_NULL);
 #endif
 	for (;;)
 	{
-#if 0
-		print_interrupt_status(DV_NULL);
-#endif
-#if 0
-		for (volatile int j = 0; j < 2500000; j++) { }
-#endif
 	}
 }
 
@@ -807,15 +783,10 @@ static void dv_idle(void)
  * Interrupt vectoring functions
  * ===================================================================================================================
 */
-static struct
-{
-	dv_statustype_t (*fn)(dv_id_t p);
-	dv_id_t p;
-} dv_vectors[DV_NVECTOR];
 
 /* dv_unconfigured_interrupt() - report an unconfigured interrupt
 */
-static dv_statustype_t dv_unconfigured_interrupt(dv_id_t p)
+dv_statustype_t dv_unconfigured_interrupt(dv_id_t p)
 {
 	dv_panic(dv_panic_UnconfiguredInterrupt);
 	return dv_e_id;
@@ -830,44 +801,4 @@ static void dv_initvectors(void)
 		dv_vectors[i].fn = &dv_unconfigured_interrupt;
 		dv_vectors[i].p = i;
 	}
-}
-
-/* dv_isvectorfree() - return true if the vector is in range an is unconfigured, false otherwise
-*/
-static int dv_isvectorfree(dv_id_t vec)
-{
-	if ( (vec < 0) || (vec >= DV_NVECTOR) )
-		return 0;
-
-	if ( dv_vectors[vec].fn == &dv_unconfigured_interrupt )
-		return 1;
-
-	return 0;
-}
-
-/* dv_setvector() - set the specified interupt vector
-*/
-static void dv_setvector(dv_id_t vec, dv_statustype_t (*fn)(dv_id_t p), dv_id_t p)
-{
-	dv_printf("dv_setvector() - %d = %d\n", vec, p);
-	dv_vectors[vec].fn = fn;
-	dv_vectors[vec].p = p;
-}
-
-/* dv_softvector() - called from the interrupt controller's interrupt handling function
-*/
-void dv_softvector(int vector)
-{
-	dv_printf("dv_softvector() - %d --> %d\n", vector, dv_vectors[vector].p);
-
-	(void)(*dv_vectors[vector].fn)(dv_vectors[vector].p);
-
-	dv_printf("dv_softvector() - return\n");
-}
-
-/* Temporary ...
-*/
-void dv_setqueueirqlevel(dv_prio_t p)
-{
-	dv_setirqlevel(dv_queue[p].level);
 }

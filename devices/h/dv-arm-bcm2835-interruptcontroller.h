@@ -32,6 +32,10 @@
 #define DV_SUPPORT_INTLEVEL		0
 #endif
 
+#ifndef DV_DEBUG
+#define DV_DEBUG 	0
+#endif
+
 #if !DV_ASM
 
 /* BCM2835 interrupt controller (as used on Raspberry Pi CPUs).
@@ -194,11 +198,17 @@ static inline void dv_enable_irq(dv_irqid_t index)
 
 #if DV_SUPPORT_INTLEVEL
 	dv_bcm2835_irq_enabled.mask[reg] |= mask;
+
+#if DV_DEBUG
 	dv_printf("dv_enable_irq() - dv_bcm2835_irq_enabled.mask[%d] set to 0x%08x, irqlevel %d, current %d\n",
 							reg, dv_bcm2835_irq_enabled.mask[reg], dv_bcm2835_irq_level[index], dv_currentlocklevel);
+#endif
+
 	if ( dv_bcm2835_irq_level[index] >= dv_currentlocklevel )
 	{
+#if DV_DEBUG
 		dv_printf("dv_enable_irq() - writing 0x%08x to .irq_enable[%d]\n", mask, reg);
+#endif
 		dv_arm_bcm2835_interruptcontroller.irq_enable[reg] = mask;	/* Register is "write 1 to enable" */
 	}
 #else

@@ -148,6 +148,12 @@ typedef struct dv_errorinfo_s
 	dv_id_t culprit;
 } dv_errorinfo_t;
 
+typedef struct dv_softvector_s
+{
+	dv_statustype_t (*fn)(dv_id_t p);
+	dv_id_t p;
+} dv_softvector_t;
+
 extern dv_prio_t dv_highestprio;
 extern dv_id_t dv_currentexe;
 
@@ -171,9 +177,10 @@ extern dv_exe_t dv_exe[];
 extern dv_q_t dv_queue[];
 extern dv_id_t dv_slots[];
 extern dv_lock_t dv_lock[];
+extern dv_softvector_t dv_vectors[];
 
 extern void dv_runqueued(dv_prio_t high, dv_prio_t low, dv_intstatus_t is);
-extern void dv_softvector(int vector);
 extern void dv_panic(dv_panic_t p);
+extern dv_statustype_t dv_unconfigured_interrupt(dv_id_t p);
 
 #endif

@@ -20,6 +20,11 @@
 #include <dv-config.h>
 #include <davroska.h>
 #include <dv-arm-bcm2835-interruptcontroller.h>
+#include <davroska-inline.h>
+
+#ifndef DV_DEBUG
+#define DV_DEBUG	0
+#endif
 
 /* dv_bcm2835_irq_list[] is a table of all the interrupt sources that can be used.
  * The index in this list gives the vector number of the IRQ.
@@ -64,10 +69,14 @@ dv_bcm2835_imask_t dv_bcm2835_levelmasks[9];
 
 void dv_bcm2835_interrupt_handler(void)
 {
+#if DV_DEBUG
 	dv_printf("dv_bcm2835_interrupt_handler() - start\n");
+#endif
 	dv_bcm2835_imask_t pending;
 
+#if DV_DEBUG
 	print_interrupt_status(&dv_bcm2835_irq_enabled);
+#endif
 
 	/* Only consider interrupts that are enabled
 	*/
@@ -90,7 +99,9 @@ void dv_bcm2835_interrupt_handler(void)
 			irq++;
 		}
 	}
+#if DV_DEBUG
 	dv_printf("dv_bcm2835_interrupt_handler() - return\n");
+#endif
 }
 
 /* dv_config_irq() - configure an irq
@@ -114,8 +125,9 @@ void dv_config_irq(dv_irqid_t irq, dv_intlevel_t level, int unused_core)
 	for ( int i = 0; i <= level; i++ )
 	{
 		dv_bcm2835_levelmasks[i].mask[dv_bcm2835_irq_list[irq].idx] |= dv_bcm2835_irq_list[irq].mask;
-
+#if DV_DEBUG
 		dv_printf("dv_config_irq() - level %d, enabled = 0x%08x\n",
 								i, dv_bcm2835_levelmasks[i].mask[dv_bcm2835_irq_list[irq].idx]);
+#endif
 	}
 }
