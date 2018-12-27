@@ -134,6 +134,7 @@ void main_Ping(void)
 	x++;
 	if ( x & 1 )
 	{
+		dv_printf("Task Ping chaining Ping ...\n");
 		ee = dv_chaintask(Ping);
 		dv_printf("Task Ping: dv_chaintask(Ping) returned unexpectedly : %d\n", ee);
 	}
@@ -175,13 +176,13 @@ void main_Pong(void)
 
 void main_Uart(void)
 {
-	dv_printf("ISR Uart start");
+	dv_printf("ISR Uart start\n");
 
 	while ( dv_consoledriver.isrx() )
 	{
 		int c = dv_consoledriver.getc();
 
-		dv_printf("ISR Uart - 0x%02x", c);
+		dv_printf("ISR Uart - 0x%02x\n", c);
 
 		if ( c == 'P' )
 		{
