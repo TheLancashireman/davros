@@ -20,11 +20,9 @@
 #ifndef dv_arm_v6mmu_h
 #define dv_arm_v6mmu_h	1
 
-#if !DV_ASM
+#include <dv-devices.h>
 
-#include <kernel/h/dv-kconfig.h>
-#include <dv-types.h>
-#include <kernel/h/dv-kernel.h>
+#if !DV_ASM
 
 /* A page table consists of an array of 32-bit words, each of which
  * specifies some kind of object.
@@ -121,8 +119,10 @@ struct dv_armv6_l2pagetable_s
 #define DV_V6MMUL2_NG		0x00000800		/* nG */
 #define DV_V6MMUL2_ADDR		0xfffff000		/* Physical page address */
 
+#ifndef DV_DAVROSKA
 void dv_armv6_mmu_init_pagetable(dv_kernel_t *kvars);
 void dv_armv6_mmu_map_page(dv_kernel_t *kvars, void *phys, void *virt, dv_u32_t l1_attr, dv_u32_t l2_attr);
+#endif
 
 /* MMU attributes
  *
@@ -160,6 +160,7 @@ void dv_armv6_mmu_map_page(dv_kernel_t *kvars, void *phys, void *virt, dv_u32_t 
 
 
 
+#ifndef DV_DAVROSKA
 /* Map MMU functions to v6 MMU functions
 */
 static inline dv_boolean_t dv_mmu_active(dv_kernel_t *kvars)
@@ -184,6 +185,7 @@ static inline void dv_mmu_map_physical_page(dv_kernel_t *kvars, void *phys)
 		dv_armv6_mmu_map_page(kvars, phys, phys, DV_L1_ATTR, DV_L2_ATTR_RW);
 	}
 }
+#endif
 
 
 
