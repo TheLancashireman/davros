@@ -25,4 +25,12 @@
 */
 #define DV_CFG_MAXLOCK		10
 
+/* DV_CFG_MAXCOUNTER is the maximum number of counters that you can have
+*/
+#define DV_CFG_MAXCOUNTER	5
+
+/* DV_CFG_MAXALARM is the maximum number of alarms that you can have
+*/
+#define DV_CFG_MAXALARM		10
+
 #endif

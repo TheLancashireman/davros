@@ -49,7 +49,11 @@ typedef enum
 	dv_sid_activatetask,
 	dv_sid_chaintask,
 	dv_sid_takelock,
-	dv_sid_droplock
+	dv_sid_droplock,
+	dv_sid_getexpirytime,
+	dv_sid_advancecounter,
+	dv_sid_setalarm_abs,
+	dv_sid_setalarm_rel
 } dv_sid_t;
 
 typedef enum
@@ -71,6 +75,8 @@ dv_statustype_t dv_startos(dv_id_t mode);
 dv_id_t dv_addtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_qty_t maxact);
 dv_id_t dv_addisr(const char *name, void (*fn)(void), dv_id_t irqid, dv_prio_t prio);
 dv_id_t dv_addlock(const char *name, dv_qty_t maxtake);
+dv_id_t dv_addcounter(const char *name);
+dv_id_t dv_addalarm(const char *name, dv_u32_t (*fn)(dv_id_t a));
 void dv_addlockuser(dv_id_t lock, dv_id_t executable);
 
 dv_statustype_t dv_terminatetask(void);
@@ -79,11 +85,17 @@ dv_statustype_t dv_chaintask(dv_id_t task);
 dv_statustype_t dv_takelock(dv_id_t lock);
 dv_statustype_t dv_droplock(dv_id_t lock);
 
+dv_statustype_t dv_setalarm_rel(dv_id_t c, dv_id_t a, dv_u32_t v);
+dv_statustype_t dv_setalarm_abs(dv_id_t c, dv_id_t a, dv_u64_t v);
+dv_statustype_t dv_advancecounter(dv_id_t c, dv_u64_t n);
+
 /* Configuration callout functions: provided by the application
 */
 void callout_addtasks(dv_id_t mode);
 void callout_addisrs(dv_id_t mode);
 void callout_addlocks(dv_id_t mode);
+void callout_addcounters(dv_id_t mode);
+void callout_addalarms(dv_id_t mode);
 void callout_autostart(dv_id_t mode);
 
 /* Runtime callout functions: provided by the application
@@ -140,6 +152,23 @@ typedef struct dv_lock_s
 	dv_id_t next;
 } dv_lock_t;
 
+typedef struct dv_counter_s
+{
+	const char *name;
+	dv_u64_t value;
+	dv_id_t head;
+} dv_counter_t;
+
+typedef struct dv_alarm_s
+{
+	const char *name;
+	dv_u64_t expirytime;
+	dv_u32_t (*expiryfunction)(dv_id_t a);
+	dv_id_t counter;
+	dv_id_t nextalarm;
+} dv_alarm_t;
+	
+
 typedef struct dv_errorinfo_s
 {
 	dv_sid_t sid;
@@ -154,6 +183,8 @@ typedef struct dv_softvector_s
 	dv_id_t p;
 } dv_softvector_t;
 
+/* Task (etc.) management variables
+*/
 extern dv_prio_t dv_highestprio;
 extern dv_id_t dv_currentexe;
 
@@ -179,8 +210,19 @@ extern dv_id_t dv_slots[];
 extern dv_lock_t dv_lock[];
 extern dv_softvector_t dv_vectors[];
 
+/* Counter (etc.) management variables
+*/
+extern const dv_qty_t dv_maxcounter;
+extern const dv_qty_t dv_maxalarm;
+
+extern dv_qty_t dv_ncounter;
+extern dv_qty_t dv_nalarm;
+
 extern void dv_runqueued(dv_prio_t high, dv_prio_t low, dv_intstatus_t is);
 extern void dv_panic(dv_panic_t p);
 extern dv_statustype_t dv_unconfigured_interrupt(dv_id_t p);
+extern dv_statustype_t dv_reporterror(dv_sid_t sid, dv_statustype_t e, dv_qty_t nParam, dv_param_t *p);
+extern dv_prio_t dv_raiseprio(void);
+extern void dv_lowerprio(dv_prio_t p);
 
 #endif

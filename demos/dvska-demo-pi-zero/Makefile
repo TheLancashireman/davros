@@ -49,6 +49,7 @@ LD_OPT		+=	-lc
 
 DV_LD_OBJS	+= $(DV_OBJ_D)/demo.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/davroska.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/davroska-time.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/davroska-arm.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-printf.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-xprintf.o

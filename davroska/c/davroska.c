@@ -50,7 +50,6 @@ static void dv_createqueues(void);
 static void dv_calculatelevels(void);
 static dv_statustype_t dv_activateexe(dv_id_t e);
 static dv_statustype_t dv_activateexe2(dv_id_t ei, dv_intstatus_t is);
-static dv_statustype_t dv_reporterror(dv_sid_t sid, dv_statustype_t e, dv_qty_t nParam, dv_param_t *p);
 static dv_id_t dv_addexe(const char *name, void (*fn)(void), dv_prio_t prio, dv_qty_t maxact);
 
 /* Interrupt vectoring
@@ -289,15 +288,19 @@ dv_statustype_t dv_startos(dv_id_t mode)
 
 	dv_ntask = 1;	/* Range check for tasks is from 1 to dv_ntask */
 
-	callout_addtasks(mode);
+	/* ToDo: It's important that the callouts only do what they're supposed to do
+	 * It would be wise to add some checks.
+	*/
 
+	callout_addtasks(mode);
 	callout_addisrs(mode);
 
 	dv_createqueues();
-
 	dv_calculatelevels();
 
 	callout_addlocks(mode);
+	callout_addcounters(mode);
+	callout_addalarms(mode);
 
 	/* Now activate the idle loop.
 	 * Can't use dv_activatexe here because the idle loop must not run!
@@ -305,18 +308,14 @@ dv_statustype_t dv_startos(dv_id_t mode)
 	*/
 	dv_exe[idle].nact++;
 	dv_enqueue(dv_exe[idle].currprio, idle);
-	dv_exe[idle].currprio = dv_maxprio;
-	dv_enqueue(dv_exe[idle].currprio, idle);
+	dv_currentexe = idle;
 	dv_exe[idle].state = dv_running;
 
+	(void)dv_raiseprio();
 	callout_autostart(mode);
+	dv_lowerprio(dv_exe[idle].baseprio);
 
-	if ( dv_dequeue(dv_exe[idle].currprio) != idle )
-		dv_panic(dv_panic_QueueCorrupt);
-
-	dv_exe[idle].currprio = dv_exe[idle].baseprio;
-
-	dv_runqueued(dv_maxprio, dv_exe[idle].baseprio, DV_INTENABLED);
+	dv_runqueued(dv_maxprio-1, dv_exe[idle].baseprio, DV_INTENABLED);
 
 	/* If the task - or the other tasks that it starts - ever die,
 	 * we enable interrupts and drop into the idle loop waiting for an interrupt.
@@ -473,7 +472,7 @@ static dv_id_t dv_addexe(const char *name, void (*fn)(void), dv_prio_t prio, dv_
 		return -1;
 	}
 
-	if ( prio > dv_maxprio )
+	if ( prio >= dv_maxprio )
 	{
 		/* ToDo: dv_reporterror */
 		dv_printf("dv_addexe(%s,...) :: Error - priority exceeds DV_CFG_MAXPRIO\n", name);
@@ -637,6 +636,42 @@ void dv_runqueued(dv_prio_t high, dv_prio_t low, dv_intstatus_t is)
 	}
 }
 
+/* dv_raiseprio() - increase priority of current executable
+ *
+ * Kernel functions use this to bump the priority of the current executable
+ * to the maximum possible (higher than any task or ISR) so that nothing that gets
+ * activated causes an immediate context switch with locked interrupts
+*/
+dv_prio_t dv_raiseprio(void)
+{
+	dv_prio_t old = dv_exe[dv_currentexe].currprio;
+
+	if ( old < dv_maxprio )
+	{
+		dv_exe[dv_currentexe].currprio = dv_maxprio;
+		dv_enqueue(dv_exe[dv_currentexe].currprio, dv_currentexe);
+	}
+
+	return old;
+}
+
+/* dv_lowerprio() - decrease priority of current executable
+ *
+ * Kernel functions use this to reduce the priority of the current executable after
+ * earlier raising the priority.
+*/
+void dv_lowerprio(dv_prio_t p)
+{
+	if ( p == dv_maxprio )
+		return;
+
+	if ( dv_dequeue(dv_maxprio) != dv_currentexe )
+		dv_panic(dv_panic_QueueCorrupt);
+
+	dv_exe[dv_currentexe].currprio = p;
+}
+
+
 /* dv_activateexe2() - activate an executable, part 2
  *
  * Used in dv_chaintask, when the max. activations check is omitted (chaining self)
@@ -739,7 +774,7 @@ static void dv_postexe(void)
 */
 static dv_errorinfo_t dv_lasterror;
 
-static dv_statustype_t dv_reporterror(dv_sid_t sid, dv_statustype_t e, dv_qty_t nparam, dv_param_t *param)
+dv_statustype_t dv_reporterror(dv_sid_t sid, dv_statustype_t e, dv_qty_t nparam, dv_param_t *param)
 {
 	dv_lasterror.sid = sid;
 	dv_lasterror.e = e;

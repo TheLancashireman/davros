@@ -12,17 +12,22 @@
 #include <dv-arm-bcm2835-aux.h>
 #include <dv-arm-bcm2835-interruptcontroller.h>
 #include <dv-armv6-mmu.h>
+#include <dv-arm-cp15.h>
+#include <dv-arm-bcm2835-systimer.h>
 
 void main_Init(void);
 void main_Loop(void);
 void main_Ping(void);
 void main_Pong(void);
 void main_Uart(void);
+void main_Cyclic(void);
+static dv_u32_t acb_Cyclist(dv_id_t a);
 
-dv_id_t Init, Loop, Ping, Pong;
-dv_id_t Uart;
-
-dv_id_t Lock1;
+dv_id_t Init, Loop, Ping, Pong, Cyclic;		/* Tasks */
+dv_id_t Uart;								/* ISRs */
+dv_id_t Lock1;								/* Locks */
+dv_id_t Ticker;								/* Counters */
+dv_id_t Cyclist;							/* Alarms */
 
 /* Temporary: abt and undef stacks
 */
@@ -45,6 +50,7 @@ void callout_addtasks(dv_id_t mode)
 	Loop = dv_addtask("Loop", &main_Loop, 1, 1);
 	Ping = dv_addtask("Ping", &main_Ping, 2, 1);
 	Pong = dv_addtask("Pong", &main_Pong, 3, 3);
+	Cyclic = dv_addtask("Cyclic", &main_Cyclic, 3, 1);
 	dv_printf("callout_addtasks() - done\n");
 }
 
@@ -64,9 +70,20 @@ void callout_addlocks(dv_id_t mode)
 	}
 }
 
+void callout_addcounters(dv_id_t mode)
+{
+	Ticker = dv_addcounter("Ticker");
+}
+
+void callout_addalarms(dv_id_t mode)
+{
+	Cyclist = dv_addalarm("Cyclist", &acb_Cyclist);
+}
+
 void callout_autostart(dv_id_t mode)
 {
 	dv_activatetask(Init);
+	dv_setalarm_rel(Ticker, Cyclist, 2);
 }
 
 void main_Init(void)
@@ -170,7 +187,15 @@ void main_Ping(void)
 
 void main_Pong(void)
 {
-	dv_printf("Task Pong ... %d\n", pongCount++);
+	dv_printf("Task Pong ... %d %ld\n", pongCount++, dv_readtime());
+
+	(void)dv_terminatetask();
+}
+
+static int cycleCount;
+void main_Cyclic(void)
+{
+	dv_printf("Task Cyclic ... %d %ld\n", cycleCount++, dv_readtime());
 
 	(void)dv_terminatetask();
 }
@@ -197,10 +222,22 @@ void main_Uart(void)
 			if ( ee != dv_e_ok )
 				dv_printf("ISR Uart : dv_activatetask(Pong) returned %d\n", ee);
 		}
+		if ( c == 'T' )
+		{
+			dv_statustype_t ee = dv_advancecounter(Ticker, 1);
+			if ( ee != dv_e_ok )
+				dv_printf("ISR Uart : dv_advancecounter(Ticker) returned %d\n", ee);
+		}
 	}
 	dv_printf("ISR Uart return\n");
 
 		
+}
+
+static dv_u32_t acb_Cyclist(dv_id_t a)
+{
+	dv_activatetask(Cyclic);
+	return 5;
 }
 
 void callout_error(dv_statustype_t e)
@@ -236,6 +273,22 @@ void dv_board_start(void)
 	/* Set up the MMU
 	*/
 	dv_armv6_mmu_setup();
+
+	/* Caches
+	*/
+	dv_printf("CP15 cache type 0x%08x\n", dv_read_cp15_cache_type());
+
+#if 1
+	/* Enable both caches and the write buffer
+	*/
+	dv_printf("Enabling caches ...\n");
+	dv_write_cp15_control(dv_read_cp15_control() | DV_CP15_CTRL_C | DV_CP15_CTRL_W | DV_CP15_CTRL_I);
+
+	/* Enable branch prediction
+	*/
+	dv_printf("Enabling branch prediction ...\n");
+	dv_write_cp15_control(dv_read_cp15_control() | DV_CP15_CTRL_Z);
+#endif
 
 	main(0, 0);
 }
