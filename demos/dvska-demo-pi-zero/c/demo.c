@@ -15,6 +15,8 @@
 #include <dv-arm-cp15.h>
 #include <dv-arm-bcm2835-systimer.h>
 
+dv_u64_t start_time;
+
 void main_Init(void);
 void main_Loop(void);
 void main_Ping(void);
@@ -99,6 +101,9 @@ void main_Init(void)
 		dv_printf("Task Init: dv_activatetask(Ping) returned %d\n", ee);
 
 	dv_printf("Task Init terminating ...\n");
+
+	dv_printf("Task Init: Info: diff time in task Ping is termination time ...\n");
+	start_time = dv_readtime();
 	(void)dv_terminatetask();
 }
 
@@ -107,15 +112,12 @@ void main_Loop(void)
 	dv_statustype_t ee;
 
 	dv_printf("Task Loop starting ...\n");
-#if 0
-	for ( int i = 0; i < 10; i++ )
-#endif
-		if ( (ee = dv_activatetask(Ping)) != dv_e_ok )
-			 dv_printf("Task Loop: dv_activatetask(Ping) returned %d\n", ee);
 
-#if 0
-	dv_restore(DV_INTENABLED);
-#endif
+	dv_printf("Task Init: Info: diff time in task Ping is activation_high time ...\n");
+	start_time = dv_readtime();
+	if ( (ee = dv_activatetask(Ping)) != dv_e_ok )
+		 dv_printf("Task Loop: dv_activatetask(Ping) returned %d\n", ee);
+
 #if 1
 	dv_printf("Task Loop: enabling UART RxInt. Old ier value: 0x%02x\n", dv_arm_bcm2835_uart.ier);
 	dv_arm_bcm2835_uart.ier |= DV_IER_RxInt;
@@ -123,17 +125,6 @@ void main_Loop(void)
 #if 1
 	dv_printf("Task Loop: dv_enable_irq() %d\n", dv_iid_aux);
 	dv_enable_irq(dv_iid_aux);
-#endif
-
-#if 0
-	for (int i = 0; i < 100000; i++)
-	{
-		print_interrupt_status(DV_NULL);
-
-		for (volatile int j = 0; j < 2500000; j++) { }
-	}
-
-	for (;;) {}
 #endif
 
 	dv_printf("Task Loop terminating ...\n");
@@ -146,13 +137,17 @@ static int pongCount;
 void main_Ping(void)
 {
 	dv_statustype_t ee;
+	dv_u64_t end_time = dv_readtime();
+	dv_u32_t diff = (dv_u32_t)(end_time - start_time);
 
-	dv_printf("Task Ping starting ...\n");
+	dv_printf("Task Ping starting ... diff time = %u\n", diff);
 
 	x++;
 	if ( x & 1 )
 	{
 		dv_printf("Task Ping chaining Ping ...\n");
+		dv_printf("Task Ping: Info: diff time in task Ping is chain self time ...\n");
+		start_time = dv_readtime();
 		ee = dv_chaintask(Ping);
 		dv_printf("Task Ping: dv_chaintask(Ping) returned unexpectedly : %d\n", ee);
 	}
@@ -160,19 +155,25 @@ void main_Ping(void)
 	{
 		pongCount = 0;
 
+		start_time = dv_readtime();
 		if ( (ee = dv_takelock(Lock1)) != dv_e_ok )
 			dv_printf("Task Ping: dv_takelock(Lock1) returned %d\n", ee);
 		else
 		{
+			dv_u32_t diff = (dv_u32_t)(dv_readtime() - start_time);
+			dv_printf("Task Ping: time to take a lock = %u\n", diff);
 			for ( int i = 0; i < 3; i++ )
 			{
+				start_time = dv_readtime();
 				if ( (ee = dv_activatetask(Pong)) != dv_e_ok )
 				{
 					dv_printf("Task Ping: dv_activatetask(Pong) returned %d\n", ee);
 				}
 				else
 				{
+					diff = (dv_u32_t)(dv_readtime() - start_time);
 					dv_printf("Task Ping: dv_activatetask(Pong) successful\n");
+					dv_printf("Task Ping: activation time (lower) = %u\n", diff);
 				}
 			}
 
