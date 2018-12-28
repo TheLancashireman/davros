@@ -57,7 +57,7 @@
 #define DV_CP15_CTRL_R		0x00000200		/* Deprecated - ROM protection */
 #define DV_CP15_CTRL_S		0x00000100		/* Deprecated - MMU protection */
 #define DV_CP15_CTRL_B		0x00000080		/* Big-endian */
-#define DV_CP15_CTRL_W		0x00000008		/* Not implemented */
+#define DV_CP15_CTRL_W		0x00000008		/* Enable write buffer */
 #define DV_CP15_CTRL_C		0x00000004		/* Enable L1 data cache */
 #define DV_CP15_CTRL_A		0x00000002		/* Enable strict alignment - takes priority over U */
 #define DV_CP15_CTRL_M		0x00000001		/* MMU enable */
@@ -100,4 +100,10 @@ static inline void dv_write_cp15_aux_control(dv_u32_t x)
 	__asm__ volatile ("mcr  p15, 0, %0, c1, c0, 1" : : "r"(x) : );
 }
 
+static inline dv_u32_t dv_read_cp15_cache_type(void)
+{
+	dv_u32_t x;
+	__asm__ volatile ("mrc  p15, 0, %0, c0, c0, 1" : "=r"(x) : );
+	return x;
+}
 #endif
