@@ -75,9 +75,12 @@ static inline void dv_clrmatch(int i)
 	dv_arm_bcm2835_systimer.cs = (1<<i);
 }
 
+#ifdef DV_DAVROSKA
+#else
 void dv_arm_bcm2835_systimerinterrupt(dv_kernel_t *kvars, dv_address_t param);
 void dv_init_system_timer(dv_kernel_t *kvars);
 void dv_set_system_timer_alarm(dv_u64_t);
+#endif
 
 /* Bits in cs register. 1 means "matched".
  * Write 1 to clear.
