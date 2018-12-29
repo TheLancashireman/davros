@@ -78,6 +78,34 @@ struct dv_arm_bcm2835_armtimer_s
 */
 #define DV_PREDIV			0x000003ff	/* Predivider value. tmr_clk = sys_clk/(prediv+1) */
 
+/* dv_arm_bcm2835_armtimer_init() - set timer prescaler, enable and interrupt enable.
+ *
+ * Parameter is 1, 16 or 256
+*/
+static inline void dv_arm_bcm2835_armtimer_init(dv_u32_t pre)
+{
+    dv_u32_t bits = ((pre == 256) ? 8 : ((pre == 16) ? 4 : 0));
+	bits |= DV_TMR_LEN | DV_TMR_ENABLE | DV_TMR_IRQ_ENABLE | DV_TMR_PERIODIC;
+    dv_arm_bcm2835_armtimer.control = (dv_arm_bcm2835_armtimer.control & ~DV_TMR_PRESCALE) | bits;
+	dv_arm_bcm2835_armtimer.predivider = 0;
+}
+
+/* dv_arm_bcm2835_armtimer_set_load() - set timer and reload value
+ *
+ * Parameter is 1, 16 or 256
+*/
+static inline void dv_arm_bcm2835_armtimer_set_load(dv_u32_t val)
+{
+	dv_arm_bcm2835_armtimer.load = val;
+}
+
+/* dv_arm_bcm2835_armtimer_clr_irq() - clear the IRQ flag
+*/
+static inline void dv_arm_bcm2835_armtimer_clr_irq(void)
+{
+	dv_arm_bcm2835_armtimer.irq_clr_ack = 42;	/* Any value will do */
+}
+
 /* dv_arm_bcm2835_armtimer_set_frc_prescale() - set FRC prescaler.
  *
  * Parameter is the true prescaler value, range 1..256 ; e.g. to divide by 250, pass 250 (not 249).
