@@ -14,6 +14,7 @@
 #include <dv-armv6-mmu.h>
 #include <dv-arm-cp15.h>
 #include <dv-arm-bcm2835-systimer.h>
+#include <dv-arm-bcm2835-armtimer.h>
 
 dv_u64_t start_time;
 
@@ -22,11 +23,12 @@ void main_Loop(void);
 void main_Ping(void);
 void main_Pong(void);
 void main_Uart(void);
+void main_Timer(void);
 void main_Cyclic(void);
 static dv_u32_t acb_Cyclist(dv_id_t a);
 
 dv_id_t Init, Loop, Ping, Pong, Cyclic;		/* Tasks */
-dv_id_t Uart;								/* ISRs */
+dv_id_t Uart, Timer;						/* ISRs */
 dv_id_t Lock1;								/* Locks */
 dv_id_t Ticker;								/* Counters */
 dv_id_t Cyclist;							/* Alarms */
@@ -60,6 +62,7 @@ void callout_addisrs(dv_id_t mode)
 {
 	dv_printf("callout_addisrs()\n");
 	Uart = dv_addisr("Uart", &main_Uart, dv_iid_aux, 9);
+	Timer = dv_addisr("Timer", &main_Timer, dv_iid_timer, 8);
 	dv_printf("callout_addisrs() - done\n");
 }
 
@@ -85,7 +88,7 @@ void callout_addalarms(dv_id_t mode)
 void callout_autostart(dv_id_t mode)
 {
 	dv_activatetask(Init);
-	dv_setalarm_rel(Ticker, Cyclist, 2);
+	dv_setalarm_rel(Ticker, Cyclist, 200);
 }
 
 void main_Init(void)
@@ -126,6 +129,11 @@ void main_Loop(void)
 	dv_printf("Task Loop: dv_enable_irq() %d\n", dv_iid_aux);
 	dv_enable_irq(dv_iid_aux);
 #endif
+
+	dv_printf("Task Loop: enabling UART RxInt. Old ier value: 0x%02x\n");
+	dv_arm_bcm2835_armtimer_init(1);
+	dv_arm_bcm2835_armtimer_set_load(250000);			/* Should be 1ms */
+	dv_enable_irq(dv_iid_timer);
 
 	dv_printf("Task Loop terminating ...\n");
 	(void)dv_terminatetask();
@@ -231,14 +239,24 @@ void main_Uart(void)
 		}
 	}
 	dv_printf("ISR Uart return\n");
+}
 
-		
+void main_Timer(void)
+{
+	dv_arm_bcm2835_armtimer_clr_irq();		/* Clear the interrupt */
+
+	/* Should get called 1000 times per second, so no printing stuff in here unless something goes wrong.
+	*/
+	dv_statustype_t ee = dv_advancecounter(Ticker, 1);
+	if ( ee != dv_e_ok )
+		dv_printf("ISR Uart : dv_advancecounter(Ticker) returned %d\n", ee);
+	
 }
 
 static dv_u32_t acb_Cyclist(dv_id_t a)
 {
 	dv_activatetask(Cyclic);
-	return 5;
+	return 1000;
 }
 
 void callout_error(dv_statustype_t e)
