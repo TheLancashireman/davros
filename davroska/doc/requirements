@@ -1,0 +1,455 @@
+Requirements summarized from OSEK specification os223.pdf with commentary
+
+Note: the commentaries are from the point of view of the kernel code that runs on
+the target system. A system generation tool may adjust configuration parameters
+to maintain conformance: e.g. by remapping task priorities, implementing callouts etc.
+
+The specification mentions OSEKtime in certain places. OSEKtime is ignored here.
+
+
+Chapters 1 to 3
+===============
+Static configuration:
+	Maximum no. of objects defined by configuration.
+	Actual objects available in any mode depends on startup code.
+
+Scalability:
+	8- and 16-bit support not required. Assume 32-bit CPU with "sufficient" RAM.
+	"Conformance classes":
+		Most features available/exceeded without restriction:
+			No. of objects of each type limited by signed 16-bit data type (32768)
+				- tasks
+				- task priorities
+				- tasks not suspended
+				- tasks per priority
+				- resources (mutexes)
+				- counters
+			No. of events per task: 64
+			Internal resources: no limit
+		Permit exclusion of extended task support at compile time
+		Setting "extra" slots to 0 may exclude multiple activations
+	
+Error checking:
+	Range checks - always on.
+	Checks for errors that could cause undefined behaviour - always on.
+	Other checks - selectable or not implemented.
+
+Chapter 4 Task management
+=========================
+Tasks
+	Basic tasks
+		max activations configurable
+	Extended tasks
+		max activations: 1
+
+	Task states
+		running
+		ready
+		suspended
+		waiting (extended tasks only)
+		state transitions: see os223.pdf page 17
+
+	Scheduling policy
+		real-time; highest priority first
+		equal-priority: activation order, including *multiple activations* and release from waiting
+
+	Priority
+		higher number ==> higher priority
+		priority 0 is the idle loop. Tasks with priority 0 will never run
+			==> task priorities start at 1
+
+	Non- and mixed-preemptive scheduling
+		decided at startup by using internal resources
+		no effect on kernel code
+
+	Self-termination
+		tasks cannot be forcibly terminated from outside (? maybe later)
+		return from main function ==> automatic termination (no error)
+		termination while occupying resource or interrupt lock ==> automatic release
+
+Chapter 5 Application modes
+===========================
+Mode parameter passed to StartOS is passed to the application's callout functions.
+
+Chapter 6 Interrupt processing
+==============================
+Interrupt mechanism is assumed to be "software vectored" which means a common vector for all interrupts.
+Therefore the kernel handles all interrupts unless they are separately vectored (e.g. FIQ on ARM, NMI
+etc.). This makes the concept of ISR categories is redundant. Not all hardware supports interrupt
+"levels" in the interrupt controller, so the kernel has to schedule the ISRs. To make the ISR
+handling hardware-independent the kernel always assumes the role of ISR scheduler.
+
+"Fast" Disable/Enable:
+The suspend/resume functions are never really fast because of the nesting requirement so can be implemented
+using the same mechanism as the mutex object (see chapter 8). The differentiation here between "OS" interrupts
+and "All" interrupts is simply a choice of the designer or configuration. The kernel does not provide
+the API.
+The disable/enable functions do not need to be nestable and can use the processor's hard-lock flag.
+This is much faster than the level-setting mechanism.
+
+Chapter 7 Event mechanism
+=========================
+Applies to extended tasks only.
+
+An event is defined to be a single bit in a variable and events can be bitwise-ORed together. Therefore
+the number of events (per task) is limited by largest unsigned type in C. Unsigned long long (C99) allows
+64 events on 32-bit processors. The fact of the single-bit makes the concept of events being "objects
+managed by the operating system" wrong. The "objects" are artifacts of the configuration tool (if
+such is used).
+
+An extended task that waits for events goes to the waiting state unless one or more of the awaited events
+has already been set. A task that is waiting is "released" when one of the events for which it is waiting
+becomes set. When released, the task is scheduled according to the normal priority rules. While the task
+is waiting, other tasks of equal or lower priority are permitted to run.
+
+When an extended task is activated its pending events are cleared.
+
+Chapter 8 Resource management
+=============================
+The name "resource" is poorly chosen: a "resource" is usually a hardware object (e.g. a shared device
+or a variable or set of variables) that need to be protected against concurrent access. The industry
+term for this is a mutual exclusion mechanism, or "mutex". This is the term used here, and shall be extended
+to include the level-based interrupt locking mechanisms.
+
+The mutex mechanism uses an immediate priority ceiling protocol; when a task or ISR acquires a mutex,
+its priority is immediately raised (but never lowered) to the ceiling priority of the mutex, in order
+to prevent the execution of other tasks that might require the mutex. This fact means that the kernel
+must be informed of all tasks and ISRs (or at least the highest priority of them) in order to calculate
+the ceiling priority.
+
+The interrupt "suspend" functions can be implemented by configuring mutexes that are shared with
+the highest priority of the corresponding category. The required nestability of these functions
+means that all mutexes can be called in a nested manner by the same task or ISR. This makes the
+"linked resource" concept redundant.
+
+Restrictions (8.2)
+It is reasonable to eliminate these these retrictions in some cases. TerminateTask() and a successful
+ChainTask() can safely release any mutexes that are held by the terminating task. Similarly for
+an ISR that terminates while holding a mutex. Such an implementation eliminates a known "weakness"
+of the OSEK specification that means you cannot implement a basic task that handles queued messages
+(e.g. incoming characters or network packets in a ring buffer) that are placed in the queue by an
+ISR. This is because of the delay between determining that the buffer is empty and terminating, during
+which the ISR may arrive and fail in its attempt to activate the task. This weakness is one of the
+reasons for the "multiple activations" concept.
+
+Calling Schedule() while holding a mutex can be permitted provided that the task's priority
+is never dropped below the highest occupied mutex. However, the use case for this is not
+as clear as for termination, and an error report is simpler to implement.
+
+Calling WaitEvent() while holding a mutex is an interesting case. The "race condition" of
+termination is not a problem because events can be set for a task that is running or ready.
+Attempting to hold a mutex while waiting is always an error. Any task other task or ISR
+that needs to acquire the mutex would (in general OS designs) be caused to wait for the
+mutex until the holder receives an event and releases the mutex. This could potentially
+result in a deadlock. In OSEK, all that would happen is an error when another task attempts
+to aquire the mutex that is already occupied.
+
+Implementing the interrupt locking functions as mutexes eliminates the restriction on calling
+APIs (except WaitEvent() and Schedule()) with locked interrupts.
+
+Other considerations (8.3 to 8.6 inclusive)
+"Scheduler resource" is merely a mutex that is shared with all tasks (or the highest-priority task)
+and is no different from any other mutex.
+
+Sharing with ISRs means that each mutex has a "lock level" that corresponnds with the
+interrupt/lock level of the highest priority ISR that uses the mutex.
+
+For a discussion of the ceiling priority protocol, read the specification or any other standard text.
+
+Internal resources (8.7)
+
+This is a complicated way of ensuring that a task's priority when running is elevated to the
+priority of the internal mutex that it uses. The assumption that the acquisition is performed
+as a normal mutex acquisition when the task starts introduces extra execution time on the target
+and leads to the restriction of one internal resource per task.
+
+A simpler implementation that elevates a task's priority at start time means that the elevated
+priority ("running priority") is pre-calculated and eliminites the one-mutex-per-task restriction.
+There is also no obstacle to sharing internal mutexes with ISRs.
+
+Schedule() "releases the mutex" - i.e. the lowers the task's priority to the base level. No restriction
+on use by ISRs either.
+
+Non-preemptable task: use an internal resource that's shared with the highest-priority task.
+
+Chapter 9 Alarms
+================
+Counters are implementation-specific objects that measure time or other occurrences of other
+phenomena.
+
+Alarms are OS objects that cause a configured activity (activate a task, set an event, call a
+function) when the associated counter reaches a value specified in the API. The counter value
+can be specified as an absolute value or relative to the current counter value. The API also
+indicates whether the alarm is single shot or cyclic.
+
+Chapter 10 Messages
+===================
+Defined in a separate "OSEK COM" specification.
+
+Chapter 11 Error handling, tracing and debugging
+================================================
+The application can provide callout functions ("hook routines") that the OS calls at various
+times:
+	* at startup
+	* at shutdown
+	* when an error is detected
+	* on context switches
+Hook routines cannot be interrupted by category 2 ISRs.
+
+Error handling (11.2)
+
+The kernel calls ErrorHook() when an error is detected. If the error is caused by an OSEK
+API that returns StatusType, the error hook is called whenever the StatusType is not E_OK.
+
+The kernel also calls ErrorHook() when no error-code propagation is possible (e.g. when an
+action triggered by an alarm cannot be performed.
+
+ErrorHook() is not called if an API called by ErrorHook() also detects an error (i.e. not
+recursive), but the specification says nothing about what happens if a category 1 ISR
+that interrupts ErrorHook() also causes an API error.
+
+The kernel provides various APIs to obtain information about the error - service ID and parameters.
+
+Startup (11.3)
+
+Low-level startup from reset to an environment capable of executing C functions is not defined.
+
+The OSEK OS starts when the startup code (e.g. main()) calls StartOS(). Interupts that cause
+category 2 ISRs to run are not allowed. If category 1 ISRs are scheduledi by the kernel, this
+restriction naturally extends to them too.
+
+StartOS() can automatically activate tasks and alarms at startup, depending on the configuration
+and on the application mode.
+
+The kernel calls StartupHook() at the end of StartOS(), just before commencing any scheduling
+activity.
+
+Shutdown (11.4)
+
+Shutdown can be requested by the application or forced by the kernel if it detects an internal
+inconsistency.
+
+On shutdown the kernel calls ShutdownHook(). If ShutdownHook() returns, the kernel enters an
+endless loop with interrupts disabled.
+
+Debugging (11.5)
+
+On a context switch (from one task to another) the kernel calls PostTaskHook() just before
+the outgoing task leaves the running state, and PreTaskHook() just after the incoming
+task enters the running state. Therefore GetTaskID() always returns the outgoing task/incoming
+task when called from these hook functions.
+
+12 Description of system services
+=================================
+The permitted context of each API (fig 12.1) can be mostly eliminated by carefule kernel design.
+
+Error characteristics (12.2.3) not reproduced here, except to note that OSEK specifies
+two levels of error checking, STANDARD and EXTENDED, (intended to differentiate between
+errors that can be eliminated by design and errors that are caused by the system's state.
+The error codes followed by (e) are only specified for extended mode. If STANDARD error checking
+is enabled, the behaviour for EXTENDED mode errors is undefined.
+
+Note: the order of checking for errors is not specified, so if an API call potentially causes
+two errors, either one of them could be reported.
+
+Data types
+
+	StatusType
+		E_OK
+		E_OS_ACCESS		mutex is already occupied
+						task has a priority higher than the ceiling priority
+						task in event API is not extended
+		E_OS_CALLEVEL	called from wrong context
+		E_OS_ID			ID parameter out of range
+		E_OS_LIMIT		task max. activations exceeded
+		E_OS_NOFUNC		attempt to release mutex that isn't occupied by caller
+						alarm is not active
+		E_OS_RESOURCE	task holds resource
+		E_OS_STATE		attempt to get or set events for suspended task
+						attempt to activate an alarm that is already active
+		E_OS_VALUE		alarm time or cycle time for an alarm is out of range
+			Numerical values of above defined by specification. There may be
+ 			additional implementation defined values.
+	TaskType identifies a task
+	TaskStateType indicates the state of a task (RUNNING, READY, SUSPENDED, WAITING)
+	ResourceType identifies a resource (mutex)
+	EventMaskType holds a set of events
+	TickType holds a counter value
+	AlarmBaseType is a structure containing maxallowedvalue, ticksperbase and mincycle for an alarm.
+		Values actually apply to the counter, not the alarm. The meanings are therefore unspecified.
+	AlarmType identifies an alarm
+	AppModeType identifies an application mode
+
+	In addition, fooRefType is used to declare a pointer to a fooType for some data types.
+	This fact often causes confusion it would have been better to have the API parameters
+	specified explicitly as pointer-to-fooType.
+
+	There are assorted Declare<objecttype> macros - e.g. DeclareTask().
+
+API functions (called by the application)
+
+	StatusType ActivateTask(TaskType taskID)
+		Causes task transition from suspended to ready, unless already active.
+		If already activate an additional activation is enqueued (subject to configured max. activations)
+		Extended task: pending events cleared
+		Errors: E_OS_ID(e), E_OS_LIMIT
+
+	StatusType TerminateTask(void)
+		Causes termination of caller. Releases internal resource.
+		Does not return unless error is detected.
+		Errors: E_OS_RESOURCE(e), E_OS_CALLEVEL(e)
+
+	StatusType ChainTask(TaskType TaskID)
+		Simultaneously terminates caller and activates another task.
+		Releases internal resource.
+		Chaining self is allowed even if max. activations is 1.
+		If the activation fails, the caller does not terminate
+		Errors: E_OS_ID(e), E_OS_LIMIT, E_OS_RESOURCE(e), E_OS_CALLEVEL(e)
+
+	StatusType Schedule(void)
+		Permits higher-priority tasks to run by releasing internal resource.
+		On return, internal resource has been re-acquired
+		Errors:  E_OS_CALLEVEL(e), E_OS_RESOURCE(e)
+
+	StatusType GetTaskID(TaskRefType TaskID)
+		Places ID of current task in the referenced variable. INVALID_TASK if no task is active.
+		Errors: none
+
+	StatusType GetTaskState(TaskType TaskID, TaskStateRefType State)
+		Places state of specified task in the referenced variable
+		Errors: E_OS_ID(e)
+
+	void EnableAllInterrupts(void)
+		Restores the state saved by DisableAllInterrupts()
+		Errors: none
+
+	void DisableAllInterrupts(void)
+		Disables all interrupts for which the hardwware supports disabling.
+		Saves the previous state for use in EnableAllInterrupts()
+		Not nestable
+		Errors: none
+
+	void ResumeAllInterrupts(void)
+		Restores the state prior to the corresponding SuspendAllInterrupts()
+		Nesting allowed.
+		Errors: none
+
+	void SuspendAllInterrupts(void)
+		Disables all category 1 and category 2 interrupts.
+		Saves the previous state.
+		Nesting allowed.
+		Errors: none
+
+	void ResumeOSInterrupts(void)
+		Restores the state prior to the corresponding SuspendOSInterrupts()
+		Nesting allowed.
+		Errors: none
+
+	void SuspendOSInterrupts(void)
+		Disables all category 2 interrupts.
+		Saves the previous state.
+		Nesting allowed.
+		Errors: none
+
+	StatusType GetResource(ResourceType ResID)
+		Acquires the specified mutex
+		Error: E_OS_ID(e), E_OS_ACCESS(e)
+
+	StatusType ReleaseResource(ResourceType ResID)
+		Releases the specified mutex
+		Error: E_OS_ID(e), E_OS_NOFUNC(e), E_OS_ACCESS(e)
+
+	StatusType SetEvent(TaskType TaskID, EventMaskType Mask)
+		Sets events for the specified extended task
+		Releases the task if it is waiting for any of the events
+		Errors: E_OS_ID(e), E_OS_ACCESS(e), E_OS_STATE(e)
+
+	StatusType ClearEvent(EventMaskType Mask)
+		Clears the specified events from the set of pending events of the caller.
+		Errors: E_OS_ACCESS(e), E_OS_CALLEVEL(e)
+		Note: E_OS_CALLEVEL might not be possible because it implies E_OS_ACCESS
+
+	StatusType GetEvent(TaskType TaskID, EventMaskRefType Event)
+		Places the currelty-pending events of the specified extended task into the referenced variable
+		Errors: E_OS_ID(e), E_OS_ACCESS(e), E_OS_STATE(e)
+
+	StatusType WaitEvent(EventMaskType Mask)
+		The calling task is placed in the waiting state, internal resource released, unless one or more
+		of the specified events is already pending.
+		Errors: E_OS_ACCESS(e), E_OS_RESOURCE(e), E_OS_CALLEVEL(e)
+		Note: E_OS_CALLEVEL might not be possible because it implies E_OS_ACCESS
+		Note: the behaviour for an empty set of events is unspecified
+		Note: the scheduling behaviour in the case of events already pending is unspecified
+
+	StatusType GetAlarmBase(AlarmType AlarmID, AlarmBaseRefType Info)
+		Fills the referenced data structure with the information about an alarm's counter
+		Errors: E_OS_ID(e)
+
+	StatusType GetAlarm(AlarmType AlarmID, TickRefType Tick)
+		Places the number of counter ticks until the alarm expires into the referenced variable
+		Errors: E_OS_NOFUNC, E_OS_ID(e)
+
+	StatusType SetRelAlarm(AlarmType AlarmID, TickType increment, TickType cycle)
+		Activates the specified alarm with a relative expiry time
+		If <increment> is zero, behaviour is implementation-defined
+		If cycle is non-zero, the alarm retriggers every <cycle> ticks, otherwise alarm is single-shot
+		Errors: E_OS_STATE, E_OS_ID(e),  E_OS_VALUE(e)
+
+	StatusType SetAbsAlarm(AlarmType AlarmID, TickType start, TickType cycle)
+		Activates the specified alarm with an absolute expiry time
+		If <increment> is zero, behaviour is implementation-defined
+		If cycle is non-zero, the alarm retriggers every <cycle> ticks, otherwise alarm is single-shot
+		Errors: E_OS_STATE, E_OS_ID(e),  E_OS_VALUE(e)
+
+	StatusType CancelAlarm(AlarmType AlarmID)
+		Deactivates the specified alarm with immediate effect
+		Errors: E_OS_NOFUNC, E_OS_ID(e)
+
+	AppModeType GetActiveApplicationMode(void)
+		Returns the current application mode
+		Errors: none
+
+	void StartOS(AppModeType Mode)
+		Starts the operating system
+		Never returns
+		Errors: none
+
+	void ShutdownOS(StatusType Error)
+		Shuts down the OS
+		The Error parameter is passed to ShutdownHook() but has no meaning for the kernel
+		Errors: none
+
+	OSErrorGetServiceId
+		Provides the identity of the API that detected the error
+		Values are OSServiceId_xx (e.g. OSServiceId_ActivateTask)
+
+	OSError_x1_x2
+		Provides the value of a parameter to the API that detected the error (when called from ErrorHook)
+		x1 is the API name, x2 is the parameter name (e.g. OSError_ActivateTask_TaskID)
+
+	Assorted constants are defined but not described here.
+		Apart from INVALID_TASK (mentioned in GetTaskID) they are largely configuration-dependent.
+
+Hook routines (provided by the application, called by the kernel)
+
+	void ErrorHook(StatusType Error)
+		An error has occurred
+
+	void PreTaskHook(void)
+		A context switch *to* the current task is about to occur
+
+	void PostTaskHook()
+		A context switch *from* the current task is about to occur
+
+	void StartupHook(void)
+		The kernel is about to start scheduling tasks and ISRs
+
+	void ShutdownHook(StatusType Error)
+		The kernel is about to shut down.
+		If caused by ShutdownOS() the Error parameter was supplied by the application
+		If caused by an internal fault the Error parameter cannot be E_OK and is likely
+		to be an implementation-defined value.
+
+Chapter 14 (Impelementation and application hints) - not summarized
+Chapter 15 (Changes) - not summarized
+
