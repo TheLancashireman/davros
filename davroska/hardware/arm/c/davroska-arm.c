@@ -16,10 +16,10 @@
 #endif
 
 
-/* Kernel stack starts 32 bytes below top of memory (32 bytes allows for a canary)
+/* Kernel stack starts DV_CANARY bytes below top of memory
 */
 extern dv_u32_t dv_end_mem;
-const dv_u32_t dv_initialsp_svc = (dv_u32_t)&dv_end_mem - 32;
+const dv_u32_t dv_initialsp_svc = (dv_u32_t)&dv_end_mem - DV_CANARY;
 
 /* Only a very small stack is needed for irq and fiq because we switch to svc.
  * The stack is not pushed, just stored, so the initialsp constants contain the address of element 0

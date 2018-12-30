@@ -483,6 +483,7 @@ static dv_id_t dv_addexe(const char *name, void (*fn)(void), dv_prio_t prio, dv_
 
 	dv_exe[id].name = name;
 	dv_exe[id].func = fn;
+	dv_exe[id].extended = DV_NULL;
 	dv_exe[id].maxact = maxact;
 	dv_exe[id].nact = 0;
 	dv_exe[id].baseprio = prio;

@@ -9,27 +9,34 @@
 
 #define DV_TARGET			<arm/h/dv-target-pi-zero.h>
 
-/* DV_CFG_MAXEXE is the maximum number of executables that you can create.
+/* DV_CFG_MAXEXE is the maximum number of executables (tasks + ISRs) that you can create.
 */
 #define DV_CFG_MAXEXE		20
 
-/* DV_CFG_MAXPRIO is the maximum number of different priorities that you can have
+/* DV_CFG_MAXEXTENDED is the maximum number of extended executables that you can create.
+ * If this is zero, the event API is omitted.
+*/
+#define DV_CFG_MAXEXTENDED	0
+
+/* DV_CFG_MAXPRIO is the maximum number of different priorities that you can use
+ * The number includes all task and ISR priorities
 */
 #define DV_CFG_MAXPRIO		10
 
 /* DV_CFG_NSLOT_EXTRA is the number of extra queue slots you need for tasks with maxact > 1
+ * If this is zero the "multiple activations" feature is omitted,
 */
 #define DV_CFG_NSLOT_EXTRA	10
 
-/* DV_CFG_MAXLOCK is the maximum number of locks that you can have
+/* DV_CFG_MAXLOCK is the maximum number of locks that you can create
 */
 #define DV_CFG_MAXLOCK		10
 
-/* DV_CFG_MAXCOUNTER is the maximum number of counters that you can have
+/* DV_CFG_MAXCOUNTER is the maximum number of counters that you can create
 */
 #define DV_CFG_MAXCOUNTER	5
 
-/* DV_CFG_MAXALARM is the maximum number of alarms that you can have
+/* DV_CFG_MAXALARM is the maximum number of alarms that you can create
 */
 #define DV_CFG_MAXALARM		10
 

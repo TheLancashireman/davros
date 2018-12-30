@@ -21,6 +21,8 @@
 typedef short dv_id_t;
 typedef short dv_prio_t;
 typedef short dv_qty_t;
+typedef dv_u64_t dv_eventmask_t;
+typedef dv_u64_t dv_param_t;
 
 typedef enum
 {	dv_suspended,
@@ -53,7 +55,11 @@ typedef enum
 	dv_sid_getexpirytime,
 	dv_sid_advancecounter,
 	dv_sid_setalarm_abs,
-	dv_sid_setalarm_rel
+	dv_sid_setalarm_rel,
+	dv_sid_waitevent,
+	dv_sid_setevent,
+	dv_sid_getevent,
+	dv_sid_clearevent
 } dv_sid_t;
 
 typedef enum
@@ -70,24 +76,68 @@ typedef enum
 	dv_panic_UnknownPanic
 } dv_panic_t;
 
-dv_statustype_t dv_startos(dv_id_t mode);
+extern dv_statustype_t dv_startos(dv_id_t mode);
 
-dv_id_t dv_addtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_qty_t maxact);
-dv_id_t dv_addisr(const char *name, void (*fn)(void), dv_id_t irqid, dv_prio_t prio);
-dv_id_t dv_addlock(const char *name, dv_qty_t maxtake);
-dv_id_t dv_addcounter(const char *name);
-dv_id_t dv_addalarm(const char *name, dv_u32_t (*fn)(dv_id_t a));
-void dv_addlockuser(dv_id_t lock, dv_id_t executable);
+extern dv_id_t dv_addtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_qty_t maxact);
+extern dv_id_t dv_addisr(const char *name, void (*fn)(void), dv_id_t irqid, dv_prio_t prio);
+extern dv_id_t dv_addlock(const char *name, dv_qty_t maxtake);
+extern dv_id_t dv_addcounter(const char *name);
+extern dv_id_t dv_addalarm(const char *name, dv_u32_t (*fn)(dv_id_t a));
+extern void dv_addlockuser(dv_id_t lock, dv_id_t executable);
 
-dv_statustype_t dv_terminatetask(void);
-dv_statustype_t dv_activatetask(dv_id_t task);
-dv_statustype_t dv_chaintask(dv_id_t task);
-dv_statustype_t dv_takelock(dv_id_t lock);
-dv_statustype_t dv_droplock(dv_id_t lock);
+extern dv_statustype_t dv_terminatetask(void);
+extern dv_statustype_t dv_activatetask(dv_id_t task);
+extern dv_statustype_t dv_chaintask(dv_id_t task);
+extern dv_statustype_t dv_takelock(dv_id_t lock);
+extern dv_statustype_t dv_droplock(dv_id_t lock);
 
-dv_statustype_t dv_setalarm_rel(dv_id_t c, dv_id_t a, dv_u32_t v);
-dv_statustype_t dv_setalarm_abs(dv_id_t c, dv_id_t a, dv_u64_t v);
-dv_statustype_t dv_advancecounter(dv_id_t c, dv_u64_t n);
+extern dv_statustype_t dv_setalarm_rel(dv_id_t c, dv_id_t a, dv_u32_t v);
+extern dv_statustype_t dv_setalarm_abs(dv_id_t c, dv_id_t a, dv_u64_t v);
+extern dv_statustype_t dv_advancecounter(dv_id_t c, dv_u64_t n);
+
+/* ToDo: this will become an application callout to replace error callout
+*/
+extern dv_statustype_t dv_reporterror(dv_sid_t sid, dv_statustype_t e, dv_qty_t nParam, dv_param_t *p);
+
+#if DV_CFG_MAXEXTENDED <= 0
+/* Event API in "BCC1/BCC2" is just a stub. All functions return dv_e_access, even if task ID is out of range.
+*/
+static inline dv_statustype_t dv_waitevent(dv_eventmask_t evts)
+{
+	dv_param_t p = (dv_param_t)evts;
+	return dv_reporterror(dv_e_access, dv_sid_waitevent, 1, &p);
+}
+
+static inline dv_statustype_t dv_setevent(dv_id_t t, dv_eventmask_t evts)
+{
+	dv_param_t p[2];
+	p[0] = (dv_param_t)t;
+	p[1] = (dv_param_t)evts;
+	return dv_reporterror(dv_e_access, dv_sid_setevent, 2, p);
+}
+
+static inline dv_statustype_t dv_getevent(dv_id_t t, dv_eventmask_t *evts)
+{
+	dv_param_t p[2];
+	p[0] = (dv_param_t)t;
+	p[1] = (dv_param_t)(dv_address_t)evts;
+	return dv_reporterror(dv_e_access, dv_sid_getevent, 2, p);
+}
+
+static inline dv_statustype_t dv_clearevent(dv_eventmask_t evts)
+{
+	dv_param_t p = (dv_param_t)evts;
+	return dv_reporterror(dv_e_access, dv_sid_clearevent, 1, &p);
+}
+#else
+/* Proper event API is provided in davroska-extended.c
+*/
+extern dv_statustype_t dv_waitevent(dv_eventmask_t evts);
+extern dv_statustype_t dv_setevent(dv_id_t t, dv_eventmask_t evts);
+extern dv_statustype_t dv_getevent(dv_id_t t, dv_eventmask_t *evts);
+extern dv_statustype_t dv_clearevent(dv_eventmask_t evts);
+extern dv_id_t dv_addextendedtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_u32_t stackbytes);
+#endif
 
 /* Configuration callout functions: provided by the application
 */
@@ -110,6 +160,8 @@ void callout_shutdown(dv_statustype_t e);
  *	davroska internals
  *==============================================================================
 */
+#define DV_CANARY	32		/* Amount of space above stack top and below stack limit for over/underflow detection */
+
 typedef unsigned long long dv_param_t;
 
 typedef struct dv_q_s
@@ -123,12 +175,21 @@ typedef struct dv_q_s
     dv_prio_t level;		/* Interrupt lock level of this queue */
 } dv_q_t;
 
+typedef struct dv_extexe_s
+{
+	dv_u64_t events_pending;
+	dv_u64_t events_awaited;
+	dv_u32_t *initialsp;
+	dv_u32_t stack[(DV_CANARY*2)/4];
+} dv_extexe_t;
+
 typedef void (*dv_taskf_t)(void);
 
 typedef struct dv_exe_s
 {
 	const char *name;
 	dv_taskf_t func;
+	dv_extexe_t *extended;
 	dv_jmpbuf_t *jb;
 	dv_qty_t maxact;
 	dv_qty_t nact;
@@ -221,7 +282,6 @@ extern dv_qty_t dv_nalarm;
 extern void dv_runqueued(dv_prio_t high, dv_prio_t low, dv_intstatus_t is);
 extern void dv_panic(dv_panic_t p);
 extern dv_statustype_t dv_unconfigured_interrupt(dv_id_t p);
-extern dv_statustype_t dv_reporterror(dv_sid_t sid, dv_statustype_t e, dv_qty_t nParam, dv_param_t *p);
 extern dv_prio_t dv_raiseprio(void);
 extern void dv_lowerprio(dv_prio_t p);
 
