@@ -1,4 +1,4 @@
-/*	dv-trap-irq.s - ARM low-level irq handler
+/*	dv-trap-irq.S - ARM low-level irq handler
  *
  *	Copyright 2018 David Haworth
  *

@@ -16,7 +16,7 @@
 /* DV_CFG_MAXEXTENDED is the maximum number of extended executables that you can create.
  * If this is zero, the event API is omitted.
 */
-#define DV_CFG_MAXEXTENDED	0
+#define DV_CFG_MAXEXTENDED	5
 
 /* DV_CFG_MAXPRIO is the maximum number of different priorities that you can use
  * The number includes all task and ISR priorities

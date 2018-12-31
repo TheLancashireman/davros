@@ -52,6 +52,7 @@ LD_OPT		+=	-lc
 DV_LD_OBJS	+= $(DV_OBJ_D)/demo.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/davroska.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/davroska-time.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/davroska-extended.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/davroska-arm.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-printf.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-xprintf.o
@@ -64,6 +65,7 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/dv-vectors.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-reset.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-traps.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-trap-irq.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-switchcall.o
 
 VPATH 		+=	c
 VPATH 		+=	s

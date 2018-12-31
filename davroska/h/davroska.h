@@ -160,7 +160,18 @@ void callout_shutdown(dv_statustype_t e);
  *	davroska internals
  *==============================================================================
 */
-#define DV_CANARY	32		/* Amount of space above stack top and below stack limit for over/underflow detection */
+/* DV_CANARY - no. of bytes of space above stack top and below stack limit for over/underflow detection
+ *
+ * Also use for stack rounding, so it's useful if DV_CANARY is the size of a cache line.
+ * Must be a power of 2
+*/
+#ifndef DV_CANARY
+#define DV_CANARY	32
+#endif
+
+#if ((DV_CANARY) & ((DV_CANARY)-1)) != 0
+#error "DV_CANARY is not a power of 2"
+#endif
 
 typedef unsigned long long dv_param_t;
 
@@ -175,13 +186,15 @@ typedef struct dv_q_s
     dv_prio_t level;		/* Interrupt lock level of this queue */
 } dv_q_t;
 
-typedef struct dv_extexe_s
+typedef struct dv_extended_s
 {
 	dv_u64_t events_pending;
 	dv_u64_t events_awaited;
-	dv_u32_t *initialsp;
-	dv_u32_t stack[(DV_CANARY*2)/4];
-} dv_extexe_t;
+	dv_jmpbuf_t *jb;
+	dv_stackword_t *stackbase;
+	dv_stackword_t *initialsp;
+	dv_u32_t stacklen;
+} dv_extended_t;
 
 typedef void (*dv_taskf_t)(void);
 
@@ -189,7 +202,6 @@ typedef struct dv_exe_s
 {
 	const char *name;
 	dv_taskf_t func;
-	dv_extexe_t *extended;
 	dv_jmpbuf_t *jb;
 	dv_qty_t maxact;
 	dv_qty_t nact;
@@ -199,6 +211,7 @@ typedef struct dv_exe_s
 	dv_tstate_t state;
 	dv_id_t locklist;
 	dv_id_t irqid;
+	dv_id_t extended;
 } dv_exe_t;
 
 typedef struct dv_lock_s
@@ -228,7 +241,27 @@ typedef struct dv_alarm_s
 	dv_id_t counter;
 	dv_id_t nextalarm;
 } dv_alarm_t;
-	
+
+typedef struct dv_params_runqueued_s
+{
+	dv_prio_t high;
+	dv_prio_t low;
+	dv_intstatus_t is;
+} dv_params_runqueued_t;
+
+typedef enum
+{	dv_req_rq,
+	dv_req_xx
+} dv_req_t;
+
+typedef struct dv_request_s
+{
+	dv_req_t code;
+	dv_jmpbuf_t *return_jb;
+	union
+	{	dv_params_runqueued_t rq;
+	} p;
+} dv_request_t;
 
 typedef struct dv_errorinfo_s
 {
@@ -250,6 +283,7 @@ extern dv_prio_t dv_highestprio;
 extern dv_id_t dv_currentexe;
 
 extern const dv_qty_t dv_maxexe;
+extern const dv_qty_t dv_maxextended;
 extern const dv_qty_t dv_maxprio;
 extern const dv_qty_t dv_maxslot;
 extern const dv_qty_t dv_maxlock;
@@ -259,6 +293,7 @@ extern dv_prio_t dv_highestprio;
 extern dv_id_t dv_currentexe;
 
 extern dv_qty_t dv_nexe;
+extern dv_qty_t dv_nextended;
 extern dv_qty_t dv_ntask;
 extern dv_qty_t dv_nisr;
 extern dv_qty_t dv_nlock;
@@ -266,6 +301,7 @@ extern dv_qty_t dv_nlock;
 extern dv_prio_t dv_maxtaskprio;
 
 extern dv_exe_t dv_exe[];
+extern dv_extended_t dv_extended[];
 extern dv_q_t dv_queue[];
 extern dv_id_t dv_slots[];
 extern dv_lock_t dv_lock[];
@@ -284,5 +320,17 @@ extern void dv_panic(dv_panic_t p);
 extern dv_statustype_t dv_unconfigured_interrupt(dv_id_t p);
 extern dv_prio_t dv_raiseprio(void);
 extern void dv_lowerprio(dv_prio_t p);
+
+/* The following prototypes are not needed if there's no extended task support.
+ * The functions are either inline stubs or not required at all
+*/
+#if DV_CFG_MAXEXTENDED > 0
+extern void dv_runextended(dv_id_t e, dv_intstatus_t is);
+extern void dv_runqueued_onkernelstack(dv_prio_t high, dv_prio_t low, dv_intstatus_t is);
+extern void dv_startextendedtask(dv_id_t e, dv_intstatus_t is);
+extern void dv_switchcall(dv_id_t e, dv_intstatus_t is, dv_stackword_t *sp, void (*f)(dv_id_t e, dv_intstatus_t is));
+extern void dv_extended_init(dv_u32_t *stackbase);
+#endif
+
 
 #endif

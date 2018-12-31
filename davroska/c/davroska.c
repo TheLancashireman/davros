@@ -221,8 +221,8 @@ dv_statustype_t dv_droplock(dv_id_t lock)
 
 	if ( dv_lock[lock].owner != dv_currentexe )
 	{
+		(void)dv_restore(is);
 		dv_param_t p = (dv_param_t)lock;
-		dv_restore(is);
 		return dv_reporterror(dv_sid_droplock, dv_e_nofunc, 1, &p);
 	}
 
@@ -246,7 +246,7 @@ dv_statustype_t dv_droplock(dv_id_t lock)
 		if ( dv_dequeue(high) != dv_currentexe )
 			dv_panic(dv_panic_QueueCorrupt);
 
-		dv_runqueued(high, low, is);
+		dv_runqueued_onkernelstack(high, low, is);
 	}
 	
 	(void)dv_restore(is);
@@ -271,6 +271,11 @@ dv_statustype_t dv_startos(dv_id_t mode)
 	*/
 	dv_initvectors();
 	dv_init_interrupt_controller();
+
+	/* Initialise extended task handling
+	*/
+	extern dv_u32_t dv_end_bss;
+	dv_extended_init(&dv_end_bss);
 
 	/* Ensure that no executables can preempt until everything is initialised
 	*/
@@ -315,7 +320,7 @@ dv_statustype_t dv_startos(dv_id_t mode)
 	callout_autostart(mode);
 	dv_lowerprio(dv_exe[idle].baseprio);
 
-	dv_runqueued(dv_maxprio-1, dv_exe[idle].baseprio, DV_INTENABLED);
+	dv_runqueued_onkernelstack(dv_maxprio-1, dv_exe[idle].baseprio, DV_INTENABLED);
 
 	/* If the task - or the other tasks that it starts - ever die,
 	 * we enable interrupts and drop into the idle loop waiting for an interrupt.
@@ -483,7 +488,7 @@ static dv_id_t dv_addexe(const char *name, void (*fn)(void), dv_prio_t prio, dv_
 
 	dv_exe[id].name = name;
 	dv_exe[id].func = fn;
-	dv_exe[id].extended = DV_NULL;
+	dv_exe[id].extended = -1;
 	dv_exe[id].maxact = maxact;
 	dv_exe[id].nact = 0;
 	dv_exe[id].baseprio = prio;
@@ -517,7 +522,7 @@ static dv_statustype_t dv_activateexe(dv_id_t e)
 	*/
 	if ( dv_exe[e].nact >= dv_exe[e].maxact )
 	{
-		dv_restore(is);
+		(void)dv_restore(is);
 		dv_param_t p = (dv_param_t)e;
 		return dv_reporterror(dv_sid_activatetask, dv_e_limit, 1, &p);
 	}
@@ -582,15 +587,22 @@ void dv_runqueued(dv_prio_t high, dv_prio_t low, dv_intstatus_t is)
 			*/
 			dv_preexe();
 
-			if ( dv_setjmp(jb) == 0 )	/* TerminateTask() causes non-zero return here */
+			if ( dv_setjmp(jb) == 0 )	/* TerminateTask(), ChainTask() and WaitEvent() cause non-zero return here */
 			{
-				/* Interrupt state of caller is preserved for incoming exe
-				*/
-				dv_restore(is);
+				if ( dv_extendedtask(e) )
+				{
+					dv_runextended(e, is);
+				}
+				else
+				{
+					/* Interrupt state of caller is preserved for incoming exe
+					*/
+					dv_restore(is);
 
-				/* Run the exe
-				*/
-				(*dv_exe[e].func)();
+					/* Run the exe
+					*/
+					(*dv_exe[e].func)();
+				}
 			}
 
 			/* On return or termination don't propagate the interrupt state
@@ -604,11 +616,20 @@ void dv_runqueued(dv_prio_t high, dv_prio_t low, dv_intstatus_t is)
 			if ( dv_dequeue(eprio) != e )
 				dv_panic(dv_panic_QueueCorrupt);
 
-			dv_exe[e].nact--;
-			if ( dv_exe[e].nact <= 0 )
-				dv_exe[e].state = dv_suspended;
+			if ( dv_extendedtask(e) &&  dv_taskwaiting(e) )
+			{
+				dv_exe[e].state = dv_waiting;
+			}
 			else
-				dv_exe[e].state = dv_ready;
+			{
+				/* Task is terminating
+				*/
+				dv_exe[e].nact--;
+				if ( dv_exe[e].nact <= 0 )
+					dv_exe[e].state = dv_suspended;
+				else
+					dv_exe[e].state = dv_ready;
+			}
 			dv_exe[e].jb = DV_NULL;
 		}
 		else
@@ -687,13 +708,17 @@ static dv_statustype_t dv_activateexe2(dv_id_t e, dv_intstatus_t is)
 	if ( dv_exe[e].state != dv_running )	/* Self-activation doesn't change the state */
 		dv_exe[e].state = dv_ready;
 
+	/* Clear pending events for an extended task
+	*/
+	dv_clearpending(e);
+
 	/* Enqueue executable
 	*/
 	dv_enqueue(dv_exe[e].baseprio, e);
 
 	/* Now run any executables that are of higher priority than caller.
 	*/
-	dv_runqueued(dv_exe[e].baseprio, dv_exe[dv_currentexe].currprio, is);
+	dv_runqueued_onkernelstack(dv_exe[e].baseprio, dv_exe[dv_currentexe].currprio, is);
 
 	dv_restore(is);
 	return dv_e_ok;

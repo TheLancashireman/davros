@@ -367,9 +367,16 @@ void dv_catch_irq(void)
 }
 #endif
 
+void dv_panic_return_from_switchcall_function(void)
+{
+	dv_printf("%s --- %s\n", "dv_switchcall", "Oops! The task wrapper returned");
+	dv_panic(dv_panic_UnknownPanic);
+}
+
 void dv_panic_failed_return_from_irq(void)
 {
 	dv_printf("%s --- %s\n", "dv_trap_irq", "Oops! Failed to return from an IRQ");
+	dv_panic(dv_panic_UnknownPanic);
 }
 
 #if 1

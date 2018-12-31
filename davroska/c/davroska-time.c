@@ -5,6 +5,7 @@
 #define DV_ASM	0
 #include <dv-config.h>
 #include <davroska.h>
+#include <davroska-inline.h>
 
 #ifndef DV_DEBUG
 #define DV_DEBUG	0
@@ -101,7 +102,7 @@ dv_statustype_t dv_advancecounter(dv_id_t c, dv_u64_t n)
 	}
 
 	dv_lowerprio(p);
-	dv_runqueued(dv_maxprio-1, p, is);
+	dv_runqueued_onkernelstack(dv_maxprio-1, p, is);
 	dv_restore(is);
 
 	return dv_e_ok;

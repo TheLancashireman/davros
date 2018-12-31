@@ -7,6 +7,8 @@
 
 #include <davroska.h>
 
+#include DV_INCLUDE_INTERRUPTCONTROLLER
+
 #ifndef DV_DEBUG
 #define DV_DEBUG	0
 #endif
@@ -105,5 +107,70 @@ static inline void dv_setqueueirqlevel(dv_prio_t p)
 {
 	dv_setirqlevel(dv_queue[p].level);
 }
+
+/* dv_stackround() - round a number up to the next multiple of DV_CANARY
+ *
+ * Note: DV_CANARY must be a power of 2.
+*/
+static inline dv_u32_t dv_stackround(dv_u32_t n)
+{
+	return (n + DV_CANARY - 1)&~(DV_CANARY-1);
+}
+
+/* dv_extendedtask() - returns true if task is extended
+*/
+static inline dv_boolean_t dv_extendedtask(dv_id_t t)
+{
+#if DV_CFG_MAXEXTENDED <= 0
+	return 0;
+#else
+	return (dv_exe[t].extended >= 0);
+#endif
+}
+
+/* dv_taskwaiting() - returns true if extended task is going to or leaving the waiting state
+ *
+ * t must be an extended task.
+ *
+ * Note: the executable's state variable is useless for this because the scheduler must
+ * ensure that the state is running before dv_preexe() and until after dv_postexe(). So
+ * WaitEvent() cannot pre-set the state.
+*/
+static inline dv_boolean_t dv_taskwaiting(dv_id_t t)
+{
+#if DV_CFG_MAXEXTENDED <= 0
+	return 0;
+#else
+	return (dv_extended[dv_exe[t].extended].jb != DV_NULL);
+#endif
+}
+
+/* dv_clearpending() - clears pending events if task is extended
+*/
+static inline void dv_clearpending(dv_id_t t)
+{
+#if DV_CFG_MAXEXTENDED > 0
+	if ( dv_extendedtask(t) )
+		dv_extended[dv_exe[t].extended].events_pending = 0;
+#endif
+}
+
+/* The following functions are stubs if there are no extended tasks
+*/
+#if DV_CFG_MAXEXTENDED <= 0
+static inline  dv_extended_init(dv_u32_t *stackbase)
+{
+}
+
+static inline void dv_runextended(dv_id_t unused_e, dv_intstatus_t unused_is)
+{
+}
+
+static inline void dv_runqueued_onkernelstack(dv_prio_t high, dv_prio_t low, dv_intstatus_t is)
+{
+	dv_runqueued(high, low, is);
+}
+
+#endif
 
 #endif
