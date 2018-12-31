@@ -1,4 +1,5 @@
 Requirements summarized from OSEK specification os223.pdf with commentary
+=========================================================================
 
 Note: the commentaries are from the point of view of the kernel code that runs on
 the target system. A system generation tool may adjust configuration parameters
@@ -7,8 +8,8 @@ to maintain conformance: e.g. by remapping task priorities, implementing callout
 The specification mentions OSEKtime in certain places. OSEKtime is ignored here.
 
 
-Chapters 1 to 3
-===============
+Chapters 1 to 3 - interpretation for davroska
+=============================================
 Static configuration:
 	Maximum no. of objects defined by configuration.
 	Actual objects available in any mode depends on startup code.
