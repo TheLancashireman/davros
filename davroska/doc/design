@@ -4,30 +4,108 @@ Single-stack OSEK-like OS
 Basic concept:
 	* everything done by direct function calls
 		* all privileged, no memory protection, etc.
-	* activate a task
-		* if higher priority than current, just "call" it otherwise enqueue it
-			* "call" wrapper: use setjmp() or similar to record position
-			* on return from task or non-zero return from longjmp
-				* "call" all queued executables
-					* from priority of cwpreempting task
-					* down to (but not including) priority of task that called activatetask
-		* idle loop is just an executable with 0 priority. Always index 0, so tasks start at 1
-	* terminate a task
-		* longjmp() to the task's jumpbuf
+	* mostly the code uses indexes, not pointers
+	* tasks and ISRs together are called executables. ISRs have higher priority than tasks
+	* idle loop is just an executable with 0 priority. Always index 0, so tasks start at 1
+	* executable sequencing/scheduling done by queues: one queue per priority
+		* each queue is a ring buffer plus head and tail indexes
+			* when head == tail, queue is empty
+			* when (head+1)mod len == tail, queue is full
+			* attempting to insert into a full queue is a serious error
+				==> incorrect calculation somewhere
+			* queue length is:
+				* 1 for the "gap" when full +
+				* 1 for raising priority (mutex etc.) +
+				* 1 for every activation of every task at that priority
+		* each queue also has a lock level for interrupt locks and ISRs
+	* activate executable (tasks and ISRs)
+		* place the executable in the priority queue of its base priority
+		* call a function to "run the queues" to allow higher-priority executables to preempt
 	* chain a task
-		* a bit tricky - a simple implementation like activatetask will use some stack for each chain.
-		* need to use the runqueued in the stackframe of the task that activated the chaining task.
-	* extended task
-		* use stub stackframe on main stack
-		* switch to private stack for task
-		* switch back to main stack on termination or wait
-	* queueing
-		* one ringbuffer per priority
-		* head == tail ==> empty
-		* (tail+1)(mod length) == head ==> full  (the "gap")
-		* entries are 
-		* each queue has:
-			* one entry for the gap
-			* one entry to accomodate an executable with elevated priority (resource, interrupt lock etc)
-			* one entry per activation per executable with matching priority
-			
+		* mixture of teminate and activate
+		* OSEK requirement to return error means activation has to be done before termination, BUT
+			* chain self must work without E_OS_LIMIT
+			* therefore chaintask bypasses the max activations check in activateexe (see activateexe2)
+				==> only checks when it isn't self-chain
+	* terminatetask
+		* calls longjmp
+	* mutexes
+		* raise priority of caller temporarily
+		* lowered again on release
+		* higher priorities also block interrupts
+	* counters and alarms
+		* high and low resolution depend on application
+		* alarms can be activated at absolute counter value or relative to current value
+		* function provided to advance a counter by a given number of ticks
+	* extended tasks
+		* can wait for events
+		* implies execution state (stack, mainly) must be preserved
+			* considered using main stack and copying out on wait, BUT
+				* this means addresses of local variables are not preserved over waitevent
+				* bad idea...
+			* solution allocates a private stack for each extended task
+				* jumps to this stack whenever the extended task runs
+				* jumps back to main stack for basic tasks and ISRs
+
+Details:
+	* dv_runqueued(high, low, is) runs down the priority queues from high to low.
+		* in activateexe, high is the priority of the executable that got activated
+			* low is the priority of the executable that did the activating
+		* at each priority, every queued executable gets started
+			* a jmpbuf anchor is created for termination/wait. Reference to it is placed in the executable's structure.
+			* the executable's main function gets called
+				* with a stack switch for extended tasks (see below)
+			* for basic tasks if the task returns the function continues
+			* if the task calls terminatetask, a longjmp causes the setjmp anchor to return non-zero
+			* termination by chaintask does the longjmp too
+			* waitevent does the longjmp too.
+		* dv_runqueued must run on the main stack
+			==> so the function that gets called is dv_runqueue_onkernelstack()
+			* the "_onkernelstack" part switches to the kernel stack to do the job if necessary (extended task support)
+		* if a task that gets started by dv_runqueue()
+			* activates an even higher priority executable, or
+			* gets interrupted)
+				* the whole lot nests recursively.
+				* recursion limit is no. of priorities
+	* mutexes
+		* mutex has a ceiling priority
+			* implies a lock level too, via the queue's lock level
+		* on taking a mutex the executable get placed in the queue of the ceiling priority
+			* provided the ceiling priority is higher than executable's current prio.
+			* that queue must be empty (otherwise preemption would have happened)
+		* on releasing the mutex, the executable is removed from the queue
+			* provided its priority actually decreases
+		* LIFO ordering of release ensures this is OK.
+		* for multiple occupancy only the last release counts
+	* counters and alarms
+		* a counter is a 64-bit monotonically-increasing variable, along with a list of alarms
+			* each alarm has an absolute expiry time
+			* the list is ordered in ascending order of expiry time
+			* it is assumed that the 64-bit counter will never overflow
+		* an alarm has an expiry time, a counter association and a function to call when the alarm expires
+			* the counter association is made at the time of setting the alarm
+			* the function can do almost anything
+				* activate a task
+				* set an event for a task
+				* even running an AUTOSAR-like schedule table would be possible
+			* the return value of the function indicates whether the alarm stops or gets retriggered
+				* return value 0 - alarm goes inactive
+				* return value non-zero - alarm gets requeued
+					* new expiry time is old expiry time plus return value of function
+	* extended tasks - this gets tricky
+		* a boolean variable tells whether we're current on the kernel stack or not
+		* when an extended task starts, an assembly function is called (after setting boolean to false)
+			* switches the stack
+			* calls a specified function with two parameters
+				* for an extended task, this function is a task wrapper that
+					* restores interrupt state (parameter 2)
+					* calls the extended task's main function (executable id in parameter 1)
+					* if the task main function returns, executes a longjmp just like terminatetask
+		* before starting an extended task, the scheduler places a setjmp anchor on the stack
+			* and places a reference to it in a global variable
+			* this global variable needs to be very carefully managed, considering that
+				* termination or waitevent in extended task will skip back up the main stack
+		* if the extended task calls an API that needs to reschedule
+			* the scheduler passes a message via a longjmp to the anchor
+				* the message contains a function code, some parameters
+				* and another jmp_buf reference so that the extended task can continue.
