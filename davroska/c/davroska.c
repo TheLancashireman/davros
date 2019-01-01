@@ -87,7 +87,7 @@ dv_statustype_t dv_chaintask(dv_id_t t)
 	if ( (t < 1) || (t >= dv_ntask) )
 	{
 		dv_param_t p = (dv_param_t)t;
-		return callout_reporterror(dv_sid_activatetask, dv_e_id, 1, &p);
+		return callout_reporterror(dv_sid_chaintask, dv_e_id, 1, &p);
 	}
 
 	dv_intstatus_t is = dv_disable();
@@ -96,7 +96,7 @@ dv_statustype_t dv_chaintask(dv_id_t t)
 	{
 		dv_restore(is);
 		dv_param_t p = (dv_param_t)t;
-		return callout_reporterror(dv_sid_activatetask, dv_e_limit, 1, &p);
+		return callout_reporterror(dv_sid_chaintask, dv_e_limit, 1, &p);
 	}
 
 	/* Sanity checks
