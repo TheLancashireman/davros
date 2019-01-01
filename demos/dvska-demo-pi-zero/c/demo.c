@@ -29,7 +29,7 @@ static dv_u32_t acb_Cyclist(dv_id_t a);
 
 dv_id_t Init, Loop, Ping, Pong, Cyclic;		/* Tasks */
 dv_id_t Uart, Timer;						/* ISRs */
-dv_id_t Lock1;								/* Locks */
+dv_id_t Mutex1;								/* Mutexes */
 dv_id_t Ticker;								/* Counters */
 dv_id_t Cyclist;							/* Alarms */
 
@@ -66,12 +66,12 @@ void callout_addisrs(dv_id_t mode)
 	dv_printf("callout_addisrs() - done\n");
 }
 
-void callout_addlocks(dv_id_t mode)
+void callout_addmutexes(dv_id_t mode)
 {
-	Lock1 = dv_addlock("Lock1", 1);
+	Mutex1 = dv_addmutex("Mutex1", 1);
 	{
-		dv_addlockuser(Lock1, Ping);
-		dv_addlockuser(Lock1, Pong);
+		dv_addmutexuser(Mutex1, Ping);
+		dv_addmutexuser(Mutex1, Pong);
 	}
 }
 
@@ -164,12 +164,12 @@ void main_Ping(void)
 		pongCount = 0;
 
 		start_time = dv_readtime();
-		if ( (ee = dv_takelock(Lock1)) != dv_e_ok )
-			dv_printf("Task Ping: dv_takelock(Lock1) returned %d\n", ee);
+		if ( (ee = dv_takemutex(Mutex1)) != dv_e_ok )
+			dv_printf("Task Ping: dv_takemutex(Mutex1) returned %d\n", ee);
 		else
 		{
 			dv_u32_t diff = (dv_u32_t)(dv_readtime() - start_time);
-			dv_printf("Task Ping: time to take a lock = %u\n", diff);
+			dv_printf("Task Ping: time to take a mutex = %u\n", diff);
 			for ( int i = 0; i < 3; i++ )
 			{
 				start_time = dv_readtime();
@@ -185,8 +185,8 @@ void main_Ping(void)
 				}
 			}
 
-			if ( (ee = dv_droplock(Lock1)) != dv_e_ok )
-				dv_printf("Task Ping: dv_droplock(Lock1) returned %d\n", ee);
+			if ( (ee = dv_dropmutex(Mutex1)) != dv_e_ok )
+				dv_printf("Task Ping: dv_dropmutex(Mutex1) returned %d\n", ee);
 		}
 	}
 
