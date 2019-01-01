@@ -53,5 +53,13 @@
 		: /* nothing clobbered */);					\
 })
 
+#if !DV_ASM
+static inline dv_u32_t dv_arm_get_SP(void)
+{
+	dv_u32_t x;
+	__asm__ volatile ("mov  %0, sp" : "=r"(x) : );
+	return x;
+}
+#endif
 
 #endif
