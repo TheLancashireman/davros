@@ -28,9 +28,9 @@
 */
 #define DV_CFG_NSLOT_EXTRA	10
 
-/* DV_CFG_MAXLOCK is the maximum number of locks that you can create
+/* DV_CFG_MAXMUTEX is the maximum number of mutexes that you can create
 */
-#define DV_CFG_MAXLOCK		10
+#define DV_CFG_MAXMUTEX		10
 
 /* DV_CFG_MAXCOUNTER is the maximum number of counters that you can create
 */

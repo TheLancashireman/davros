@@ -44,7 +44,7 @@ dv_statustype_t dv_waitevent(dv_eventmask_t evts)
 		return callout_reporterror(dv_sid_waitevent, dv_e_access, 1, &p);
 	}
 
-	if ( dv_exe[dv_currentexe].locklist >= 0 )
+	if ( dv_exe[dv_currentexe].mutexlist >= 0 )
 	{
 		dv_param_t p = (dv_param_t)evts;
 		return callout_reporterror(dv_sid_waitevent, dv_e_resource, 1, &p);

@@ -50,8 +50,8 @@ typedef enum
 	dv_sid_terminatetask,
 	dv_sid_activatetask,
 	dv_sid_chaintask,
-	dv_sid_takelock,
-	dv_sid_droplock,
+	dv_sid_takemutex,
+	dv_sid_dropmutex,
 	dv_sid_getexpirytime,
 	dv_sid_advancecounter,
 	dv_sid_setalarm_abs,
@@ -71,7 +71,7 @@ typedef enum
 	dv_panic_CurrentExeCorrupt,
 	dv_panic_CurrentExeDead,
 	dv_panic_ReturnFromLongjmp,
-	dv_panic_LockOccupied,
+	dv_panic_MutexOccupied,
 	dv_panic_UnconfiguredInterrupt,
 	dv_panic_UnknownPanic
 } dv_panic_t;
@@ -81,16 +81,16 @@ extern dv_statustype_t dv_startos(dv_id_t mode);
 extern dv_id_t dv_addtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_qty_t maxact);
 extern dv_id_t dv_addextendedtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_u32_t stackbytes);
 extern dv_id_t dv_addisr(const char *name, void (*fn)(void), dv_id_t irqid, dv_prio_t prio);
-extern dv_id_t dv_addlock(const char *name, dv_qty_t maxtake);
+extern dv_id_t dv_addmutex(const char *name, dv_qty_t maxtake);
 extern dv_id_t dv_addcounter(const char *name);
 extern dv_id_t dv_addalarm(const char *name, dv_u32_t (*fn)(dv_id_t a));
-extern void dv_addlockuser(dv_id_t lock, dv_id_t executable);
+extern void dv_addmutexuser(dv_id_t mutex, dv_id_t executable);
 
 extern dv_statustype_t dv_terminatetask(void);
 extern dv_statustype_t dv_activatetask(dv_id_t task);
 extern dv_statustype_t dv_chaintask(dv_id_t task);
-extern dv_statustype_t dv_takelock(dv_id_t lock);
-extern dv_statustype_t dv_droplock(dv_id_t lock);
+extern dv_statustype_t dv_takemutex(dv_id_t mutex);
+extern dv_statustype_t dv_dropmutex(dv_id_t mutex);
 
 extern dv_statustype_t dv_setalarm_rel(dv_id_t c, dv_id_t a, dv_u32_t v);
 extern dv_statustype_t dv_setalarm_abs(dv_id_t c, dv_id_t a, dv_u64_t v);
@@ -102,7 +102,7 @@ extern dv_u64_t dv_getexpirytime(dv_id_t a);
 */
 extern void callout_addtasks(dv_id_t mode);
 extern void callout_addisrs(dv_id_t mode);
-extern void callout_addlocks(dv_id_t mode);
+extern void callout_addmutexes(dv_id_t mode);
 extern void callout_addcounters(dv_id_t mode);
 extern void callout_addalarms(dv_id_t mode);
 extern void callout_autostart(dv_id_t mode);
@@ -207,22 +207,21 @@ typedef struct dv_exe_s
 	dv_prio_t runprio;
 	dv_prio_t currprio;
 	dv_tstate_t state;
-	dv_id_t locklist;
+	dv_id_t mutexlist;
 	dv_id_t irqid;
 	dv_id_t extended;
 } dv_exe_t;
 
-typedef struct dv_lock_s
+typedef struct dv_mutex_s
 {
 	const char *name;
 	dv_prio_t ceiling;
-	dv_prio_t locklevel;
 	dv_qty_t maxtake;
 	dv_qty_t ntake;
 	dv_id_t owner;
 	dv_prio_t saveprio;
 	dv_id_t next;
-} dv_lock_t;
+} dv_mutex_t;
 
 typedef struct dv_counter_s
 {
@@ -284,7 +283,7 @@ extern const dv_qty_t dv_maxexe;
 extern const dv_qty_t dv_maxextended;
 extern const dv_qty_t dv_maxprio;
 extern const dv_qty_t dv_maxslot;
-extern const dv_qty_t dv_maxlock;
+extern const dv_qty_t dv_maxmutex;
 
 extern dv_prio_t dv_highprio;
 extern dv_prio_t dv_highestprio;
@@ -294,7 +293,7 @@ extern dv_qty_t dv_nexe;
 extern dv_qty_t dv_nextended;
 extern dv_qty_t dv_ntask;
 extern dv_qty_t dv_nisr;
-extern dv_qty_t dv_nlock;
+extern dv_qty_t dv_nmutex;
 
 extern dv_prio_t dv_maxtaskprio;
 
@@ -302,7 +301,7 @@ extern dv_exe_t dv_exe[];
 extern dv_extended_t dv_extended[];
 extern dv_q_t dv_queue[];
 extern dv_id_t dv_slots[];
-extern dv_lock_t dv_lock[];
+extern dv_mutex_t dv_mutex[];
 extern dv_softvector_t dv_vectors[];
 
 /* Counter (etc.) management variables
