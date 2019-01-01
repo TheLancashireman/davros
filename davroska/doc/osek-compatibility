@@ -1,0 +1,90 @@
+Mapping OSEK requirements onto davroska
+=======================================
+
+This document provides some hints on how to get reasonably close to the OSEK specification using davroska.
+
+In general, an OSEK-based application will need an abstaction layer in order to provide the
+OSEK API and functionality. In many case it's simply a case of defining macros (or preferably
+static inline functions) to translate the API. But there are some subtleties. Read on...
+
+Static configuration
+	Your system configuration at startup can be as static as you want. If you always create the
+	same set of objects regardless of application mode and just use the mode to decide what
+	gets started, you have created an OSEK-like static configuration.
+
+Scalability
+	davroska is always CC2. If you configure your extraslots to be zero and you have exactly the
+	right number of queues and executables, you get a CC1 system.
+	If you configure DV_CFG_MAXEXTENDED to 0 you get BCC. All event-related APIs are stubbed.
+
+	The number of objects etc. far exceeds the minimum specified in all cases.
+	ToDo: list the actual limits
+
+Error checking
+	davroska's design makes it more resilient than OSEK assumes, so much of the undefined behaviour
+	of OSEK (for example, calling APIs with locked interrupts) vanishes - there is no need for error
+	checks.
+
+	Error checks such as range checks and other compatibility checks are always on. davroska
+	does not support "standard" status.
+
+Task management
+	davroska supports "basic" executables (including ISRs and the idle loop_
+	davroska's task transistions are extended to all executables. However, by using the
+	preexe and postexe hook functions it is possible to reconstruct task states as
+	defined in OSEK. (ToDo) Application examples are provided.
+
+	Scheduling priority is real-time as specified.
+
+	Task priorities start at 1. Priority 0 is reserved for the idle loop. However, a
+	system generation tool should remap task and ISR priorities in order to minimise the number
+	of priority queues. This remapping could permit tasks of priority 0 to be configured, where
+	0 is remapped to 1.
+
+	If a task returns from its main functio it automatically gets terminated.
+	If a task terminates while holding a mutex the mutex gets released automatically.
+	The above applies to chaintask too.
+
+Application modes
+	Entirely controlled by the startup callouts
+
+Interrupt processing
+	All interrupts are under control of davroska. Differentiation between categories is justÂa
+	matter of setting appropriate levels for the mutexes. The kernel always uses a hard lock
+	at the CPU internally.
+	The wide range of interrupt controllers on the market means that it is not recommended to
+	try to enable and disable individual sources at the controller. davroska provides APIs for
+	the purpose.
+	The OSEK Suspend/Resume functions can be mapped to mutexes.
+	The OSEK Disable/Enable functions can use the hard CPU lock for speed.
+
+Events
+	Using c99 allows 64 events per task. On a 32-bit micro, unsigned long long is used.
+	The extended task API is fully compatible.
+
+Resources
+	The davroska mutexes are fully compatible with OSEK "resources". Internal resources and
+	non-preemptive tasks are implemented internally with minimal runtime overhead.
+	RES_SCHEDULER is merely a configured mutex.
+
+Alarms
+	Counters on davroska are 64-bit, which means they should never overflow. In fact,
+	overflow is treated as a serious error (panic).
+	Setting an alarm at an absolute counter value therefore requires a 64-bit absolute value,
+	whereas a relatve value is specified by a 32-bit offset.
+	Alarms are not tied to counters, but the tying can be implemented by the abstraction layer.
+
+Messages
+	Not implemented
+
+Error handling, tracing etc.
+	Run-of-the-mill errors are reported by calling the application's callout_reporterror() function.
+	Parameters are service id, error code and API parmeters the caused it.
+	A suitable implementation of this function could provide OSEK compatibility, but it's probably
+	better to use the flexibility provided.
+
+	davroska calls pre- and-postexe callouts at the points where Pre-/PostTaskHook are called in
+	OSEK, but for all executables. It is possible to use these callouts to provide the OSEK hooks
+    as well as GetTaskID and GetTaskState
+	
+
