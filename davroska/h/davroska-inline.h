@@ -158,7 +158,7 @@ static inline void dv_clearpending(dv_id_t t)
 /* The following functions are stubs if there are no extended tasks
 */
 #if DV_CFG_MAXEXTENDED <= 0
-static inline  dv_extended_init(dv_u32_t *stackbase)
+static inline  void dv_extended_init(dv_u32_t *stackbase)
 {
 }
 
