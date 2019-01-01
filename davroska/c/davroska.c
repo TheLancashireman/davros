@@ -337,6 +337,15 @@ dv_statustype_t dv_startos(dv_id_t mode)
 	return dv_e_ok;
 }
 
+/* dv_shutdown() - shut down the OS
+*/
+void dv_shutdown(dv_statustype_t reason)
+{
+	(void)dv_disable();
+	callout_shutdown(reason);
+	for (;;) {}
+}
+
 /* ===================================================================================================================
  * Configuration API functions
  * ===================================================================================================================
@@ -809,12 +818,9 @@ void dv_panic(dv_panic_t p)
 */
 static void dv_idle(void)
 {
-	dv_printf("dv_idle() reached\n");
-#if 0
-	print_interrupt_status(DV_NULL);
-#endif
 	for (;;)
 	{
+		callout_idle();
 	}
 }
 

@@ -77,6 +77,7 @@ typedef enum
 } dv_panic_t;
 
 extern dv_statustype_t dv_startos(dv_id_t mode);
+extern void dv_shutdown(dv_statustype_t reason);
 
 extern dv_id_t dv_addtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_qty_t maxact);
 extern dv_id_t dv_addextendedtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_u32_t stackbytes);
@@ -114,6 +115,7 @@ extern void callout_preexe(void);
 extern void callout_postexe(void);
 extern dv_statustype_t callout_reporterror(dv_sid_t sid, dv_statustype_t e, dv_qty_t nParam, dv_param_t *p);
 extern void callout_shutdown(dv_statustype_t e);
+extern void callout_idle(void);
 
 #if DV_CFG_MAXEXTENDED <= 0
 /* Event API in "BCC1/BCC2" is just a stub. All functions return dv_e_access, even if task ID is out of range.
