@@ -58,7 +58,7 @@ dv_u64_t dv_getexpirytime(dv_id_t a)
 		/* Alarm out of range
 		*/
 		dv_param_t p = (dv_param_t)a;
-		(void)dv_reporterror(dv_sid_getexpirytime, dv_e_id, 1, &p);
+		(void)callout_reporterror(dv_sid_getexpirytime, dv_e_id, 1, &p);
 		return 0;
 	}
 
@@ -77,7 +77,7 @@ dv_statustype_t dv_advancecounter(dv_id_t c, dv_u64_t n)
 		dv_param_t p[2];
 		p[0] = (dv_param_t)c;
 		p[1] = (dv_param_t)n;
-		return dv_reporterror(dv_sid_advancecounter, dv_e_id, 2, p);
+		return callout_reporterror(dv_sid_advancecounter, dv_e_id, 2, p);
 	}
 
 	dv_intstatus_t is = dv_disable();
@@ -120,7 +120,7 @@ dv_statustype_t dv_setalarm_abs(dv_id_t c, dv_id_t a, dv_u64_t v)
 		p[0] = (dv_param_t)c;
 		p[1] = (dv_param_t)a;
 		p[2] = (dv_param_t)v;
-		return dv_reporterror(dv_sid_setalarm_abs, dv_e_id, 3, p);
+		return callout_reporterror(dv_sid_setalarm_abs, dv_e_id, 3, p);
 	}
 
 	if ( v == 0 )
@@ -131,7 +131,7 @@ dv_statustype_t dv_setalarm_abs(dv_id_t c, dv_id_t a, dv_u64_t v)
 		p[0] = (dv_param_t)c;
 		p[1] = (dv_param_t)a;
 		p[2] = (dv_param_t)v;
-		return dv_reporterror(dv_sid_setalarm_abs, dv_e_value, 3, p);
+		return callout_reporterror(dv_sid_setalarm_abs, dv_e_value, 3, p);
 	}
 
 	if ( dv_alarm[a].expirytime != 0 )
@@ -140,7 +140,7 @@ dv_statustype_t dv_setalarm_abs(dv_id_t c, dv_id_t a, dv_u64_t v)
 		p[0] = (dv_param_t)c;
 		p[1] = (dv_param_t)a;
 		p[2] = (dv_param_t)v;
-		return dv_reporterror(dv_sid_setalarm_abs, dv_e_state, 3, p);
+		return callout_reporterror(dv_sid_setalarm_abs, dv_e_state, 3, p);
 	}
 
 	dv_setalarm(c, a, v);
@@ -160,7 +160,7 @@ dv_statustype_t dv_setalarm_rel(dv_id_t c, dv_id_t a, dv_u32_t v)
 		p[0] = (dv_param_t)c;
 		p[1] = (dv_param_t)a;
 		p[2] = (dv_param_t)v;
-		return dv_reporterror(dv_sid_setalarm_rel, dv_e_id, 3, p);
+		return callout_reporterror(dv_sid_setalarm_rel, dv_e_id, 3, p);
 	}
 
 	if ( v == 0 )
@@ -172,7 +172,7 @@ dv_statustype_t dv_setalarm_rel(dv_id_t c, dv_id_t a, dv_u32_t v)
 		p[0] = (dv_param_t)c;
 		p[1] = (dv_param_t)a;
 		p[2] = (dv_param_t)v;
-		return dv_reporterror(dv_sid_setalarm_rel, dv_e_value, 3, p);
+		return callout_reporterror(dv_sid_setalarm_rel, dv_e_value, 3, p);
 	}
 
 	if ( dv_alarm[a].expirytime != 0 )
@@ -183,7 +183,7 @@ dv_statustype_t dv_setalarm_rel(dv_id_t c, dv_id_t a, dv_u32_t v)
 		p[0] = (dv_param_t)c;
 		p[1] = (dv_param_t)a;
 		p[2] = (dv_param_t)v;
-		return dv_reporterror(dv_sid_setalarm_rel, dv_e_state, 3, p);
+		return callout_reporterror(dv_sid_setalarm_rel, dv_e_state, 3, p);
 	}
 
 	dv_intstatus_t is = dv_disable();
@@ -198,7 +198,7 @@ dv_statustype_t dv_setalarm_rel(dv_id_t c, dv_id_t a, dv_u32_t v)
 		p[0] = (dv_param_t)c;
 		p[1] = (dv_param_t)a;
 		p[2] = (dv_param_t)v;
-		return dv_reporterror(dv_sid_setalarm_rel, dv_e_value, 3, p);
+		return callout_reporterror(dv_sid_setalarm_rel, dv_e_value, 3, p);
 	}
 
 	dv_setalarm(c, a, absval);
@@ -213,7 +213,7 @@ dv_id_t dv_addcounter(const char *name)
 {
 	if ( dv_ncounter >= dv_maxcounter )
 	{
-		/* ToDo: dv_reporterror */
+		/* ToDo: callout_reporterror */
 		dv_printf("dv_addcounter(%s) :: Config error - DV_CFG_MAXCOUNTER is insufficient\n", name);
 		return -1;
 	}
@@ -233,7 +233,7 @@ dv_id_t dv_addalarm(const char *name, dv_u32_t (*expiryfn)(dv_id_t a))
 {
 	if ( dv_nalarm >= dv_maxalarm )
 	{
-		/* ToDo: dv_reporterror */
+		/* ToDo: callout_reporterror */
 		dv_printf("dv_addalarm(%s) :: Config error - DV_CFG_MAXALARM is insufficient\n", name);
 		return -1;
 	}

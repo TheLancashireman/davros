@@ -79,6 +79,7 @@ typedef enum
 extern dv_statustype_t dv_startos(dv_id_t mode);
 
 extern dv_id_t dv_addtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_qty_t maxact);
+extern dv_id_t dv_addextendedtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_u32_t stackbytes);
 extern dv_id_t dv_addisr(const char *name, void (*fn)(void), dv_id_t irqid, dv_prio_t prio);
 extern dv_id_t dv_addlock(const char *name, dv_qty_t maxtake);
 extern dv_id_t dv_addcounter(const char *name);
@@ -94,10 +95,25 @@ extern dv_statustype_t dv_droplock(dv_id_t lock);
 extern dv_statustype_t dv_setalarm_rel(dv_id_t c, dv_id_t a, dv_u32_t v);
 extern dv_statustype_t dv_setalarm_abs(dv_id_t c, dv_id_t a, dv_u64_t v);
 extern dv_statustype_t dv_advancecounter(dv_id_t c, dv_u64_t n);
+extern dv_statustype_t dv_stopalarm(dv_id_t a);
+extern dv_u64_t dv_getexpirytime(dv_id_t a);
 
-/* ToDo: this will become an application callout to replace error callout
+/* Configuration callout functions: provided by the application
 */
-extern dv_statustype_t dv_reporterror(dv_sid_t sid, dv_statustype_t e, dv_qty_t nParam, dv_param_t *p);
+extern void callout_addtasks(dv_id_t mode);
+extern void callout_addisrs(dv_id_t mode);
+extern void callout_addlocks(dv_id_t mode);
+extern void callout_addcounters(dv_id_t mode);
+extern void callout_addalarms(dv_id_t mode);
+extern void callout_autostart(dv_id_t mode);
+
+/* Runtime callout functions: provided by the application
+*/
+extern void callout_startup(void);
+extern void callout_preexe(void);
+extern void callout_postexe(void);
+extern dv_statustype_t callout_reporterror(dv_sid_t sid, dv_statustype_t e, dv_qty_t nParam, dv_param_t *p);
+extern void callout_shutdown(dv_statustype_t e);
 
 #if DV_CFG_MAXEXTENDED <= 0
 /* Event API in "BCC1/BCC2" is just a stub. All functions return dv_e_access, even if task ID is out of range.
@@ -105,7 +121,7 @@ extern dv_statustype_t dv_reporterror(dv_sid_t sid, dv_statustype_t e, dv_qty_t 
 static inline dv_statustype_t dv_waitevent(dv_eventmask_t evts)
 {
 	dv_param_t p = (dv_param_t)evts;
-	return dv_reporterror(dv_e_access, dv_sid_waitevent, 1, &p);
+	return callout_reporterror(dv_e_access, dv_sid_waitevent, 1, &p);
 }
 
 static inline dv_statustype_t dv_setevent(dv_id_t t, dv_eventmask_t evts)
@@ -113,7 +129,7 @@ static inline dv_statustype_t dv_setevent(dv_id_t t, dv_eventmask_t evts)
 	dv_param_t p[2];
 	p[0] = (dv_param_t)t;
 	p[1] = (dv_param_t)evts;
-	return dv_reporterror(dv_e_access, dv_sid_setevent, 2, p);
+	return callout_reporterror(dv_e_access, dv_sid_setevent, 2, p);
 }
 
 static inline dv_statustype_t dv_getevent(dv_id_t t, dv_eventmask_t *evts)
@@ -121,13 +137,13 @@ static inline dv_statustype_t dv_getevent(dv_id_t t, dv_eventmask_t *evts)
 	dv_param_t p[2];
 	p[0] = (dv_param_t)t;
 	p[1] = (dv_param_t)(dv_address_t)evts;
-	return dv_reporterror(dv_e_access, dv_sid_getevent, 2, p);
+	return callout_reporterror(dv_e_access, dv_sid_getevent, 2, p);
 }
 
 static inline dv_statustype_t dv_clearevent(dv_eventmask_t evts)
 {
 	dv_param_t p = (dv_param_t)evts;
-	return dv_reporterror(dv_e_access, dv_sid_clearevent, 1, &p);
+	return callout_reporterror(dv_e_access, dv_sid_clearevent, 1, &p);
 }
 #else
 /* Proper event API is provided in davroska-extended.c
@@ -136,25 +152,7 @@ extern dv_statustype_t dv_waitevent(dv_eventmask_t evts);
 extern dv_statustype_t dv_setevent(dv_id_t t, dv_eventmask_t evts);
 extern dv_statustype_t dv_getevent(dv_id_t t, dv_eventmask_t *evts);
 extern dv_statustype_t dv_clearevent(dv_eventmask_t evts);
-extern dv_id_t dv_addextendedtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_u32_t stackbytes);
 #endif
-
-/* Configuration callout functions: provided by the application
-*/
-void callout_addtasks(dv_id_t mode);
-void callout_addisrs(dv_id_t mode);
-void callout_addlocks(dv_id_t mode);
-void callout_addcounters(dv_id_t mode);
-void callout_addalarms(dv_id_t mode);
-void callout_autostart(dv_id_t mode);
-
-/* Runtime callout functions: provided by the application
-*/
-void callout_startup(void);
-void callout_preexe(void);
-void callout_postexe(void);
-void callout_error(dv_statustype_t e);
-void callout_shutdown(dv_statustype_t e);
 
 /*==============================================================================
  *	davroska internals

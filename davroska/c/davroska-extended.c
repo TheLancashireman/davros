@@ -41,13 +41,13 @@ dv_statustype_t dv_waitevent(dv_eventmask_t evts)
 	if ( !dv_extendedtask(dv_currentexe) )
 	{
 		dv_param_t p = (dv_param_t)evts;
-		return dv_reporterror(dv_e_access, dv_sid_waitevent, 1, &p);
+		return callout_reporterror(dv_e_access, dv_sid_waitevent, 1, &p);
 	}
 
 	if ( dv_exe[dv_currentexe].locklist >= 0 )
 	{
 		dv_param_t p = (dv_param_t)evts;
-		return dv_reporterror(dv_e_resource, dv_sid_waitevent, 1, &p);
+		return callout_reporterror(dv_e_resource, dv_sid_waitevent, 1, &p);
 	}
 
 	/* We're running on a private stack here!
@@ -93,7 +93,7 @@ dv_statustype_t dv_setevent(dv_id_t t, dv_eventmask_t evts)
 		dv_param_t p[2];
 		p[0] = (dv_param_t)t;
 		p[1] = (dv_param_t)evts;
-		return dv_reporterror(dv_sid_getevent, dv_e_id, 2, p);
+		return callout_reporterror(dv_sid_getevent, dv_e_id, 2, p);
 	}
 
 	if ( !dv_extendedtask(t) )
@@ -101,7 +101,7 @@ dv_statustype_t dv_setevent(dv_id_t t, dv_eventmask_t evts)
 		dv_param_t p[2];
 		p[0] = (dv_param_t)t;
 		p[1] = (dv_param_t)evts;
-		return dv_reporterror(dv_e_access, dv_sid_waitevent, 2, p);
+		return callout_reporterror(dv_e_access, dv_sid_waitevent, 2, p);
 	}
 
 	dv_intstatus_t is = dv_disable();
@@ -112,7 +112,7 @@ dv_statustype_t dv_setevent(dv_id_t t, dv_eventmask_t evts)
 		dv_param_t p[2];
 		p[0] = (dv_param_t)t;
 		p[1] = (dv_param_t)evts;
-		return dv_reporterror(dv_e_state, dv_sid_getevent, 2, p);
+		return callout_reporterror(dv_e_state, dv_sid_getevent, 2, p);
 	}
 
 	dv_id_t ext = dv_exe[t].extended;
@@ -145,7 +145,7 @@ dv_statustype_t dv_getevent(dv_id_t t, dv_eventmask_t *evts)
 		dv_param_t p[2];
 		p[0] = (dv_param_t)t;
 		p[1] = (dv_param_t)(dv_address_t)evts;
-		return dv_reporterror(dv_sid_getevent, dv_e_id, 2, p);
+		return callout_reporterror(dv_sid_getevent, dv_e_id, 2, p);
 	}
 
 	if ( !dv_extendedtask(t) )
@@ -153,7 +153,7 @@ dv_statustype_t dv_getevent(dv_id_t t, dv_eventmask_t *evts)
 		dv_param_t p[2];
 		p[0] = (dv_param_t)t;
 		p[1] = (dv_param_t)(dv_address_t)evts;
-		return dv_reporterror(dv_e_access, dv_sid_getevent, 2, p);
+		return callout_reporterror(dv_e_access, dv_sid_getevent, 2, p);
 	}
 
 	dv_intstatus_t is = dv_disable();
@@ -164,7 +164,7 @@ dv_statustype_t dv_getevent(dv_id_t t, dv_eventmask_t *evts)
 		dv_param_t p[2];
 		p[0] = (dv_param_t)t;
 		p[1] = (dv_param_t)(dv_address_t)evts;
-		return dv_reporterror(dv_e_state, dv_sid_getevent, 2, p);
+		return callout_reporterror(dv_e_state, dv_sid_getevent, 2, p);
 	}
 
 	*evts = dv_extended[dv_exe[t].extended].events_pending;
@@ -180,7 +180,7 @@ dv_statustype_t dv_clearevent(dv_eventmask_t evts)
 	if ( !dv_extendedtask(dv_currentexe) )
 	{
 		dv_param_t p = (dv_param_t)evts;
-		return dv_reporterror(dv_e_access, dv_sid_clearevent, 1, &p);
+		return callout_reporterror(dv_e_access, dv_sid_clearevent, 1, &p);
 	}
 
 	dv_intstatus_t is = dv_disable();
@@ -201,14 +201,14 @@ dv_id_t dv_addextendedtask(const char *name, void (*fn)(void), dv_prio_t prio, d
 {
 	if ( dv_nextended >= dv_maxextended )
 	{
-		/* ToDo: dv_reporterror */
+		/* ToDo: callout_reporterror */
 		dv_printf("dv_addextendedtask(%s,...) :: Error - insufficient DV_CFG_MAXEXTENDED\n", name);
 		return -1;
 	}
 
 	if ( stackbytes <= 0 )
 	{
-		/* ToDo: dv_reporterror */
+		/* ToDo: callout_reporterror */
 		dv_printf("dv_addextendedtask(%s,...) :: Error - insufficient stack\n", name);
 		return -1;
 	}

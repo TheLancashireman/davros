@@ -72,7 +72,7 @@ dv_statustype_t dv_activatetask(dv_id_t t)
 	if ( (t < 1) || (t >= dv_ntask) )
 	{
 		dv_param_t p = (dv_param_t)t;
-		return dv_reporterror(dv_sid_activatetask, dv_e_id, 1, &p);
+		return callout_reporterror(dv_sid_activatetask, dv_e_id, 1, &p);
 	}
 
 	return dv_activateexe(t);
@@ -87,7 +87,7 @@ dv_statustype_t dv_chaintask(dv_id_t t)
 	if ( (t < 1) || (t >= dv_ntask) )
 	{
 		dv_param_t p = (dv_param_t)t;
-		return dv_reporterror(dv_sid_activatetask, dv_e_id, 1, &p);
+		return callout_reporterror(dv_sid_activatetask, dv_e_id, 1, &p);
 	}
 
 	dv_intstatus_t is = dv_disable();
@@ -96,7 +96,7 @@ dv_statustype_t dv_chaintask(dv_id_t t)
 	{
 		dv_restore(is);
 		dv_param_t p = (dv_param_t)t;
-		return dv_reporterror(dv_sid_activatetask, dv_e_limit, 1, &p);
+		return callout_reporterror(dv_sid_activatetask, dv_e_limit, 1, &p);
 	}
 
 	/* Sanity checks
@@ -146,13 +146,13 @@ dv_statustype_t dv_takelock(dv_id_t lock)
 	if ( (lock < 0) || (lock >= dv_nlock) )
 	{
 		dv_param_t p = (dv_param_t)lock;
-		return dv_reporterror(dv_sid_takelock, dv_e_id, 1, &p);
+		return callout_reporterror(dv_sid_takelock, dv_e_id, 1, &p);
 	}
 
 	if ( dv_lock[lock].ceiling <= dv_exe[dv_currentexe].baseprio )
 	{
 		dv_param_t p = (dv_param_t)lock;
-		return dv_reporterror(dv_sid_takelock, dv_e_access, 1, &p);
+		return callout_reporterror(dv_sid_takelock, dv_e_access, 1, &p);
 	}
 
 	dv_intstatus_t is = dv_disable();
@@ -163,7 +163,7 @@ dv_statustype_t dv_takelock(dv_id_t lock)
 		{
 			(void)dv_restore(is);
 			dv_param_t p = (dv_param_t)lock;
-			return dv_reporterror(dv_sid_takelock, dv_e_nesting, 1, &p);
+			return callout_reporterror(dv_sid_takelock, dv_e_nesting, 1, &p);
 		}
 		else
 		{
@@ -214,7 +214,7 @@ dv_statustype_t dv_droplock(dv_id_t lock)
 	if ( (lock < 0) || (lock >= dv_nlock) )
 	{
 		dv_param_t p = (dv_param_t)lock;
-		return dv_reporterror(dv_sid_droplock, dv_e_id, 1, &p);
+		return callout_reporterror(dv_sid_droplock, dv_e_id, 1, &p);
 	}
 
 	dv_intstatus_t is = dv_disable();
@@ -223,7 +223,7 @@ dv_statustype_t dv_droplock(dv_id_t lock)
 	{
 		(void)dv_restore(is);
 		dv_param_t p = (dv_param_t)lock;
-		return dv_reporterror(dv_sid_droplock, dv_e_nofunc, 1, &p);
+		return callout_reporterror(dv_sid_droplock, dv_e_nofunc, 1, &p);
 	}
 
 	if ( dv_lock[lock].ntake > 1 )
@@ -348,14 +348,14 @@ dv_id_t dv_addtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_qty_t 
 {
 	if ( maxact < 1 )
 	{
-		/* ToDo: dv_reporterror */
+		/* ToDo: callout_reporterror */
 		dv_printf("dv_addtask(%s,...) :: Warning - task with maxaxt 0 or less defaults to 1\n", name);
 		maxact = 1;
 	}
 
 	if ( prio < 1 )
 	{
-		/* ToDo: dv_reporterror */
+		/* ToDo: callout_reporterror */
 		dv_printf("dv_addtask(%s,...) :: Error - task with priority 0 or less will never run\n", name);
 		return -1;
 	}
@@ -378,14 +378,14 @@ dv_id_t dv_addisr(const char *name, void (*fn)(void), dv_id_t irqid, dv_prio_t p
 {
 	if ( prio <= dv_maxtaskprio )
 	{
-		/* ToDo: dv_reporterror */
+		/* ToDo: callout_reporterror */
 		dv_printf("dv_addisr(%s,...) :: Error - ISR with priority less than or equal to highest task\n", name);
 		return -1;
 	}
 
 	if ( !dv_isvectorfree(irqid) )
 	{
-		/* ToDo: dv_reporterror */
+		/* ToDo: callout_reporterror */
 		dv_printf("dv_addisr(%s,...) :: Error - Vector is already in use.\n", name);
 		return -1;
 	}
@@ -414,14 +414,14 @@ dv_id_t dv_addlock(const char *name, dv_qty_t maxtake)
 {
 	if ( dv_nlock >= dv_maxlock )
 	{
-		/* ToDo: dv_reporterror */
+		/* ToDo: callout_reporterror */
 		dv_printf("dv_addlock(%s,...) :: Config error - DV_CFG_MAXLOCK is insufficient\n", name);
 		return -1;
 	}
 
 	if ( maxtake < 1 )
 	{
-		/* ToDo: dv_reporterror */
+		/* ToDo: callout_reporterror */
 		dv_printf("dv_addlock(%s,...) :: Warning - lock with maxtake 0 or less defaults to 1\n", name);
 		maxtake = 1;
 	}
@@ -447,13 +447,13 @@ void dv_addlockuser(dv_id_t l, dv_id_t e)
 {
 	if ( (l < 0) || (l >= dv_nlock) )
 	{
-		/* ToDo: dv_reporterror */
+		/* ToDo: callout_reporterror */
 		dv_printf("dv_addlockuser(%d, %d) :: Error - lock doesn't exist\n", l, e);
 	}
 
 	if ( (e < 0) || (e >= dv_nexe) )
 	{
-		/* ToDo: dv_reporterror */
+		/* ToDo: callout_reporterror */
 		dv_printf("dv_addlockuser(%d, %d) :: Error - executable doesn't exist\n", l, e);
 	}
 
@@ -472,14 +472,14 @@ static dv_id_t dv_addexe(const char *name, void (*fn)(void), dv_prio_t prio, dv_
 {
 	if ( dv_nexe >= dv_maxexe )
 	{
-		/* ToDo: dv_reporterror */
+		/* ToDo: callout_reporterror */
 		dv_printf("dv_addexe(%s,...) :: Config error - DV_CFG_MAXEXE is insufficient\n", name);
 		return -1;
 	}
 
 	if ( prio >= dv_maxprio )
 	{
-		/* ToDo: dv_reporterror */
+		/* ToDo: callout_reporterror */
 		dv_printf("dv_addexe(%s,...) :: Error - priority exceeds DV_CFG_MAXPRIO\n", name);
 		return -1;
 	}
@@ -524,7 +524,7 @@ static dv_statustype_t dv_activateexe(dv_id_t e)
 	{
 		(void)dv_restore(is);
 		dv_param_t p = (dv_param_t)e;
-		return dv_reporterror(dv_sid_activatetask, dv_e_limit, 1, &p);
+		return callout_reporterror(dv_sid_activatetask, dv_e_limit, 1, &p);
 	}
 
 	/* Do part 2
@@ -794,28 +794,6 @@ static void dv_preexe(void)
 static void dv_postexe(void)
 {
 	/* Todo: implement */
-}
-
-/* dv_reporterror() - report an error
-*/
-static dv_errorinfo_t dv_lasterror;
-
-dv_statustype_t dv_reporterror(dv_sid_t sid, dv_statustype_t e, dv_qty_t nparam, dv_param_t *param)
-{
-	dv_lasterror.sid = sid;
-	dv_lasterror.e = e;
-	for (int i = 0; i < 4; i++ )
-	{
-		if ( i < nparam )
-			dv_lasterror.p[i] = param[i];
-		else
-			dv_lasterror.p[i] = 0;
-	}
-	dv_lasterror.culprit = dv_currentexe;
-
-	callout_error(e);
-
-	return e;
 }
 
 /* dv_panic() - report a fatal error

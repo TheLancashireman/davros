@@ -259,9 +259,10 @@ static dv_u32_t acb_Cyclist(dv_id_t a)
 	return 1000;
 }
 
-void callout_error(dv_statustype_t e)
+dv_statustype_t callout_reporterror(dv_sid_t sid, dv_statustype_t e, dv_qty_t nparam, dv_param_t *param)
 {
-	dv_printf("callout_error(%d) called\n", e);
+	dv_printf("callout_reporterror(%d, %d, ...) called\n", sid, e);
+	return e;
 }
 
 /* Startup and exception handling
