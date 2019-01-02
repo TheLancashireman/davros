@@ -26,6 +26,8 @@
 #include <dv-xstdio.h>
 #include <dv-stdio.h>
 
+#include DV_TARGET
+
 #include "stdarg.h"
 
 dv_uartdriver_t dv_consoledriver;		/* Must be set up by the board init. */
@@ -35,9 +37,13 @@ int dv_printf(const char *fmt, ...)
 	int nprinted;
 	va_list ap;
 
+	dv_intstatus_t is = dv_disable();
+
 	va_start(ap, fmt);
 	nprinted = dv_xprintf(dv_putc, fmt, ap);
 	va_end(ap);
+
+	dv_restore(is);
 
 	return(nprinted);
 }
