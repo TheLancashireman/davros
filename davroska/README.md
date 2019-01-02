@@ -30,12 +30,17 @@ Executables can activate other tasks (dv_activatetask, dv_chaintask)
 Executables run strictly according to priority. So if you activate a task with a higher priority
 than the calling task it will run straight away, but if you activate a task with the same or lower
 priority it gets queued for later.
-Executables must voluntarily yield the CPU (dv_terminatetask, dv_chaintask) to allow other executables
-with the same or lower priority to run.
+Executables must voluntarily yield the CPU (dv_terminatetask, dv_chaintask, dv_waitevent) to allow
+other executables with the same or lower priority to run.
 
 Tasks can have "multiple activations", though the use case for this is obscure. It means that if
 the task cannot run because of a higher-priority executable, its activations get queued.
 Queued executables of the same priority run in FIFO order
+
+Extended tasks can wait for events. The task remains activated while waiting, but is removed from
+the scheduling queues so that other tasks of the same or lower priority can run. When another
+task, ISR or alarm sets an event for which the task is waiting, the task is placed in the scheduling
+queues and continues executing when appropriate.
 
 An executable can raise its priority (dv_takemutex) or lower it again (dv_dropmutex), but never
 lower than the base priority of the executable.
@@ -75,9 +80,12 @@ do, but beware of spreading your alarms out too much because the interrupt overh
 Also beware that the current value of the counter might be stale. Before setting alarms it may be
 wise to advance the counter by the number of timer ticks that have elapsed since the last advance.
 
-Extended tasks and events: not implemented yet.
-Hooks: not implemented yet.
-Anything else in the OSEK spec that isn't mentioned: not implemented yet.
+Hook functions as specified in by OSEK are not implemented, However, there are several callout functions
+that serve a simiar purpose.
+
+Non-premptable tasks, internal resources and the OSEK Schedule() API are not implemented yet.
+
+Anything else in the OSEK specfication that isn't mentioned is not implemented.
 
 ### Configuration:
 
@@ -87,11 +95,16 @@ simply sets limits on what you can configure.
 You provide a header file (dv-config.h) that defines the following macros:
 
 * DV_CFG_MAXEXE - the maximum number of executables (excluding the idle loop) that you can have
-* DV_CFG_MAXPRIO - the maximum number of priorites that your executables will use
+* DV_CFG_MAXEXTENDED - the maximum number of extended tasks that you can have
+* DV_CFG_MAXPRIO - the maximum number of priorites that your executables can use
 * DV_CFG_MAXMUTEX - the maximum number of mutexes that you can have
 * DV_CFG_MAXCOUNTER - the maximum number of counters that you can have
 * DV_CFG_MAXALARM - the maximum number of alarms that you can have
 * DV_CFG_NSLOT_EXTRA - the number of extra queue elements you need (to cover multiple activations)
+
+Note: If you configure DV_CFG_MAXEXTENDED to be zero, the entire event API is replaced with stubs that
+report a dv_e_access error regardless of any other errors that might be present in the API calls. This
+might mean that the error behaviour differs slightly from when extended tasks are used.
 
 ### Booting davroska:
 
