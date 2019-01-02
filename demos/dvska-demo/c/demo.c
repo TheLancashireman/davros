@@ -184,17 +184,17 @@ dv_u32_t af_BitDriver(dv_id_t a)
 /* af_FlickerDriver() - alarm function to send the event to toggle Led3 at irregular intervals
  *
  * The times are chosen sequentially from an array of prime number multiples of 100. The array has an
- * odd number of elements so that the even passes through the array give different flash times from the odd passes.
+ * prime number of elements, and the values are accessed with a prime increment each time.
 */
 dv_u32_t af_FlickerDriver(dv_id_t a)
 {
-	const dv_u32_t flicker_times[15] = {3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53};
+	const dv_u32_t flicker_times[17] = {3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61};
 	static int step;
 
 	dv_setevent(Led, ev_Flip3);
 	step += 3;
-	if ( step >= 15 ) step -= 15;
-	return flicker_times[step] * 17;
+	if ( step >= 17 ) step -= 17;
+	return flicker_times[step] * 11;
 }
 
 /* callout_addtasks() - configure the tasks
