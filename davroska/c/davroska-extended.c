@@ -210,15 +210,15 @@ dv_id_t dv_addextendedtask(const char *name, void (*fn)(void), dv_prio_t prio, d
 {
 	if ( dv_nextended >= dv_maxextended )
 	{
-		/* ToDo: callout_reporterror */
-		dv_printf("dv_addextendedtask(%s,...) :: Error - insufficient DV_CFG_MAXEXTENDED\n", name);
+		dv_param_t p = (dv_param_t)(dv_address_t)name;
+		callout_reporterror(dv_sid_addextendedtask, dv_e_limit, 1, &p);
 		return -1;
 	}
 
 	if ( stackbytes <= 0 )
 	{
-		/* ToDo: callout_reporterror */
-		dv_printf("dv_addextendedtask(%s,...) :: Error - insufficient stack\n", name);
+		dv_param_t p = (dv_param_t)(dv_address_t)name;
+		callout_reporterror(dv_sid_addextendedtask, dv_e_value, 1, &p);
 		return -1;
 	}
 

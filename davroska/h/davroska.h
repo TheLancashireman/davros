@@ -42,6 +42,7 @@ typedef enum
 	dv_e_state,
 	dv_e_value,			/* = 8; last OSEK error code */
 	dv_e_nesting,
+	dv_w_value,
 	dv_e_longjmp_ok		/* Must be last */
 } dv_statustype_t;
 
@@ -62,6 +63,15 @@ typedef enum
 	dv_sid_setevent,
 	dv_sid_getevent,
 	dv_sid_clearevent,
+
+	dv_sid_addtask,
+	dv_sid_addextendedtask,
+	dv_sid_addisr,
+	dv_sid_addmutex,
+	dv_sid_addmutexuser,
+	dv_sid_addexe,
+	dv_sid_addcounter,
+	dv_sid_addalarm,
 
 	dv_sid_scheduler,
 	dv_sid_interruptdispatcher,

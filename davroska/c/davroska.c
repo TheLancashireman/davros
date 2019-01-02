@@ -360,15 +360,15 @@ dv_id_t dv_addtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_qty_t 
 {
 	if ( maxact < 1 )
 	{
-		/* ToDo: callout_reporterror */
-		dv_printf("dv_addtask(%s,...) :: Warning - task with maxaxt 0 or less defaults to 1\n", name);
+		dv_param_t p = (dv_param_t)(dv_address_t)name;
+		callout_reporterror(dv_sid_addtask, dv_w_value, 1, &p);
 		maxact = 1;
 	}
 
 	if ( prio < 1 )
 	{
-		/* ToDo: callout_reporterror */
-		dv_printf("dv_addtask(%s,...) :: Error - task with priority 0 or less will never run\n", name);
+		dv_param_t p = (dv_param_t)(dv_address_t)name;
+		callout_reporterror(dv_sid_addtask, dv_e_value, 1, &p);
 		return -1;
 	}
 
@@ -390,15 +390,15 @@ dv_id_t dv_addisr(const char *name, void (*fn)(void), dv_id_t irqid, dv_prio_t p
 {
 	if ( prio <= dv_maxtaskprio )
 	{
-		/* ToDo: callout_reporterror */
-		dv_printf("dv_addisr(%s,...) :: Error - ISR with priority less than or equal to highest task\n", name);
+		dv_param_t p = (dv_param_t)(dv_address_t)name;
+		callout_reporterror(dv_sid_addisr, dv_e_value, 1, &p);
 		return -1;
 	}
 
 	if ( !dv_isvectorfree(irqid) )
 	{
-		/* ToDo: callout_reporterror */
-		dv_printf("dv_addisr(%s,...) :: Error - Vector is already in use.\n", name);
+		dv_param_t p = (dv_param_t)(dv_address_t)name;
+		callout_reporterror(dv_sid_addisr, dv_e_state, 1, &p);
 		return -1;
 	}
 
@@ -420,21 +420,21 @@ dv_id_t dv_addisr(const char *name, void (*fn)(void), dv_id_t irqid, dv_prio_t p
 
 /* dv_addmutex() - add a mutex to the set of mutexes
  *
- * The ceiling priority is detemined later....
+ * The ceiling priority is determined later....
 */
 dv_id_t dv_addmutex(const char *name, dv_qty_t maxtake)
 {
 	if ( dv_nmutex >= dv_maxmutex )
 	{
-		/* ToDo: callout_reporterror */
-		dv_printf("dv_addmutex(%s,...) :: Config error - DV_CFG_MAXMUTEX is insufficient\n", name);
+		dv_param_t p = (dv_param_t)(dv_address_t)name;
+		callout_reporterror(dv_sid_addmutex, dv_e_limit, 1, &p);
 		return -1;
 	}
 
 	if ( maxtake < 1 )
 	{
-		/* ToDo: callout_reporterror */
-		dv_printf("dv_addmutex(%s,...) :: Warning - mutex with maxtake 0 or less defaults to 1\n", name);
+		dv_param_t p = (dv_param_t)(dv_address_t)name;
+		callout_reporterror(dv_sid_addmutex, dv_w_value, 1, &p);
 		maxtake = 1;
 	}
 
@@ -455,22 +455,24 @@ dv_id_t dv_addmutex(const char *name, dv_qty_t maxtake)
  *
  * The ceiling priority of the mutex is determined by one or more calls to this function
 */
-void dv_addmutexuser(dv_id_t l, dv_id_t e)
+void dv_addmutexuser(dv_id_t mx, dv_id_t e)
 {
-	if ( (l < 0) || (l >= dv_nmutex) )
+	if ( (mx < 0) || (mx >= dv_nmutex) )
 	{
-		/* ToDo: callout_reporterror */
-		dv_printf("dv_addmutexuser(%d, %d) :: Error - mutex doesn't exist\n", l, e);
+		dv_param_t p = (dv_param_t)mx;
+		callout_reporterror(dv_sid_addmutexuser, dv_e_id, 1, &p);
+		return;
 	}
 
 	if ( (e < 0) || (e >= dv_nexe) )
 	{
-		/* ToDo: callout_reporterror */
-		dv_printf("dv_addmutexuser(%d, %d) :: Error - executable doesn't exist\n", l, e);
+		dv_param_t p = (dv_param_t)mx;
+		callout_reporterror(dv_sid_addmutexuser, dv_e_access, 1, &p);
+		return;
 	}
 
-	if ( dv_mutex[l].ceiling < dv_exe[e].baseprio )
-		dv_mutex[l].ceiling = dv_exe[e].baseprio;
+	if ( dv_mutex[mx].ceiling < dv_exe[e].baseprio )
+		dv_mutex[mx].ceiling = dv_exe[e].baseprio;
 }
 
 /* ===================================================================================================================
@@ -484,15 +486,15 @@ static dv_id_t dv_addexe(const char *name, void (*fn)(void), dv_prio_t prio, dv_
 {
 	if ( dv_nexe >= dv_maxexe )
 	{
-		/* ToDo: callout_reporterror */
-		dv_printf("dv_addexe(%s,...) :: Config error - DV_CFG_MAXEXE is insufficient\n", name);
+		dv_param_t p = (dv_param_t)(dv_address_t)name;
+		callout_reporterror(dv_sid_addexe, dv_e_limit, 1, &p);
 		return -1;
 	}
 
 	if ( prio >= dv_maxprio )
 	{
-		/* ToDo: callout_reporterror */
-		dv_printf("dv_addexe(%s,...) :: Error - priority exceeds DV_CFG_MAXPRIO\n", name);
+		dv_param_t p = (dv_param_t)(dv_address_t)name;
+		callout_reporterror(dv_sid_addexe, dv_e_value, 1, &p);
 		return -1;
 	}
 

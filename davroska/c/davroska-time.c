@@ -213,8 +213,8 @@ dv_id_t dv_addcounter(const char *name)
 {
 	if ( dv_ncounter >= dv_maxcounter )
 	{
-		/* ToDo: callout_reporterror */
-		dv_printf("dv_addcounter(%s) :: Config error - DV_CFG_MAXCOUNTER is insufficient\n", name);
+		dv_param_t p = (dv_param_t)(dv_address_t)name;
+		callout_reporterror(dv_sid_addcounter, dv_e_limit, 1, &p);
 		return -1;
 	}
 
@@ -233,8 +233,8 @@ dv_id_t dv_addalarm(const char *name, dv_u32_t (*expiryfn)(dv_id_t a))
 {
 	if ( dv_nalarm >= dv_maxalarm )
 	{
-		/* ToDo: callout_reporterror */
-		dv_printf("dv_addalarm(%s) :: Config error - DV_CFG_MAXALARM is insufficient\n", name);
+		dv_param_t p = (dv_param_t)(dv_address_t)name;
+		callout_reporterror(dv_sid_addalarm, dv_e_limit, 1, &p);
 		return -1;
 	}
 
