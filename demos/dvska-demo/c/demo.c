@@ -55,8 +55,6 @@ void main_Led(void)
 	dv_statustype_t ee;
 	dv_eventmask_t events;
 
-	dv_printf("Led : SP = 0x%08x\n", dv_arm_get_SP());
-
 	for (;;)
 	{
 		if ( (ee = dv_waitevent(ev_Flip3 | ev_Update)) != dv_e_ok )
@@ -79,7 +77,7 @@ void main_Led(void)
 			if ( (ee = dv_takemutex(mx_Gpio)) != dv_e_ok )
 				dv_shutdown(ee);
 
-			for (int i = 0; i < 3; i++ )
+			for (int i = 0; i < 4; i++ )
 				hw_SetLed(i, ledstate[i]);
 
 			if ( (ee = dv_dropmutex(mx_Gpio)) != dv_e_ok )
@@ -95,8 +93,6 @@ void main_Bit0(void)
 	dv_statustype_t ee;
 
 	ledstate[0] = !ledstate[0];
-
-	dv_printf("Bit0: %d\n", ledstate[0]);
 
 	if ( ledstate[0] )
 	{
@@ -120,8 +116,6 @@ void main_Bit1(void)
 
 	ledstate[1] = !ledstate[1];
 
-	dv_printf("Bit1: %d\n", ledstate[1]);
-
 	if ( ledstate[1] )
 	{
 		if ( (ee = dv_setevent(Led, ev_Update)) != dv_e_ok )
@@ -144,8 +138,6 @@ void main_Bit2(void)
 
 	ledstate[2] = !ledstate[2];
 
-	dv_printf("Bit2: %d\n", ledstate[2]);
-
 	if ( (ee = dv_setevent(Led, ev_Update)) != dv_e_ok )
 		dv_shutdown(ee);
 	ee = dv_terminatetask();
@@ -156,15 +148,12 @@ void main_Bit2(void)
 */
 void main_Init(void)
 {
-	dv_printf("Init : SP = 0x%08x\n", dv_arm_get_SP());
 }
 
 /* main_Uart() - body of ISR to handle uart rx interrupt
 */
 void main_Uart(void)
 {
-	dv_printf("Uart : SP = 0x%08x\n", dv_arm_get_SP());
-
 	while ( dv_consoledriver.isrx() )
 	{
 		int c = dv_consoledriver.getc();
@@ -178,8 +167,6 @@ void main_Uart(void)
 void main_Timer(void)
 {
 	dv_u32_t sp = dv_arm_get_SP();
-	if ( sp < 0x10000000 )
-		dv_printf("Timer : SP = 0x%08x\n", sp);
 	hw_ClearTimer();
 
 	dv_statustype_t ee = dv_advancecounter(Ticker, 1);
@@ -301,14 +288,7 @@ void callout_shutdown(dv_statustype_t e)
 */
 void callout_idle(void)
 {
-	dv_intstatus_t is = dv_disable();
-	dv_u32_t sp = dv_arm_get_SP();
-	dv_printf("callout_idle: SP = 0x%08x\n", sp);
-	dv_restore(is);
-
-	for ( volatile int i = 0; i < 3000000; i++ )
-	{
-	}
+	for (;;) {}
 }
 
 /* main() - well, it's main, innit?
