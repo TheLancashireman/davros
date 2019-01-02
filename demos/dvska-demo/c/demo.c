@@ -188,13 +188,13 @@ dv_u32_t af_BitDriver(dv_id_t a)
 */
 dv_u32_t af_FlickerDriver(dv_id_t a)
 {
-	const dv_u32_t flicker_times[17] = {3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61};
+	static const dv_u32_t flicker_times[17] = {3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61};
 	static int step;
 
 	dv_setevent(Led, ev_Flip3);
 	step += 3;
 	if ( step >= 17 ) step -= 17;
-	return flicker_times[step] * 11;
+	return flicker_times[step] * 7;
 }
 
 /* callout_addtasks() - configure the tasks
