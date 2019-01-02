@@ -61,7 +61,7 @@ const dv_bcm2835_irq_t dv_bcm2835_irq_list[dv_n_bcm2835_iid+1] =
 dv_intlevel_t dv_bcm2835_irq_level[dv_n_bcm2835_iid];
 dv_intlevel_t dv_currentlocklevel = -1;
 dv_bcm2835_imask_t dv_bcm2835_irq_enabled;
-dv_bcm2835_imask_t dv_bcm2835_levelmasks[9];
+dv_bcm2835_imask_t dv_bcm2835_levelmasks[DV_LOCKALL_LEVEL+1];	/* need levels from 0 to lock-all inclusive */
 
 #ifndef DV_CFG_BCM2835_VECTOR_START
 #define DV_CFG_BCM2835_VECTOR_START	0
@@ -114,7 +114,7 @@ void dv_config_irq(dv_irqid_t irq, dv_intlevel_t level, int unused_core)
 	/* Constrain irq'ls level
 	*/
 	if ( level < 0 ) level = 0;
-	if ( level > 7 ) level = 7;
+	if ( level > DV_MAX_INTLEVEL ) level = DV_MAX_INTLEVEL;
 
 	/* Store level
 	*/

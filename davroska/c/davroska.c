@@ -282,7 +282,7 @@ dv_statustype_t dv_startos(dv_id_t mode)
 #if DV_DEBUG
 	dv_printf("dv_startos() - set IRQ level %d\n", 8);
 #endif
-	dv_setirqlevel(8);			/* ToDo: lock-all level depends on hardware */
+	dv_setirqlevel(DV_LOCKALL_LEVEL);
 
 	/* Create the idle loop executable
 	*/
