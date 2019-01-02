@@ -166,7 +166,6 @@ void main_Uart(void)
 */
 void main_Timer(void)
 {
-	dv_u32_t sp = dv_arm_get_SP();
 	hw_ClearTimer();
 
 	dv_statustype_t ee = dv_advancecounter(Ticker, 1);
@@ -189,13 +188,13 @@ dv_u32_t af_BitDriver(dv_id_t a)
 */
 dv_u32_t af_FlickerDriver(dv_id_t a)
 {
-	const dv_u32_t flicker_times[7] = {300, 2300, 500, 1300, 700, 1300, 1100};
+	const dv_u32_t flicker_times[15] = {3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53};
 	static int step;
 
 	dv_setevent(Led, ev_Flip3);
-	step++;
-	if ( step >= 7 ) step = 0;
-	return flicker_times[step];
+	step += 3;
+	if ( step >= 15 ) step -= 15;
+	return flicker_times[step] * 17;
 }
 
 /* callout_addtasks() - configure the tasks
