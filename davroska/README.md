@@ -173,7 +173,7 @@ When dv_startos() is done, davroska will schedule the tasks and ISRs of your app
   * adds a counter to the list of counters
     * name is the name of the counter
   * dv_addcounter() returns the identifer for the counter. (-1) indicates an error
-dv_id_t dv_addalarm(const char *name, dv_u32_t (*fn)(dv_id_t a))
+* dv_id_t dv_addalarm(const char *name, dv_u32_t (*fn)(dv_id_t a))
   * adds an alarm to the list of alarms
     * name is the name of the alarm
     * fn is the expiry function that davroska calls whenever the alarm expires
