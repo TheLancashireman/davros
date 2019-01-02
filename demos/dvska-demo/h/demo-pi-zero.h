@@ -24,7 +24,13 @@ static inline void hw_ClearTimer(void)
 
 static inline void hw_SetLed(int i, dv_boolean_t state)
 {
-	/* ToDo */
+	if ( (i < 0) || (i >= 4) )	return;
+
+	static const dv_u32_t led_map[4] = {17, 18, 27, 22};
+	if ( state )
+		dv_arm_bcm2835_gpio_pin_clear(led_map[i]);
+	else
+		dv_arm_bcm2835_gpio_pin_set(led_map[i]);
 }
 
 static inline void hw_EnableUartRxInterrupt(void)

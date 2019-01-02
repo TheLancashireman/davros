@@ -10,6 +10,7 @@
 
 #include <dv-arm-bcm2835-uart.h>
 #include <dv-arm-bcm2835-aux.h>
+#include <dv-arm-bcm2835-gpio.h>
 #include <dv-arm-bcm2835-interruptcontroller.h>
 #include <dv-armv6-mmu.h>
 #include <dv-arm-cp15.h>
@@ -65,6 +66,20 @@ void dv_board_start(void)
 	*/
 	dv_printf("Enabling branch prediction ...\n");
 	dv_write_cp15_control(dv_read_cp15_control() | DV_CP15_CTRL_Z);
+
+	/* Enable four GPIO pins for the LEDs.
+    */
+	dv_arm_bcm2835_gpio_pinconfig(17, DV_pinfunc_output, DV_pinpull_none);
+	dv_arm_bcm2835_gpio_pinconfig(18, DV_pinfunc_output, DV_pinpull_none);
+	dv_arm_bcm2835_gpio_pinconfig(27, DV_pinfunc_output, DV_pinpull_none);
+	dv_arm_bcm2835_gpio_pinconfig(22, DV_pinfunc_output, DV_pinpull_none);
+
+	/* All LEDs off
+	*/
+	dv_arm_bcm2835_gpio_pin_set(17);
+	dv_arm_bcm2835_gpio_pin_set(18);
+	dv_arm_bcm2835_gpio_pin_set(27);
+	dv_arm_bcm2835_gpio_pin_set(22);
 
 	main(0, 0);
 }
