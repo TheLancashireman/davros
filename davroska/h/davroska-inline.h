@@ -101,7 +101,7 @@ static inline void dv_softvector(int vector)
 #endif
 }
 
-/* Temporary ...
+/* ToDo: Temporary ...
 */
 static inline void dv_setqueueirqlevel(dv_prio_t p)
 {
@@ -152,6 +152,16 @@ static inline void dv_clearpending(dv_id_t t)
 #if DV_CFG_MAXEXTENDED > 0
 	if ( dv_extendedtask(t) )
 		dv_extended[dv_exe[t].extended].events_pending = 0;
+#endif
+}
+
+/* dv_set_onkernelstack() - ef extended tasks supported, set the on-kernel-stack flag after task termination
+*/
+static inline void dv_set_onkernelstack(void)
+{
+#if DV_CFG_MAXEXTENDED > 0
+	extern dv_boolean_t dv_onkernelstack;
+	dv_onkernelstack = 1;
 #endif
 }
 

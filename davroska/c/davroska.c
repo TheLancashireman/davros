@@ -614,6 +614,8 @@ void dv_runqueued(dv_prio_t high, dv_prio_t low, dv_intstatus_t is)
 				}
 			}
 
+			dv_set_onkernelstack();
+
 			/* On return or termination don't propagate the interrupt state
 			*/
 			(void)dv_disable();
