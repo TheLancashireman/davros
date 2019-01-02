@@ -326,6 +326,13 @@ void callout_idle(void)
 	for (;;) {}
 }
 
+/* callout_panic() - called from dv_panic
+*/
+void callout_panic(dv_panic_t p, dv_sid_t sid, char *fault)
+{
+	dv_printf("Panic %d in %d : %d\n", p, sid, fault);
+}
+
 /* main() - well, it's main, innit?
 */
 int main(int argc, char **argv)

@@ -102,18 +102,18 @@ dv_statustype_t dv_chaintask(dv_id_t t)
 	/* Sanity checks
 	*/
 	if ( (dv_currentexe < 0) || (dv_currentexe >= dv_nexe) )
-		dv_panic(dv_panic_CurrentExeCorrupt);
+		dv_panic(dv_panic_CurrentExeCorrupt, dv_sid_chaintask, "dv_currentexe is out of range");
 
 	/* Sanity check
 	*/
 	if ( dv_exe[dv_currentexe].jb == DV_NULL )
-		dv_panic(dv_panic_CurrentExeDead);
+		dv_panic(dv_panic_CurrentExeDead, dv_sid_chaintask, "current executable has no termination jmp_buf");
 
 	(void)dv_activateexe2(t, is);
 
 	dv_longjmp(*dv_exe[dv_currentexe].jb, dv_e_longjmp_ok);
 
-	dv_panic(dv_panic_ReturnFromLongjmp);
+	dv_panic(dv_panic_ReturnFromLongjmp, dv_sid_chaintask, "dv_longjmp() returned to caller");
 }
 
 /* dv_terminatetask() - terminate the calling task
@@ -125,16 +125,16 @@ dv_statustype_t dv_terminatetask(void)
 	/* Sanity checks
 	*/
 	if ( (dv_currentexe < 0) || (dv_currentexe >= dv_nexe) )
-		dv_panic(dv_panic_CurrentExeCorrupt);
+		dv_panic(dv_panic_CurrentExeCorrupt, dv_sid_terminatetask, "dv_currentexe is out of range");
 
 	/* Sanity check
 	*/
 	if ( dv_exe[dv_currentexe].jb == DV_NULL )
-		dv_panic(dv_panic_CurrentExeDead);
+		dv_panic(dv_panic_CurrentExeDead, dv_sid_terminatetask, "current executable has no termination jmp_buf");
 
 	dv_longjmp(*dv_exe[dv_currentexe].jb, dv_e_longjmp_ok);
 
-	dv_panic(dv_panic_ReturnFromLongjmp);
+	dv_panic(dv_panic_ReturnFromLongjmp, dv_sid_terminatetask, "dv_longjmp() returned to caller");
 }
 
 /* dv_takemutex() - take a mutex
@@ -149,7 +149,7 @@ dv_statustype_t dv_takemutex(dv_id_t mutex)
 		return callout_reporterror(dv_sid_takemutex, dv_e_id, 1, &p);
 	}
 
-	if ( dv_mutex[mutex].ceiling <= dv_exe[dv_currentexe].baseprio )
+	if ( dv_mutex[mutex].ceiling < dv_exe[dv_currentexe].baseprio )
 	{
 		dv_param_t p = (dv_param_t)mutex;
 		return callout_reporterror(dv_sid_takemutex, dv_e_access, 1, &p);
@@ -173,8 +173,11 @@ dv_statustype_t dv_takemutex(dv_id_t mutex)
 		}
 	}
 
+	/* The OSEK specification says that this should be an error. However, because of the ceiling priority
+	 * check (above), this error indicates a fault in the scheduler
+	*/
 	if ( dv_mutex[mutex].owner >= 0 )			/* Indicates that an exe of lower priority than the owner is running */
-		dv_panic(dv_panic_MutexOccupied);
+		dv_panic(dv_panic_MutexOccupied, dv_sid_takemutex, "mutex is occupied");
 
 	/* Mark mutex as owned by current executable
 	*/
@@ -244,7 +247,7 @@ dv_statustype_t dv_dropmutex(dv_id_t mutex)
 	if ( low < high )
 	{
 		if ( dv_dequeue(high) != dv_currentexe )
-			dv_panic(dv_panic_QueueCorrupt);
+			dv_panic(dv_panic_QueueCorrupt, dv_sid_dropmutex, "mutex owner is not at head of ceiling priority queue");
 
 		dv_runqueued_onkernelstack(high, low, is);
 	}
@@ -289,7 +292,7 @@ dv_statustype_t dv_startos(dv_id_t mode)
 	dv_id_t idle = dv_addexe("idle-loop", &dv_idle, 0, 1);
 
 	if ( idle < 0 )
-		dv_panic(dv_panic_UnknownPanic);		/* ToDo: proper panic code */
+		dv_panic(dv_panic_IdleCreation, dv_sid_startos, "could not create the idle executable");
 
 	dv_ntask = 1;	/* Range check for tasks is from 1 to dv_ntask */
 
@@ -560,7 +563,7 @@ void dv_runqueued(dv_prio_t high, dv_prio_t low, dv_intstatus_t is)
 		{
 			/* The idle executable is never in a higher-priority queue
 			*/
-			dv_panic(dv_panic_QueueCorrupt);
+			dv_panic(dv_panic_QueueCorrupt, dv_sid_scheduler, "idle executable has elevated its priority");
 		}
 		else
 		if ( e > 0 )
@@ -625,7 +628,7 @@ void dv_runqueued(dv_prio_t high, dv_prio_t low, dv_intstatus_t is)
 			/* Dequeue the executable (with sanity check)
 			*/
 			if ( dv_dequeue(eprio) != e )
-				dv_panic(dv_panic_QueueCorrupt);
+				dv_panic(dv_panic_QueueCorrupt, dv_sid_scheduler, "terminating executable is not at head of its queue");
 
 			if ( dv_extendedtask(e) &&  dv_taskwaiting(e) )
 			{
@@ -699,7 +702,7 @@ void dv_lowerprio(dv_prio_t p)
 		return;
 
 	if ( dv_dequeue(dv_maxprio) != dv_currentexe )
-		dv_panic(dv_panic_QueueCorrupt);
+		dv_panic(dv_panic_QueueCorrupt, dv_sid_scheduler, "current executable was not at head of maxprio queue");
 
 	dv_exe[dv_currentexe].currprio = p;
 }
@@ -745,7 +748,7 @@ static void dv_createqueues(void)
 		dv_queue[q].slots = &dv_slots[s];
 		s += dv_queue[q].nslots;
 		if ( s > dv_maxslot )
-			dv_panic(dv_panic_ConfigNslotsInsufficient);
+			dv_panic(dv_panic_ConfigNslotsInsufficient, dv_sid_startos, "insufficient queue slotsi configured");
 	}
 }
 
@@ -809,10 +812,9 @@ static void dv_postexe(void)
 
 /* dv_panic() - report a fatal error
 */
-void dv_panic(dv_panic_t p)
+void dv_panic(dv_panic_t p, dv_sid_t sid, char *fault)
 {
-	/* Todo: implement */
-	dv_printf("dv_panic(%d) called\n", p);
+	callout_panic(p, sid, fault);
 	for (;;) ;
 }
 
@@ -835,7 +837,7 @@ static void dv_idle(void)
 */
 dv_statustype_t dv_unconfigured_interrupt(dv_id_t p)
 {
-	dv_panic(dv_panic_UnconfiguredInterrupt);
+	dv_panic(dv_panic_UnconfiguredInterrupt, dv_sid_interruptdispatcher, "an unconfigured interrupt has occurred");
 	return dv_e_id;
 }
 

@@ -47,6 +47,8 @@ typedef enum
 
 typedef enum
 {
+	dv_sid_unknown,
+	dv_sid_startos,
 	dv_sid_terminatetask,
 	dv_sid_activatetask,
 	dv_sid_chaintask,
@@ -59,7 +61,11 @@ typedef enum
 	dv_sid_waitevent,
 	dv_sid_setevent,
 	dv_sid_getevent,
-	dv_sid_clearevent
+	dv_sid_clearevent,
+
+	dv_sid_scheduler,
+	dv_sid_interruptdispatcher,
+	dv_sid_exceptionhandler
 } dv_sid_t;
 
 typedef enum
@@ -73,7 +79,12 @@ typedef enum
 	dv_panic_ReturnFromLongjmp,
 	dv_panic_MutexOccupied,
 	dv_panic_UnconfiguredInterrupt,
-	dv_panic_UnknownPanic
+	dv_panic_IdleCreation,
+	dv_panic_CounterOverflow,
+	dv_panic_NoKernelAnchor,
+	dv_panic_UnknownRequest,
+	dv_panic_Exception,
+	dv_panic_UndefinedPanic			/* Used as a temporary placeholder for new panics */
 } dv_panic_t;
 
 extern dv_statustype_t dv_startos(dv_id_t mode);
@@ -114,6 +125,7 @@ extern void callout_startup(void);
 extern void callout_preexe(void);
 extern void callout_postexe(void);
 extern dv_statustype_t callout_reporterror(dv_sid_t sid, dv_statustype_t e, dv_qty_t nParam, dv_param_t *p);
+extern void callout_panic(dv_panic_t p, dv_sid_t sid, char *fault);
 extern void callout_shutdown(dv_statustype_t e);
 extern void callout_idle(void);
 
@@ -315,7 +327,7 @@ extern dv_qty_t dv_ncounter;
 extern dv_qty_t dv_nalarm;
 
 extern void dv_runqueued(dv_prio_t high, dv_prio_t low, dv_intstatus_t is);
-extern void dv_panic(dv_panic_t p);
+extern void dv_panic(dv_panic_t p, dv_sid_t sid, char *fault);
 extern dv_statustype_t dv_unconfigured_interrupt(dv_id_t p);
 extern dv_prio_t dv_raiseprio(void);
 extern void dv_lowerprio(dv_prio_t p);

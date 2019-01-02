@@ -77,7 +77,7 @@ dv_statustype_t dv_waitevent(dv_eventmask_t evts)
 	{
 		dv_longjmp(*dv_exe[dv_currentexe].jb, dv_e_longjmp_ok);
 
-		dv_panic(dv_panic_ReturnFromLongjmp);
+		dv_panic(dv_panic_ReturnFromLongjmp, dv_sid_waitevent, "dv_longjmp() returned to caller");
 	}
 
 	dv_extended[ext].jb = DV_NULL;
@@ -271,14 +271,14 @@ void dv_runextended(dv_id_t e, dv_intstatus_t is)
 			/* A new activation of an extended task. Essentially, a directed longjump
 			*/
 			dv_switchcall(e, is, dv_extended[dv_exe[e].extended].initialsp, &dv_startextendedtask);
-			dv_panic(dv_panic_ReturnFromLongjmp);
+			dv_panic(dv_panic_ReturnFromLongjmp, dv_sid_scheduler, "dv_switchcall() returned to caller");
 		}
 		else
 		{
 			/* Resume extended task after a preemption or wait.
 			*/
 			dv_longjmp(*dv_extended[dv_exe[e].extended].jb, dv_e_longjmp_ok);
-			dv_panic(dv_panic_ReturnFromLongjmp);
+			dv_panic(dv_panic_ReturnFromLongjmp, dv_sid_scheduler, "dv_longjmp() returned to caller");
 		}
 	}
 	else
@@ -292,7 +292,7 @@ void dv_runextended(dv_id_t e, dv_intstatus_t is)
 			dv_runqueued(req->p.rq.high, req->p.rq.low, req->p.rq.is);
 			break;
 		default:
-			dv_panic(dv_panic_UnknownPanic);    /* ToDo */
+			dv_panic(dv_panic_UnknownRequest, dv_sid_scheduler, "unknown kernel-stack request received");
 			break;
 		}
 		dv_onkernelstack = 0;
@@ -312,7 +312,7 @@ void dv_startextendedtask(dv_id_t e, dv_intstatus_t is)
 
 	dv_longjmp(*dv_exe[e].jb, 1);
 
-	dv_panic(dv_panic_ReturnFromLongjmp);
+	dv_panic(dv_panic_ReturnFromLongjmp, dv_sid_scheduler, "dv_longjmp() returned to caller");
 }
 
 /* dv_runqueued_onkernelstack() - call dv_runqueued, after switching to kernel stack if necessary
@@ -334,7 +334,7 @@ void dv_runqueued_onkernelstack(dv_prio_t high, dv_prio_t low, dv_intstatus_t is
 			req.p.rq.is = is;
 
 			if ( dv_kjmpbuf == DV_NULL )
-				dv_panic(dv_panic_UnknownPanic);	/* ToDo */
+				dv_panic(dv_panic_NoKernelAnchor, dv_sid_scheduler, "kernel request failed; no anchor");
 			dv_longjmp(*dv_kjmpbuf, (int)&req);
 		}
 	}

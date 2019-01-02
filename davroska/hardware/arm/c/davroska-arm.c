@@ -61,7 +61,7 @@ void dv_catch_irq(void)
 	/* Sanity check
 	*/
 	if ( dv_currentexe != me )
-		dv_panic(dv_panic_UnknownPanic);		/* ToDo ...*/
+		dv_panic(dv_panic_QueueCorrupt, dv_sid_interruptdispatcher, "current executable changed");
 
 	/* Restore priority of current executable
 	*/

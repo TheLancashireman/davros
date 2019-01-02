@@ -86,60 +86,50 @@ void dv_board_start(void)
 
 void dv_catch_data_abort(void)
 {
-    dv_printf("%s --- %s\n", "dv_catch_data_abort", "Oops! An exception occurred");
-	for (;;) {}
+	dv_panic(dv_panic_Exception, dv_sid_exceptionhandler, "Oops! a data abort occurred");
 }
 
 void dv_catch_prefetch_abort(void)
 {
-    dv_printf("%s --- %s\n", "dv_catch_prefetch_abort", "Oops! An exception occurred");
-	for (;;) {}
+	dv_panic(dv_panic_Exception, dv_sid_exceptionhandler, "Oops! A prefetch abort occurred");
 }
 
 void dv_catch_reserved(void)
 {
-    dv_printf("%s --- %s\n", "dv_catch_reserved", "Oops! An exception occurred");
-	for (;;) {}
+	dv_panic(dv_panic_Exception, dv_sid_exceptionhandler, "Oops! A reserved exception occurred");
 }
 
 void dv_catch_undef(void)
 {
-    dv_printf("%s --- %s\n", "dv_catch_undef", "Oops! An exception occurred");
-	for (;;) {}
+	dv_panic(dv_panic_Exception, dv_sid_exceptionhandler, "Oops! An undefined instruction exception occurred");
 }
 
 void dv_catch_unimplemented(void)
 {
-    dv_printf("%s --- %s\n", "dv_trap_unimplemented", "Oops! An exception occurred");
-	for (;;) {}
+	dv_panic(dv_panic_Exception, dv_sid_exceptionhandler, "Oops! An exception occurred");
 }
 
 void dv_catch_sbreak(void)
 {
-    dv_printf("%s --- %s\n", "dv_trap_sbreak", "Oops! An exception occurred");
-	for (;;) {}
+	dv_panic(dv_panic_Exception, dv_sid_exceptionhandler, " Oops! Something did a svc");
 }
 
 void dv_catch_fiq(void)
 {
-    dv_printf("%s --- %s\n", "dv_trap_fiq", "Oops! An exception occurred");
-	for (;;) {}
+	dv_panic(dv_panic_Exception, dv_sid_exceptionhandler, "Oops! A fiq happened");
 }
 
 void dv_catch_reset(void)
 {
-    dv_printf("%s --- %s\n", "dv_trap_reset", "Oops! Return from dv_board_start");
-	for (;;) {}
+	dv_panic(dv_panic_Exception, dv_sid_exceptionhandler, "Oops! A reset occurred");
 }
 
 void dv_panic_return_from_switchcall_function(void)
 {
-	dv_printf("%s --- %s\n", "dv_switchcall", "Oops! The task wrapper returned");
-	dv_panic(dv_panic_UnknownPanic);
+	dv_panic(dv_panic_ReturnFromLongjmp, dv_sid_scheduler, "Oops! The task wrapper returned");
 }
 
 void dv_panic_failed_return_from_irq(void)
 {
-	dv_printf("%s --- %s\n", "dv_trap_irq", "Oops! Failed to return from an IRQ");
-	dv_panic(dv_panic_UnknownPanic);
+	dv_panic(dv_panic_ReturnFromLongjmp, dv_sid_interruptdispatcher, "Oops! Failed to return from an IRQ");
 }

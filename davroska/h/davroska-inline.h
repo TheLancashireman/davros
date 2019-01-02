@@ -28,7 +28,7 @@ static inline void dv_enqueue(dv_prio_t p, dv_id_t e)
 	/* Sanity check
 	*/
 	if ( q->tail == q->head )	
-		dv_panic(dv_panic_QueueOverflow);
+		dv_panic(dv_panic_QueueOverflow, dv_sid_scheduler, "priority queue is full");
 }
 
 /* dv_qhead() - return head of queue without removing it

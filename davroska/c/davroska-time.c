@@ -85,7 +85,7 @@ dv_statustype_t dv_advancecounter(dv_id_t c, dv_u64_t n)
 	dv_u64_t v = dv_counter[c].value;
 	dv_counter[c].value += n;
 	if ( dv_counter[c].value < v )			/* Overflow */
-		dv_panic(dv_panic_UnknownPanic);
+		dv_panic(dv_panic_CounterOverflow, dv_sid_advancecounter, "counter has overflowed");
 
 	dv_prio_t p = dv_raiseprio();
 	dv_id_t a = dv_counter[c].head;
