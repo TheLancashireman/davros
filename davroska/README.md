@@ -6,12 +6,13 @@ The contents of this sub-tree are unrelated to the main davros-3 tree.
 
 ## Status:
 
-* tested on a raspberry pi zero - uart interrupts working
-* activation and termination of basic tasks appears to work.
-* chaining a task appears to work
-* taking and dropping locks appears to work.
-* setting an alarm appears to work
-* advancing a counter appears to work
+* tested on a raspberry pi zero - uart and timer interrupts working
+* activation and termination of basic tasks works.
+* chaining a task works
+* taking and dropping mutexes works
+* setting an alarm works
+* advancing a counter works
+* extended tasks working
 
 ## Quick user's guide
 
@@ -36,7 +37,7 @@ Tasks can have "multiple activations", though the use case for this is obscure. 
 the task cannot run because of a higher-priority executable, its activations get queued.
 Queued executables of the same priority run in FIFO order
 
-An executable can raise its priority (dv_takelock) or lower it again (dv_droplock), but never
+An executable can raise its priority (dv_takemutex) or lower it again (dv_dropmutex), but never
 lower than the base priority of the executable.
 
 Interrupts are hardware mechanisms that are handled by the OS. You can create a special kind
@@ -80,14 +81,14 @@ Anything else in the OSEK spec that isn't mentioned: not implemented yet.
 
 ### Configuration:
 
-The actual configuration of tasks, ISRs, locks etc. is done at startup. The compile time configuration
+The actual configuration of tasks, ISRs, mutexes etc. is done at startup. The compile time configuration
 simply sets limits on what you can configure.
 
 You provide a header file (dv-config.h) that defines the following macros:
 
 * DV_CFG_MAXEXE - the maximum number of executables (excluding the idle loop) that you can have
 * DV_CFG_MAXPRIO - the maximum number of priorites that your executables will use
-* DV_CFG_MAXLOCK - the maximum number of locks that you can have
+* DV_CFG_MAXMUTEX - the maximum number of mutexes that you can have
 * DV_CFG_MAXCOUNTER - the maximum number of counters that you can have
 * DV_CFG_MAXALARM - the maximum number of alarms that you can have
 * DV_CFG_NSLOT_EXTRA - the number of extra queue elements you need (to cover multiple activations)
@@ -104,9 +105,9 @@ dv_startos() calls various callout functions that you supply:
   * this function calls dv_addtask() for every task in your application
 * callout_addisrs() - create the isrs that you need.
   * this function calls dv_addisr() for every isr in your application
-* callout_addlocks() - create the locks that you need.
-  * this function calls dv_addlock() for each lock in your application
-  * in addition, it calls dv_addlockuser for each executable that uses each lock
+* callout_addmutexes() - create the mutexes that you need.
+  * this function calls dv_addmutex() for each mutex in your application
+  * in addition, it calls dv_addmutexuser for each executable that uses each mutex
 * callout_addcounters() - create the counters that you need.
   * this function calls dv_addcounter() for every counter in your application
 * callout_addalarms() - create the alarms that you need.
@@ -125,12 +126,19 @@ When dv_startos() is done, davroska will schedule the tasks and ISRs of your app
 
 #### Creating objects
 * dv_id_t dv_addtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_qty_t maxact)
-  * adds a task to the list of executables
+  * adds a basic task to the list of executables
     * name is the name of the task
     * fn is the address of the "main" function of the task (the one that's "called" when the task runs)
     * prio is the (base) priority of the task
     * maxact is the maximum number of concurrent activations
   * dv_addtask() returns the identifier for the task. (-1) indicates an error
+* dv_id_t dv_addextendedtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_u32_t stacklen)
+  * adds an extended task to the list of executables
+    * name is the name of the task
+    * fn is the address of the "main" function of the task (the one that's "called" when the task runs)
+    * prio is the (base) priority of the task
+    * stacklen is number of bytes of stack to reserve for it
+  * dv_addextendedtask() returns the identifier for the task. (-1) indicates an error
 * dv_id_t dv_addisr(const char *name, void (*fn)(void), dv_prio_t irqid, dv_prio_t prio)
   * adds an ISR to the list of executables
     * name is the name of the ISR
@@ -139,14 +147,14 @@ When dv_startos() is done, davroska will schedule the tasks and ISRs of your app
     * prio is the priority of the ISR and must be higher than your tasks
   * dv_addisr() returns the identifier for the ISR. (-1) indicates an error
   * davroska calculates the interrupt levels automatically based on the ISR priorities.
-* dv_id_t dv_addlock(const char *name, dv_qty_t maxtake)
-  * adds a lock to the list of locks
-    * name is the name of the lock
-    * maxtake is the highest number of times the lock can be taken (without dropping) by the same executable
-  * dv_addlock() returns the identifer for the lock. (-1) indicates an error
-* void dv_addlockuser(dv_id_t l, dv_id_t e)
-  * adds an executable (e) as a "user" of the lock (l).
-    * all executables that are added to a lock will be prevented from running when an executable occupies the lock
+* dv_id_t dv_addmutex(const char *name, dv_qty_t maxtake)
+  * adds a mutex to the list of mutexes
+    * name is the name of the mutex
+    * maxtake is the highest number of times the mutex can be taken (without dropping) by the same executable
+  * dv_addmutex() returns the identifer for the mutex. (-1) indicates an error
+* void dv_addmutex(dv_id_t l, dv_id_t e)
+  * adds an executable (e) as a "user" of the mutex (l).
+    * all executables that are added to a mutex will be prevented from running when an executable occupies the mutex
     * the blocking is done by means of the "immediate priority ceiling protocol", so other executables might be blocked
 * dv_id_t dv_addcounter(const char *name)
   * adds a counter to the list of counters
@@ -158,7 +166,7 @@ dv_id_t dv_addalarm(const char *name, dv_u32_t (*fn)(dv_id_t a))
     * fn is the expiry function that davroska calls whenever the alarm expires
       * fn returns the cycle counter (for cyclic alarms) or 0 (for single-shot alarms)
 
-#### Runtime stuff
+#### Runtime API
 * dv_statustype_t dv_terminatetask(void)
   * terminates the calling task
   * allows other tasks of same or lower priority to run, in descending priority order
@@ -169,13 +177,24 @@ dv_id_t dv_addalarm(const char *name, dv_u32_t (*fn)(dv_id_t a))
     * otherwise it waits in a queue until its turn comes around
 * dv_statustype_t dv_chaintask(dv_id_t task)
   * terminates the caller and activates the indicated task
-* dv_statustype_t dv_takelock(dv_id_t lock)
-  * takes the indicated lock
-  * raises the priority of the caller to the ceiling priority of the lock
+* dv_waitevent(dv_eventmask_t events)
+  * causes an extended task to wait until one or more of the specified events becomes set
+  * if any of the events is already set, dv_waitevent() returns without waiting
+  * while waiting, tasks of equal or lower priority are permitted to execute
+* dv_setevent(dv_id_t task, dv_eventmask_t events)
+  * sets the specified events for an extended task
+  * if the task is waiting, dv_setevent() releases it from the waiting state and it takes its place in the queue
+* dv_getevent(dv_id_t task, dv_eventmask_t *events)
+  * places the pending events for the specfied task in the referenced variable
+* dv_clearevent(dv_eventmask_t events)
+  * clears the specified events from the calling (extended) task's pending events
+* dv_statustype_t dv_takemutex(dv_id_t mutex)
+  * takes the indicated mutex
+  * raises the priority of the caller to the ceiling priority of the mutex
     * never lowers the priority of the caller
-* dv_statustype_t dv_droplock(dv_id_t lock)
-  * drops the indicated lock
-  * reduces the priority of the caller to the priority before taking the lock
+* dv_statustype_t dv_dropmutex(dv_id_t mutex)
+  * drops the indicated mutex
+  * reduces the priority of the caller to the priority before taking the mutex
   * allows other tasks of intermediate priority to run
 * dv_statustype_t dv_setalarm_rel(dv_id_t c, dv_id_t a, dv_u32_t v)
   * activates an alarm to expire when the counter reaches a value of v ticks beyond its current value
@@ -184,9 +203,28 @@ dv_id_t dv_addalarm(const char *name, dv_u32_t (*fn)(dv_id_t a))
   * if v is less than the current counter value the alarm will expire on the next advance.
 * dv_u64_t dv_readtime(void)
   * returns the value of a 64-bit free-running timer provided by the hardware
+* dv_shutdown(dv_statustype_t e)
+  * shuts down the system; disables interrupts, goes to endless loop
 
+#### Runtime callouts
+* dv_statustype_t callout_reporterror(dv_sid_t sid, dv_statustype_t e, dv_qty_t nParam, dv_param_t *p)
+  * called to indicate that the error e has occurred in the API sid.
+  * The parameters that were passed to the API are given by nParam and p
+  * If nParam is 0, p may be null
+  * callout_reporterror() should return e for OSEK compatibility
+* void callout_startup(void)
+  * called at the end of dv_startos(), after callout_autostart() but before scheduling starts
+* void callout_preexe(void)
+  * called just after an executable is transferred to the running state
+* void callout_postexe(void)
+  * called just before an executable is transferred from the running state
+* void callout_shutdown(dv_statustype_t e)
+  * called by dv_shutdown() just before the endless loop
+  * the parameter is the shutdown status given to dv_shutdown()
+* void callout_idle(void)
+  * called repetitively in the idle loop
 
-#### Callouts provided by the application
+#### Configuration callouts provided by the application
 * void callout_addtasks(dv_id_t mode)
   * called during dv_startos()
   * may call dv_addtask() to create tasks
@@ -197,12 +235,12 @@ dv_id_t dv_addalarm(const char *name, dv_u32_t (*fn)(dv_id_t a))
   * may call dv_addisr() to create isrs
     * one call per isr
   * must not call any other API
-* void callout_addlocks(dv_id_t mode)
+* void callout_addmutex(dv_id_t mode)
   * called during dv_startos()
-  * may call dv_addlock() to create locks
-    * one call per lock
-  * should call dv_addlockuser() at least once for each lock created
-    * one call per user per lock
+  * may call dv_addmutex() to create mutexes
+    * one call per mutex
+  * should call dv_addmutex() at least once for each mutex created
+    * one call per user per mutex
     * can be "optimised" by adding just the highest-priority user
   * must not call any other API
 * void callout_addcounters(dv_id_t mode)
