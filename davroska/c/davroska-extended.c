@@ -55,9 +55,8 @@ dv_statustype_t dv_waitevent(dv_eventmask_t evts)
 	dv_intstatus_t is = dv_disable();
 
 	dv_id_t ext = dv_exe[dv_currentexe].extended;
-	dv_extended[ext].events_awaited = evts;
 
-	if ( (dv_extended[ext].events_awaited & dv_extended[ext].events_pending) != 0 )
+	if ( (evts & dv_extended[ext].events_pending) != 0 )
 	{
 		/* One or more events already pending - just return
 		 * It would be possible to have this branch requeue the task here to permit equal-priority
@@ -67,6 +66,9 @@ dv_statustype_t dv_waitevent(dv_eventmask_t evts)
 		dv_restore(is);
 		return dv_e_ok;
 	}
+
+	dv_extended[ext].events_awaited = evts;
+	dv_exe[dv_currentexe].state = dv_waiting;
 
 	dv_jmpbuf_t jb;		/* Stores the current state for use when released */
 	dv_extended[ext].jb = &jb;
@@ -115,6 +117,10 @@ dv_statustype_t dv_setevent(dv_id_t t, dv_eventmask_t evts)
 		return callout_reporterror(dv_sid_setevent, dv_e_state, 2, p);
 	}
 
+#if DV_DEBUG
+	dv_printf("dv_setevent: events 0x%x%08x\n", (dv_u32_t)(evts>>32), (dv_u32_t)evts);
+#endif
+
 	dv_id_t ext = dv_exe[t].extended;
 
 	dv_extended[ext].events_pending |= evts;
@@ -124,6 +130,9 @@ dv_statustype_t dv_setevent(dv_id_t t, dv_eventmask_t evts)
 	{
 		/* Release the executable
 		*/
+#if DV_DEBUG
+		dv_printf("dv_setevent: releasing %s\n", dv_exe[t].name);
+#endif
 		dv_exe[t].state = dv_ready;
 		dv_enqueue(dv_exe[t].baseprio, t);
 
@@ -268,7 +277,7 @@ void dv_runextended(dv_id_t e, dv_intstatus_t is)
 		{
 			/* Resume extended task after a preemption or wait.
 			*/
-			dv_longjmp(*dv_exe[dv_currentexe].jb, dv_e_longjmp_ok);
+			dv_longjmp(*dv_extended[dv_exe[e].extended].jb, dv_e_longjmp_ok);
 			dv_panic(dv_panic_ReturnFromLongjmp);
 		}
 	}
