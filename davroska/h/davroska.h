@@ -197,6 +197,21 @@ extern dv_statustype_t dv_clearevent(dv_eventmask_t evts);
 
 typedef unsigned long long dv_param_t;
 
+typedef enum
+{
+	ph_addtasks,
+	ph_addisrs,
+	ph_addmutexes,
+	ph_addcounters,
+	ph_addalarms
+} dv_cfgphase_t;
+
+typedef struct dv_configstate_s
+{
+	dv_cfgphase_t phase;
+	dv_id_t *data;
+} dv_configstate_t;
+
 typedef struct dv_q_s
 {
 	dv_id_t *slots;			/* Start of a buffer for the ring buffer for this priority slot. */
@@ -300,6 +315,7 @@ typedef struct dv_softvector_s
 
 /* Task (etc.) management variables
 */
+extern dv_configstate_t *dv_configstate;
 extern dv_prio_t dv_highestprio;
 extern dv_id_t dv_currentexe;
 

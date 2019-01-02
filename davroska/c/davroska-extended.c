@@ -208,6 +208,13 @@ dv_statustype_t dv_clearevent(dv_eventmask_t evts)
 */
 dv_id_t dv_addextendedtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_u32_t stackbytes)
 {
+	if ( (dv_configstate == DV_NULL) || (dv_configstate->phase != ph_addtasks) )
+	{
+		dv_param_t p = (dv_param_t)(dv_address_t)name;
+		callout_reporterror(dv_sid_addextendedtask, dv_e_calllevel, 1, &p);
+		return -1;
+	}
+
 	if ( dv_nextended >= dv_maxextended )
 	{
 		dv_param_t p = (dv_param_t)(dv_address_t)name;

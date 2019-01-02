@@ -211,6 +211,13 @@ dv_statustype_t dv_setalarm_rel(dv_id_t c, dv_id_t a, dv_u32_t v)
 */
 dv_id_t dv_addcounter(const char *name)
 {
+	if ( (dv_configstate == DV_NULL) || (dv_configstate->phase != ph_addcounters) )
+	{
+		dv_param_t p = (dv_param_t)(dv_address_t)name;
+		callout_reporterror(dv_sid_addcounter, dv_e_calllevel, 1, &p);
+		return -1;
+	}
+
 	if ( dv_ncounter >= dv_maxcounter )
 	{
 		dv_param_t p = (dv_param_t)(dv_address_t)name;
@@ -231,6 +238,13 @@ dv_id_t dv_addcounter(const char *name)
 */
 dv_id_t dv_addalarm(const char *name, dv_u32_t (*expiryfn)(dv_id_t a))
 {
+	if ( (dv_configstate == DV_NULL) || (dv_configstate->phase != ph_addalarms) )
+	{
+		dv_param_t p = (dv_param_t)(dv_address_t)name;
+		callout_reporterror(dv_sid_addalarm, dv_e_calllevel, 1, &p);
+		return -1;
+	}
+
 	if ( dv_nalarm >= dv_maxalarm )
 	{
 		dv_param_t p = (dv_param_t)(dv_address_t)name;

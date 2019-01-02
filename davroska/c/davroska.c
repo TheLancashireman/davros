@@ -23,9 +23,11 @@ const dv_qty_t dv_maxprio = DV_CFG_MAXPRIO;
 const dv_qty_t dv_maxslot = DV_NSLOT+1;
 const dv_qty_t dv_maxmutex = DV_CFG_MAXMUTEX;
 
-dv_prio_t dv_highprio;							/* Priority of highest activated exe (before running) */
-dv_prio_t dv_highestprio;						/* Highest priority in use */
-dv_id_t dv_currentexe;							/* Current executable */
+dv_configstate_t *dv_configstate;		/* Current state of configuration sequence */
+
+dv_prio_t dv_highprio;					/* Priority of highest activated exe (before running) */
+dv_prio_t dv_highestprio;				/* Highest priority in use */
+dv_id_t dv_currentexe;					/* Current executable */
 
 dv_qty_t dv_nexe;						/* No. of executables created */
 dv_qty_t dv_ntask;						/* No. of tasks created */
@@ -57,6 +59,12 @@ static dv_id_t dv_addexe(const char *name, void (*fn)(void), dv_prio_t prio, dv_
 static int dv_isvectorfree(dv_id_t vec);
 static void dv_setvector(dv_id_t vec, dv_statustype_t (*fn)(dv_id_t p), dv_id_t p);
 static void dv_initvectors(void);
+
+static void dv_addtasks(dv_id_t mode);
+static void dv_addisrs(dv_id_t mode);
+static void dv_addmutexes(dv_id_t mode);
+static void dv_addcounters(dv_id_t mode);
+static void dv_addalarms(dv_id_t mode);
 
 /* ===================================================================================================================
  * Runtime API functions
@@ -296,19 +304,15 @@ dv_statustype_t dv_startos(dv_id_t mode)
 
 	dv_ntask = 1;	/* Range check for tasks is from 1 to dv_ntask */
 
-	/* ToDo: It's important that the callouts only do what they're supposed to do
-	 * It would be wise to add some checks.
-	*/
-
-	callout_addtasks(mode);
-	callout_addisrs(mode);
+	dv_addtasks(mode);
+	dv_addisrs(mode);
 
 	dv_createqueues();
 	dv_calculatelevels();
 
-	callout_addmutexes(mode);
-	callout_addcounters(mode);
-	callout_addalarms(mode);
+	dv_addmutexes(mode);
+	dv_addcounters(mode);
+	dv_addalarms(mode);
 
 	/* Now activate the idle loop.
 	 * Can't use dv_activatexe here because the idle loop must not run!
@@ -321,6 +325,7 @@ dv_statustype_t dv_startos(dv_id_t mode)
 
 	(void)dv_raiseprio();
 	callout_autostart(mode);
+	callout_startup();
 	dv_lowerprio(dv_exe[idle].baseprio);
 
 	dv_runqueued_onkernelstack(dv_maxprio-1, dv_exe[idle].baseprio, DV_INTENABLED);
@@ -338,6 +343,85 @@ dv_statustype_t dv_startos(dv_id_t mode)
 	/* To keep the compiler happy
 	*/
 	return dv_e_ok;
+}
+
+/* Wrappers for callout_addxxx
+ *
+ * These wrapper functions ensure that the config state data uses temporary stack
+ * so that the only global data used is the pointer to the current cfgstate variable.
+ *
+ * This might seem like over-complicated for now, but when dv_addinternalmutexes() gets implemented
+ * we'll need to maintain an array of all executables that use the mutexes so that we can calculate the
+ * running priority and configure all of them.
+*/
+/* dv_addtasks() - wrapper for callout_addtasks
+*/
+static void dv_addtasks(dv_id_t mode)
+{
+	dv_configstate_t cfgstate;
+	cfgstate.phase = ph_addtasks;
+	cfgstate.data = DV_NULL;
+	dv_configstate = &cfgstate;
+
+	callout_addtasks(mode);
+
+	dv_configstate = DV_NULL;
+}
+
+/* dv_addisrs() - wrapper for callout_addisrs
+*/
+static void dv_addisrs(dv_id_t mode)
+{
+	dv_configstate_t cfgstate;
+	cfgstate.phase = ph_addisrs;
+	cfgstate.data = DV_NULL;
+	dv_configstate = &cfgstate;
+
+	callout_addisrs(mode);
+
+	dv_configstate = DV_NULL;
+}
+
+/* dv_addmutexes() - wrapper for callout_addmutexes
+*/
+static void dv_addmutexes(dv_id_t mode)
+{
+	dv_configstate_t cfgstate;
+	cfgstate.phase = ph_addmutexes;
+	cfgstate.data = DV_NULL;
+	dv_configstate = &cfgstate;
+
+	callout_addmutexes(mode);
+
+	dv_configstate = DV_NULL;
+}
+
+/* dv_addcounters() - wrapper for callout_addcounters
+*/
+static void dv_addcounters(dv_id_t mode)
+{
+	dv_configstate_t cfgstate;
+	cfgstate.phase = ph_addcounters;
+	cfgstate.data = DV_NULL;
+	dv_configstate = &cfgstate;
+
+	callout_addcounters(mode);
+
+	dv_configstate = DV_NULL;
+}
+
+/* dv_addalarms() - wrapper for callout_addalarms
+*/
+static void dv_addalarms(dv_id_t mode)
+{
+	dv_configstate_t cfgstate;
+	cfgstate.phase = ph_addalarms;
+	cfgstate.data = DV_NULL;
+	dv_configstate = &cfgstate;
+
+	callout_addalarms(mode);
+
+	dv_configstate = DV_NULL;
 }
 
 /* dv_shutdown() - shut down the OS
@@ -358,6 +442,13 @@ void dv_shutdown(dv_statustype_t reason)
 */
 dv_id_t dv_addtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_qty_t maxact)
 {
+	if ( (dv_configstate == DV_NULL) || (dv_configstate->phase != ph_addtasks) )
+	{
+		dv_param_t p = (dv_param_t)(dv_address_t)name;
+		callout_reporterror(dv_sid_addtask, dv_e_calllevel, 1, &p);
+		return -1;
+	}
+
 	if ( maxact < 1 )
 	{
 		dv_param_t p = (dv_param_t)(dv_address_t)name;
@@ -388,6 +479,13 @@ dv_id_t dv_addtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_qty_t 
 */
 dv_id_t dv_addisr(const char *name, void (*fn)(void), dv_id_t irqid, dv_prio_t prio)
 {
+	if ( (dv_configstate == DV_NULL) || (dv_configstate->phase != ph_addisrs) )
+	{
+		dv_param_t p = (dv_param_t)(dv_address_t)name;
+		callout_reporterror(dv_sid_addisr, dv_e_calllevel, 1, &p);
+		return -1;
+	}
+
 	if ( prio <= dv_maxtaskprio )
 	{
 		dv_param_t p = (dv_param_t)(dv_address_t)name;
@@ -424,6 +522,13 @@ dv_id_t dv_addisr(const char *name, void (*fn)(void), dv_id_t irqid, dv_prio_t p
 */
 dv_id_t dv_addmutex(const char *name, dv_qty_t maxtake)
 {
+	if ( (dv_configstate == DV_NULL) || (dv_configstate->phase != ph_addmutexes) )
+	{
+		dv_param_t p = (dv_param_t)(dv_address_t)name;
+		callout_reporterror(dv_sid_addmutex, dv_e_calllevel, 1, &p);
+		return -1;
+	}
+
 	if ( dv_nmutex >= dv_maxmutex )
 	{
 		dv_param_t p = (dv_param_t)(dv_address_t)name;
@@ -457,6 +562,13 @@ dv_id_t dv_addmutex(const char *name, dv_qty_t maxtake)
 */
 void dv_addmutexuser(dv_id_t mx, dv_id_t e)
 {
+	if ( (dv_configstate == DV_NULL) || (dv_configstate->phase != ph_addmutexes) )
+	{
+		dv_param_t p = (dv_param_t)mx;
+		callout_reporterror(dv_sid_addmutexuser, dv_e_calllevel, 1, &p);
+		return;
+	}
+
 	if ( (mx < 0) || (mx >= dv_nmutex) )
 	{
 		dv_param_t p = (dv_param_t)mx;
