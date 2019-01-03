@@ -190,6 +190,11 @@ void main_Bit3(void)
 */
 void main_Init(void)
 {
+	for ( int i = 0; i < dv_nexe; i++ )
+	{
+		dv_printf("%d %s  b=%d r=%d c=%d %d\n", i, dv_exe[i].name, dv_exe[i].baseprio, dv_exe[i].runprio,
+													dv_exe[i].currprio, dv_exe[i].state);
+	}
 }
 
 /* main_Uart() - body of ISR to handle uart rx interrupt
@@ -249,6 +254,33 @@ void callout_addisrs(dv_id_t mode)
 {
 	Uart = dv_addisr("Uart", &main_Uart, hw_UartInterruptId, 7);
 	Timer = dv_addisr("Timer", &main_Timer, hw_TimerInterruptId, 8);
+}
+
+/* callout_addgroups() - configure the executable groups
+*/
+void callout_addgroups(dv_id_t mode)
+{
+	dv_startgroup("NONPRE", 1);
+	{
+		dv_addtogroup(Init);
+		dv_addtogroup(Bit0);
+		dv_finishgroup();
+	}
+
+	dv_startgroup("Silly", 0);
+	{
+		dv_addtogroup(Bit0);
+		dv_addtogroup(Bit1);
+		dv_addtogroup(Bit3);
+		dv_finishgroup();
+	}
+
+	dv_startgroup("Sillier", 0);
+	{
+		dv_addtogroup(Init);
+		dv_addtogroup(Uart);
+		dv_finishgroup();
+	}
 }
 
 /* callout_addmutexes() - configure the mutexes
@@ -336,7 +368,7 @@ void callout_idle(void)
 */
 void callout_panic(dv_panic_t p, dv_sid_t sid, char *fault)
 {
-	dv_printf("Panic %d in %d : %d\n", p, sid, fault);
+	dv_printf("Panic %d in %d : %s\n", p, sid, fault);
 }
 
 /* main() - well, it's main, innit?
