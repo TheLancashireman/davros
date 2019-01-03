@@ -62,6 +62,7 @@ static void dv_initvectors(void);
 
 static void dv_addtasks(dv_id_t mode);
 static void dv_addisrs(dv_id_t mode);
+static void dv_addgroups(dv_id_t mode);
 static void dv_addmutexes(dv_id_t mode);
 static void dv_addcounters(dv_id_t mode);
 static void dv_addalarms(dv_id_t mode);
@@ -310,6 +311,8 @@ dv_statustype_t dv_startos(dv_id_t mode)
 	dv_createqueues();
 	dv_calculatelevels();
 
+	dv_addgroups(mode);
+
 	dv_addmutexes(mode);
 	dv_addcounters(mode);
 	dv_addalarms(mode);
@@ -366,6 +369,37 @@ static void dv_addtasks(dv_id_t mode)
 	callout_addtasks(mode);
 
 	dv_configstate = DV_NULL;
+}
+
+/* dv_addgroups() - wrapper for callout_addgroups
+*/
+typedef struct dv_groupdef_s
+{
+	const char *name;
+	dv_boolean_t no_preempt;
+	dv_u8_t members[DV_NEXE];
+} dv_groupdef_t;
+
+static void dv_addgroups(dv_id_t mode)
+{
+	dv_groupdef_t groupdef;
+	dv_configstate_t cfgstate;
+	cfgstate.phase = ph_addgroups;
+	cfgstate.data = &groupdef;
+	dv_configstate = &cfgstate;
+
+	groupdef.name = DV_NULL;
+
+	callout_addgroups(mode);
+
+	dv_configstate = DV_NULL;
+
+	if ( groupdef.name != DV_NULL )
+	{
+		/* The addgroups callout left an unfinished group
+		*/
+		callout_reporterror(dv_sid_startos, dv_e_state, 0, DV_NULL);
+	}
 }
 
 /* dv_addisrs() - wrapper for callout_addisrs
@@ -514,6 +548,126 @@ dv_id_t dv_addisr(const char *name, void (*fn)(void), dv_id_t irqid, dv_prio_t p
 	}
 
 	return id;
+}
+
+/* dv_startgroup() - start configuring a group of executables
+*/
+void dv_startgroup(const char *name, dv_boolean_t non_preemptable)
+{
+	if ( (dv_configstate == DV_NULL) || (dv_configstate->phase != ph_addgroups) )
+	{
+		dv_param_t p = (dv_param_t)(dv_address_t)name;
+		callout_reporterror(dv_sid_startgroup, dv_e_calllevel, 1, &p);
+		return;
+	}
+
+	dv_groupdef_t *g = (dv_groupdef_t *)dv_configstate->data;
+
+	if ( g->name != DV_NULL )
+	{
+		dv_param_t p = (dv_param_t)(dv_address_t)name;
+		callout_reporterror(dv_sid_startgroup, dv_e_state, 1, &p);
+		return;
+	}
+
+	g->name = name;
+	g->no_preempt = non_preemptable;
+
+	for ( int i = 0; i < DV_NEXE; i++ )
+		g->members[i] = 0;
+}
+
+/* dv_addtogroup() - add an executable to a group
+*/
+void dv_addtogroup(dv_id_t e)
+{
+	if ( (dv_configstate == DV_NULL) || (dv_configstate->phase != ph_addgroups) )
+	{
+		dv_param_t p = (dv_param_t)e;
+		callout_reporterror(dv_sid_addtogroup, dv_e_calllevel, 1, &p);
+		return;
+	}
+
+	dv_groupdef_t *g = (dv_groupdef_t *)dv_configstate->data;
+
+	if ( g->name == DV_NULL )
+	{
+		dv_param_t p = (dv_param_t)e;
+		callout_reporterror(dv_sid_addtogroup, dv_e_state, 1, &p);
+		return;
+	}
+
+	if ( (e < 1) || (e >= dv_nexe) )
+	{
+		dv_param_t p[2];
+		p[0] = (dv_param_t)e;
+		p[1] = (dv_param_t)(dv_address_t)g->name;
+		callout_reporterror(dv_sid_addtogroup, dv_e_id, 2, p);
+		return;
+	}
+
+	if ( g->no_preempt && (e >= dv_ntask) )
+	{
+		/* Only tasks can be made "non-preemptable" in this sense
+		*/
+		dv_param_t p[2];
+		p[0] = (dv_param_t)e;
+		p[1] = (dv_param_t)(dv_address_t)g->name;
+		callout_reporterror(dv_sid_addtogroup, dv_e_nofunc, 2, p);
+		return;
+	}
+
+	g->members[e] = 1;
+}
+
+/* dv_finishgroup() - finish configuring a group
+ *
+ * calculate ceiling priority and set the runprio of every executable in the group
+*/
+void dv_finishgroup(void)
+{
+	if ( (dv_configstate == DV_NULL) || (dv_configstate->phase != ph_addgroups) )
+	{
+		callout_reporterror(dv_sid_finishgroup, dv_e_calllevel, 0, DV_NULL);
+		return;
+	}
+
+	dv_groupdef_t *g = (dv_groupdef_t *)dv_configstate->data;
+
+	if ( g->name == DV_NULL )
+	{
+		callout_reporterror(dv_sid_finishgroup, dv_e_state, 0, DV_NULL);
+		return;
+	}
+
+	dv_prio_t gprio = 0;
+
+	if ( g->no_preempt )
+	{
+		/* For non-preemptable, find highest-priority task
+		*/
+		for ( int i = 1; i < dv_ntask; i++ )
+			if ( gprio < dv_exe[i].baseprio )
+				gprio = dv_exe[i].baseprio;
+	}
+	else
+	{
+		/* Otherwise, find highest-priority among group (can contain ISRs)
+		*/
+		for ( int i = 1; i < dv_nexe; i++ )
+			if ( g->members[i] && gprio < dv_exe[i].baseprio )
+				gprio = dv_exe[i].baseprio;
+	}
+
+	/* Set runprio of all members that have a lower runprio
+	*/
+	for ( int i = 1; i < dv_nexe; i++ )
+		if ( g->members[i] && dv_exe[i].runprio < gprio )
+			dv_exe[i].runprio = gprio;
+
+	/* Allow configuration of another group
+	*/
+	g->name = DV_NULL;
 }
 
 /* dv_addmutex() - add a mutex to the set of mutexes
@@ -686,18 +840,26 @@ void dv_runqueued(dv_prio_t high, dv_prio_t low, dv_intstatus_t is)
 			{
 				dv_postexe();
 				dv_exe[exe].state = dv_ready;
+				/* Preempted, so current priority is not reduced
+				*/
 			}
 
-			/* Run the excutable. When it finally terminates it gets removed from the queue
+			/* Run the executable. When it terminates or waits it gets removed from the queue
 			*/
 			dv_jmpbuf_t jb;
 			dv_currentexe = e;
-			dv_exe[dv_currentexe].currprio = dv_exe[dv_currentexe].baseprio;
+			/* ToDo: is this needed? It should be set on activate/release/schedule/...
+			*/
+			dv_exe[e].currprio = dv_exe[e].baseprio;
+
+			if ( dv_exe[e].currprio < dv_exe[e].runprio )
+			{
+				dv_exe[e].currprio = dv_exe[e].runprio;
+				dv_enqueue(dv_exe[e].currprio, e);
+			}
+			
 			dv_exe[e].state = dv_running;
 			dv_exe[e].jb = &jb;
-
-			/* Todo: raise priority to for internal resources, non-preemptable, etc.
-			*/
 
 			/* Set the interrupt mutex level
 			*/
@@ -731,18 +893,30 @@ void dv_runqueued(dv_prio_t high, dv_prio_t low, dv_intstatus_t is)
 				}
 			}
 
-			dv_set_onkernelstack();
-
 			/* On return or termination don't propagate the interrupt state
 			*/
 			(void)dv_disable();
 
+			dv_set_onkernelstack();
+
 			dv_postexe();
+
+			/* ToDo: release any mutexes that the executable holds
+			 * This needs to be done before dequeueing from the baseprio/runprio queues because
+			 * the executable is only in an elevated priority queue if the priority really increases.
+			*/
 
 			/* Dequeue the executable (with sanity check)
 			*/
-			if ( dv_dequeue(eprio) != e )
-				dv_panic(dv_panic_QueueCorrupt, dv_sid_scheduler, "terminating executable is not at head of its queue");
+			if ( eprio != dv_exe[e].baseprio )
+				if ( dv_dequeue(eprio) != e )
+					dv_panic(dv_panic_QueueCorrupt, dv_sid_scheduler,
+								"terminating executable is not at head of its runprio queue");
+
+			dv_exe[e].currprio = dv_exe[e].baseprio;
+			if ( dv_dequeue(dv_exe[e].baseprio) != e )
+				dv_panic(dv_panic_QueueCorrupt, dv_sid_scheduler,
+							"terminating executable is not at head of its baseprio queue");
 
 			if ( dv_extendedtask(e) &&  dv_taskwaiting(e) )
 			{

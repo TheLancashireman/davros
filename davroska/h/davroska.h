@@ -67,6 +67,9 @@ typedef enum
 	dv_sid_addtask,
 	dv_sid_addextendedtask,
 	dv_sid_addisr,
+	dv_sid_startgroup,
+	dv_sid_addtogroup,
+	dv_sid_finishgroup,
 	dv_sid_addmutex,
 	dv_sid_addmutexuser,
 	dv_sid_addexe,
@@ -103,10 +106,13 @@ extern void dv_shutdown(dv_statustype_t reason);
 extern dv_id_t dv_addtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_qty_t maxact);
 extern dv_id_t dv_addextendedtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_u32_t stackbytes);
 extern dv_id_t dv_addisr(const char *name, void (*fn)(void), dv_id_t irqid, dv_prio_t prio);
+extern void dv_startgroup(const char *name, dv_boolean_t non_preemptable);
+extern void dv_addtogroup(dv_id_t exe);
+extern void dv_finishgroup(void);
 extern dv_id_t dv_addmutex(const char *name, dv_qty_t maxtake);
+extern void dv_addmutexuser(dv_id_t mutex, dv_id_t executable);
 extern dv_id_t dv_addcounter(const char *name);
 extern dv_id_t dv_addalarm(const char *name, dv_u32_t (*fn)(dv_id_t a));
-extern void dv_addmutexuser(dv_id_t mutex, dv_id_t executable);
 
 extern dv_statustype_t dv_terminatetask(void);
 extern dv_statustype_t dv_activatetask(dv_id_t task);
@@ -124,6 +130,7 @@ extern dv_u64_t dv_getexpirytime(dv_id_t a);
 */
 extern void callout_addtasks(dv_id_t mode);
 extern void callout_addisrs(dv_id_t mode);
+extern void callout_addgroups(dv_id_t mode);
 extern void callout_addmutexes(dv_id_t mode);
 extern void callout_addcounters(dv_id_t mode);
 extern void callout_addalarms(dv_id_t mode);
@@ -201,6 +208,7 @@ typedef enum
 {
 	ph_addtasks,
 	ph_addisrs,
+	ph_addgroups,
 	ph_addmutexes,
 	ph_addcounters,
 	ph_addalarms
@@ -209,7 +217,7 @@ typedef enum
 typedef struct dv_configstate_s
 {
 	dv_cfgphase_t phase;
-	dv_id_t *data;
+	void *data;
 } dv_configstate_t;
 
 typedef struct dv_q_s
