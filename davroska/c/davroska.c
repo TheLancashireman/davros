@@ -46,8 +46,6 @@ dv_softvector_t dv_vectors[DV_NVECTOR];
 /* Forward function declaractions
 */
 static void dv_idle(void);
-static void dv_preexe(void);
-static void dv_postexe(void);
 static void dv_createqueues(void);
 static void dv_calculatelevels(void);
 static dv_statustype_t dv_activateexe(dv_id_t e);
@@ -838,7 +836,7 @@ void dv_runqueued(dv_prio_t high, dv_prio_t low, dv_intstatus_t is)
 		{
 			if ( dv_exe[exe].state == dv_running )
 			{
-				dv_postexe();
+				callout_postexe();
 				dv_exe[exe].state = dv_ready;
 				/* Preempted, so current priority is not reduced
 				*/
@@ -848,7 +846,11 @@ void dv_runqueued(dv_prio_t high, dv_prio_t low, dv_intstatus_t is)
 			*/
 			dv_jmpbuf_t jb;
 			dv_currentexe = e;
-			/* ToDo: is this needed? It should be set on activate/release/schedule/...
+
+			/* Set the current priority to the base priority here.
+			 * Can't do it at activate time because another instance might be running (basic tasks)
+			 * It might not be necessary with careful management because the priority is reduced on
+			 * termination too, but "belt & braces" ;-)
 			*/
 			dv_exe[e].currprio = dv_exe[e].baseprio;
 
@@ -873,7 +875,7 @@ void dv_runqueued(dv_prio_t high, dv_prio_t low, dv_intstatus_t is)
 
 			/* Pre-exe hook for incoming exe
 			*/
-			dv_preexe();
+			callout_preexe();
 
 			if ( dv_setjmp(jb) == 0 )	/* TerminateTask(), ChainTask() and WaitEvent() cause non-zero return here */
 			{
@@ -899,7 +901,7 @@ void dv_runqueued(dv_prio_t high, dv_prio_t low, dv_intstatus_t is)
 
 			dv_set_onkernelstack();
 
-			dv_postexe();
+			callout_postexe();
 
 			/* ToDo: release any mutexes that the executable holds
 			 * This needs to be done before dequeueing from the baseprio/runprio queues because
@@ -956,7 +958,7 @@ void dv_runqueued(dv_prio_t high, dv_prio_t low, dv_intstatus_t is)
 #endif
 		dv_setirqlevel(level);
 		dv_exe[dv_currentexe].state = dv_running;
-		dv_preexe();
+		callout_preexe();
 	}
 }
 
@@ -1082,20 +1084,6 @@ static void dv_calculatelevels(void)
 		dv_printf("dv_calculatelevels() - queue prio %d, level %d\n", p, dv_queue[p].level);
 #endif
 	}
-}
-
-/* dv_preexe() - stuff to do just before (re)starting an executable
-*/
-static void dv_preexe(void)
-{
-	/* Todo: implement */
-}
-
-/* dv_postexe() - stuff to do just after terminating an executable
-*/
-static void dv_postexe(void)
-{
-	/* Todo: implement */
 }
 
 /* dv_panic() - report a fatal error

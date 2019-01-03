@@ -344,12 +344,6 @@ dv_statustype_t callout_reporterror(dv_sid_t sid, dv_statustype_t e, dv_qty_t np
 	return e;
 }
 
-/* callout_startup() - called on startup
-*/
-void callout_startup(void)
-{
-}
-
 /* callout_shutdown() - called on shutdown
 */
 void callout_shutdown(dv_statustype_t e)

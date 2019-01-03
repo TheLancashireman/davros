@@ -41,4 +41,19 @@
 */
 #define DV_CFG_MAXALARM		10
 
+/* Inline versions of the empty callout functions
+*/
+static inline void callout_preexe(void)
+{
+}
+
+static inline void callout_postexe(void)
+{
+}
+
+static inline void callout_startup(void)
+{
+}
+
+
 #endif
