@@ -13,6 +13,7 @@ The contents of this sub-tree are unrelated to the main davros-3 tree.
 * setting an alarm works
 * advancing a counter works
 * extended tasks working
+* executable groups and non-preemptable tasks working.
 
 ## Quick user's guide
 
@@ -118,6 +119,8 @@ dv_startos() calls various callout functions that you supply:
   * this function calls dv_addtask() for every task in your application
 * callout_addisrs() - create the isrs that you need.
   * this function calls dv_addisr() for every isr in your application
+* callout_addgroups() - create the executable groups that you need.
+  * this function calls dv_startgroup(), dv_addtogroup() and dv_finishgroup() for every group
 * callout_addmutexes() - create the mutexes that you need.
   * this function calls dv_addmutex() for each mutex in your application
   * in addition, it calls dv_addmutexuser for each executable that uses each mutex
@@ -160,6 +163,18 @@ When dv_startos() is done, davroska will schedule the tasks and ISRs of your app
     * prio is the priority of the ISR and must be higher than your tasks
   * dv_addisr() returns the identifier for the ISR. (-1) indicates an error
   * davroska calculates the interrupt levels automatically based on the ISR priorities.
+* void dv_startgroup(char *name, dv_boolean_t non_preempt)
+  * starts configuration of a group of executables
+  * used for increasing the running priority of executables - the base priority is not affected
+  * should be followed one or more calls to dv_addtogroup() and finally a call to dv_finishgroup()
+  * name is only used for error identification purposes
+  * if non_preempt is true (non-zero) the group gets the priority of the highest-priority task that you configured
+    * even if that task isn't a member of the group
+    * ISRs cannot be added to a non-preemptable group
+ * if non_preempt is false (zero), all executables get the priority of the highest in the group
+* void dv_addtogroup(dv_id_t e) adds an executable to a group; see dv_startgroup()
+* void dv_finishgroup() completes the configuration of a group; see dv_startgroup()
+  * this is where the priority computation and adjustment takes place
 * dv_id_t dv_addmutex(const char *name, dv_qty_t maxtake)
   * adds a mutex to the list of mutexes
     * name is the name of the mutex
