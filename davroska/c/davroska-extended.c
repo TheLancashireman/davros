@@ -204,7 +204,15 @@ dv_statustype_t dv_clearevent(dv_eventmask_t evts)
  *
  * Add a normal task with max. activations = 1, then allocate stack for it
  *
- * ToDo: add check for free stack space.
+ * Question: is it possible/necessary to have a check for free space here?
+ * The extended tasks' allocated stacks grow up, the main kernel/isr/basic stack grows down.
+ * When the main stack meets the last allocated extended stack ... FOOM!
+ *
+ * Options:
+ *	- add a configuration parameter DV_CFG_STACKSIZE and use it to verify that there's no overlap
+ *	- call a callout function after task configuration that informs the application where the limit is
+ *
+ * This is a nice-to-have for later (possibly if/when stack monitoring gets added)
 */
 dv_id_t dv_addextendedtask(const char *name, void (*fn)(void), dv_prio_t prio, dv_u32_t stackbytes)
 {
