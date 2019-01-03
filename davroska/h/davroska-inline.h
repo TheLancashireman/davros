@@ -101,7 +101,7 @@ static inline void dv_softvector(int vector)
 #endif
 }
 
-/* ToDo: Temporary ...
+/* dv_setqueueirqlevel() - set the irq level that matches the current priority
 */
 static inline void dv_setqueueirqlevel(dv_prio_t p)
 {
