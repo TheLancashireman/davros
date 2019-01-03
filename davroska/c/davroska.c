@@ -903,10 +903,29 @@ void dv_runqueued(dv_prio_t high, dv_prio_t low, dv_intstatus_t is)
 
 			callout_postexe();
 
-			/* ToDo: release any mutexes that the executable holds
-			 * This needs to be done before dequeueing from the baseprio/runprio queues because
+			/* Release any mutexes that the executable holds
+			 * This is done before dequeueing from the baseprio/runprio queues because
 			 * the executable is only in an elevated priority queue if the priority really increases.
 			*/
+			while ( dv_exe[e].mutexlist >= 0 )
+			{
+				dv_id_t mx = dv_exe[e].mutexlist;
+				dv_exe[e].mutexlist = dv_mutex[mx].next;
+
+				dv_mutex[mx].ntake = 0;
+				dv_mutex[mx].owner = -1;
+				dv_mutex[mx].next = -1;
+
+				dv_prio_t high = dv_mutex[mx].ceiling;
+				dv_prio_t low = dv_exe[e].currprio = dv_mutex[mx].saveprio;
+
+				if ( low < high )
+				{
+					if ( dv_dequeue(high) != e )
+						 dv_panic(dv_panic_QueueCorrupt, dv_sid_scheduler,
+										"mutex owner is not at head of ceiling priority queue");
+				}
+			}
 
 			/* Dequeue the executable (with sanity check)
 			*/

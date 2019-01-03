@@ -133,6 +133,8 @@ void main_Bit2(void)
 
 	if ( (ee = dv_setevent(Led, ev_Update)) != dv_e_ok )
 		dv_shutdown(ee);
+
+	dv_takemutex(mx_Gpio);		/* ToDo: remove this test thing */
 	ee = dv_terminatetask();
 	dv_shutdown(ee);
 }
@@ -257,6 +259,8 @@ void callout_addisrs(dv_id_t mode)
 }
 
 /* callout_addgroups() - configure the executable groups
+ *
+ * ToDo: remove the contents - just for testing
 */
 void callout_addgroups(dv_id_t mode)
 {
