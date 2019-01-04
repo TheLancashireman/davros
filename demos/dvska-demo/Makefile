@@ -36,6 +36,8 @@ DV_LD		?=	$(DV_GNU_D)/bin/aarch64-elf-ld
 DV_LDLIB_D	?=	$(DV_GNU_D)/aarch64-elf/libc/usr/lib/
 DV_LDSCRIPT	?=	$(DVSK_ROOT)/hardware/arm64/ld/dv-pi3.ldscript
 
+DV_ENTRY	?=	dv_reset
+
 else
 
 DEMO_BOARD	?=	DEMO_PI_ZERO
@@ -45,6 +47,8 @@ DV_GCC		?=	$(DV_GNU_D)/bin/arm-eabi-gcc
 DV_LD		?=	$(DV_GNU_D)/bin/arm-eabi-ld
 DV_LDLIB_D	?=	$(DV_GNU_D)/arm-eabi/libc/usr/lib/
 DV_LDSCRIPT	?=	$(DVSK_ROOT)/hardware/arm/ld/dv-pi-zero.ldscript
+
+DV_ENTRY	?=	dv_trap_reset
 
 endif
 
@@ -64,7 +68,7 @@ CC_OPT		+= -fno-common
 #CC_OPT		+= -mfpu=vfp
 #CC_OPT		+= -O2
 
-LD_OPT		+= -e dv_trap_reset
+LD_OPT		+= -e $(DV_ENTRY)
 LD_OPT		+= -T $(DV_LDSCRIPT)
 LD_OPT		+=	-L $(DV_LDLIB_D)
 LD_OPT		+=	-lc
@@ -82,11 +86,21 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/dv-xprintf.o
 # Hardware-specific files
 ifeq ($(DV_BOARD), pi3-arm64)
 
+DV_LD_OBJS	+= $(DV_OBJ_D)/davroska-arm64.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/demo-pi3-arm64.o
+
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-uart.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-gpio.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-interruptcontroller.o
+
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm64-reset.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-switchcall.o
 
 else
 
 DV_LD_OBJS	+= $(DV_OBJ_D)/davroska-arm.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/demo-pi-zero.o
+
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-uart.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-gpio.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-interruptcontroller.o
@@ -117,6 +131,7 @@ VPATH		+=	$(DVSK_ROOT)/hardware/arm/s
 
 endif
 
+VPATH		+=	$(DVSK_ROOT)/hardware/common/c
 VPATH		+=	$(DV_ROOT)/lib/c
 VPATH		+=	$(DV_ROOT)/devices/c
 

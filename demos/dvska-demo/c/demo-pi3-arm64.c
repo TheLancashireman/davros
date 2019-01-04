@@ -1,4 +1,4 @@
-/* demo-pi-zero.c - hardware-specific functions for davroska demo
+/* demo-pi3-arm64.c - hardware-specific functions for davroska demo
  *
  * (c) David Haworth
 */
@@ -12,24 +12,18 @@
 #include <dv-arm-bcm2835-aux.h>
 #include <dv-arm-bcm2835-gpio.h>
 #include <dv-arm-bcm2835-interruptcontroller.h>
+#if 0
 #include <dv-armv6-mmu.h>
 #include <dv-arm-cp15.h>
+#endif
 #include <dv-arm-bcm2835-systimer.h>
 #include <dv-arm-bcm2835-armtimer.h>
 
 extern int main(int argc, char **argv);
 
-/* abt and undef stacks
-*/
-dv_u32_t dv_abtstack[256];
-dv_u32_t dv_undstack[256];
-
 /* Startup and exception handling
 */
 extern dv_u32_t dv_start_bss, dv_end_bss, dv_vectortable, dv_vectortable_end;
-
-const dv_u32_t dv_initialsp_abt = (dv_u32_t)&dv_abtstack[256];
-const dv_u32_t dv_initialsp_und = (dv_u32_t)&dv_undstack[256];
 
 void dv_board_start(void)
 {
@@ -45,14 +39,19 @@ void dv_board_start(void)
 
 	dv_printf("pi-zero starting ...\n");
 
+#if 0
 	/* Copy the vector table to 0
 	*/
 	dv_memcpy32(0, &dv_vectortable, &dv_vectortable_end - &dv_vectortable);
+#endif
 
+#if 0
 	/* Set up the MMU
 	*/
 	dv_armv6_mmu_setup();
+#endif
 
+#if 0
 	/* Caches
 	*/
 	dv_printf("CP15 cache type 0x%08x\n", dv_read_cp15_cache_type());
@@ -61,11 +60,14 @@ void dv_board_start(void)
 	*/
 	dv_printf("Enabling caches ...\n");
 	dv_write_cp15_control(dv_read_cp15_control() | DV_CP15_CTRL_C | DV_CP15_CTRL_W | DV_CP15_CTRL_I);
+#endif
 
+#if 0
 	/* Enable branch prediction
 	*/
 	dv_printf("Enabling branch prediction ...\n");
 	dv_write_cp15_control(dv_read_cp15_control() | DV_CP15_CTRL_Z);
+#endif
 
 	/* Enable four GPIO pins for the LEDs.
     */
@@ -86,47 +88,8 @@ void dv_board_start(void)
 
 /* Assorted panic trampolines for use in assembly language code.
 */
-void dv_catch_data_abort(void)
-{
-	dv_panic(dv_panic_Exception, dv_sid_exceptionhandler, "Oops! a data abort occurred");
-}
-
-void dv_catch_prefetch_abort(void)
-{
-	dv_panic(dv_panic_Exception, dv_sid_exceptionhandler, "Oops! A prefetch abort occurred");
-}
-
-void dv_catch_reserved(void)
-{
-	dv_panic(dv_panic_Exception, dv_sid_exceptionhandler, "Oops! A reserved exception occurred");
-}
-
-void dv_catch_undef(void)
-{
-	dv_panic(dv_panic_Exception, dv_sid_exceptionhandler, "Oops! An undefined instruction exception occurred");
-}
-
-void dv_catch_sbreak(void)
-{
-	dv_panic(dv_panic_Exception, dv_sid_exceptionhandler, " Oops! Something did a svc");
-}
-
-void dv_catch_fiq(void)
-{
-	dv_panic(dv_panic_Exception, dv_sid_exceptionhandler, "Oops! A fiq happened");
-}
-
-void dv_catch_reset(void)
-{
-	dv_panic(dv_panic_Exception, dv_sid_exceptionhandler, "Oops! A reset occurred");
-}
-
 void dv_panic_return_from_switchcall_function(void)
 {
 	dv_panic(dv_panic_ReturnFromLongjmp, dv_sid_scheduler, "Oops! The task wrapper returned");
 }
 
-void dv_panic_failed_return_from_irq(void)
-{
-	dv_panic(dv_panic_ReturnFromLongjmp, dv_sid_interruptdispatcher, "Oops! Failed to return from an IRQ");
-}
