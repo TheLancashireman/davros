@@ -285,7 +285,7 @@ dv_statustype_t dv_startos(dv_id_t mode)
 	/* Initialise extended task handling
 	*/
 	extern dv_u32_t dv_end_bss;
-	dv_extended_init(&dv_end_bss);
+	dv_extended_init((dv_stackword_t *)(dv_address_t)&dv_end_bss);
 
 	/* Ensure that no executables can preempt until everything is initialised
 	*/

@@ -112,7 +112,7 @@ static inline void dv_setqueueirqlevel(dv_prio_t p)
  *
  * Note: DV_CANARY must be a power of 2.
 */
-static inline dv_u32_t dv_stackround(dv_u32_t n)
+static inline dv_address_t dv_stackround(dv_address_t n)
 {
 	return (n + DV_CANARY - 1)&~(DV_CANARY-1);
 }
@@ -168,7 +168,7 @@ static inline void dv_set_onkernelstack(void)
 /* The following functions are stubs if there are no extended tasks
 */
 #if DV_CFG_MAXEXTENDED <= 0
-static inline  void dv_extended_init(dv_u32_t *stackbase)
+static inline  void dv_extended_init(dv_stackword_t *stackbase)
 {
 }
 

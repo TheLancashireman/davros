@@ -33,6 +33,7 @@ dv_stackword_t *dv_extstacks;
 
 dv_boolean_t dv_onkernelstack;
 dv_jmpbuf_t *dv_kjmpbuf;
+dv_request_t *dv_kreq;
 
 /* dv_waitevent() - wait for one or more events
 */
@@ -243,7 +244,7 @@ dv_id_t dv_addextendedtask(const char *name, void (*fn)(void), dv_prio_t prio, d
 		return id;
 
 	dv_id_t n = dv_nextended++;
-	dv_u32_t l = dv_stackround(stackbytes);
+	dv_address_t l = dv_stackround(stackbytes);
 
 	dv_exe[id].extended = n;
 
@@ -258,7 +259,7 @@ dv_id_t dv_addextendedtask(const char *name, void (*fn)(void), dv_prio_t prio, d
 
 /* dv_extended_init() - initialise the extended task support
 */
-void dv_extended_init(dv_u32_t *stackbase)
+void dv_extended_init(dv_stackword_t *stackbase)
 {
 	/* Align the stackbase provided to a canary boundary
 	*/
@@ -274,9 +275,8 @@ void dv_extended_init(dv_u32_t *stackbase)
 void dv_runextended(dv_id_t e, dv_intstatus_t is)
 {
 	dv_jmpbuf_t jb;
-	dv_request_t *req = (dv_request_t *)dv_setjmp(jb);
 
-	if ( req == 0 )		/* Returns non-zero if there's some nested activity to do */
+	if ( dv_setjmp(jb) == 0 )		/* Returns non-zero if there's some nested activity to do */
 	{
 		dv_onkernelstack = 0;
 		dv_kjmpbuf = &jb;
@@ -298,6 +298,8 @@ void dv_runextended(dv_id_t e, dv_intstatus_t is)
 	}
 	else
 	{
+		dv_request_t *req = dv_kreq;
+
 		/* An API or interrupt during an extended task switched back to the kernel stack.
 		*/
 		dv_onkernelstack = 1;
@@ -350,7 +352,8 @@ void dv_runqueued_onkernelstack(dv_prio_t high, dv_prio_t low, dv_intstatus_t is
 
 			if ( dv_kjmpbuf == DV_NULL )
 				dv_panic(dv_panic_NoKernelAnchor, dv_sid_scheduler, "kernel request failed; no anchor");
-			dv_longjmp(*dv_kjmpbuf, (int)&req);
+			dv_kreq = &req;
+			dv_longjmp(*dv_kjmpbuf, 1);
 		}
 	}
 }

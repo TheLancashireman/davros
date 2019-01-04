@@ -7,8 +7,22 @@
 #ifndef dv_config_h
 #define dv_config_h	1
 
+#define DEMO_PI_ZERO	1
+#define DEMO_PI3_ARM64	2
+
+#if DEMO_BOARD == DEMO_PI_ZERO
+
 #define DV_TARGET			<arm/h/dv-target-pi-zero.h>
 #define DV_DEMO_TARGET		<demo-pi-zero.h>
+
+#elif DEMO_BOARD == DEMO_PI3_ARM64
+
+#define DV_TARGET			<arm64/h/dv-target-pi3-arm64.h>
+#define DV_DEMO_TARGET		<demo-pi3-arm64.h>
+
+#else
+#error "DEMO_BOARD not known"
+#endif
 
 /* DV_CFG_MAXEXE is the maximum number of executables (tasks + ISRs) that you can create.
 */

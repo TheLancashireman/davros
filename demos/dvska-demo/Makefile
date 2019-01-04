@@ -22,12 +22,13 @@ DV_ROOT		= ../..
 DVSK_ROOT	= ../../davroska
 
 # Select your hardware here
-#DV_BOARD	?= pi3-arm64
-DV_BOARD	?= pi-zero
+DV_BOARD	?= pi3-arm64
+#DV_BOARD	?= pi-zero
 
 # Select your compiler here
 ifeq ($(DV_BOARD), pi3-arm64)
 
+DEMO_BOARD	?=	DEMO_PI3_ARM64
 DV_GNU_D	?=	/data1/gnu/gcc-linaro-6.3.1-2017.02-x86_64_aarch64-elf
 
 DV_GCC		?=	$(DV_GNU_D)/bin/aarch64-elf-gcc
@@ -37,6 +38,7 @@ DV_LDSCRIPT	?=	$(DVSK_ROOT)/hardware/arm64/ld/dv-pi3.ldscript
 
 else
 
+DEMO_BOARD	?=	DEMO_PI_ZERO
 DV_GNU_D	?=	/data1/gnu/gcc-linaro-6.3.1-2017.02-x86_64_arm-eabi
 
 DV_GCC		?=	$(DV_GNU_D)/bin/arm-eabi-gcc
@@ -50,6 +52,7 @@ DV_BIN_D	= bin
 DV_OBJ_D	= obj
 
 CC_OPT		+=	-D DV_DAVROSKA=1
+CC_OPT		+=	-D DEMO_BOARD=$(DEMO_BOARD)
 CC_OPT		+= -I h
 CC_OPT		+= -I $(DVSK_ROOT)/h
 CC_OPT		+= -I $(DVSK_ROOT)/hardware

@@ -202,8 +202,6 @@ extern dv_statustype_t dv_clearevent(dv_eventmask_t evts);
 #error "DV_CANARY is not a power of 2"
 #endif
 
-typedef unsigned long long dv_param_t;
-
 typedef enum
 {
 	ph_addtasks,
@@ -374,7 +372,7 @@ extern void dv_runextended(dv_id_t e, dv_intstatus_t is);
 extern void dv_runqueued_onkernelstack(dv_prio_t high, dv_prio_t low, dv_intstatus_t is);
 extern void dv_startextendedtask(dv_id_t e, dv_intstatus_t is);
 extern void dv_switchcall(dv_id_t e, dv_intstatus_t is, dv_stackword_t *sp, void (*f)(dv_id_t e, dv_intstatus_t is));
-extern void dv_extended_init(dv_u32_t *stackbase);
+extern void dv_extended_init(dv_stackword_t *stackbase);
 #endif
 
 
