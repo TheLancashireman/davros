@@ -68,10 +68,10 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-interruptcontroller.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-armv6-mmu.o
 
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-vectors.o
-DV_LD_OBJS	+= $(DV_OBJ_D)/dv-reset.o
-DV_LD_OBJS	+= $(DV_OBJ_D)/dv-traps.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-trap-irq.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-switchcall.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-reset.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-traps.o
 
 VPATH 		+=	c
 VPATH 		+=	s

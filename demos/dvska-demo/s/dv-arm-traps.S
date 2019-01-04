@@ -1,4 +1,4 @@
-/*	dv-traps.S - pi-zero trap handler code for davroska
+/*	dv-arm-traps.S - arm trap handler code for davroska demo
  *
  *	Copyright 2018 David Haworth
  *

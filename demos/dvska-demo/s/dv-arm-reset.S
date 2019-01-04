@@ -1,4 +1,4 @@
-/*	dv-reset.S - pi-zero startup code for davroska
+/*	dv-arm-reset.S - arm startup code for davroska demo
  *
  *	Copyright 2018 David Haworth
  *
