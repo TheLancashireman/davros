@@ -28,7 +28,6 @@
 	.extern	dv_trap_reserved
 	.extern	dv_trap_irq
 	.extern	dv_trap_fiq
-	.extern dv_trap_unimplemented
 
 /* dv_vectortable - a standard ARM vector table
  *     
@@ -56,8 +55,3 @@ dv_hndlraddr_irq:				.word		dv_trap_irq
 dv_hndlraddr_fiq:				.word		dv_trap_fiq
 
 dv_vectortable_end:
-
-/* Temporary vectors for stuff that isn't handled yet
-*/
-dv_trap_fiq:
-	b		dv_trap_unimplemented   

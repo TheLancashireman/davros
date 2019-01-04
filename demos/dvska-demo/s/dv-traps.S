@@ -73,16 +73,6 @@ dv_trap_reserved:
 	b		dv_catch_reserved
 
 
-	.globl	dv_trap_unimplemented
-	.extern	dv_catch_unimplemented
-
-	.text
-
-dv_trap_unimplemented:
-	msr		cpsr_c, #(DV_ARM_MODE_SVC+DV_ARM_IRQ_DIS+DV_ARM_FIQ_DIS)
-	b		dv_catch_unimplemented
-
-
 	.globl	dv_trap_fiq
 	.extern	dv_catch_fiq
 

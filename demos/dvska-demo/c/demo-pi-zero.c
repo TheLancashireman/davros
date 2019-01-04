@@ -104,11 +104,6 @@ void dv_catch_undef(void)
 	dv_panic(dv_panic_Exception, dv_sid_exceptionhandler, "Oops! An undefined instruction exception occurred");
 }
 
-void dv_catch_unimplemented(void)
-{
-	dv_panic(dv_panic_Exception, dv_sid_exceptionhandler, "Oops! An exception occurred");
-}
-
 void dv_catch_sbreak(void)
 {
 	dv_panic(dv_panic_Exception, dv_sid_exceptionhandler, " Oops! Something did a svc");
