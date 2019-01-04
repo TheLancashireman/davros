@@ -21,13 +21,30 @@
 DV_ROOT		= ../..
 DVSK_ROOT	= ../../davroska
 
+# Select your hardware here
+#DV_BOARD	?= pi3-arm64
+DV_BOARD	?= pi-zero
+
 # Select your compiler here
-#DV_COMPILER	?=	gnu
-#DV_GNU_D	?=	/data1/gnu/gcc-linaro-6.3.1-2017.02-x86_64_aarch64-elf
+ifeq ($(DV_BOARD), pi3-arm64)
+
+DV_GNU_D	?=	/data1/gnu/gcc-linaro-6.3.1-2017.02-x86_64_aarch64-elf
+
+DV_GCC		?=	$(DV_GNU_D)/bin/aarch64-elf-gcc
+DV_LD		?=	$(DV_GNU_D)/bin/aarch64-elf-ld
+DV_LDLIB_D	?=	$(DV_GNU_D)/aarch64-elf/libc/usr/lib/
+DV_LDSCRIPT	?=	$(DVSK_ROOT)/hardware/arm64/ld/dv-pi3.ldscript
+
+else
+
 DV_GNU_D	?=	/data1/gnu/gcc-linaro-6.3.1-2017.02-x86_64_arm-eabi
 
 DV_GCC		?=	$(DV_GNU_D)/bin/arm-eabi-gcc
 DV_LD		?=	$(DV_GNU_D)/bin/arm-eabi-ld
+DV_LDLIB_D	?=	$(DV_GNU_D)/arm-eabi/libc/usr/lib/
+DV_LDSCRIPT	?=	$(DVSK_ROOT)/hardware/arm/ld/dv-pi-zero.ldscript
+
+endif
 
 DV_BIN_D	= bin
 DV_OBJ_D	= obj
@@ -45,8 +62,8 @@ CC_OPT		+= -fno-common
 #CC_OPT		+= -O2
 
 LD_OPT		+= -e dv_trap_reset
-LD_OPT		+= -T $(DVSK_ROOT)/hardware/arm/ld/dv-pi-zero.ldscript
-LD_OPT		+=	-L $(DV_GNU_D)/arm-eabi/libc/usr/lib
+LD_OPT		+= -T $(DV_LDSCRIPT)
+LD_OPT		+=	-L $(DV_LDLIB_D)
 LD_OPT		+=	-lc
 
 # The demo code
@@ -56,11 +73,16 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/demo.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/davroska.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/davroska-time.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/davroska-extended.o
-DV_LD_OBJS	+= $(DV_OBJ_D)/davroska-arm.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-printf.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-xprintf.o
 
 # Hardware-specific files
+ifeq ($(DV_BOARD), pi3-arm64)
+
+
+else
+
+DV_LD_OBJS	+= $(DV_OBJ_D)/davroska-arm.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/demo-pi-zero.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-uart.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-gpio.o
@@ -73,14 +95,28 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/dv-switchcall.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-reset.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-traps.o
 
+endif
+
 VPATH 		+=	c
 VPATH 		+=	s
 VPATH		+=	$(DVSK_ROOT)/c
 VPATH		+=	$(DVSK_ROOT)/c
+
+ifeq ($(DV_BOARD), pi3-arm64)
+
+VPATH		+=	$(DVSK_ROOT)/hardware/arm64/c
+VPATH		+=	$(DVSK_ROOT)/hardware/arm64/s
+
+else
+
 VPATH		+=	$(DVSK_ROOT)/hardware/arm/c
 VPATH		+=	$(DVSK_ROOT)/hardware/arm/s
+
+endif
+
 VPATH		+=	$(DV_ROOT)/lib/c
 VPATH		+=	$(DV_ROOT)/devices/c
+
 
 .PHONY:		default all help clean install
 
@@ -110,9 +146,3 @@ $(DV_OBJ_D):
 
 install:
 	$(DV_GNU_D)/bin/arm-eabi-objcopy bin/davroska.elf -O binary /data1/projects/raspberry-pi/usb-zero/msd/kernel.img
-
-#/data1/gnu/gcc-linaro-6.3.1-2017.02-x86_64_arm-eabi/bin/arm-eabi-ld
-#	-ldavroskernel -ldavrosuser
-#	-T /data1/projects/davros/demos/dv3-demo-arm/../../davros-3/board/arm/raspberry-pi/ldscript/pi-zero.ldscript
-#	-L bin
-
