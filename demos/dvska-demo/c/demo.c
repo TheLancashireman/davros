@@ -73,6 +73,8 @@ void main_Led(void)
 			for (int i = 0; i < 4; i++ )
 				hw_SetLed(i, ledstate[i]);
 
+			dv_printf("    %d %d %d %d\r", ledstate[3], ledstate[2], ledstate[1], ledstate[0]);
+
 			if ( (ee = dv_dropmutex(mx_Gpio)) != dv_e_ok )
 				dv_shutdown(ee);
 		}
@@ -243,11 +245,11 @@ dv_u32_t af_FlickerDriver(dv_id_t a)
 void callout_addtasks(dv_id_t mode)
 {
 	Init = dv_addtask("Init", &main_Init, 4, 1);
-	Led = dv_addextendedtask("Led", &main_Led, 1, 1024);
+	Led = dv_addextendedtask("Led", &main_Led, 1, 8192);
 	Bit0 = dv_addtask("Bit0", &main_Bit0, 2, 1);
 	Bit1 = dv_addtask("Bit1", &main_Bit1, 2, 1);
 	Bit2 = dv_addtask("Bit2", &main_Bit2, 2, 1);
-	Bit3 = dv_addextendedtask("Bit3", &main_Bit3, 3, 1024);
+	Bit3 = dv_addextendedtask("Bit3", &main_Bit3, 3, 8192);
 }
 
 /* callout_addisrs() - configure the isrs
@@ -345,6 +347,8 @@ dv_statustype_t callout_reporterror(dv_sid_t sid, dv_statustype_t e, dv_qty_t np
 		*/
 		dv_printf("    param[%d] = %d (0x%08x)\n", i, (dv_u32_t)param[i], (dv_u32_t)param[i]);
 	}
+
+	for (;;) {} /* Temporary */
 	return e;
 }
 
@@ -359,6 +363,7 @@ void callout_shutdown(dv_statustype_t e)
 */
 void callout_idle(void)
 {
+	dv_printf("Idle loop reached\n");
 	for (;;) {}
 }
 

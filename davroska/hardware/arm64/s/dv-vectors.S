@@ -276,5 +276,5 @@ dv_exception_return:
 	ldp		x4, x5, [sp, #0x20]
 	ldp		x2, x3, [sp, #0x10]
 	ldp		x0, x1, [sp, #0x00]
-	sub		sp, sp, #0xc0
+	add		sp, sp, #0x100
 	eret

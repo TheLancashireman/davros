@@ -19,6 +19,7 @@
 
 #define DV_TARGET			<arm64/h/dv-target-pi3-arm64.h>
 #define DV_DEMO_TARGET		<demo-pi3-arm64.h>
+#define DV_TARGET_CORE		0
 
 #else
 #error "DEMO_BOARD not known"

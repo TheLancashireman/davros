@@ -9,10 +9,12 @@
 #include <dv-stdio.h>
 
 #define DV_PBASE	0x3f000000
+#define DV_PBASE2	0x40000000
 
-#define DV_INCLUDE_INTERRUPTCONTROLLER	<dv-arm-bcm2835-interruptcontroller.h>
+#define DV_INCLUDE_INTERRUPTCONTROLLER	<dv-arm-bcm2836-interruptcontroller.h>
 #define DV_SUPPORT_INTLEVEL	1
 #define DV_MAX_INTLEVEL		7
 #define DV_LOCKALL_LEVEL	(DV_MAX_INTLEVEL+1)
+#define DV_NVECTOR			(dv_n_bcm2836_iid)
 
 #endif

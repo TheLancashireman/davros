@@ -33,7 +33,7 @@ void dv_catch_irq(void)
 
 	/* Call all interrupt functions; most will activate executables
 	*/
-	dv_dispatch_interrupts();
+	dv_bcm2836_interrupt_handler();
 
 	/* Sanity check
 	*/

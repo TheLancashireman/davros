@@ -284,14 +284,13 @@ static inline void dv_init_interrupt_controller(void)
 }
 
 #ifdef DV_DAVROSKA
+
 void dv_bcm2835_interrupt_handler(void);
-static inline void dv_dispatch_interrupts(void)
-{
-	dv_bcm2835_interrupt_handler();
-}
-#define DV_NVECTOR		dv_n_bcm2835_iid
+
 #else
+
 void dv_bcm2835_interrupt_handler(dv_kernel_t *kvars);
+
 #endif
 
 #endif

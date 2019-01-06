@@ -14,5 +14,6 @@
 #define DV_SUPPORT_INTLEVEL	1
 #define DV_MAX_INTLEVEL		7
 #define DV_LOCKALL_LEVEL	(DV_MAX_INTLEVEL+1)
+#define DV_NVECTOR			dv_n_bcm2835_iid
 
 #endif

@@ -25,7 +25,7 @@ static void dv_init_core(void);
 
 /* Startup and exception handling
 */
-extern dv_u32_t dv_start_bss, dv_end_bss, dv_vectortable, dv_vectortable_end;
+extern dv_u32_t dv_start_bss, dv_end_bss, dv_vectortable;
 
 void dv_board_start(void)
 {
@@ -42,6 +42,8 @@ void dv_board_start(void)
 	dv_printf("pi-zero starting ...\n");
 
 	dv_init_core();
+
+	dv_arm64_msr(VBAR_EL1, (dv_u64_t)&dv_vectortable);
 
 #if 0
 	/* Set up the MMU

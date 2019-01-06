@@ -94,6 +94,7 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/demo-pi3-arm64.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-uart.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-gpio.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-interruptcontroller.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2836-interruptcontroller.o
 
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm64-reset.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-switchcall.o
