@@ -21,6 +21,8 @@
 
 extern int main(int argc, char **argv);
 
+static void dv_init_core(void);
+
 /* Startup and exception handling
 */
 extern dv_u32_t dv_start_bss, dv_end_bss, dv_vectortable, dv_vectortable_end;
@@ -39,11 +41,7 @@ void dv_board_start(void)
 
 	dv_printf("pi-zero starting ...\n");
 
-#if 0
-	/* Copy the vector table to 0
-	*/
-	dv_memcpy32(0, &dv_vectortable, &dv_vectortable_end - &dv_vectortable);
-#endif
+	dv_init_core();
 
 #if 0
 	/* Set up the MMU
@@ -86,6 +84,71 @@ void dv_board_start(void)
 	main(0, 0);
 }
 
+/* dv_init_core() - initialise the important control registers then drop to EL1/NS
+ *
+ * Most of the registers are "safe" values. Some of the EL1 registers get overwritten later.
+*/
+static void dv_init_core(void)
+{
+	dv_u32_t el = dv_get_el();
+
+	if ( el >= 3 )
+	{
+		dv_arm64_msr(ELR_EL3, 0);
+		dv_arm64_msr(VBAR_EL3, (dv_u64_t)&dv_vectortable);
+		dv_arm64_msr(SCR_EL3, 0xc81);						/* ToDo: explain "magic number" */
+		dv_arm64_msr(SCTLR_EL3, 0);
+		dv_arm64_msr(CPTR_EL3, 0);
+		dv_arm64_msr(MDCR_EL3, 0);
+	}
+
+	if ( el >= 2 )
+	{
+		dv_arm64_msr(ELR_EL2, 0);
+		dv_arm64_msr(VBAR_EL2, (dv_u64_t)&dv_vectortable);
+		dv_arm64_msr(HCR_EL2, 0x80000000);					/* RW = 1 ==> execution state for EL1 is aarch64 */
+		dv_arm64_msr(SCTLR_EL2, 0);
+		dv_arm64_msr(VTTBR_EL2, 0);
+		dv_arm64_msr(CPTR_EL2, 0);
+		dv_arm64_msr(MDCR_EL2, 0);
+		dv_arm64_msr(CNTVOFF_EL2, 0);
+	}
+
+	if ( el >= 1 )
+	{
+		dv_arm64_msr(ELR_EL1, 0);
+		dv_arm64_msr(SPSR_EL1, 0);
+		dv_arm64_msr(SCTLR_EL1, 0);
+		__asm__ volatile("tlbi ALLE1");
+		dv_u64_t cpacr = dv_arm64_mrs(CPACR_EL1)|0x300000;		/* FPEN = b11 ==> disable FPU instruction traps */
+		dv_arm64_msr(CPACR_EL1, cpacr);
+		dv_arm64_msr(S3_1_C15_C2_1, 0x40);						/* ToDo: doc. reference? Is this an RCAR register? */
+	}
+
+	if ( el == 3 )
+	{
+		dv_printf("Current EL = %d\n", el);
+		dv_printf("Dropping to EL2\n");
+		dv_switch_el3el2();
+		el = dv_get_el();
+	}
+
+	if ( el == 2 )
+	{
+		dv_printf("Current EL = %d\n", el);
+		dv_printf("Dropping to EL1\n");
+		dv_switch_el2el1();
+		el = dv_get_el();
+	}
+
+	dv_printf("Current EL = %d\n", el);
+
+	if ( el != 1 )
+	{
+		dv_panic(dv_panic_UnexpectedHardwareResponse, dv_sid_startup, "Oops! Started in unsupported exception level");
+	}
+}
+
 /* Assorted panic trampolines for use in assembly language code.
 */
 void dv_panic_return_from_switchcall_function(void)
@@ -93,3 +156,37 @@ void dv_panic_return_from_switchcall_function(void)
 	dv_panic(dv_panic_ReturnFromLongjmp, dv_sid_scheduler, "Oops! The task wrapper returned");
 }
 
+void dv_catch_fiq_wrong_state(dv_stackword_t *sp)
+{
+	dv_panic(dv_panic_Exception, dv_sid_exceptionhandler, "Oops! An fiq interrupt occurred from the wrong state");
+}
+
+void dv_catch_irq_wrong_state(dv_stackword_t *sp)
+{
+	dv_panic(dv_panic_Exception, dv_sid_exceptionhandler, "Oops! An irq interrupt occurred from the wrong state");
+}
+
+void dv_catch_synchronous_exception_wrong_state(dv_stackword_t *sp)
+{
+	dv_panic(dv_panic_Exception, dv_sid_exceptionhandler, "Oops! A sync exception occurred from the wrong state");
+}
+
+void dv_catch_syserror_wrong_state(dv_stackword_t *sp)
+{
+	dv_panic(dv_panic_Exception, dv_sid_exceptionhandler, "Oops! A SeError exception occurred from the wrong state");
+}
+
+void dv_catch_fiq(dv_stackword_t *sp)
+{
+	dv_panic(dv_panic_Exception, dv_sid_exceptionhandler, "Oops! An fiq interrupt occurred");
+}
+
+void dv_catch_synchronous_exception(dv_stackword_t *sp)
+{
+	dv_panic(dv_panic_Exception, dv_sid_exceptionhandler, "Oops! A sync exception occurred");
+}
+
+void dv_catch_syserror(dv_stackword_t *sp)
+{
+	dv_panic(dv_panic_Exception, dv_sid_exceptionhandler, "Oops! A SeError exception occurred");
+}

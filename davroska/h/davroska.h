@@ -78,7 +78,8 @@ typedef enum
 
 	dv_sid_scheduler,
 	dv_sid_interruptdispatcher,
-	dv_sid_exceptionhandler
+	dv_sid_exceptionhandler,
+	dv_sid_startup
 } dv_sid_t;
 
 typedef enum
@@ -97,6 +98,7 @@ typedef enum
 	dv_panic_NoKernelAnchor,
 	dv_panic_UnknownRequest,
 	dv_panic_Exception,
+	dv_panic_UnexpectedHardwareResponse,
 	dv_panic_UndefinedPanic			/* Used as a temporary placeholder for new panics */
 } dv_panic_t;
 

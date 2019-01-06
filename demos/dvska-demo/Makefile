@@ -33,6 +33,7 @@ DV_GNU_D	?=	/data1/gnu/gcc-linaro-6.3.1-2017.02-x86_64_aarch64-elf
 
 DV_GCC		?=	$(DV_GNU_D)/bin/aarch64-elf-gcc
 DV_LD		?=	$(DV_GNU_D)/bin/aarch64-elf-ld
+DV_OBJCOPY	?=	$(DV_GNU_D)/bin/aarch64-elf-objcopy
 DV_LDLIB_D	?=	$(DV_GNU_D)/aarch64-elf/libc/usr/lib/
 DV_LDSCRIPT	?=	$(DVSK_ROOT)/hardware/arm64/ld/dv-pi3.ldscript
 
@@ -45,6 +46,7 @@ DV_GNU_D	?=	/data1/gnu/gcc-linaro-6.3.1-2017.02-x86_64_arm-eabi
 
 DV_GCC		?=	$(DV_GNU_D)/bin/arm-eabi-gcc
 DV_LD		?=	$(DV_GNU_D)/bin/arm-eabi-ld
+DV_OBJCOPY	?=	$(DV_GNU_D)/bin/arm-eabi-objcopy
 DV_LDLIB_D	?=	$(DV_GNU_D)/arm-eabi/libc/usr/lib/
 DV_LDSCRIPT	?=	$(DVSK_ROOT)/hardware/arm/ld/dv-pi-zero.ldscript
 
@@ -95,6 +97,9 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-interruptcontroller.o
 
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm64-reset.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-switchcall.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-switch-el3el2.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-switch-el2el1.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-vectors.o
 
 else
 
@@ -136,7 +141,7 @@ VPATH		+=	$(DV_ROOT)/lib/c
 VPATH		+=	$(DV_ROOT)/devices/c
 
 
-.PHONY:		default all help clean install
+.PHONY:		default all help clean install srec
 
 default:	all
 
@@ -162,5 +167,8 @@ $(DV_BIN_D):
 $(DV_OBJ_D):
 	mkdir -p obj
 
-install:
-	$(DV_GNU_D)/bin/arm-eabi-objcopy bin/davroska.elf -O binary /data1/projects/raspberry-pi/usb-zero/msd/kernel.img
+install:	all
+	$(DV_OBJCOPY) bin/davroska.elf -O binary /data1/projects/raspberry-pi/usb-zero/msd/kernel.img
+
+srec:		all
+	$(DV_OBJCOPY) bin/davroska.elf -O srec --srec-forceS3 /dev/stdout | dos2unix | egrep -v '^S3..........00*..$$' > bin/davroska.srec

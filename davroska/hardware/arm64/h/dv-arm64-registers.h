@@ -96,7 +96,6 @@ static inline dv_u32_t dv_get_el(void)
 	return (dv_arm64_mrs(CurrentEL) >> 2) & 3;
 }
 
-void dv_init_core(void);
 void dv_switch_el2el1(void);
 void dv_switch_el3el1(void);
 void dv_switch_el3el2(void);

@@ -36,7 +36,7 @@
 	.extern	dv_board_start
 	.extern dv_c0_initialsp
 
-	.section	reset, "ax"
+	.section	.reset, "ax"
 
 /* Jump past the area reserved for a startup stack.
 */
