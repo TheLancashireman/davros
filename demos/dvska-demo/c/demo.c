@@ -70,10 +70,15 @@ void main_Led(void)
 			if ( (ee = dv_takemutex(mx_Gpio)) != dv_e_ok )
 				dv_shutdown(ee);
 
-			for (int i = 0; i < 4; i++ )
-				hw_SetLed(i, ledstate[i]);
+			char cc[4];
 
-			dv_printf("    %d %d %d %d\r", ledstate[3], ledstate[2], ledstate[1], ledstate[0]);
+			for (int i = 0; i < 4; i++ )
+			{
+				hw_SetLed(i, ledstate[i]);
+				cc[i] = ledstate[i] ? '*' : '-';
+			}
+
+			dv_printf("    %c %c %c %c\r", cc[3], cc[2], cc[1], cc[0]);
 
 			if ( (ee = dv_dropmutex(mx_Gpio)) != dv_e_ok )
 				dv_shutdown(ee);
