@@ -24,6 +24,15 @@
 
 #if !DV_ASM
 
+/* Bits in SCTLR_EL1
+*/
+#define DV_SCTRL_M			0x0000000000000001		/* MMU enable */
+#define DV_SCTRL_A			0x0000000000000002		/* Alignment check enable */
+#define DV_SCTRL_C			0x0000000000000004		/* Data cache enable */
+#define DV_SCTRL_SA			0x0000000000000008		/* Stack alignment check enable */
+#define DV_SCTRL_SA0		0x0000000000000010		/* Stack alignment check enable at EL0 */
+#define DV_SCTRL_I			0x0000000000001000		/* Instruction cache enable */
+
 /* Bits in TCR_EL1
 */
 #define DV_TCR_T0SZ			0x000000000000003f		/* Size of region for TTBR0 : 2**(64-T0SZ) */
@@ -54,14 +63,15 @@
 
 /* Bits in page table descriptors
 */
+#define DV_PGT_INVALID		0x0000000000000000
 #define DV_PGT_VALID		0x0000000000000001		/* If 0, other bits ignored */
 #define DV_PGT_TABLE		0x0000000000000002		/* Descriptor indicates a page table */
 
-/* Bits in page table descriptor when DV_PGT_TABLE is 0 (i.e. a block descriptor)
+/* Bits in page table descriptor when DV_PGT_TABLE is 0 (i.e. a block or page descriptor)
 */
 #define DV_PGT_LBA			0x0000000000000ffc		/* Lower block attributes */
 #define DV_PGT_BBA			0x0000fffffffff000		/* Block base address (must be block-aligned) */
-#define DV_PGT_UBA			0xfff0000000000000		/* Upper block attributes */
+#define DV_PGT_UBA			0xfff8000000000000		/* Upper block attributes */
 
 /* Bits in page table descriptor when DV_PGT_TABLE is 1, not level 3 (i.e. a page table descriptor)
 */
@@ -70,12 +80,6 @@
 #define DV_PGT_XN			0x1000000000000000
 #define DV_PGT_AP			0x6000000000000000
 #define DV_PGT_NS			0x8000000000000000
-
-/* Bits in page table descriptor when DV_PGT_TABLE is 1, at level 3 (i.e. a page descriptor)
-*/
-#define DV_PGT_LPA			0x0000000000000ffc		/* Lower page attributes */
-#define DV_PGT_BBA			0x0000fffffffff000		/* Page base address (must be granule-aligned) */
-#define DV_PGT_UBA			0xfff8000000000000		/* Upper page attributes */
 
 /* Bits in the attribute fields
 */
@@ -87,9 +91,83 @@
 #define DV_ATTR_NG			0x0000000000000800		/* Not global */
 #define DV_ATTR_AF			0x0000000000000400		/* Access flag */
 #define DV_ATTR_SH			0x0000000000000300		/* Shareability */
+#define DV_ATTR_SH_NON		0x0000000000000000		/*	- Non-shareable */
+#define DV_ATTR_SH_OUTER	0x0000000000000200		/*	- Outer Shareable */
+#define DV_ATTR_SH_INNER	0x0000000000000300		/*	- Inner Shareable */
 #define DV_ATTR_AP			0x00000000000000c0		/* Data access permissions */
+#define DV_ATTR_AP_RW___	0x0000000000000000		/*	- S: RW, U: - */
+#define DV_ATTR_AP_RW_RW	0x0000000000000040		/*	- S: RW, U: RW */
+#define DV_ATTR_AP_R____	0x0000000000000080		/*	- S: RW, U: - */
+#define DV_ATTR_AP_R__R_	0x00000000000000c0		/*	- S: RW, U: R */
 #define DV_ATTR_NS			0x0000000000000020		/* Non-secure */
 #define DV_ATTR_AIND		0x000000000000001c		/* Attribute index */
+
+/* Some structures to represent memory spaces
+*/
+typedef struct dv_4KiBpage_s
+{
+	dv_u64_t m[(4*1024)/sizeof(dv_u64_t)];
+} dv_4KiBpage_t;
+
+typedef struct dv_2MiBkpage_s
+{
+	dv_u64_t m[(2*1024*1024)/sizeof(dv_u64_t)];
+} dv_2MiBpage_t;
+
+/* Bits in each field of the MAIR_EL1 register
+ *
+ * All 8 bits for device space
+ * Any other values with the upper 4 bits zero are unpredictable
+*/
+#define DV_MAIR_DEV_NGNRNE	0x00
+#define DV_MAIR_DEV_NGNRE	0x04
+#define DV_MAIR_DEV_NGRE	0x08
+#define DV_MAIR_DEV_GRE		0x0c
+
+/* Bits in each field of the MAIR_EL1 register
+ *
+ * Upper 4 bits for memory space define the outer cacheability.
+ * Use DV_MAIR_ONC, or combine one DV_MAIR_OW* with one or both DV_MAIR_OA*
+*/
+#define DV_MAIR_ONC			0x40	/* Outer non-cacheable */
+
+#define DV_MAIR_OAW			0x10	/* Allocate on write */
+#define DV_MAIR_OAR			0x10	/* Allocate on read */
+
+#define DV_MAIR_OWTT		0x00	/* Outer write-through, transient */
+#define DV_MAIR_OWBT		0x40	/* Outer write-back, transient */
+#define DV_MAIR_OWTN		0x80	/* Outer write-through, non-transient */
+#define DV_MAIR_OWBN		0xc0	/* Outer write-back, non-transient */
+
+/* Bits in each field of the MAIR_EL1 register
+ *
+ * Lower 4 bits for memory space define the inner cacheability. Use in combination with the outer cacheability
+ * Use DV_MAIR_INC, or combine one  DV_MAIR_IW* with one or both DV_MAIR_IA*
+*/
+#define DV_MAIR_INC			0x04	/* Inner non-cacheable */
+
+#define DV_MAIR_IAW			0x01	/* Allocate on write */
+#define DV_MAIR_IAR			0x02	/* Allocate on read */
+
+#define DV_MAIR_IWTT		0x00	/* Inner write-through, transient */
+#define DV_MAIR_IWBT		0x04	/* Inner write-back, transient */
+#define DV_MAIR_IWTN		0x08	/* Inner write-through, non-transient */
+#define DV_MAIR_IWBN		0x0c	/* Inner write-back, non-transient */
+
+static inline void dv_set_mair_field(int idx, dv_u64_t val)
+{
+	dv_u64_t mair = dv_arm64_mrs(MAIR_EL1);
+	dv_u64_t mask = 0xff;
+	int shift = idx*8;
+
+	mask = mask << shift;
+	mair &= ~mask;
+	mair |= val << shift;
+
+	dv_arm64_msr(MAIR_EL1, mair);
+}
+
+extern void dv_armv8_mmu_setup(void);
 
 #endif
 

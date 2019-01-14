@@ -12,8 +12,8 @@
 #include <dv-arm-bcm2835-aux.h>
 #include <dv-arm-bcm2835-gpio.h>
 #include <dv-arm-bcm2835-interruptcontroller.h>
+#include <dv-armv8-mmu.h>
 #if 0
-#include <dv-armv6-mmu.h>
 #include <dv-arm-cp15.h>
 #endif
 #include <dv-arm-bcm2835-systimer.h>
@@ -45,11 +45,9 @@ void dv_board_start(void)
 
 	dv_arm64_msr(VBAR_EL1, (dv_u64_t)&dv_vectortable);
 
-#if 0
 	/* Set up the MMU
 	*/
-	dv_armv6_mmu_setup();
-#endif
+	dv_armv8_mmu_setup();
 
 #if 0
 	/* Caches

@@ -1,4 +1,4 @@
-#	Makefile - demo Makefile for testing parts of davroska on Linux
+#	Makefile - demo Makefile for testing parts of davroska on raspberry pi (zero, 3)
 #
 #	Copyright 2018 David Haworth
 #
@@ -96,6 +96,7 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-gpio.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-interruptcontroller.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2836-interruptcontroller.o
 
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-armv8-mmu.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm64-reset.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-switchcall.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-switch-el3el2.o
@@ -110,8 +111,8 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/demo-pi-zero.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-uart.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-gpio.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-interruptcontroller.o
-DV_LD_OBJS	+= $(DV_OBJ_D)/dv-armv6-mmu.o
 
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-armv6-mmu.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-vectors.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-trap-irq.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-switchcall.o
