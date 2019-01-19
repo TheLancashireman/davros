@@ -26,81 +26,83 @@
 
 /* Bits in SCTLR_EL1
 */
-#define DV_SCTRL_M			0x0000000000000001		/* MMU enable */
-#define DV_SCTRL_A			0x0000000000000002		/* Alignment check enable */
-#define DV_SCTRL_C			0x0000000000000004		/* Data cache enable */
-#define DV_SCTRL_SA			0x0000000000000008		/* Stack alignment check enable */
-#define DV_SCTRL_SA0		0x0000000000000010		/* Stack alignment check enable at EL0 */
-#define DV_SCTRL_I			0x0000000000001000		/* Instruction cache enable */
+#define DV_SCTLR_M			0x0000000000000001uL	/* MMU enable */
+#define DV_SCTLR_A			0x0000000000000002uL	/* Alignment check enable */
+#define DV_SCTLR_C			0x0000000000000004uL	/* Data cache enable */
+#define DV_SCTLR_SA			0x0000000000000008uL	/* Stack alignment check enable */
+#define DV_SCTLR_SA0		0x0000000000000010uL	/* Stack alignment check enable at EL0 */
+#define DV_SCTLR_I			0x0000000000001000uL	/* Instruction cache enable */
+#define DV_SCTLR_LSMAOE		0x0000000020000000uL	/* Store multiple at aa32 is atomic */
+#define	DV_SCTLR_NTLMSD		0x0000000010000000uL	/* Store mutliple at aa32 traps if device memory */
 
 /* Bits in TCR_EL1
 */
-#define DV_TCR_T0SZ			0x000000000000003f		/* Size of region for TTBR0 : 2**(64-T0SZ) */
-#define DV_TCR_EPD0			0x0000000000000080		/* TLB miss for translations using TTBR0 */
-#define DV_TCR_IRGN0		0x0000000000000300		/* Inner cacheability for tt walks using TTBR0 */
-#define DV_TCR_ORGN0		0x0000000000000c00		/* Outer cacheability for tt walks using TTBR0 */
-#define DV_TCR_SH0			0x0000000000003000		/* Shareability for tt walks using TTBR0 */
-#define DV_TCR_TG0			0x000000000000c000		/* Granule size for TTBR0 */
-#define DV_TCR_T1SZ			0x00000000003f0000		/* Size of region for TTBR1 : 2**(64-T1SZ) */
-#define DV_TCR_A1			0x0000000000400000		/* ASID select: 1 = TTBR1.ASID, 0 = TTBR0 ASID */
-#define DV_TCR_EPD1			0x0000000000800000		/* TLB miss for translations using TTBR1 */
-#define DV_TCR_IRGN1		0x0000000003000000		/* Inner cacheability for tt walks using TTBR1 */
-#define DV_TCR_ORGN1		0x000000000c000000		/* Outer cacheability for tt walks using TTBR1 */
-#define DV_TCR_SH1			0x0000000030000000		/* Shareability for tt walks using TTBR1 */
-#define DV_TCR_TG1			0x00000000c0000000		/* Granule size for TTBR1 */
-#define DV_TCR_IPS			0x0000000700000000		/* Intermediate physical address size */
-#define DV_TCR_AS			0x0000001000000000		/* ASID size */
-#define DV_TCR_TBI0			0x0000002000000000		/* Top byte ignored (used for tagging) in TTBR0 translations */
-#define DV_TCR_TBI1			0x0000004000000000		/* Top byte ignored (used for tagging) in TTBR1 translations */
-#define DV_TCR_HA			0x0000008000000000
-#define DV_TCR_HD			0x0000010000000000
-#define DV_TCR_HPD0			0x0000020000000000
-#define DV_TCR_HPD1			0x0000040000000000
-#define DV_TCR_TBID0		0x0008000000000000
-#define DV_TCR_TBID1		0x0010000000000000
-#define DV_TCR_NFD0			0x0020000000000000
-#define DV_TCR_NFD1			0x0040000000000000
+#define DV_TCR_T0SZ			0x000000000000003fuL	/* Size of region for TTBR0 : 2**(64-T0SZ) */
+#define DV_TCR_EPD0			0x0000000000000080uL	/* TLB miss for translations using TTBR0 */
+#define DV_TCR_IRGN0		0x0000000000000300uL	/* Inner cacheability for tt walks using TTBR0 */
+#define DV_TCR_ORGN0		0x0000000000000c00uL	/* Outer cacheability for tt walks using TTBR0 */
+#define DV_TCR_SH0			0x0000000000003000uL	/* Shareability for tt walks using TTBR0 */
+#define DV_TCR_TG0			0x000000000000c000uL	/* Granule size for TTBR0 */
+#define DV_TCR_T1SZ			0x00000000003f0000uL	/* Size of region for TTBR1 : 2**(64-T1SZ) */
+#define DV_TCR_A1			0x0000000000400000uL	/* ASID select: 1 = TTBR1.ASID, 0 = TTBR0 ASID */
+#define DV_TCR_EPD1			0x0000000000800000uL	/* TLB miss for translations using TTBR1 */
+#define DV_TCR_IRGN1		0x0000000003000000uL	/* Inner cacheability for tt walks using TTBR1 */
+#define DV_TCR_ORGN1		0x000000000c000000uL	/* Outer cacheability for tt walks using TTBR1 */
+#define DV_TCR_SH1			0x0000000030000000uL	/* Shareability for tt walks using TTBR1 */
+#define DV_TCR_TG1			0x00000000c0000000uL	/* Granule size for TTBR1 */
+#define DV_TCR_IPS			0x0000000700000000uL	/* Intermediate physical address size */
+#define DV_TCR_AS			0x0000001000000000uL	/* ASID size */
+#define DV_TCR_TBI0			0x0000002000000000uL	/* Top byte ignored (used for tagging) in TTBR0 translations */
+#define DV_TCR_TBI1			0x0000004000000000uL	/* Top byte ignored (used for tagging) in TTBR1 translations */
+#define DV_TCR_HA			0x0000008000000000uL
+#define DV_TCR_HD			0x0000010000000000uL
+#define DV_TCR_HPD0			0x0000020000000000uL
+#define DV_TCR_HPD1			0x0000040000000000uL
+#define DV_TCR_TBID0		0x0008000000000000uL
+#define DV_TCR_TBID1		0x0010000000000000uL
+#define DV_TCR_NFD0			0x0020000000000000uL
+#define DV_TCR_NFD1			0x0040000000000000uL
 
 /* Bits in page table descriptors
 */
-#define DV_PGT_INVALID		0x0000000000000000
-#define DV_PGT_VALID		0x0000000000000001		/* If 0, other bits ignored */
-#define DV_PGT_TABLE		0x0000000000000002		/* Descriptor indicates a page table */
+#define DV_PGT_INVALID		0x0000000000000000uL
+#define DV_PGT_VALID		0x0000000000000001uL	/* If 0, other bits ignored */
+#define DV_PGT_TABLE		0x0000000000000002uL	/* Descriptor indicates a page table */
 
 /* Bits in page table descriptor when DV_PGT_TABLE is 0 (i.e. a block or page descriptor)
 */
-#define DV_PGT_LBA			0x0000000000000ffc		/* Lower block attributes */
-#define DV_PGT_BBA			0x0000fffffffff000		/* Block base address (must be block-aligned) */
-#define DV_PGT_UBA			0xfff8000000000000		/* Upper block attributes */
+#define DV_PGT_LBA			0x0000000000000ffcuL	/* Lower block attributes */
+#define DV_PGT_BBA			0x0000fffffffff000uL	/* Block base address (must be block-aligned) */
+#define DV_PGT_UBA			0xfff8000000000000uL	/* Upper block attributes */
 
 /* Bits in page table descriptor when DV_PGT_TABLE is 1, not level 3 (i.e. a page table descriptor)
 */
-#define DV_PGT_TBA			0x0000fffffffff000		/* Table base address (must be granule-aligned) */
-#define DV_PGT_PXN			0x0800000000000000
-#define DV_PGT_XN			0x1000000000000000
-#define DV_PGT_AP			0x6000000000000000
-#define DV_PGT_NS			0x8000000000000000
+#define DV_PGT_TBA			0x0000fffffffff000uL	/* Table base address (must be granule-aligned) */
+#define DV_PGT_PXN			0x0800000000000000uL
+#define DV_PGT_XN			0x1000000000000000uL
+#define DV_PGT_AP			0x6000000000000000uL
+#define DV_PGT_NS			0x8000000000000000uL
 
 /* Bits in the attribute fields
 */
-#define DV_ATTR_PBHA		0x7800000000000000		/* Page-based hardware attributes */
-#define DV_ATTR_UXN			0x0040000000000000		/* (Unprivileged) execute never */
-#define DV_ATTR_PXN			0x0020000000000000		/* Privileged execute never (only for TTBR1 addresses) */
-#define DV_ATTR_CTG			0x0010000000000000		/* Contiguous */
-#define DV_ATTR_DBM			0x0008000000000000		/* Dirty bit modifier */
-#define DV_ATTR_NG			0x0000000000000800		/* Not global */
-#define DV_ATTR_AF			0x0000000000000400		/* Access flag */
-#define DV_ATTR_SH			0x0000000000000300		/* Shareability */
-#define DV_ATTR_SH_NON		0x0000000000000000		/*	- Non-shareable */
-#define DV_ATTR_SH_OUTER	0x0000000000000200		/*	- Outer Shareable */
-#define DV_ATTR_SH_INNER	0x0000000000000300		/*	- Inner Shareable */
-#define DV_ATTR_AP			0x00000000000000c0		/* Data access permissions */
-#define DV_ATTR_AP_RW___	0x0000000000000000		/*	- S: RW, U: - */
-#define DV_ATTR_AP_RW_RW	0x0000000000000040		/*	- S: RW, U: RW */
-#define DV_ATTR_AP_R____	0x0000000000000080		/*	- S: RW, U: - */
-#define DV_ATTR_AP_R__R_	0x00000000000000c0		/*	- S: RW, U: R */
-#define DV_ATTR_NS			0x0000000000000020		/* Non-secure */
-#define DV_ATTR_AIND		0x000000000000001c		/* Attribute index */
+#define DV_ATTR_PBHA		0x7800000000000000uL	/* Page-based hardware attributes */
+#define DV_ATTR_UXN			0x0040000000000000uL	/* (Unprivileged) execute never */
+#define DV_ATTR_PXN			0x0020000000000000uL	/* Privileged execute never (only for TTBR1 addresses) */
+#define DV_ATTR_CTG			0x0010000000000000uL	/* Contiguous */
+#define DV_ATTR_DBM			0x0008000000000000uL	/* Dirty bit modifier */
+#define DV_ATTR_NG			0x0000000000000800uL	/* Not global */
+#define DV_ATTR_AF			0x0000000000000400uL	/* Access flag */
+#define DV_ATTR_SH			0x0000000000000300uL	/* Shareability */
+#define DV_ATTR_SH_NON		0x0000000000000000uL	/*	- Non-shareable */
+#define DV_ATTR_SH_OUTER	0x0000000000000200uL	/*	- Outer Shareable */
+#define DV_ATTR_SH_INNER	0x0000000000000300uL	/*	- Inner Shareable */
+#define DV_ATTR_AP			0x00000000000000c0uL	/* Data access permissions */
+#define DV_ATTR_AP_RW___	0x0000000000000000uL	/*	- S: RW, U: - */
+#define DV_ATTR_AP_RW_RW	0x0000000000000040uL	/*	- S: RW, U: RW */
+#define DV_ATTR_AP_R____	0x0000000000000080uL	/*	- S: RW, U: - */
+#define DV_ATTR_AP_R__R_	0x00000000000000c0uL	/*	- S: RW, U: R */
+#define DV_ATTR_NS			0x0000000000000020uL	/* Non-secure */
+#define DV_ATTR_AIND		0x000000000000001cuL	/* Attribute index */
 
 /* Some structures to represent memory spaces
 */
@@ -168,6 +170,7 @@ static inline void dv_set_mair_field(int idx, dv_u64_t val)
 }
 
 extern void dv_armv8_mmu_setup(void);
+extern void dv_setMMUregisters(dv_u64_t ttbr, dv_u64_t mair, dv_u64_t tcr, dv_u64_t sctlr);
 
 #endif
 

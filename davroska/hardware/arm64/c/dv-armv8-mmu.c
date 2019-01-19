@@ -60,26 +60,26 @@ extern dv_2MiBpage_t dv_peripheral1[];		/* BCM2835 peripherals - ends at dv_peri
 extern dv_2MiBpage_t dv_peripheral2[];		/* BCM2836 peripherals */
 
 /* MAIR attributes
- *	- memory : MAIR index 0, outer and inner cacheable, allocate on read and write.
- *	- device : MAIR index 1, nG, nR, nE
+ *	- device : MAIR index 0, nG, nR, nE
+ *	- memory : MAIR index 1, outer and inner cacheable, allocate on read and write.
 */
-#define DV_MAIR_MEM			0
-#define DV_MAIR_ATTR_MEM	( (DV_MAIR_OWTT | DV_MAIR_OAW | DV_MAIR_OAR) | (DV_MAIR_IWTT | DV_MAIR_IAW | DV_MAIR_IAR) )
-#define DV_MAIR_DEV			1
+#define DV_MAIR_DEV			0
 #define DV_MAIR_ATTR_DEV	( DV_MAIR_DEV_NGNRNE )
+#define DV_MAIR_MEM			1
+#define DV_MAIR_ATTR_MEM	( (DV_MAIR_OWTT | DV_MAIR_OAW | DV_MAIR_OAR) | (DV_MAIR_IWTT | DV_MAIR_IAW | DV_MAIR_IAR) )
 
 /* Page attributes
  *	- memory :
  *	- device :
 */
-#define DV_PG_ATTR_MEM		( DV_ATTR_SH_OUTER | \
+#define DV_PG_ATTR_MEM		( DV_ATTR_SH_INNER | \
 							  DV_ATTR_AP_RW_RW | \
-							  DV_ATTR_NS | \
+							  DV_ATTR_AF | \
 							  (DV_MAIR_MEM << 2) )
 #define DV_PG_ATTR_DEV		( DV_ATTR_UXN | DV_ATTR_PXN | \
-							  DV_ATTR_SH_OUTER | \
+							  DV_ATTR_SH_INNER | \
 							  DV_ATTR_AP_RW_RW | \
-							  DV_ATTR_NS | \
+							  DV_ATTR_AF | \
 							  (DV_MAIR_DEV << 2) )
 
 void dv_armv8_mmu_setup(void)
@@ -90,18 +90,9 @@ void dv_armv8_mmu_setup(void)
 	dv_printf("No. of peripheral1 blocks: %d\n", &dv_peripheral2[0] - &dv_peripheral1[0]);
 #endif
 
-	/* Set up the MAIR register with the memory attributes that are going to be used
-	*/
-	dv_set_mair_field(DV_MAIR_MEM, DV_MAIR_ATTR_MEM);
-	dv_set_mair_field(DV_MAIR_DEV, DV_MAIR_ATTR_DEV);
-
 	/* Initialise the one valid entry in the L0 table. It points to the L1 table
 	*/
 	dv_l0_table.m[0] = DV_PGT_VALID | DV_PGT_TABLE | (dv_u64_t)&dv_l1_table;
-
-#if DV_DEBUG
-	dv_printf("L0   0 : 0x%016x\n", dv_l0_table.m[0]);
-#endif
 
 	/* Initialise the rest of the L0 table to "invalid"
 	*/
@@ -117,11 +108,6 @@ void dv_armv8_mmu_setup(void)
 	*/
 	dv_l1_table.m[0] = DV_PGT_VALID | DV_PGT_TABLE | (dv_u64_t)&dv_l2_table;
 	dv_l1_table.m[1] = DV_PGT_VALID | DV_PG_ATTR_DEV | (dv_u64_t)&dv_peripheral2[0];
-
-#if DV_DEBUG
-	dv_printf("L1   0 : 0x%016x\n", dv_l1_table.m[0]);
-	dv_printf("L1   1 : 0x%016x\n", dv_l1_table.m[1]);
-#endif
 
 	/* Initialise the rest of the L1 table to "invalid"
 	*/
@@ -144,36 +130,46 @@ void dv_armv8_mmu_setup(void)
 		dv_l2_table.m[504+i] = DV_PGT_VALID | DV_PG_ATTR_DEV | (dv_u64_t)&dv_peripheral1[i];
 	}
 
-#if DV_DEBUG
-	dv_printf("L2   0 : 0x%016x\n", dv_l2_table.m[0]);
-	dv_printf("L2 503 : 0x%016x\n", dv_l2_table.m[503]);
-	dv_printf("L2 504 : 0x%016x\n", dv_l2_table.m[504]);
-	dv_printf("L2 511 : 0x%016x\n", dv_l2_table.m[511]);
-#endif
-
-	/* Set the translation table base address
-	 * ToDo: what about TTBR1_EL1?
-	*/
-	dv_arm64_msr(TTBR0_EL1, (dv_u64_t)&dv_l0_table);
-
 	/* Set the parameters that we need in TCR_EL1
 	*/
 	dv_u64_t tcr = dv_arm64_mrs(TCR_EL1);
 	tcr &= ~(DV_TCR_T0SZ | DV_TCR_EPD0 | DV_TCR_IRGN0 | DV_TCR_ORGN0 | DV_TCR_SH0 | DV_TCR_TG0);
 	tcr &= ~(DV_TCR_T1SZ | DV_TCR_A1 | DV_TCR_EPD1 | DV_TCR_IRGN1 | DV_TCR_ORGN1 | DV_TCR_SH1 | DV_TCR_TG1);
-#if 0
-	tcr |= 32;				/* T0SZ */
-#endif
+
+	tcr |= 16;				/* T0SZ */
 	tcr |= DV_TCR_EPD1;		/* Disable use of TTBR1 */
-#if DV_DEBUG
-	dv_printf("TCR_EL1 = 0x%016x\n", tcr);
-#endif
-	dv_arm64_msr(TCR_EL1, tcr);
 
 	dv_u64_t sctlr = dv_arm64_mrs(SCTLR_EL1);
-	sctlr |= DV_SCTRL_M;	/* Enable MMU */
+	sctlr |= DV_SCTLR_M;		/* Enable MMU */
+	sctlr |= DV_SCTLR_C;		/* Enable data cache */
+	sctlr |= DV_SCTLR_I;		/* Enable instruction cache */
+	sctlr |= DV_SCTLR_SA;		/* Stack alignment check */
+	sctlr |= DV_SCTLR_SA0;		/* Stack alignment check at EL0 */
+	sctlr |= DV_SCTLR_LSMAOE;	/* Store multiple (aarch32) is atomic */
+	sctlr |= DV_SCTLR_NTLMSD;	/* Store multiple device (aarch32) is trapped */
+	sctlr |= (1<<20);			/* Bit 20 is RES1 but reads zero */
+
+	dv_u64_t mair = (DV_MAIR_ATTR_MEM << (DV_MAIR_MEM * 8)) | (DV_MAIR_ATTR_DEV << (DV_MAIR_DEV * 8));
+
+	tcr = 0x02b5983518uL;	/* Temp: from MK */
+
 #if DV_DEBUG
-	dv_printf("SCTLR_EL1 = 0x%016x\n", sctlr);
+	dv_printf("L0 0x%016lx   0 : 0x%016lx\n", (dv_u64_t)&dv_l0_table, dv_l0_table.m[0]);
+	dv_printf("L0 0x%016lx   1 : 0x%016lx\n", (dv_u64_t)&dv_l0_table, dv_l0_table.m[1]);
+	dv_printf("L1 0x%016lx   0 : 0x%016lx\n", (dv_u64_t)&dv_l1_table, dv_l1_table.m[0]);
+	dv_printf("L1 0x%016lx   1 : 0x%016lx\n", (dv_u64_t)&dv_l1_table, dv_l1_table.m[1]);
+	dv_printf("L1 0x%016lx   2 : 0x%016lx\n", (dv_u64_t)&dv_l1_table, dv_l1_table.m[2]);
+	dv_printf("L2 0x%016lx   0 : 0x%016lx\n", (dv_u64_t)&dv_l2_table, dv_l2_table.m[0]);
+	dv_printf("L2 0x%016lx 503 : 0x%016lx\n", (dv_u64_t)&dv_l2_table, dv_l2_table.m[503]);
+	dv_printf("L2 0x%016lx 504 : 0x%016lx\n", (dv_u64_t)&dv_l2_table, dv_l2_table.m[504]);
+	dv_printf("L2 0x%016lx 511 : 0x%016lx\n", (dv_u64_t)&dv_l2_table, dv_l2_table.m[511]);
+
+	dv_printf("ttbr  = 0x%016lx\n", (dv_u64_t)&dv_l0_table);
+	dv_printf("mair  = 0x%016lx\n", mair);
+	dv_printf("tcr   = 0x%016lx\n", tcr);
+	dv_printf("sctlr = 0x%016lx\n", sctlr);
 #endif
-	dv_arm64_msr(SCTLR_EL1, sctlr);
+#if 1
+	dv_setMMUregisters((dv_u64_t)&dv_l0_table, mair, tcr, sctlr);
+#endif
 }

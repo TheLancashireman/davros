@@ -40,6 +40,7 @@ void dv_board_start(void)
 	dv_arm_bcm2835_uart_console();
 
 	dv_printf("pi-zero starting ...\n");
+	dv_printf("stack pointer = 0x%016lx\n", dv_get_SP());
 
 	dv_init_core();
 
@@ -122,7 +123,9 @@ static void dv_init_core(void)
 		__asm__ volatile("tlbi ALLE1");
 		dv_u64_t cpacr = dv_arm64_mrs(CPACR_EL1)|0x300000;		/* FPEN = b11 ==> disable FPU instruction traps */
 		dv_arm64_msr(CPACR_EL1, cpacr);
+#if 0
 		dv_arm64_msr(S3_1_C15_C2_1, 0x40);						/* ToDo: doc. reference? Is this an RCAR register? */
+#endif
 	}
 
 	if ( el == 3 )

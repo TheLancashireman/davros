@@ -97,6 +97,7 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-interruptcontroller.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2836-interruptcontroller.o
 
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-armv8-mmu.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm64-setmmuregisters.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm64-reset.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-switchcall.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-switch-el3el2.o
@@ -141,6 +142,7 @@ endif
 VPATH		+=	$(DVSK_ROOT)/hardware/common/c
 VPATH		+=	$(DV_ROOT)/lib/c
 VPATH		+=	$(DV_ROOT)/devices/c
+VPATH		+=	$(DV_ROOT)/devices/s
 
 
 .PHONY:		default all help clean install srec
