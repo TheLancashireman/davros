@@ -24,19 +24,20 @@
 
 	.text
 
-/* dv_setMMUregisters() - set TTBR0_EL1, MAIR_EL1, TCR_EL1 and SCTLR_EL1 from parameters
+/* dv_setMMUregisters() - set TTBR0_EL1, TTBR1_EL1, MAIR_EL1, TCR_EL1 and SCTLR_EL1 from parameters
  *
  * Parameters:
  *	x0	- TTBR0_EL1
  *	x1	- MAIR_EL1
  *	x2	- TCR_EL1
  *	x3	- SCTLR_EL1
+ *	x4	- TTBR1_EL1
 */
 
 dv_setMMUregisters:
 	dsb     sy
 	msr     TTBR0_EL1, x0
-	msr     TTBR1_EL1, x0
+	msr     TTBR1_EL1, x4
 	msr     TCR_EL1, x2
 	msr     MAIR_EL1, x1
 	msr     SCTLR_EL1, x3
