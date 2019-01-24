@@ -52,10 +52,9 @@ SECTIONS
 	} > mem
 
 	dv_memory = 0x00000000;				/* Start of memory */
-	dv_end_mem = 0x1fffd000;			/* End of memory is start of page tables */
-	dv_l0_table = 0x1ffff000;			/* 4096 bytes = 512 * 64-bit entries - we use one of them */
-	dv_l1_table = 0x1fffe000;			/* 4096 bytes = 512 * 64-bit entries - we use two of them */
-	dv_l2_table = 0x1fffd000;			/* 4096 bytes = 512 * 64-bit entries */
+	dv_end_mem = 0x1fffe000;			/* End of memory is start of page tables */
+	dv_l2_table = 0x1fffe000;			/* 4096 bytes = 512 * 64-bit entries - we use all of them */
+	dv_l1_table = 0x1ffff000;			/* 4096 bytes = 512 * 64-bit entries - we use two of them */
 	dv_peripheral1 = 0x3f000000;		/* Start of peripheral 1 block (BCM2835) */
 	dv_peripheral2 = 0x40000000;		/* Start of peripheral 2 block (BCM2836) */
 
