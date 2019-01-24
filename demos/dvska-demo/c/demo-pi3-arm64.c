@@ -97,21 +97,26 @@ static void dv_init_core(void)
 	{
 		dv_arm64_msr(ELR_EL3, 0);
 		dv_arm64_msr(VBAR_EL3, (dv_u64_t)&dv_vectortable);
-		dv_arm64_msr(SCR_EL3, 0xc81);						/* ToDo: explain "magic number" */
+		dv_arm64_msr(SCR_EL3, 0xcb1);						/* ToDo: explain "magic number" */
+#if 1
 		dv_arm64_msr(SCTLR_EL3, 0);
 		dv_arm64_msr(CPTR_EL3, 0);
 		dv_arm64_msr(MDCR_EL3, 0);
+#endif
 	}
 
 	if ( el >= 2 )
 	{
 		dv_arm64_msr(ELR_EL2, 0);
 		dv_arm64_msr(VBAR_EL2, (dv_u64_t)&dv_vectortable);
-		dv_arm64_msr(HCR_EL2, 0x80000000);					/* RW = 1 ==> execution state for EL1 is aarch64 */
+		dv_arm64_msr(HCR_EL2, 0x80000002);					/* RW = 1 ==> execution state for EL1 is aarch64 */
+#if 1
 		dv_arm64_msr(SCTLR_EL2, 0);
 		dv_arm64_msr(VTTBR_EL2, 0);
 		dv_arm64_msr(CPTR_EL2, 0);
 		dv_arm64_msr(MDCR_EL2, 0);
+#endif
+		dv_arm64_msr(CNTHCTL_EL2, dv_arm64_mrs(CNTHCTL_EL2)|0x03uL);
 		dv_arm64_msr(CNTVOFF_EL2, 0);
 	}
 
