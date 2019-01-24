@@ -33,9 +33,7 @@
  *
  * Assumptions for now:
  *	- the 4 KiB granule size results in the least memory for page tables
- *	- L0 table has 512 entries:
- *		- entry 0 points to L1 table
- *		- rest are invalid
+ *	- L0 table is not used because the address range is restricted
  *	- L1 table has 512 entries:
  *		- entry 0 points to the level 2 table (0x00000000 <= address < 0x40000000)
  *		- entry 1 is a block of device memory (0x40000000 <= address < 0x80000000)
@@ -45,11 +43,12 @@
  *		- entries 504 to 511 are blocks of device memory (0x3f000000 <= address < 0x40000000)
  *	- L3 tables are not needed because all level 2 entries are blocks
  *
- * A page table is a single page of memory.
+ * The "kernel space" (upper address bits all 1) is not used (TCR_EL1.EPD1 = 1) so the value of
+ * TTBR1_EL1 is irrelevant.
+ *
  * The three tables are allocated (correctly aligned) in the linker script.
  *
 */
-extern dv_4KiBpage_t dv_l0_table;
 extern dv_4KiBpage_t dv_l1_table;
 extern dv_4KiBpage_t dv_l2_table;
 
@@ -66,19 +65,25 @@ extern dv_2MiBpage_t dv_peripheral2[];		/* BCM2836 peripherals */
 #define DV_MAIR_DEV			0
 #define DV_MAIR_ATTR_DEV	( DV_MAIR_DEV_NGNRNE )
 #define DV_MAIR_MEM			1
-#define DV_MAIR_ATTR_MEM	( (DV_MAIR_OWTT | DV_MAIR_OAW | DV_MAIR_OAR) | (DV_MAIR_IWTT | DV_MAIR_IAW | DV_MAIR_IAR) )
+#define DV_MAIR_ATTR_MEM	((DV_MAIR_OWBN | DV_MAIR_OAW | DV_MAIR_OAR) | (DV_MAIR_IWBN | DV_MAIR_IAW | DV_MAIR_IAR))
 
 /* Page attributes
- *	- memory :
- *	- device :
+ *	- memory : outer shared
+ *			 : supervisor RW, uswer no access. Have to have this, otherwise there's no execute at EL1
+ *			   (see https://community.arm.com/processors/f/discussions/11841/mmu---permission-fault-with-el1-access)
+ *			 : AF = 1 (otherwise we get a trap to "load" the page)
+ *			 : MAIR index = memory attribute field
+ *	- device : MAIR index = device attribte field
+ *			 : execute never (both privileged andf unprivileged
+ *			 : otherwise same as memory, although the "device" MAIR setting tells it to ignore most of them)
 */
-#define DV_PG_ATTR_MEM		( DV_ATTR_SH_INNER | \
-							  DV_ATTR_AP_RW_RW | \
+#define DV_PG_ATTR_MEM		( DV_ATTR_SH_OUTER | \
+							  DV_ATTR_AP_RW___ | \
 							  DV_ATTR_AF | \
 							  (DV_MAIR_MEM << 2) )
 #define DV_PG_ATTR_DEV		( DV_ATTR_UXN | DV_ATTR_PXN | \
-							  DV_ATTR_SH_INNER | \
-							  DV_ATTR_AP_RW_RW | \
+							  DV_ATTR_SH_OUTER | \
+							  DV_ATTR_AP_RW___ | \
 							  DV_ATTR_AF | \
 							  (DV_MAIR_DEV << 2) )
 
@@ -90,23 +95,12 @@ void dv_armv8_mmu_setup(void)
 	dv_printf("No. of peripheral1 blocks: %d\n", &dv_peripheral2[0] - &dv_peripheral1[0]);
 #endif
 
-	/* Initialise the one valid entry in the L0 table. It points to the L1 table
-	*/
-	dv_l0_table.m[0] = DV_PGT_VALID | DV_PGT_TABLE | (dv_u64_t)&dv_l1_table;
-
-	/* Initialise the rest of the L0 table to "invalid"
-	*/
-	for ( int i = 1; i < 512; i++ )
-	{
-		dv_l0_table.m[i] = DV_PGT_INVALID;
-	}
-
 	/* Initialise the two valid entries in the L1 table.
 	 *	- Entry 0 points to an L2 table
 	 *	- Entry 1 is a 1 GiB block that covers the BCM2836 peripherals
 	 *		Note: the peripheral space is much smaller than 1 GiB, but the rest is empty
 	*/
-	dv_l1_table.m[0] = DV_PGT_VALID | DV_PGT_TABLE | (dv_u64_t)&dv_l2_table;
+	dv_l1_table.m[0] = DV_PGT_VALID | DV_PGT_TABLE | DV_PG_ATTR_MEM | (dv_u64_t)&dv_l2_table;
 	dv_l1_table.m[1] = DV_PGT_VALID | DV_PG_ATTR_DEV | (dv_u64_t)&dv_peripheral2[0];
 
 	/* Initialise the rest of the L1 table to "invalid"
@@ -132,13 +126,23 @@ void dv_armv8_mmu_setup(void)
 
 	/* Set the parameters that we need in TCR_EL1
 	*/
-	dv_u64_t tcr = dv_arm64_mrs(TCR_EL1);
-	tcr &= ~(DV_TCR_T0SZ | DV_TCR_EPD0 | DV_TCR_IRGN0 | DV_TCR_ORGN0 | DV_TCR_SH0 | DV_TCR_TG0);
-	tcr &= ~(DV_TCR_T1SZ | DV_TCR_A1 | DV_TCR_EPD1 | DV_TCR_IRGN1 | DV_TCR_ORGN1 | DV_TCR_SH1 | DV_TCR_TG1);
-
-	tcr |= 16;				/* T0SZ */
-	tcr |= DV_TCR_EPD1;		/* Disable use of TTBR1 */
-
+	dv_u64_t tcr = 0;
+	tcr |= 25uL;				/* T0SZ -> restrict addresses to 39-bits */
+								/* EPD0 = 0 -> TTBR0 translation enabled */
+	tcr |= 1uL << 8;			/* IRGN0 = write-back */
+	tcr	|= 1uL << 10;			/* ORGN0 = write-back */
+	tcr |= 3uL << 12;			/* SH0 = inner shareable */
+								/* TG0 = 0 -> 4k pages */
+	tcr |= 25uL << 16;			/* T1SZ -> restrict addresses to 39-bits */
+	tcr |= DV_TCR_EPD1;			/* EPD1 -> disable "kernel" space */
+	tcr |= 1uL << 24;			/* IRGN1 = write-back */
+	tcr	|= 1uL << 26;			/* ORGN1 = write-back */
+	tcr |= 3uL << 28;			/* SH1 = inner shareable */
+	tcr |= 2uL << 30;			/* TG1 = 2 ->> 4k pages (different encoding from TG0) */
+	tcr |= 2uL << 32;			/* IPS = 2 (40-bit intermediate) */
+								/* AS = 0 -> 8-bit ASID */
+								/* TBI0 = TBI1 = 0 -> tagging disabled */
+	
 	dv_u64_t sctlr = dv_arm64_mrs(SCTLR_EL1);
 	sctlr |= DV_SCTLR_M;		/* Enable MMU */
 	sctlr |= DV_SCTLR_C;		/* Enable data cache */
@@ -147,15 +151,20 @@ void dv_armv8_mmu_setup(void)
 	sctlr |= DV_SCTLR_SA0;		/* Stack alignment check at EL0 */
 	sctlr |= DV_SCTLR_LSMAOE;	/* Store multiple (aarch32) is atomic */
 	sctlr |= DV_SCTLR_NTLMSD;	/* Store multiple device (aarch32) is trapped */
+	sctlr &= ~DV_SCTLR_WXN;		/* Allow to execute writeable pages */
+	sctlr &= ~DV_SCTLR_E0E;		/* Little endian at EL0 */
+	sctlr &= ~DV_SCTLR_EE;		/* Little endian at EL1 (incl. translation tables) */
 	sctlr |= (1<<20);			/* Bit 20 is RES1 but reads zero */
+	sctlr |= 0xc00800;			/* RES1 bits */
 
 	dv_u64_t mair = (DV_MAIR_ATTR_MEM << (DV_MAIR_MEM * 8)) | (DV_MAIR_ATTR_DEV << (DV_MAIR_DEV * 8));
 
-	tcr = 0x02b5983518uL;	/* Temp: from MK */
+	dv_u64_t ttbr0 = (dv_u64_t)&dv_l1_table;
+	ttbr0 |= 0x01uL;
+
+	dv_u64_t ttbr1 = ttbr0;
 
 #if DV_DEBUG
-	dv_printf("L0 0x%016lx   0 : 0x%016lx\n", (dv_u64_t)&dv_l0_table, dv_l0_table.m[0]);
-	dv_printf("L0 0x%016lx   1 : 0x%016lx\n", (dv_u64_t)&dv_l0_table, dv_l0_table.m[1]);
 	dv_printf("L1 0x%016lx   0 : 0x%016lx\n", (dv_u64_t)&dv_l1_table, dv_l1_table.m[0]);
 	dv_printf("L1 0x%016lx   1 : 0x%016lx\n", (dv_u64_t)&dv_l1_table, dv_l1_table.m[1]);
 	dv_printf("L1 0x%016lx   2 : 0x%016lx\n", (dv_u64_t)&dv_l1_table, dv_l1_table.m[2]);
@@ -164,12 +173,12 @@ void dv_armv8_mmu_setup(void)
 	dv_printf("L2 0x%016lx 504 : 0x%016lx\n", (dv_u64_t)&dv_l2_table, dv_l2_table.m[504]);
 	dv_printf("L2 0x%016lx 511 : 0x%016lx\n", (dv_u64_t)&dv_l2_table, dv_l2_table.m[511]);
 
-	dv_printf("ttbr  = 0x%016lx\n", (dv_u64_t)&dv_l0_table);
+	dv_printf("ttbr0  = 0x%016lx\n", ttbr0);
+	dv_printf("ttbr1  = 0x%016lx\n", ttbr1);
 	dv_printf("mair  = 0x%016lx\n", mair);
 	dv_printf("tcr   = 0x%016lx\n", tcr);
 	dv_printf("sctlr = 0x%016lx\n", sctlr);
 #endif
-#if 1
-	dv_setMMUregisters((dv_u64_t)&dv_l0_table, mair, tcr, sctlr);
-#endif
+
+	dv_setMMUregisters(ttbr0, mair, tcr, sctlr, ttbr1);
 }
