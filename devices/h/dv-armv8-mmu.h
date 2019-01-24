@@ -32,6 +32,9 @@
 #define DV_SCTLR_SA			0x0000000000000008uL	/* Stack alignment check enable */
 #define DV_SCTLR_SA0		0x0000000000000010uL	/* Stack alignment check enable at EL0 */
 #define DV_SCTLR_I			0x0000000000001000uL	/* Instruction cache enable */
+#define DV_SCTLR_WXN		0x0000000000080000uL	/* Write implies no execute */
+#define DV_SCTLR_E0E		0x000000000100000uL		/* Endianness at EL0 (1 = big-endian) */
+#define DV_SCTLR_EE			0x000000000200000uL		/* Endianness at EL1 (1 = big-endian) */
 #define DV_SCTLR_LSMAOE		0x0000000020000000uL	/* Store multiple at aa32 is atomic */
 #define	DV_SCTLR_NTLMSD		0x0000000010000000uL	/* Store mutliple at aa32 traps if device memory */
 
@@ -134,7 +137,7 @@ typedef struct dv_2MiBkpage_s
 #define DV_MAIR_ONC			0x40	/* Outer non-cacheable */
 
 #define DV_MAIR_OAW			0x10	/* Allocate on write */
-#define DV_MAIR_OAR			0x10	/* Allocate on read */
+#define DV_MAIR_OAR			0x20	/* Allocate on read */
 
 #define DV_MAIR_OWTT		0x00	/* Outer write-through, transient */
 #define DV_MAIR_OWBT		0x40	/* Outer write-back, transient */
@@ -170,7 +173,7 @@ static inline void dv_set_mair_field(int idx, dv_u64_t val)
 }
 
 extern void dv_armv8_mmu_setup(void);
-extern void dv_setMMUregisters(dv_u64_t ttbr, dv_u64_t mair, dv_u64_t tcr, dv_u64_t sctlr);
+extern void dv_setMMUregisters(dv_u64_t ttbr0, dv_u64_t mair, dv_u64_t tcr, dv_u64_t sctlr, dv_u64_t ttbr1);
 
 #endif
 
