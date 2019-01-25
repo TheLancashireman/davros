@@ -6,7 +6,8 @@ The contents of this sub-tree are unrelated to the main davros-3 tree.
 
 ## Status:
 
-* tested on a raspberry pi zero - uart and timer interrupts working
+* tested on a raspberry pi zero - uart and timer interrupts working. MMU and caches enabled
+* tested on a rapberry pi 3 (aarch64) - uart and timer interrupts working. MMU and caches enabled
 * activation and termination of basic tasks works.
 * chaining a task works
 * taking and dropping mutexes works
