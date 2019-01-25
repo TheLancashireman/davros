@@ -33,12 +33,28 @@
  * Cores 1, 2 and 3 loop forever
 */
 	.globl	dv_reset
+
 	.extern	dv_board_start
+	.extern	dv_core1_start
+	.extern	dv_core2_start
+	.extern	dv_core3_start
+
 	.extern dv_c0_initialsp
+	.extern dv_c1_initialsp
+	.extern dv_c2_initialsp
+	.extern dv_c3_initialsp
 
 	.section	.reset, "ax"
 
-/* Jump past the area reserved for a startup stack.
+/* This is where the bootloader jumps to.
+ * Insert a few dummy instructions so that, if the bootloader loads at zero, dv_reset is not at zero.
+*/
+	nop
+	nop
+	nop
+	nop
+
+/* This is where we start cores 1, 2 and 3 from the monitor. The address has to be non-zero
 */
 dv_reset:
 	msr		DAIFSet, 0xf	/* Disable interrupts and exceptions */
@@ -123,7 +139,16 @@ dv_reset:
 	bic		x5, x5, x6
 	cbz		x5, core_zero			/* Core zero: continue startup */
 
-stop:								/* Other cores wait here forever - the demo doesn't need them */
+	sub		x6, x5, #1
+	cbz		x6, core_one
+
+	sub		x6, x5, #2
+	cbz		x6, core_two
+
+	sub		x6, x5, #3
+	cbz		x6, core_three
+
+stop:								/* Other cores (if any) wait here forever - the demo doesn't need them */
 	b		stop
 
 /* Core 0 - go to dv_board_start
@@ -133,7 +158,36 @@ core_zero:
 	ldr		x1, [x0]
 	mov		sp, x1
 	bl		dv_board_start
-	b		dv_reset					/* if the board start function returns, rinse and repeat. */
+	b		dv_reset				/* if the board start function returns, rinse and repeat. */
+
+/* Cores 1, 2 and 3 - go to dv_corex_start
+*/
+core_one:
+	ldr		x0, dv_c1_sp_addr		/* Load the core 1 stack pointer */
+	ldr		x1, [x0]
+	mov		sp, x1
+	bl		dv_core1_start
+	b		dv_reset				/* if the board start function returns, rinse and repeat. */
+
+core_two:
+	ldr		x0, dv_c2_sp_addr		/* Load the core 2 stack pointer */
+	ldr		x1, [x0]
+	mov		sp, x1
+	bl		dv_core2_start
+	b		dv_reset				/* if the board start function returns, rinse and repeat. */
+
+core_three:
+	ldr		x0, dv_c3_sp_addr		/* Load the core 3 stack pointer */
+	ldr		x1, [x0]
+	mov		sp, x1
+	bl		dv_core3_start
+	b		dv_reset				/* if the board start function returns, rinse and repeat. */
 
 dv_c0_sp_addr:
-	.quad	dv_c0_initialsp			/* This is the address of where the initial stack pointer is held. */
+	.quad	dv_c0_initialsp			/* This is the address of where the core 0 stack pointer is held. */
+dv_c1_sp_addr:
+	.quad	dv_c1_initialsp			/* This is the address of where the core 1 stack pointer is held. */
+dv_c2_sp_addr:
+	.quad	dv_c2_initialsp			/* This is the address of where the core 2 stack pointer is held. */
+dv_c3_sp_addr:
+	.quad	dv_c3_initialsp			/* This is the address of where the core 3 stack pointer is held. */
