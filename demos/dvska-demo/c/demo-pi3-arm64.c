@@ -13,11 +13,14 @@
 #include <dv-arm-bcm2835-gpio.h>
 #include <dv-arm-bcm2835-interruptcontroller.h>
 #include <dv-armv8-mmu.h>
-#if 0
-#include <dv-arm-cp15.h>
-#endif
 #include <dv-arm-bcm2835-systimer.h>
 #include <dv-arm-bcm2835-armtimer.h>
+
+extern dv_u64_t dv_c1_stack_top, dv_c2_stack_top, dv_c3_stack_top;
+
+const dv_u64_t dv_c1_initialsp = (dv_address_t)&dv_c1_stack_top - DV_CANARY;
+const dv_u64_t dv_c2_initialsp = (dv_address_t)&dv_c2_stack_top - DV_CANARY;
+const dv_u64_t dv_c3_initialsp = (dv_address_t)&dv_c3_stack_top - DV_CANARY;
 
 extern int main(int argc, char **argv);
 
@@ -39,7 +42,7 @@ void dv_board_start(void)
 	dv_arm_bcm2835_uart_init(115200, 8, 0);
 	dv_arm_bcm2835_uart_console();
 
-	dv_printf("pi-zero starting ...\n");
+	dv_printf("pi-3-arm64 starting ...\n");
 	dv_printf("stack pointer = 0x%016lx\n", dv_get_SP());
 
 	dv_init_core();
@@ -48,25 +51,7 @@ void dv_board_start(void)
 
 	/* Set up the MMU
 	*/
-	dv_armv8_mmu_setup();
-
-#if 0
-	/* Caches
-	*/
-	dv_printf("CP15 cache type 0x%08x\n", dv_read_cp15_cache_type());
-
-	/* Enable both caches and the write buffer
-	*/
-	dv_printf("Enabling caches ...\n");
-	dv_write_cp15_control(dv_read_cp15_control() | DV_CP15_CTRL_C | DV_CP15_CTRL_W | DV_CP15_CTRL_I);
-#endif
-
-#if 0
-	/* Enable branch prediction
-	*/
-	dv_printf("Enabling branch prediction ...\n");
-	dv_write_cp15_control(dv_read_cp15_control() | DV_CP15_CTRL_Z);
-#endif
+	dv_armv8_mmu_setup(1);
 
 	/* Enable four GPIO pins for the LEDs.
     */
@@ -154,6 +139,111 @@ static void dv_init_core(void)
 	if ( el != 1 )
 	{
 		dv_panic(dv_panic_UnexpectedHardwareResponse, dv_sid_startup, "Oops! Started in unsupported exception level");
+	}
+}
+
+volatile char core_state[] = "----";
+const char cstatevals[] = "-/|\\";
+
+void run_core(int core, dv_u64_t delay)
+{
+	dv_u64_t then = dv_readtime();
+
+	delay = delay/250;
+
+	dv_printf("run_core(%d) reached\n", core);
+	for (;;)
+	{
+		for ( int i = 0; i < 4; i++ )
+		{
+			core_state[core] = cstatevals[i];
+#if 1
+			dv_printf("\nrun_core(%d) --- %c %lu\n", core, core_state[core], then);
+#endif
+
+			dv_u64_t now;
+
+			do {
+				now = dv_readtime();
+#if 0
+				dv_printf(" now = %lu\n", now);
+#endif
+			} while ( (now - then) < delay );
+
+			then = now;
+		}
+	}
+}
+
+/* dv_core1_start() - core 1 starts here
+*/
+void dv_core1_start(void)
+{
+	/* Initialise bss
+	*/
+	dv_memset32(&dv_start_bss, 0,
+		((dv_address_t)&dv_end_bss - (dv_address_t)&dv_start_bss + sizeof(dv_u32_t) - 1) / sizeof(dv_u32_t));
+
+	/* Initialise uart and connect it to the stdio functions
+	*/
+    dv_arm_bcm2835_uart_console();
+	dv_printf("pi-3-arm64 starting core 1 ...\n");
+
+	dv_init_core();
+	dv_armv8_mmu_setup(0);
+
+	run_core(1, 200000000);
+
+	for (;;)
+	{
+	}
+}
+
+/* dv_core2_start() - core 2 starts here
+*/
+void dv_core2_start(void)
+{
+	/* Initialise bss
+	*/
+	dv_memset32(&dv_start_bss, 0,
+		((dv_address_t)&dv_end_bss - (dv_address_t)&dv_start_bss + sizeof(dv_u32_t) - 1) / sizeof(dv_u32_t));
+
+	/* Initialise uart and connect it to the stdio functions
+	*/
+    dv_arm_bcm2835_uart_console();
+	dv_printf("pi-3-arm64 starting core 2 ...\n");
+
+	dv_init_core();
+	dv_armv8_mmu_setup(0);
+
+	run_core(2, 250000000);
+
+	for (;;)
+	{
+	}
+}
+
+/* dv_core3_start() - core 3 starts here
+*/
+void dv_core3_start(void)
+{
+	/* Initialise bss
+	*/
+	dv_memset32(&dv_start_bss, 0,
+		((dv_address_t)&dv_end_bss - (dv_address_t)&dv_start_bss + sizeof(dv_u32_t) - 1) / sizeof(dv_u32_t));
+
+	/* Initialise uart and connect it to the stdio functions
+	*/
+    dv_arm_bcm2835_uart_console();
+	dv_printf("pi-3-arm64 starting core 3 ...\n");
+
+	dv_init_core();
+	dv_armv8_mmu_setup(0);
+
+	run_core(3, 300000000);
+
+	for (;;)
+	{
 	}
 }
 

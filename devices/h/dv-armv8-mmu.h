@@ -172,7 +172,7 @@ static inline void dv_set_mair_field(int idx, dv_u64_t val)
 	dv_arm64_msr(MAIR_EL1, mair);
 }
 
-extern void dv_armv8_mmu_setup(void);
+extern void dv_armv8_mmu_setup(dv_boolean_t init_tables);
 extern void dv_setMMUregisters(dv_u64_t ttbr0, dv_u64_t mair, dv_u64_t tcr, dv_u64_t sctlr, dv_u64_t ttbr1);
 
 #endif

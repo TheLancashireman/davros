@@ -48,6 +48,7 @@
 
 /* This is where the bootloader jumps to.
  * Insert a few dummy instructions so that, if the bootloader loads at zero, dv_reset is not at zero.
+ * This allows other cores to be released at dv_reset.
 */
 	nop
 	nop
@@ -126,12 +127,6 @@ dv_reset:
 	fmov	d30, xzr
 	fmov	d31, xzr
 
-/*	Calculate the stack pointers for the four cores.
- *	The initial value of the SP (on cores 1..3) is the release address.
- *	Core 0 runs dv_board_start().
- *
- *	The release mechanism doesn't seem to work when the release addresses are ***fc or ***f8 - why?
-*/
 /*	Now find out which core we're on.
 */
 	mrs		x5, mpidr_el1
@@ -183,6 +178,7 @@ core_three:
 	bl		dv_core3_start
 	b		dv_reset				/* if the board start function returns, rinse and repeat. */
 
+	.balign	8
 dv_c0_sp_addr:
 	.quad	dv_c0_initialsp			/* This is the address of where the core 0 stack pointer is held. */
 dv_c1_sp_addr:

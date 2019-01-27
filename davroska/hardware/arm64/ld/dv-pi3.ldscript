@@ -55,6 +55,11 @@ SECTIONS
 	dv_end_mem = 0x1fffe000;			/* End of memory is start of page tables */
 	dv_l2_table = 0x1fffe000;			/* 4096 bytes = 512 * 64-bit entries - we use all of them */
 	dv_l1_table = 0x1ffff000;			/* 4096 bytes = 512 * 64-bit entries - we use two of them */
+
+	dv_c1_stack_top = 0x20014000;		/* Stack for core 1 - 16 KiB */
+	dv_c2_stack_top = 0x20018000;		/* Stack for core 2 - 16 KiB */
+	dv_c3_stack_top = 0x2001c000;		/* Stack for core 3 - 16 KiB */
+
 	dv_peripheral1 = 0x3f000000;		/* Start of peripheral 1 block (BCM2835) */
 	dv_peripheral2 = 0x40000000;		/* Start of peripheral 2 block (BCM2836) */
 

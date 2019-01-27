@@ -58,6 +58,8 @@ extern dv_2MiBpage_t dv_memory[];			/* Memnory - ends at dv_peripheral1 */
 extern dv_2MiBpage_t dv_peripheral1[];		/* BCM2835 peripherals - ends at dv_peripheral2 */
 extern dv_2MiBpage_t dv_peripheral2[];		/* BCM2836 peripherals */
 
+volatile dv_boolean_t tables_ready;
+
 /* MAIR attributes
  *	- device : MAIR index 0, nG, nR, nE
  *	- memory : MAIR index 1, outer and inner cacheable, allocate on read and write.
@@ -69,7 +71,7 @@ extern dv_2MiBpage_t dv_peripheral2[];		/* BCM2836 peripherals */
 
 /* Page attributes
  *	- memory : outer shared
- *			 : supervisor RW, uswer no access. Have to have this, otherwise there's no execute at EL1
+ *			 : supervisor RW, user no access. Have to have this, otherwise there's no execute at EL1
  *			   (see https://community.arm.com/processors/f/discussions/11841/mmu---permission-fault-with-el1-access)
  *			 : AF = 1 (otherwise we get a trap to "load" the page)
  *			 : MAIR index = memory attribute field
@@ -87,41 +89,63 @@ extern dv_2MiBpage_t dv_peripheral2[];		/* BCM2836 peripherals */
 							  DV_ATTR_AF | \
 							  (DV_MAIR_DEV << 2) )
 
-void dv_armv8_mmu_setup(void)
+/* dv_armv8_mmu_setup() - set up the MMU
+ *
+ *	- intialises the page tables (only if init_tables is true)
+ *	- configures the MMU to use the page tables
+ *
+ * The function is called with the parameter = true on the davroska core.
+ * The other cores wait until the variable "tables_ready" is true,
+ * then call this function with the parameter = false to set up their own MMU
+*/
+void dv_armv8_mmu_setup(dv_boolean_t init_tables)
 {
+	if ( init_tables )
+	{
 #if DV_DEBUG
-	dv_printf("dv_armv8_mmu_setup() - initialize page table\n");
-	dv_printf("No. of memory blocks: %d\n", &dv_peripheral1[0] - &dv_memory[0]);
-	dv_printf("No. of peripheral1 blocks: %d\n", &dv_peripheral2[0] - &dv_peripheral1[0]);
+		dv_printf("dv_armv8_mmu_setup() - initialize page table\n");
+		dv_printf("No. of memory blocks: %d\n", &dv_peripheral1[0] - &dv_memory[0]);
+		dv_printf("No. of peripheral1 blocks: %d\n", &dv_peripheral2[0] - &dv_peripheral1[0]);
 #endif
 
-	/* Initialise the two valid entries in the L1 table.
-	 *	- Entry 0 points to an L2 table
-	 *	- Entry 1 is a 1 GiB block that covers the BCM2836 peripherals
-	 *		Note: the peripheral space is much smaller than 1 GiB, but the rest is empty
-	*/
-	dv_l1_table.m[0] = DV_PGT_VALID | DV_PGT_TABLE | DV_PG_ATTR_MEM | (dv_u64_t)&dv_l2_table;
-	dv_l1_table.m[1] = DV_PGT_VALID | DV_PG_ATTR_DEV | (dv_u64_t)&dv_peripheral2[0];
+		/* Initialise the two valid entries in the L1 table.
+		 *	- Entry 0 points to an L2 table
+		 *	- Entry 1 is a 1 GiB block that covers the BCM2836 peripherals
+		 *		Note: the peripheral space is much smaller than 1 GiB, but the rest is empty
+		*/
+		dv_l1_table.m[0] = DV_PGT_VALID | DV_PGT_TABLE | DV_PG_ATTR_MEM | (dv_u64_t)&dv_l2_table;
+		dv_l1_table.m[1] = DV_PGT_VALID | DV_PG_ATTR_DEV | (dv_u64_t)&dv_peripheral2[0];
 
-	/* Initialise the rest of the L1 table to "invalid"
-	*/
-	for ( int i = 2; i < 512; i++ )
-	{
-		dv_l1_table.m[i] = DV_PGT_INVALID;
+		/* Initialise the rest of the L1 table to "invalid"
+		*/
+		for ( int i = 2; i < 512; i++ )
+		{
+			dv_l1_table.m[i] = DV_PGT_INVALID;
+		}
+
+		/* Initialise the "memory" entries" of the L2 table
+		*/
+		for ( int i = 0; i < 504; i++ )
+		{
+			dv_l2_table.m[i] = DV_PGT_VALID | DV_PG_ATTR_MEM | (dv_u64_t)&dv_memory[i];
+		}
+
+		/* Initialise the "device" entries" of the L2 table
+		*/
+		for ( int i = 0; i < 8; i++ )
+		{
+			dv_l2_table.m[504+i] = DV_PGT_VALID | DV_PG_ATTR_DEV | (dv_u64_t)&dv_peripheral1[i];
+		}
+
+		tables_ready = 1;
 	}
-
-	/* Initialise the "memory" entries" of the L2 table
-	*/
-	for ( int i = 0; i < 504; i++ )
+	else
 	{
-		dv_l2_table.m[i] = DV_PGT_VALID | DV_PG_ATTR_MEM | (dv_u64_t)&dv_memory[i];
-	}
-
-	/* Initialise the "device" entries" of the L2 table
-	*/
-	for ( int i = 0; i < 8; i++ )
-	{
-		dv_l2_table.m[504+i] = DV_PGT_VALID | DV_PG_ATTR_DEV | (dv_u64_t)&dv_peripheral1[i];
+		while ( tables_ready == 0 )
+		{
+			/* Wait for core 0 to do its job
+			*/
+		}
 	}
 
 	/* Set the parameters that we need in TCR_EL1
@@ -164,21 +188,24 @@ void dv_armv8_mmu_setup(void)
 
 	dv_u64_t ttbr1 = ttbr0;
 
+	if ( init_tables )
+	{
 #if DV_DEBUG
-	dv_printf("L1 0x%016lx   0 : 0x%016lx\n", (dv_u64_t)&dv_l1_table, dv_l1_table.m[0]);
-	dv_printf("L1 0x%016lx   1 : 0x%016lx\n", (dv_u64_t)&dv_l1_table, dv_l1_table.m[1]);
-	dv_printf("L1 0x%016lx   2 : 0x%016lx\n", (dv_u64_t)&dv_l1_table, dv_l1_table.m[2]);
-	dv_printf("L2 0x%016lx   0 : 0x%016lx\n", (dv_u64_t)&dv_l2_table, dv_l2_table.m[0]);
-	dv_printf("L2 0x%016lx 503 : 0x%016lx\n", (dv_u64_t)&dv_l2_table, dv_l2_table.m[503]);
-	dv_printf("L2 0x%016lx 504 : 0x%016lx\n", (dv_u64_t)&dv_l2_table, dv_l2_table.m[504]);
-	dv_printf("L2 0x%016lx 511 : 0x%016lx\n", (dv_u64_t)&dv_l2_table, dv_l2_table.m[511]);
+		dv_printf("L1 0x%016lx   0 : 0x%016lx\n", (dv_u64_t)&dv_l1_table, dv_l1_table.m[0]);
+		dv_printf("L1 0x%016lx   1 : 0x%016lx\n", (dv_u64_t)&dv_l1_table, dv_l1_table.m[1]);
+		dv_printf("L1 0x%016lx   2 : 0x%016lx\n", (dv_u64_t)&dv_l1_table, dv_l1_table.m[2]);
+		dv_printf("L2 0x%016lx   0 : 0x%016lx\n", (dv_u64_t)&dv_l2_table, dv_l2_table.m[0]);
+		dv_printf("L2 0x%016lx 503 : 0x%016lx\n", (dv_u64_t)&dv_l2_table, dv_l2_table.m[503]);
+		dv_printf("L2 0x%016lx 504 : 0x%016lx\n", (dv_u64_t)&dv_l2_table, dv_l2_table.m[504]);
+		dv_printf("L2 0x%016lx 511 : 0x%016lx\n", (dv_u64_t)&dv_l2_table, dv_l2_table.m[511]);
 
-	dv_printf("ttbr0  = 0x%016lx\n", ttbr0);
-	dv_printf("ttbr1  = 0x%016lx\n", ttbr1);
-	dv_printf("mair  = 0x%016lx\n", mair);
-	dv_printf("tcr   = 0x%016lx\n", tcr);
-	dv_printf("sctlr = 0x%016lx\n", sctlr);
+		dv_printf("ttbr0  = 0x%016lx\n", ttbr0);
+		dv_printf("ttbr1  = 0x%016lx\n", ttbr1);
+		dv_printf("mair  = 0x%016lx\n", mair);
+		dv_printf("tcr   = 0x%016lx\n", tcr);
+		dv_printf("sctlr = 0x%016lx\n", sctlr);
 #endif
+	}
 
 	dv_setMMUregisters(ttbr0, mair, tcr, sctlr, ttbr1);
 }

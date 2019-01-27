@@ -78,7 +78,13 @@ void main_Led(void)
 				cc[i] = ledstate[i] ? '*' : '-';
 			}
 
+#if 0
 			dv_printf("    %c %c %c %c\r", cc[3], cc[2], cc[1], cc[0]);
+#elif 1
+			extern volatile char core_state[];
+			dv_printf("    %c %c %c %c %c %c %c\r", cc[3], cc[2], cc[1], cc[0],
+													core_state[1], core_state[2], core_state[3]);
+#endif
 
 			if ( (ee = dv_dropmutex(mx_Gpio)) != dv_e_ok )
 				dv_shutdown(ee);
