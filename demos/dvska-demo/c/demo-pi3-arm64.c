@@ -149,7 +149,7 @@ void run_core(int core, dv_u64_t delay)
 {
 	dv_u64_t then = dv_readtime();
 
-	delay = delay/250;
+	delay = delay/500;
 
 	dv_printf("run_core(%d) reached\n", core);
 	for (;;)
@@ -157,7 +157,7 @@ void run_core(int core, dv_u64_t delay)
 		for ( int i = 0; i < 4; i++ )
 		{
 			core_state[core] = cstatevals[i];
-#if 1
+#if 0
 			dv_printf("\nrun_core(%d) --- %c %lu\n", core, core_state[core], then);
 #endif
 

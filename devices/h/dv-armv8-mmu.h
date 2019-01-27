@@ -33,6 +33,7 @@
 #define DV_SCTLR_SA0		0x0000000000000010uL	/* Stack alignment check enable at EL0 */
 #define DV_SCTLR_I			0x0000000000001000uL	/* Instruction cache enable */
 #define DV_SCTLR_WXN		0x0000000000080000uL	/* Write implies no execute */
+#define DV_SCTLR_UWXN		0x0000000000100000uL	/* Write at EL0 implies no execute at EL1 */
 #define DV_SCTLR_E0E		0x000000000100000uL		/* Endianness at EL0 (1 = big-endian) */
 #define DV_SCTLR_EE			0x000000000200000uL		/* Endianness at EL1 (1 = big-endian) */
 #define DV_SCTLR_LSMAOE		0x0000000020000000uL	/* Store multiple at aa32 is atomic */

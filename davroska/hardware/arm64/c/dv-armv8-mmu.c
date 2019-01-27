@@ -67,7 +67,7 @@ volatile dv_boolean_t tables_ready;
 #define DV_MAIR_DEV			0
 #define DV_MAIR_ATTR_DEV	( DV_MAIR_DEV_NGNRNE )
 #define DV_MAIR_MEM			1
-#define DV_MAIR_ATTR_MEM	((DV_MAIR_OWBN | DV_MAIR_OAW | DV_MAIR_OAR) | (DV_MAIR_IWBN | DV_MAIR_IAW | DV_MAIR_IAR))
+#define DV_MAIR_ATTR_MEM	((DV_MAIR_OWTN | DV_MAIR_OAW | DV_MAIR_OAR) | (DV_MAIR_IWTN | DV_MAIR_IAW | DV_MAIR_IAR))
 
 /* Page attributes
  *	- memory : outer shared
@@ -170,12 +170,16 @@ void dv_armv8_mmu_setup(dv_boolean_t init_tables)
 	dv_u64_t sctlr = dv_arm64_mrs(SCTLR_EL1);
 	sctlr |= DV_SCTLR_M;		/* Enable MMU */
 	sctlr |= DV_SCTLR_C;		/* Enable data cache */
+#if 0
+	sctlr &= ~DV_SCTLR_C;		/* Temp: disable cache */
+#endif
 	sctlr |= DV_SCTLR_I;		/* Enable instruction cache */
 	sctlr |= DV_SCTLR_SA;		/* Stack alignment check */
 	sctlr |= DV_SCTLR_SA0;		/* Stack alignment check at EL0 */
 	sctlr |= DV_SCTLR_LSMAOE;	/* Store multiple (aarch32) is atomic */
 	sctlr |= DV_SCTLR_NTLMSD;	/* Store multiple device (aarch32) is trapped */
 	sctlr &= ~DV_SCTLR_WXN;		/* Allow to execute writeable pages */
+	sctlr &= ~DV_SCTLR_UWXN;	/* Allow to execute EL0-writeable pages at EL1 */
 	sctlr &= ~DV_SCTLR_E0E;		/* Little endian at EL0 */
 	sctlr &= ~DV_SCTLR_EE;		/* Little endian at EL1 (incl. translation tables) */
 	sctlr |= (1<<20);			/* Bit 20 is RES1 but reads zero */
