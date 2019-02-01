@@ -47,7 +47,7 @@ struct dv_rbm_s
  *
  * Assumption: i is in range 0..length-1. If >= length result is 0.
 */
-static inline dv_rb_next(dv_rbm_t *rb, dv_i32_t i)
+static inline dv_i32_t dv_rb_add1(dv_rbm_t *rb, dv_i32_t i)
 {
 	if ( (i+1) >= rb->length ) return 0;
 	return i+1;
