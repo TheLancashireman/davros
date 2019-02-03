@@ -96,6 +96,16 @@ static inline dv_u32_t dv_get_el(void)
 	return (dv_arm64_mrs(CurrentEL) >> 2) & 3;
 }
 
+static inline dv_u32_t dv_get_coreidx(void)
+{
+	return (dv_arm64_mrs(MPIDR_EL1) & 0xff);
+}
+
+static inline void dv_barrier(void)
+{
+	__asm volatile("dsb sy");
+}
+
 void dv_switch_el2el1(void);
 void dv_switch_el3el1(void);
 void dv_switch_el3el2(void);
