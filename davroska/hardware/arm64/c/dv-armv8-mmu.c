@@ -136,8 +136,6 @@ void dv_armv8_mmu_setup(dv_boolean_t init_tables)
 		{
 			dv_l2_table.m[504+i] = DV_PGT_VALID | DV_PG_ATTR_DEV | (dv_u64_t)&dv_peripheral1[i];
 		}
-
-		tables_ready = 1;
 	}
 	else
 	{
@@ -209,6 +207,7 @@ void dv_armv8_mmu_setup(dv_boolean_t init_tables)
 		dv_printf("tcr   = 0x%016lx\n", tcr);
 		dv_printf("sctlr = 0x%016lx\n", sctlr);
 #endif
+		tables_ready = 1;
 	}
 
 	dv_setMMUregisters(ttbr0, mair, tcr, sctlr, ttbr1);
