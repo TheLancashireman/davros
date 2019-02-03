@@ -39,8 +39,9 @@ struct dv_rbm_s
 };
 
 /* Rules:
+ *	elements are removed from the head and added at the tail.
  *	head == tail  =>  buffer is empty
- *  (head+1) mod length == tail  => buffer is full
+ *  (tail+1) mod length == head  => buffer is full
 */
 
 /* dv_rb_add1() - add 1 to a given index, wrapping at length.
@@ -53,18 +54,18 @@ static inline dv_i32_t dv_rb_add1(dv_rbm_t *rb, dv_i32_t i)
 	return i+1;
 }
 
-/*  dv_rb_isempty() - returns true if rb is empty (head == tail), false otherwise
+/*  dv_rb_empty() - returns true if rb is empty (head == tail), false otherwise
 */
-static inline dv_boolean_t dv_rb_isempty(dv_rbm_t *rb)
+static inline dv_boolean_t dv_rb_empty(dv_rbm_t *rb)
 {
 	return ( rb->head == rb->tail );
 }
 
-/*  dv_rb_isfull() - returns true if rb is full, false otherwise
+/*  dv_rb_full() - returns true if rb is full, false otherwise
 */
 static inline dv_boolean_t dv_rb_full(dv_rbm_t *rb)
 {
-	return ( dv_rb_add1(rb, rb->head) == rb->tail );
+	return ( dv_rb_add1(rb, rb->tail) == rb->head );
 }
 
 #endif
