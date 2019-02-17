@@ -25,7 +25,7 @@
  * dv_memset32(unsigned *d, unsigned v, unsigned n) initialises every element of
  * the array d to the value v. n is the number of elements.
 */
-static inline unsigned *dv_memset32(unsigned *d, unsigned v, unsigned n)
+static inline unsigned *dv_memset32_inline(unsigned *d, unsigned v, unsigned n)
 {
 	while ( n > 0 )
 	{
@@ -62,6 +62,10 @@ static inline int dv_strlen(const char *str)
 	}
 	return (s-str);
 }
+
+/* Real functions
+*/
+extern unsigned *dv_memset32(unsigned *d, unsigned v, unsigned n);
 
 #if 0
 char *strcpy(char *d, const char *s);
