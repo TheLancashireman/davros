@@ -29,7 +29,8 @@ DV_BOARD	?= pi3-arm64
 ifeq ($(DV_BOARD), pi3-arm64)
 
 DEMO_BOARD	?=	DEMO_PI3_ARM64
-DV_GNU_D	?=	/data1/gnu/gcc-linaro-6.3.1-2017.02-x86_64_aarch64-elf
+#DV_GNU_D	?=	/data1/gnu/gcc-linaro-6.3.1-2017.02-x86_64_aarch64-elf
+DV_GNU_D	?=	/data1/gnu/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-elf
 
 DV_GCC		?=	$(DV_GNU_D)/bin/aarch64-elf-gcc
 DV_LD		?=	$(DV_GNU_D)/bin/aarch64-elf-ld
@@ -66,9 +67,12 @@ CC_OPT		+= -I $(DV_ROOT)/devices/h
 CC_OPT		+= -I $(DV_ROOT)/lib/h
 CC_OPT		+= -Wall
 CC_OPT		+= -fno-common
+
+# -O3 doesn't work for some reason. The system doesn't start - or dv_printf() doesn't work.
+CC_OPT		+= -O2
+
 #CC_OPT		+= -mfloat-abi=hard
 #CC_OPT		+= -mfpu=vfp
-#CC_OPT		+= -O2
 
 LD_OPT		+= -e $(DV_ENTRY)
 LD_OPT		+= -T $(DV_LDSCRIPT)
@@ -84,6 +88,7 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/davroska-time.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/davroska-extended.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-printf.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-xprintf.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-memset32.o
 
 # Hardware-specific files
 ifeq ($(DV_BOARD), pi3-arm64)
