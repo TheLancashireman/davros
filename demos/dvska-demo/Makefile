@@ -17,6 +17,16 @@
 #	You should have received a copy of the GNU General Public License
 #	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 
+#	Usage:
+#		make [DV_BOARD=pi3-arm64|pi-zero] [DV_GNU_D=</path/to/gcc>] [INSTALL_DIR=</place/to/install/]
+#	Alternatively, you can set DV_BOARD DV_GNU_D and INSTALL_DIR as environment variables.
+#
+#	Targets:
+#		clean: removes all object and binary files
+#		default: compiles and links
+#		install: objcopy the ELF file to a binary (img) file in INSTALL_DIR
+#		srec: objcopy the ELF to an S-record file in the bin directory
+
 # Find out where we are :-)
 DV_ROOT		= ../..
 DVSK_ROOT	= ../../davroska
@@ -24,6 +34,10 @@ DVSK_ROOT	= ../../davroska
 # Select your hardware here
 DV_BOARD	?= pi3-arm64
 #DV_BOARD	?= pi-zero
+
+# The directory where 'make install' puts the binary kernel.img
+# This could be a mounted sd card, or the msd directory of rpi-boot
+INSTALL_DIR	?= /data1/projects/raspberry-pi/usb-zero/msd
 
 # Select your compiler here
 ifeq ($(DV_BOARD), pi3-arm64)
@@ -177,7 +191,7 @@ $(DV_OBJ_D):
 	mkdir -p obj
 
 install:	all
-	$(DV_OBJCOPY) bin/davroska.elf -O binary /data1/projects/raspberry-pi/usb-zero/msd/kernel.img
+	$(DV_OBJCOPY) bin/davroska.elf -O binary $(INSTALL_DIR)/kernel.img
 
 srec:		all
 	$(DV_OBJCOPY) bin/davroska.elf -O srec --srec-forceS3 /dev/stdout | dos2unix | egrep -v '^S3..........00*..$$' > bin/davroska.srec
