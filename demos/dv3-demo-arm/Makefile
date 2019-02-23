@@ -54,6 +54,10 @@ include $(DV_ROOT)/make/dv-defs.make
 
 .PHONY:		default all help klib ulib clean
 
+.PHONY:		temp
+temp:
+	echo "Davros-3 is currently closed for renovation"
+
 default:	all
 
 all:		klib ulib bin

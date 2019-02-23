@@ -8,6 +8,7 @@ License - all GPL v3 unless otherwise stated.  See the LICENSE file
 What's here?
 
 * davros-3 - the beginnings of an embedded OS with memory protection
+** davros-3 is currently unavailable because of restructuring work
 * davroska - a tiny OS similar to OSEK
 * demos - some demo code to show you how it works
 * devices - header files and drivers for devices. Used by all davros flavours
