@@ -85,9 +85,9 @@ wise to advance the counter by the number of timer ticks that have elapsed since
 Hook functions as specified in by OSEK are not implemented, However, there are several callout functions
 that serve a simiar purpose.
 
-Non-premptable tasks, internal resources and the OSEK Schedule() API are not implemented yet.
+The OSEK Schedule(), GetTaskID(), GetTaskState() and GetAlarmBase() APIs are not implemented yet.
 
-Anything else in the OSEK specfication that isn't mentioned is not implemented.
+Anything else in the OSEK specfication that isn't mentioned is not implemented yet.
 
 ### Configuration:
 

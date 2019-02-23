@@ -1,2 +1,2 @@
 #!/bin/sh
-minicom -b 115200 -8 -D /dev/ttyUSB0
+/usr/bin/minicom -b 115200 -8 -D /dev/ttyUSB0
