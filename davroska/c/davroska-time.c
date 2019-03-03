@@ -93,7 +93,7 @@ dv_statustype_t dv_advancecounter(dv_id_t c, dv_u64_t n)
 			(dv_alarm[a].expirytime <= dv_counter[c].value) )
 	{
 		dv_counter[c].head = dv_alarm[a].nextalarm;
-		dv_u32_t inc = dv_alarm[a].expiryfunction(a);
+		dv_u64_t inc = dv_alarm[a].expiryfunction(a);
 		if ( (dv_alarm[a].expirytime + inc) <= dv_alarm[a].expirytime )
 			dv_alarm[a].expirytime = 0;		/* Occurs when inc is 0 and when addition overflows */
 		else
@@ -150,7 +150,7 @@ dv_statustype_t dv_setalarm_abs(dv_id_t c, dv_id_t a, dv_u64_t v)
 
 /* dv_setalarm_rel() - set an alarm at a counter value relative to the current value
 */
-dv_statustype_t dv_setalarm_rel(dv_id_t c, dv_id_t a, dv_u32_t v)
+dv_statustype_t dv_setalarm_rel(dv_id_t c, dv_id_t a, dv_u64_t v)
 {
 	if ( (c < 0) || (c >= dv_ncounter) || (a < 0) || (a >= dv_nalarm) )
 	{

@@ -122,7 +122,7 @@ extern dv_statustype_t dv_chaintask(dv_id_t task);
 extern dv_statustype_t dv_takemutex(dv_id_t mutex);
 extern dv_statustype_t dv_dropmutex(dv_id_t mutex);
 
-extern dv_statustype_t dv_setalarm_rel(dv_id_t c, dv_id_t a, dv_u32_t v);
+extern dv_statustype_t dv_setalarm_rel(dv_id_t c, dv_id_t a, dv_u64_t v);
 extern dv_statustype_t dv_setalarm_abs(dv_id_t c, dv_id_t a, dv_u64_t v);
 extern dv_statustype_t dv_advancecounter(dv_id_t c, dv_u64_t n);
 extern dv_statustype_t dv_stopalarm(dv_id_t a);
