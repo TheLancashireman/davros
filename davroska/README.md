@@ -225,7 +225,7 @@ When dv_startos() is done, davroska will schedule the tasks and ISRs of your app
   * drops the indicated mutex
   * reduces the priority of the caller to the priority before taking the mutex
   * allows other tasks of intermediate priority to run
-* dv_statustype_t dv_setalarm_rel(dv_id_t c, dv_id_t a, dv_u32_t v)
+* dv_statustype_t dv_setalarm_rel(dv_id_t c, dv_id_t a, dv_u64_t v)
   * activates an alarm to expire when the counter reaches a value of v ticks beyond its current value
 * dv_statustype_t dv_setalarm_abs(dv_id_t c, dv_id_t a, dv_u64_t v)
   * activates an alarm to expire when the counter reaches the value v
