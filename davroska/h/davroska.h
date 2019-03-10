@@ -114,7 +114,7 @@ extern void dv_finishgroup(void);
 extern dv_id_t dv_addmutex(const char *name, dv_qty_t maxtake);
 extern void dv_addmutexuser(dv_id_t mutex, dv_id_t executable);
 extern dv_id_t dv_addcounter(const char *name);
-extern dv_id_t dv_addalarm(const char *name, dv_u32_t (*fn)(dv_id_t a));
+extern dv_id_t dv_addalarm(const char *name, dv_u64_t (*fn)(dv_id_t a));
 
 extern dv_statustype_t dv_terminatetask(void);
 extern dv_statustype_t dv_activatetask(dv_id_t task);
@@ -281,7 +281,7 @@ typedef struct dv_alarm_s
 {
 	const char *name;
 	dv_u64_t expirytime;
-	dv_u32_t (*expiryfunction)(dv_id_t a);
+	dv_u64_t (*expiryfunction)(dv_id_t a);
 	dv_id_t counter;
 	dv_id_t nextalarm;
 } dv_alarm_t;
@@ -365,6 +365,8 @@ extern void dv_panic(dv_panic_t p, dv_sid_t sid, char *fault);
 extern dv_statustype_t dv_unconfigured_interrupt(dv_id_t p);
 extern dv_prio_t dv_raiseprio(void);
 extern void dv_lowerprio(dv_prio_t p);
+
+extern void dv_setalarm(dv_id_t c, dv_id_t a, dv_u64_t v);
 
 /* The following prototypes are not needed if there's no extended task support.
  * The functions are either inline stubs or not required at all

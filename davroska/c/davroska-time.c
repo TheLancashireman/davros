@@ -45,8 +45,6 @@ dv_qty_t dv_nalarm;
 dv_counter_t dv_counter[DV_CFG_MAXCOUNTER];
 dv_alarm_t dv_alarm[DV_CFG_MAXALARM];
 
-static void dv_setalarm(dv_id_t c, dv_id_t a, dv_u64_t v);
-
 /* dv_getexpirytime() - returns the expiry time of a given alarm
  *
  * A return value of 0 means that the parameter is out of range or the alarm is not in use
@@ -236,7 +234,7 @@ dv_id_t dv_addcounter(const char *name)
 
 /* dv_addalarm() - add an alarm to the set of alarms
 */
-dv_id_t dv_addalarm(const char *name, dv_u32_t (*expiryfn)(dv_id_t a))
+dv_id_t dv_addalarm(const char *name, dv_u64_t (*expiryfn)(dv_id_t a))
 {
 	if ( (dv_configstate == DV_NULL) || (dv_configstate->phase != ph_addalarms) )
 	{
@@ -267,7 +265,7 @@ dv_id_t dv_addalarm(const char *name, dv_u32_t (*expiryfn)(dv_id_t a))
  *
  * If the counter has already reached the counter value, the alarm expires the next time the counter advances.
 */
-static void dv_setalarm(dv_id_t c, dv_id_t a, dv_u64_t v)
+void dv_setalarm(dv_id_t c, dv_id_t a, dv_u64_t v)
 {
 	dv_intstatus_t is = dv_disable();
 

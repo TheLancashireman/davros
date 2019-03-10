@@ -237,7 +237,7 @@ void main_Timer(void)
 
 /* af_BitDriver() - alarm function to activate the Bit0 task every 1000 ticks
 */
-dv_u32_t af_BitDriver(dv_id_t a)
+dv_u64_t af_BitDriver(dv_id_t a)
 {
 	dv_activatetask(Bit0);
 	return 1000;
@@ -245,7 +245,7 @@ dv_u32_t af_BitDriver(dv_id_t a)
 
 /* af_FlickerDriver() - alarm function to send the event to calculate Led3 every 89 ticks
 */
-dv_u32_t af_FlickerDriver(dv_id_t a)
+dv_u64_t af_FlickerDriver(dv_id_t a)
 {
 	dv_setevent(Bit3, ev_Flicker);
 	return 89;
