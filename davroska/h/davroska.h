@@ -63,6 +63,8 @@ typedef enum
 	dv_sid_setevent,
 	dv_sid_getevent,
 	dv_sid_clearevent,
+	dv_sid_setrelalarm,		/* OSEK conformance */
+	dv_sid_setabsalarm,		/* OSEK conformance */
 
 	dv_sid_addtask,
 	dv_sid_addextendedtask,
