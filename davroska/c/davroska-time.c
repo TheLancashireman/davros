@@ -192,6 +192,7 @@ dv_statustype_t dv_setalarm_rel(dv_id_t c, dv_id_t a, dv_u64_t v)
 	{
 		/* Calculation has overflowed
 		*/
+		dv_restore(is);
 		dv_param_t p[3];
 		p[0] = (dv_param_t)c;
 		p[1] = (dv_param_t)a;
