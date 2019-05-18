@@ -65,7 +65,7 @@ extern dv_intstatus_t dv_osek_disableallinterrupts_savedstate;
 extern dv_id_t dv_osek_suspendallinterrupts_mutex;
 extern dv_id_t dv_osek_suspendoslinterrupts_mutex;
 
-/* OSEK-like "services"
+/* OSEK "services"
 */
 static inline StatusType ActivateTask(TaskType t)
 {
@@ -139,47 +139,102 @@ static inline StatusType ReleaseResource(ResourceType r)
 
 static inline StatusType SetEvent(TaskType t, EventMaskType e)
 {
-	return (StatusType)dv_e_nofunc;
+	return (StatusType)dv_setevent(t, e);
 }
 
 static inline StatusType ClearEvent(EventMaskType e)
 {
-	return (StatusType)dv_e_nofunc;
+	return (StatusType)dv_clearevent(e);
 }
 
-static inline StatusType GetEvent(TaskType t, EventMaskRefType e)
+static inline StatusType GetEvent(TaskType t, EventMaskRefType p)
 {
-	return (StatusType)dv_e_nofunc;
+	return (StatusType)dv_getevent(t, p);
 }
 
 static inline StatusType WaitEvent(EventMaskType e)
 {
-	return (StatusType)dv_e_nofunc;
+	return (StatusType)dv_waitevent(e);
 }
 
-static inline StatusType GetAlarmBase(AlarmType a, AlarmBaseRefType b)
+static inline StatusType GetAlarmBase(AlarmType a, AlarmBaseRefType p)
 {
 	return (StatusType)dv_e_nofunc;
 }
 
-static inline StatusType GetAlarm(AlarmType a, TickRefType t)
-{
-	return (StatusType)dv_e_nofunc;
-}
-
-static inline StatusType SetAbsAlarm(AlarmType a, TickType t, TickType c)
-{
-	return (StatusType)dv_e_nofunc;
-}
-
-static inline StatusType SetRelAlarm(AlarmType a, TickType t, TickType c)
+static inline StatusType GetAlarm(AlarmType a, TickRefType p)
 {
 	return (StatusType)dv_e_nofunc;
 }
 
 static inline StatusType CancelAlarm(AlarmType a)
 {
-	return (StatusType)dv_e_nofunc;
+	return (StatusType)dv_stopalarm(a);
 }
+
+extern StatusType SetAbsAlarm(AlarmType a, TickType t, TickType c);
+extern StatusType SetRelAlarm(AlarmType a, TickType t, TickType c);
+
+/* Construction API for OSEK objects
+ *
+ * dv_addosekalarm_task()	- add an alarm for task processing
+ * dv_addosekalarm_acb()	- add an alarm for an alarm callback
+ * dv_addosekalarm_incr()	- add an alarm to increment a counter
+ *
+ * In each case:
+ *		c is the osek counter id
+ *		the remaining parameters are configuration for the expiry function
+ *
+ * dv_addosekcounter()		- add an osek counter
+ *		c is the davroska counter on which the counter is based
+ *			- there can be multiple osek counters on a davroska counter
+ *		max is the maxallowedvalue configuration of the osek counter
+ *		min is the mincycle configuration of the osek counter
+*/
+extern dv_id_t dv_addosekalarm_task(dv_id_t c, dv_id_t t, dv_eventmask_t e);
+extern dv_id_t dv_addosekalarm_acb(dv_id_t c, void (*acb)(void));
+extern dv_id_t dv_addosekalarm_counter(dv_id_t c, dv_id_t c2incr);
+extern dv_id_t dv_addosekcounter(dv_id_t c, dv_u64_t max, dv_u64_t min);
+
+/* OSEK callout functions
+*/
+extern void ErrorHook(StatusType s);
+extern void StartupHook(void);
+extern void ShutdownHook(StatusType s);
+extern void PreTaskHook(void);
+extern void PostTaskHook(void);
+
+/* Compatibility data
+*/
+#define DV_MAXPARAM		3
+struct dv_lasterror_s
+{
+    dv_param_t p[DV_MAXPARAM];
+    dv_sid_t sid;
+    dv_statustype_t e;
+	dv_int_t inerrorhook;
+};
+
+struct dv_osekalarm_s
+{
+	dv_id_t osekcounter;		/* OSEK counter that the alarm is mapped to */
+	dv_id_t obj;				/* Id of an object for the expiry function to use */
+	union {						/* More information for the expiry function */
+		dv_eventmask_t e;
+		void (*acb)(void);
+	} more;
+	dv_u64_t cycle;				/* Alarm cycle time */
+};
+
+struct dv_osekcounter_s
+{
+	dv_u64_t maxvalue;			/* Configured maximum value for the OSEK counter */
+	dv_u64_t mincycle;			/* Configured minimum cycle time */
+	dv_id_t counter;			/* davroska counter on which this counter is based */
+};
+
+extern dv_osekalarm_s dv_osekalarm[DV_CFG_MAXALARM_OSEK];
+extern dv_osekcounter_s dv_osekcounter[DV_CFG_MAXCOUNTER_OSEK];
+extern dv_lasterror_s dv_lasterror;
 
 #endif
