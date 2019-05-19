@@ -5,6 +5,8 @@
 #ifndef dv_davroska_osek_h
 #define dv_davroska_osek_h	1
 
+#include <dv-config.h>
+#include <davroska.h>
 #include <davroska.h>
 
 /* StatusType has to be defined in conformance with the OSEK Binding Specification.
@@ -63,10 +65,20 @@ enum dv_osekconst
 
 extern dv_intstatus_t dv_osek_disableallinterrupts_savedstate;
 extern dv_id_t dv_osek_suspendallinterrupts_mutex;
-extern dv_id_t dv_osek_suspendoslinterrupts_mutex;
+extern dv_id_t dv_osek_suspendosinterrupts_mutex;
 
 /* OSEK "services"
 */
+static inline void StartOS(AppModeType m)
+{
+	dv_startos((dv_id_t)m);
+}
+
+static inline void ShutdownOS(StatusType e)
+{
+	dv_shutdown((dv_statustype_t)e);
+}
+
 static inline StatusType ActivateTask(TaskType t)
 {
 	return (StatusType)dv_activatetask(t);
@@ -191,10 +203,10 @@ extern StatusType SetRelAlarm(AlarmType a, TickType t, TickType c);
  *		max is the maxallowedvalue configuration of the osek counter
  *		min is the mincycle configuration of the osek counter
 */
-extern dv_id_t dv_addosekalarm_task(dv_id_t c, dv_id_t t, dv_eventmask_t e);
-extern dv_id_t dv_addosekalarm_acb(dv_id_t c, void (*acb)(void));
-extern dv_id_t dv_addosekalarm_counter(dv_id_t c, dv_id_t c2incr);
-extern dv_id_t dv_addosekcounter(dv_id_t c, dv_u64_t max, dv_u64_t min);
+extern dv_id_t dv_addosekalarm_task(const char *name, dv_id_t c, dv_id_t t, dv_eventmask_t e);
+extern dv_id_t dv_addosekalarm_acb(const char *name, dv_id_t c, void (*acb)(void));
+extern dv_id_t dv_addosekalarm_counter(const char *name, dv_id_t c, dv_id_t c2incr);
+extern dv_id_t dv_addosekcounter(const char *name, dv_id_t c, dv_u64_t max, dv_u64_t min);
 
 /* OSEK callout functions
 */
@@ -212,7 +224,7 @@ struct dv_lasterror_s
     dv_param_t p[DV_MAXPARAM];
     dv_sid_t sid;
     dv_statustype_t e;
-	dv_int_t inerrorhook;
+	dv_boolean_t inerrorhook;
 };
 
 struct dv_osekalarm_s
@@ -233,8 +245,8 @@ struct dv_osekcounter_s
 	dv_id_t counter;			/* davroska counter on which this counter is based */
 };
 
-extern dv_osekalarm_s dv_osekalarm[DV_CFG_MAXALARM_OSEK];
-extern dv_osekcounter_s dv_osekcounter[DV_CFG_MAXCOUNTER_OSEK];
-extern dv_lasterror_s dv_lasterror;
+extern struct dv_osekalarm_s dv_osekalarm[DV_CFG_MAXALARM_OSEK];
+extern struct dv_osekcounter_s dv_osekcounter[DV_CFG_MAXCOUNTER_OSEK];
+extern struct dv_lasterror_s dv_lasterror;
 
 #endif

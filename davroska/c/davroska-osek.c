@@ -2,6 +2,10 @@
  *
  * (c) David Haworth
 */
+#define DV_ASM	0
+#include <dv-config.h>
+#include <davroska.h>
+#include <davroska-osek.h>
 
 /* OSEK fixed alarm-to-counter mapping, with cycle times
 */

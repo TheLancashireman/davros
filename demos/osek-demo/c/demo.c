@@ -1,4 +1,4 @@
-/* demo.c - demo for davroska
+/* demo.c - demo for davroska (OSEK version)
  *
  * This file contains all the target-independent stuff - tasks, ISRs etc.
  * The target-dependent stuff (startup, main, timer & uart functions) can be found in
@@ -7,8 +7,8 @@
  * (c) David Haworth
 */
 #define DV_ASM	0
-#include <dv-config.h>
-#include <davroska.h>
+#include <os.h>
+
 #include <dv-stdio.h>
 #include <dv-string.h>
 
@@ -39,36 +39,35 @@
 */
 /* Object identifiers
 */
-dv_id_t Init, Led, Bit0, Bit1, Bit2, Bit3;	/* Tasks */
-dv_id_t Uart, Timer;						/* ISRs */
-dv_id_t mx_Gpio;							/* Mutexes */
-dv_id_t Ticker;								/* Counters */
-dv_id_t BitDriver, FlickerDriver;			/* Alarms */
+DeclareTask(Led);
+DeclareTask(Bit0);
+DeclareTask(Bit1);
+DeclareTask(Bit2);
+DeclareTask(Bit3);
+DeclareResource(mx_Gpio);
 
 dv_boolean_t ledstate[4];
-const dv_eventmask_t ev_Flicker = 0x01;	/* Calculates ledstate[3] */
-const dv_eventmask_t ev_Update = 0x08;	/* Transfers led states to I/O pins */
 
-/* main_Led() - task body function for the Led task
+/* TASK(Led) - task body function for the Led task
 */
-void main_Led(void)
+TASK(Led)
 {
-	dv_statustype_t ee;
-	dv_eventmask_t events;
+	StatusType ee;
+	EventMaskType events;
 
 	for (;;)
 	{
-		if ( (ee = dv_waitevent(ev_Update)) != dv_e_ok )
-			dv_shutdown(ee);
-		if ( (ee = dv_getevent(Led, &events)) != dv_e_ok )
-			dv_shutdown(ee);
-		if ( (ee = dv_clearevent(events)) != dv_e_ok )
-			dv_shutdown(ee);
+		if ( (ee = WaitEvent(ev_Update)) != E_OK )
+			ShutdownOS(ee);
+		if ( (ee = GetEvent(Led, &events)) != E_OK )
+			ShutdownOS(ee);
+		if ( (ee = ClearEvent(events)) != E_OK )
+			ShutdownOS(ee);
 
 		if ( (events & ev_Update) != 0 )
 		{
-			if ( (ee = dv_takemutex(mx_Gpio)) != dv_e_ok )
-				dv_shutdown(ee);
+			if ( (ee = GetResource(mx_Gpio)) != E_OK )
+				ShutdownOS(ee);
 
 			char cc[4];
 
@@ -86,88 +85,88 @@ void main_Led(void)
 													core_state[1], core_state[2], core_state[3]);
 #endif
 
-			if ( (ee = dv_dropmutex(mx_Gpio)) != dv_e_ok )
-				dv_shutdown(ee);
+			if ( (ee = ReleaseResource(mx_Gpio)) != E_OK )
+				ShutdownOS(ee);
 		}
 	}
 }
 
-/* main_Bit0() - task body function for the Bit0 task
+/* TASK(Bit0) - task body function for the Bit0 task
 */
-void main_Bit0(void)
+TASK(Bit0)
 {
-	dv_statustype_t ee;
+	StatusType ee;
 
 	ledstate[0] = !ledstate[0];
 
 	if ( ledstate[0] )
 	{
-		if ( (ee = dv_setevent(Led, ev_Update)) != dv_e_ok )
-			dv_shutdown(ee);
-		ee = dv_terminatetask();
-		dv_shutdown(ee);
+		if ( (ee = SetEvent(Led, ev_Update)) != E_OK )
+			ShutdownOS(ee);
+		ee = TerminateTask();
+		ShutdownOS(ee);
 	}
 	else
 	{
-		ee = dv_chaintask(Bit1);
-		dv_shutdown(ee);
+		ee = ChainTask(Bit1);
+		ShutdownOS(ee);
 	}
 }
 
-/* main_Bit1() - task body function for the Bit1 task
+/* TASK(Bit1) - task body function for the Bit1 task
 */
-void main_Bit1(void)
+TASK(Bit1)
 {
-	dv_statustype_t ee;
+	StatusType ee;
 
 	ledstate[1] = !ledstate[1];
 
 	if ( ledstate[1] )
 	{
-		if ( (ee = dv_setevent(Led, ev_Update)) != dv_e_ok )
-			dv_shutdown(ee);
-		ee = dv_terminatetask();
-		dv_shutdown(ee);
+		if ( (ee = SetEvent(Led, ev_Update)) != E_OK )
+			ShutdownOS(ee);
+		ee = TerminateTask();
+		ShutdownOS(ee);
 	}
 	else
 	{
-		ee = dv_chaintask(Bit2);
-		dv_shutdown(ee);
+		ee = ChainTask(Bit2);
+		ShutdownOS(ee);
 	}
 }
 
-/* main_Bit2() - task body function for the Bit2 task
+/* TASK(Bit2) - task body function for the Bit2 task
 */
-void main_Bit2(void)
+TASK(Bit2)
 {
-	dv_statustype_t ee;
+	StatusType ee;
 
 	ledstate[2] = !ledstate[2];
 
-	if ( (ee = dv_setevent(Led, ev_Update)) != dv_e_ok )
-		dv_shutdown(ee);
+	if ( (ee = SetEvent(Led, ev_Update)) != E_OK )
+		ShutdownOS(ee);
 
-	dv_takemutex(mx_Gpio);		/* ToDo: remove this test thing */
-	ee = dv_terminatetask();
-	dv_shutdown(ee);
+	GetResource(mx_Gpio);		/* ToDo: remove this test thing */
+	ee = TerminateTask();
+	ShutdownOS(ee);
 }
 
-/* main_Bit3() - task body function for the Bit3 task
+/* TASK(Bit3) - task body function for the Bit3 task
 */
-void main_Bit3(void)
+TASK(Bit3)
 {
-	dv_statustype_t ee;
-	dv_eventmask_t events;
+	StatusType ee;
+	EventMaskType events;
 	unsigned shiftreg = 0xcccc;
 
 	for (;;)
 	{
-		if ( (ee = dv_waitevent(ev_Flicker)) != dv_e_ok )
-			dv_shutdown(ee);
-		if ( (ee = dv_getevent(Bit3, &events)) != dv_e_ok )
-			dv_shutdown(ee);
-		if ( (ee = dv_clearevent(events)) != dv_e_ok )
-			dv_shutdown(ee);
+		if ( (ee = WaitEvent(ev_Flicker)) != E_OK )
+			ShutdownOS(ee);
+		if ( (ee = GetEvent(Bit3, &events)) != E_OK )
+			ShutdownOS(ee);
+		if ( (ee = ClearEvent(events)) != E_OK )
+			ShutdownOS(ee);
 
 		if ( events & ev_Flicker )
 		{
@@ -176,8 +175,8 @@ void main_Bit3(void)
 				if ( ledstate[3] == 0 )
 				{
 					ledstate[3] = 1;
-					if ( (ee = dv_setevent(Led, ev_Update)) != dv_e_ok )
-						dv_shutdown(ee);
+					if ( (ee = SetEvent(Led, ev_Update)) != E_OK )
+						ShutdownOS(ee);
 				}
 
 				if ( (shiftreg & 8) == 0 )
@@ -188,8 +187,8 @@ void main_Bit3(void)
 				if ( ledstate[3] != 0 )
 				{
 					ledstate[3] = 0;
-					if ( (ee = dv_setevent(Led, ev_Update)) != dv_e_ok )
-						dv_shutdown(ee);
+					if ( (ee = SetEvent(Led, ev_Update)) != E_OK )
+						ShutdownOS(ee);
 				}
 
 				if ( (shiftreg & 8) != 0 )
@@ -199,11 +198,14 @@ void main_Bit3(void)
 			shiftreg = shiftreg >> 1;
 		}
 	}
+
+	ee = TerminateTask();
+	ShutdownOS(ee);
 }
 
-/* main_Init() - start the ball rolling
+/* TASK(Init) - start the ball rolling
 */
-void main_Init(void)
+TASK(Init)
 {
 	for ( int i = 0; i < dv_nexe; i++ )
 	{
@@ -212,9 +214,9 @@ void main_Init(void)
 	}
 }
 
-/* main_Uart() - body of ISR to handle uart rx interrupt
+/* ISR(Uart) - body of ISR to handle uart rx interrupt
 */
-void main_Uart(void)
+ISR(Uart)
 {
 	while ( dv_consoledriver.isrx() )
 	{
@@ -224,127 +226,15 @@ void main_Uart(void)
 	}
 }
 
-/* main_Timer() - body of ISR to handle interval timer interrupt
+/* ISR(Timer) - body of ISR to handle interval timer interrupt
 */
-void main_Timer(void)
+ISR(Timer)
 {
 	hw_ClearTimer();
 
 	dv_statustype_t ee = dv_advancecounter(Ticker, 1);
 	if ( ee != dv_e_ok )
-		dv_shutdown(ee);
-}
-
-/* af_BitDriver() - alarm function to activate the Bit0 task every 1000 ticks
-*/
-dv_u64_t af_BitDriver(dv_id_t a)
-{
-	dv_activatetask(Bit0);
-	return 1000;
-}
-
-/* af_FlickerDriver() - alarm function to send the event to calculate Led3 every 89 ticks
-*/
-dv_u64_t af_FlickerDriver(dv_id_t a)
-{
-	dv_setevent(Bit3, ev_Flicker);
-	return 89;
-}
-
-/* callout_addtasks() - configure the tasks
-*/
-void callout_addtasks(dv_id_t mode)
-{
-	Init = dv_addtask("Init", &main_Init, 4, 1);
-	Led = dv_addextendedtask("Led", &main_Led, 1, 8192);
-	Bit0 = dv_addtask("Bit0", &main_Bit0, 2, 1);
-	Bit1 = dv_addtask("Bit1", &main_Bit1, 2, 1);
-	Bit2 = dv_addtask("Bit2", &main_Bit2, 2, 1);
-	Bit3 = dv_addextendedtask("Bit3", &main_Bit3, 3, 8192);
-}
-
-/* callout_addisrs() - configure the isrs
-*/
-void callout_addisrs(dv_id_t mode)
-{
-	Uart = dv_addisr("Uart", &main_Uart, hw_UartInterruptId, 7);
-	Timer = dv_addisr("Timer", &main_Timer, hw_TimerInterruptId, 8);
-}
-
-/* callout_addgroups() - configure the executable groups
- *
- * ToDo: remove the contents - just for testing
-*/
-void callout_addgroups(dv_id_t mode)
-{
-	dv_startgroup("NONPRE", 1);
-	{
-		dv_addtogroup(Init);
-		dv_addtogroup(Bit0);
-		dv_finishgroup();
-	}
-
-	dv_startgroup("Silly", 0);
-	{
-		dv_addtogroup(Bit0);
-		dv_addtogroup(Bit1);
-		dv_addtogroup(Bit3);
-		dv_finishgroup();
-	}
-
-	dv_startgroup("Sillier", 0);
-	{
-		dv_addtogroup(Init);
-		dv_addtogroup(Uart);
-		dv_finishgroup();
-	}
-}
-
-/* callout_addmutexes() - configure the mutexes
-*/
-void callout_addmutexes(dv_id_t mode)
-{
-	mx_Gpio = dv_addmutex("mx_Gpio", 1);
-	{
-		dv_addmutexuser(mx_Gpio, Led);
-		dv_addmutexuser(mx_Gpio, Bit0);
-		dv_addmutexuser(mx_Gpio, Bit1);
-		dv_addmutexuser(mx_Gpio, Bit2);
-	}
-}
-
-/* callout_addcounters() - configure the counters
-*/
-void callout_addcounters(dv_id_t mode)
-{
-	Ticker = dv_addcounter("Ticker");
-}
-
-/* callout_addalarms() - configure the alarms
-*/
-void callout_addalarms(dv_id_t mode)
-{
-	BitDriver = dv_addalarm("BitDriver", &af_BitDriver);
-	FlickerDriver = dv_addalarm("FlickerDriver", &af_FlickerDriver);
-}
-
-/* callout_autostart() - start the objects that need to be running after dv_startos()
-*/
-void callout_autostart(dv_id_t mode)
-{
-	dv_activatetask(Init);
-	dv_activatetask(Led);
-	dv_activatetask(Bit3);
-	dv_setalarm_rel(Ticker, BitDriver, 1000);
-	dv_setalarm_rel(Ticker, FlickerDriver, 1700);
-
-	/* Enable interrupts from the UART
-	*/
-	hw_EnableUartRxInterrupt();
-	dv_enable_irq(hw_UartInterruptId);
-
-	hw_InitialiseMillisecondTicker();
-	dv_enable_irq(hw_TimerInterruptId);
+		ShutdownOS(ee);
 }
 
 /* callout_reporterror() - called if an error is detected
@@ -391,7 +281,7 @@ int main(int argc, char **argv)
 {
 	dv_printf("davroska starting ...\n");
 
-	dv_startos(0);
+	StartOS(OSDEFAULTAPPMODE);
 
 	return 0;
 }
