@@ -222,6 +222,7 @@ extern void PostTaskHook(void);
 struct dv_lasterror_s
 {
     dv_param_t p[DV_MAXPARAM];
+	dv_qty_t n_param;
     dv_sid_t sid;
     dv_statustype_t e;
 	dv_boolean_t inerrorhook;

@@ -7,16 +7,19 @@
 #include <davroska.h>
 #include <davroska-osek.h>
 
-/* OSEK fixed alarm-to-counter mapping, with cycle times
+/* OSEK counters and alarms
 */
-dv_alarmmap_s dv_alarmmap[DV_CFG_MAXALARM];
+struct dv_osekalarm_s dv_osekalarm[DV_CFG_MAXALARM_OSEK];
+struct dv_osekcounter_s dv_osekcounter[DV_CFG_MAXCOUNTER_OSEK];
+
+/* OSEK last error information
+*/
+struct dv_lasterror_s dv_lasterror;
 
 /* OSEK error reporting
  *
  * ToDo: make lasterror information and call to ErrorHook optional (configurable)
 */
-struct dv_lasterror_s dv_lasterror;
-
 dv_statustype_t callout_reporterror(dv_sid_t sid, dv_statustype_t e, dv_qty_t nParam, dv_param_t *p)
 {
 	if ( dv_lasterror.inerrorhook )		/* No ErrorHook nesting */
@@ -26,6 +29,7 @@ dv_statustype_t callout_reporterror(dv_sid_t sid, dv_statustype_t e, dv_qty_t nP
 	dv_lasterror.sid = sid;
 	if ( nParam > DV_MAXPARAM )
 		nParam = DV_MAXPARAM;
+	dv_lasterror.n_param = nParam;
 	for ( int i = 0; i < nParam; i++ )
 		dv_lasterror.p[i] = p[i];
 
@@ -84,7 +88,7 @@ static inline StatusType dv_checkalarmparams(AlarmType a, TickType t, TickType c
 		}
 	}
 
-	if ( dv_alarm[a].expirytime != 0 )
+	if ( dv_getexpirytime(a) != 0 )
 	{
 		/* Alarm is already in use
 		*/
@@ -106,7 +110,8 @@ static inline StatusType dv_checkalarmparams(AlarmType a, TickType t, TickType c
 */
 StatusType SetRelAlarm(AlarmType a, TickType tim, TickType cyc)
 {
-	if ( (StatusType e = dv_checkalarmparams(a, tim, cyc, dv_sid_setrelalarm)) != dv_e_ok )
+	StatusType e = dv_checkalarmparams(a, tim, cyc, dv_sid_setrelalarm);
+	if ( e != dv_e_ok )
 		return e;
 
 	dv_intstatus_t is = dv_disable();
@@ -141,7 +146,8 @@ StatusType SetRelAlarm(AlarmType a, TickType tim, TickType cyc)
 */
 StatusType SetAbsAlarm(AlarmType a, TickType tim, TickType cyc)
 {
-	if ( (StatusType e = dv_checkalarmparams(a, tim, cyc, dv_sid_setabsalarm)) != dv_e_ok )
+	StatusType e = dv_checkalarmparams(a, tim, cyc, dv_sid_setabsalarm);
+	if ( e != dv_e_ok )
 		return e;
 
 	dv_intstatus_t is = dv_disable();
@@ -149,12 +155,12 @@ StatusType SetAbsAlarm(AlarmType a, TickType tim, TickType cyc)
 	dv_id_t c = dv_osekcounter[dv_osekalarm[a].osekcounter].counter;
 	dv_u64_t curval = dv_getcountervalue(c);
 
-	dv_u64_t modulo = dv_osekcounter[dv_osekalarm[a].osekcounter]+1;
-	dv_u64_t curosek = curval % modulo;
+	dv_u64_t modulus = dv_osekcounter[dv_osekalarm[a].osekcounter].maxvalue + 1;
+	dv_u64_t curosek = curval % modulus;
 
 	dv_u64_t absval = curval + tim - curosek;
 	if ( curosek >= tim )
-		absval += modulo;
+		absval += modulus;
 
 	if ( absval < curval )
 	{
@@ -179,9 +185,14 @@ StatusType SetAbsAlarm(AlarmType a, TickType tim, TickType cyc)
 */
 void dv_osekinit(void)
 {
-	for ( int i = 0; i < DV_CFG_MAXALARM; i++ )
+	for ( int i = 0; i < DV_CFG_MAXALARM_OSEK; i++ )
 	{
-		dv_osekalarm[i].counter = -1;
+		dv_osekalarm[i].osekcounter = -1;
+	}
+
+	for ( int i = 0; i < DV_CFG_MAXCOUNTER_OSEK; i++ )
+	{
+		dv_osekcounter[i].counter = -1;
 	}
 
 	dv_lasterror.e = dv_e_ok;

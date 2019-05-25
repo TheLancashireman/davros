@@ -56,6 +56,7 @@ typedef enum
 	dv_sid_takemutex,
 	dv_sid_dropmutex,
 	dv_sid_getexpirytime,
+	dv_sid_getcountervalue,
 	dv_sid_advancecounter,
 	dv_sid_setalarm_abs,
 	dv_sid_setalarm_rel,
@@ -129,6 +130,7 @@ extern dv_statustype_t dv_setalarm_abs(dv_id_t c, dv_id_t a, dv_u64_t v);
 extern dv_statustype_t dv_advancecounter(dv_id_t c, dv_u64_t n);
 extern dv_statustype_t dv_stopalarm(dv_id_t a);
 extern dv_u64_t dv_getexpirytime(dv_id_t a);
+extern dv_u64_t dv_getcountervalue(dv_id_t c);
 
 /* Configuration callout functions: provided by the application
 */

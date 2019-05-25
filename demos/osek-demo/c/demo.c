@@ -237,6 +237,22 @@ ISR(Timer)
 		ShutdownOS(ee);
 }
 
+#if 1
+/* ErrorHook() - called if an error is detected
+*/
+void ErrorHook(StatusType e)
+{
+	dv_printf("ErrorHook(%d) called.\n", e);
+	dv_printf("    - sid = %d\n", dv_lasterror.sid);
+	for (int i = 0; i < dv_lasterror.n_param; i++ )
+	{
+		/* Only print the lower 32 bits of the parameters
+		*/
+		dv_printf("    param[%d] = %d (0x%08x)\n", i, (dv_u32_t)dv_lasterror.p[i], (dv_u32_t)dv_lasterror.p[i]);
+	}
+}
+
+#else
 /* callout_reporterror() - called if an error is detected
 */
 dv_statustype_t callout_reporterror(dv_sid_t sid, dv_statustype_t e, dv_qty_t nparam, dv_param_t *param)
@@ -252,6 +268,7 @@ dv_statustype_t callout_reporterror(dv_sid_t sid, dv_statustype_t e, dv_qty_t np
 	for (;;) {} /* Temporary */
 	return e;
 }
+#endif
 
 /* callout_shutdown() - called on shutdown
 */

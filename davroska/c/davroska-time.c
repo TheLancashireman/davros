@@ -63,6 +63,24 @@ dv_u64_t dv_getexpirytime(dv_id_t a)
 	return dv_alarm[a].expirytime;
 }
 
+/* dv_getcountervalue() - returns the current value of a given counter
+ *
+ * A return value of 0 means that the parameter is out of range or the alarm is not in use
+*/
+dv_u64_t dv_getcountervalue(dv_id_t c)
+{
+	if ( (c < 0) || (c >= dv_ncounter) )
+	{
+		/* Counter out of range
+		*/
+		dv_param_t p = (dv_param_t)c;
+		(void)callout_reporterror(dv_sid_getcountervalue, dv_e_id, 1, &p);
+		return 0;
+	}
+
+	return dv_counter[c].value;
+}
+
 /* dv_advancecounter() - advances a counter
  *
  * dv_advancecounter(c, n) advances the counter c by n ticks. Any alarms attached to the counter whose
