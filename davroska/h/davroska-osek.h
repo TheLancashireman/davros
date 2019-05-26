@@ -191,7 +191,7 @@ extern StatusType SetRelAlarm(AlarmType a, TickType t, TickType c);
  *
  * dv_addosekalarm_task()	- add an alarm for task processing
  * dv_addosekalarm_acb()	- add an alarm for an alarm callback
- * dv_addosekalarm_incr()	- add an alarm to increment a counter
+ * dv_addosekalarm_counter()	- add an alarm to increment a counter
  *
  * In each case:
  *		c is the osek counter id
@@ -218,7 +218,7 @@ extern void PostTaskHook(void);
 
 /* Compatibility data
 */
-#define DV_MAXPARAM		3
+#define DV_MAXPARAM		4
 struct dv_lasterror_s
 {
     dv_param_t p[DV_MAXPARAM];
@@ -230,6 +230,7 @@ struct dv_lasterror_s
 
 struct dv_osekalarm_s
 {
+	char *name;
 	dv_id_t osekcounter;		/* OSEK counter that the alarm is mapped to */
 	dv_id_t obj;				/* Id of an object for the expiry function to use */
 	union {						/* More information for the expiry function */
@@ -241,6 +242,7 @@ struct dv_osekalarm_s
 
 struct dv_osekcounter_s
 {
+	char *name;
 	dv_u64_t maxvalue;			/* Configured maximum value for the OSEK counter */
 	dv_u64_t mincycle;			/* Configured minimum cycle time */
 	dv_id_t counter;			/* davroska counter on which this counter is based */

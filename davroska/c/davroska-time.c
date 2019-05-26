@@ -109,7 +109,7 @@ dv_statustype_t dv_advancecounter(dv_id_t c, dv_u64_t n)
 			(dv_alarm[a].expirytime <= dv_counter[c].value) )
 	{
 		dv_counter[c].head = dv_alarm[a].nextalarm;
-		dv_u64_t inc = dv_alarm[a].expiryfunction(a);
+		dv_u64_t inc = dv_alarm[a].expiryfunction(a,  dv_alarm[a].expiryfunctiondata);
 		if ( (dv_alarm[a].expirytime + inc) <= dv_alarm[a].expirytime )
 			dv_alarm[a].expirytime = 0;		/* Occurs when inc is 0 and when addition overflows */
 		else
@@ -253,7 +253,7 @@ dv_id_t dv_addcounter(const char *name)
 
 /* dv_addalarm() - add an alarm to the set of alarms
 */
-dv_id_t dv_addalarm(const char *name, dv_u64_t (*expiryfn)(dv_id_t a))
+dv_id_t dv_addalarm(const char *name, dv_u64_t (*expiryfn)(dv_id_t a, dv_param_t d), dv_u64_t d)
 {
 	if ( (dv_configstate == DV_NULL) || (dv_configstate->phase != ph_addalarms) )
 	{
@@ -274,6 +274,7 @@ dv_id_t dv_addalarm(const char *name, dv_u64_t (*expiryfn)(dv_id_t a))
 	dv_alarm[id].name = name;
 	dv_alarm[id].expirytime = 0;
 	dv_alarm[id].expiryfunction = expiryfn;
+	dv_alarm[id].expiryfunctiondata = d;
 	dv_alarm[id].counter = -1;
 	dv_alarm[id].nextalarm = -1;
 

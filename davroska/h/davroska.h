@@ -79,6 +79,11 @@ typedef enum
 	dv_sid_addcounter,
 	dv_sid_addalarm,
 
+	dv_sid_addosekcounter,
+	dv_sid_addosekalarm_task,
+	dv_sid_addosekalarm_acb,
+	dv_sid_addosekalarm_counter,
+
 	dv_sid_scheduler,
 	dv_sid_interruptdispatcher,
 	dv_sid_exceptionhandler,
@@ -117,7 +122,7 @@ extern void dv_finishgroup(void);
 extern dv_id_t dv_addmutex(const char *name, dv_qty_t maxtake);
 extern void dv_addmutexuser(dv_id_t mutex, dv_id_t executable);
 extern dv_id_t dv_addcounter(const char *name);
-extern dv_id_t dv_addalarm(const char *name, dv_u64_t (*fn)(dv_id_t a));
+extern dv_id_t dv_addalarm(const char *name, dv_u64_t (*fn)(dv_id_t a, dv_param_t d), dv_param_t d);
 
 extern dv_statustype_t dv_terminatetask(void);
 extern dv_statustype_t dv_activatetask(dv_id_t task);
@@ -215,7 +220,9 @@ typedef enum
 	ph_addgroups,
 	ph_addmutexes,
 	ph_addcounters,
-	ph_addalarms
+	ph_addalarms,
+	ph_addosekcounters,
+	ph_addosekalarms
 } dv_cfgphase_t;
 
 typedef struct dv_configstate_s
@@ -285,7 +292,8 @@ typedef struct dv_alarm_s
 {
 	const char *name;
 	dv_u64_t expirytime;
-	dv_u64_t (*expiryfunction)(dv_id_t a);
+	dv_u64_t (*expiryfunction)(dv_id_t a, dv_param_t d);
+	dv_param_t expiryfunctiondata;
 	dv_id_t counter;
 	dv_id_t nextalarm;
 } dv_alarm_t;
