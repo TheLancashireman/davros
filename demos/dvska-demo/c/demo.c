@@ -237,7 +237,7 @@ void main_Timer(void)
 
 /* af_BitDriver() - alarm function to activate the Bit0 task every 1000 ticks
 */
-dv_u64_t af_BitDriver(dv_id_t a)
+dv_u64_t af_BitDriver(dv_id_t a, dv_param_t unused_d)
 {
 	dv_activatetask(Bit0);
 	return 1000;
@@ -245,7 +245,7 @@ dv_u64_t af_BitDriver(dv_id_t a)
 
 /* af_FlickerDriver() - alarm function to send the event to calculate Led3 every 89 ticks
 */
-dv_u64_t af_FlickerDriver(dv_id_t a)
+dv_u64_t af_FlickerDriver(dv_id_t a, dv_param_t unused_d)
 {
 	dv_setevent(Bit3, ev_Flicker);
 	return 89;
@@ -324,8 +324,8 @@ void callout_addcounters(dv_id_t mode)
 */
 void callout_addalarms(dv_id_t mode)
 {
-	BitDriver = dv_addalarm("BitDriver", &af_BitDriver);
-	FlickerDriver = dv_addalarm("FlickerDriver", &af_FlickerDriver);
+	BitDriver = dv_addalarm("BitDriver", &af_BitDriver, 0);
+	FlickerDriver = dv_addalarm("FlickerDriver", &af_FlickerDriver, 0);
 }
 
 /* callout_autostart() - start the objects that need to be running after dv_startos()
