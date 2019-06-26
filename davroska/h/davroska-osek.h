@@ -230,7 +230,7 @@ struct dv_lasterror_s
 
 struct dv_osekalarm_s
 {
-	char *name;
+	const char *name;
 	dv_id_t osekcounter;		/* OSEK counter that the alarm is mapped to */
 	dv_id_t obj;				/* Id of an object for the expiry function to use */
 	union {						/* More information for the expiry function */
@@ -242,7 +242,7 @@ struct dv_osekalarm_s
 
 struct dv_osekcounter_s
 {
-	char *name;
+	const char *name;
 	dv_u64_t maxvalue;			/* Configured maximum value for the OSEK counter */
 	dv_u64_t mincycle;			/* Configured minimum cycle time */
 	dv_id_t counter;			/* davroska counter on which this counter is based */

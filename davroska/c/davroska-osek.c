@@ -217,7 +217,7 @@ static dv_u64_t dv_osekaf_incrementcounter(dv_id_t a, dv_param_t d);
 */
 dv_id_t dv_addosekalarm_task(const char *name, dv_id_t c, dv_id_t t, dv_eventmask_t e)
 {
-	if ( (t < 0) || (c >= dv_ntask) )
+	if ( (t < 0) || (t >= dv_ntask) )
 	{
 		dv_param_t p[4];
 		p[0] = (dv_param_t)(dv_address_t)name;
@@ -350,6 +350,7 @@ dv_id_t dv_addosekcounter(const char *name, dv_id_t c, dv_u64_t max, dv_u64_t mi
 
 	dv_id_t id = dv_nosekcounter++;
 
+	dv_osekcounter[id].name = name;
 	dv_osekcounter[id].maxvalue = min;
 	dv_osekcounter[id].mincycle = max;
 	dv_osekcounter[id].counter = c;
@@ -357,8 +358,37 @@ dv_id_t dv_addosekcounter(const char *name, dv_id_t c, dv_u64_t max, dv_u64_t mi
 	return id;
 }
 
+/* dv_addosekalarm() - add an OSEK alarm to the configuration
+ *
+ * Returns alarm id if successful.
+ * On error, returns the negated error id.
+ * Error reporting is done by the caller.
+*/
 static dv_id_t dv_addosekalarm(const char *name, dv_id_t c, dv_u64_t (*af)(dv_id_t a, dv_param_t d))
 {
+	if ( (c < 0) || (c >= dv_nosekcounter) )
+	{
+		return -dv_e_id;
+	}
+
+	if ( dv_nosekalarm >= dv_maxosekalarm )
+	{
+		return -dv_e_limit;
+	}
+
+	dv_id_t alarm_id = dv_addalarm(name, af, dv_nosekalarm);
+
+	if ( alarm_id < 0 )
+	{
+		return -dv_e_reported;
+	}
+
+	dv_id_t id = dv_nosekalarm++;
+
+	dv_osekalarm[id].name = name;
+	dv_osekalarm[id].osekcounter = c;
+
+	return id;
 }
 
 static dv_u64_t dv_osekaf_activatetask(dv_id_t a, dv_param_t d)

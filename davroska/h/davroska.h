@@ -42,6 +42,7 @@ typedef enum
 	dv_e_state,
 	dv_e_value,			/* = 8; last OSEK error code */
 	dv_e_nesting,
+	dv_e_reported,		/* Used when a lower layer has reported the error  */
 	dv_w_value,
 	dv_e_longjmp_ok		/* Must be last */
 } dv_statustype_t;
