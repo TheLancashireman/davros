@@ -41,6 +41,9 @@ struct dv_arm_bcm2835_systimer_s
 
 #define dv_arm_bcm2835_systimer	((dv_arm_bcm2835_systimer_t *)(DV_PBASE+0x003000))[0]
 
+#ifdef DV_DAVROSKA
+#else
+
 static inline dv_u64_t dv_readtime(void)
 {
 	dv_u32_t u1, u2, l;
@@ -54,6 +57,8 @@ static inline dv_u64_t dv_readtime(void)
 
 	return (((dv_u64_t)u2) << 32) + (dv_u64_t)l;
 }
+
+#endif
 
 static inline dv_u32_t dv_getcmp(int i)
 {
