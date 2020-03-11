@@ -96,6 +96,11 @@ static inline dv_u32_t dv_get_el(void)
 	return (dv_arm64_mrs(CurrentEL) >> 2) & 3;
 }
 
+static inline dv_u64_t dv_get_mpidr(void)
+{
+	return dv_arm64_mrs(MPIDR_EL1);
+}
+
 static inline dv_u32_t dv_get_coreidx(void)
 {
 	return (dv_arm64_mrs(MPIDR_EL1) & 0xff);
