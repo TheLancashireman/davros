@@ -129,10 +129,10 @@ struct dv_bcm2836_s
 #define DV_BCM2836_MB1_IRQ		0x0002	/* Mailbox 1 IRQ enabled (provided FIQ bit is clear) */
 #define DV_BCM2836_MB2_IRQ		0x0004	/* Mailbox 2 IRQ enabled (provided FIQ bit is clear) */
 #define DV_BCM2836_MB3_IRQ		0x0008	/* Mailbox 3 IRQ enabled (provided FIQ bit is clear) */
-#define DV_BCM2836_MB0_FIQ		0x0001	/* Mailbox 0 FIQ enabled (overrides IRQ bit) */
-#define DV_BCM2836_MB1_FIQ		0x0002	/* Mailbox 1 FIQ enabled (overrides IRQ bit) */
-#define DV_BCM2836_MB2_FIQ		0x0004	/* Mailbox 2 FIQ enabled (overrides IRQ bit) */
-#define DV_BCM2836_MB3_FIQ		0x0008	/* Mailbox 3 FIQ enabled (overrides IRQ bit) */
+#define DV_BCM2836_MB0_FIQ		0x0010	/* Mailbox 0 FIQ enabled (overrides IRQ bit) */
+#define DV_BCM2836_MB1_FIQ		0x0020	/* Mailbox 1 FIQ enabled (overrides IRQ bit) */
+#define DV_BCM2836_MB2_FIQ		0x0040	/* Mailbox 2 FIQ enabled (overrides IRQ bit) */
+#define DV_BCM2836_MB3_FIQ		0x0080	/* Mailbox 3 FIQ enabled (overrides IRQ bit) */
 
 /* Axi counter/interrupt registers
 */
@@ -145,6 +145,9 @@ struct dv_bcm2836_s
  *
  * According to this document, the "GPU" interrupt is actually the BCM2835 interrupt controller.
  * https://github.com/s-matyukevich/raspberry-pi-os/blob/master/docs/lesson03/linux/interrupt_controllers.md
+ *
+ * The documentation for the peripheral interrupts is inconsistent. It says "peripherals 1 to 15" but
+ * only specifies 6 bits. However, the doc. also says they're not used, so we'll ignore them.
 */
 #define DV_BCM2836_SRC_CNTPS	0x0001	/* CNTPS interrupt requested */
 #define DV_BCM2836_SRC_CNTPNS	0x0002	/* CNTPNS interrupt requested */
