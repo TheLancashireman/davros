@@ -62,12 +62,12 @@ volatile dv_boolean_t tables_ready;
 
 /* MAIR attributes
  *	- device : MAIR index 0, nG, nR, nE
- *	- memory : MAIR index 1, outer and inner cacheable, allocate on read and write.
+ *	- memory : MAIR index 1, outer and inner write-back cacheable, allocate on read and write.
 */
 #define DV_MAIR_DEV			0
 #define DV_MAIR_ATTR_DEV	( DV_MAIR_DEV_NGNRNE )
 #define DV_MAIR_MEM			1
-#define DV_MAIR_ATTR_MEM	((DV_MAIR_OWTN | DV_MAIR_OAW | DV_MAIR_OAR) | (DV_MAIR_IWTN | DV_MAIR_IAW | DV_MAIR_IAR))
+#define DV_MAIR_ATTR_MEM	((DV_MAIR_OWBN | DV_MAIR_OAW | DV_MAIR_OAR) | (DV_MAIR_IWBN | DV_MAIR_IAW | DV_MAIR_IAR))
 
 /* Page attributes
  *	- memory : outer shared
