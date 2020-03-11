@@ -15,6 +15,7 @@
 #include <dv-armv8-mmu.h>
 #include <dv-arm-bcm2835-systimer.h>
 #include <dv-arm-bcm2835-armtimer.h>
+#include <arm64/h/dv-arm64-registers.h>
 
 extern dv_u64_t dv_c1_stack_top, dv_c2_stack_top, dv_c3_stack_top;
 
@@ -43,7 +44,8 @@ void dv_board_start(void)
 	dv_arm_bcm2835_uart_console();
 
 	dv_printf("pi-3-arm64 starting ...\n");
-	dv_printf("stack pointer = 0x%016lx\n", dv_get_SP());
+	dv_printf(" - stack pointer = 0x%016lx\n", dv_get_SP());
+	dv_printf(" - mpidr_el1 = 0x%016lx\n", dv_get_mpidr());
 
 	dv_init_core();
 
@@ -188,6 +190,8 @@ void dv_core1_start(void)
 	*/
     dv_arm_bcm2835_uart_console();
 	dv_printf("pi-3-arm64 starting core 1 ...\n");
+	dv_printf(" - stack pointer = 0x%016lx\n", dv_get_SP());
+	dv_printf(" - mpidr_el1 = 0x%016lx\n", dv_get_mpidr());
 
 	dv_init_core();
 	dv_armv8_mmu_setup(0);
@@ -212,6 +216,8 @@ void dv_core2_start(void)
 	*/
     dv_arm_bcm2835_uart_console();
 	dv_printf("pi-3-arm64 starting core 2 ...\n");
+	dv_printf(" - stack pointer = 0x%016lx\n", dv_get_SP());
+	dv_printf(" - mpidr_el1 = 0x%016lx\n", dv_get_mpidr());
 
 	dv_init_core();
 	dv_armv8_mmu_setup(0);
@@ -236,6 +242,8 @@ void dv_core3_start(void)
 	*/
     dv_arm_bcm2835_uart_console();
 	dv_printf("pi-3-arm64 starting core 3 ...\n");
+	dv_printf(" - stack pointer = 0x%016lx\n", dv_get_SP());
+	dv_printf(" - mpidr_el1 = 0x%016lx\n", dv_get_mpidr());
 
 	dv_init_core();
 	dv_armv8_mmu_setup(0);
