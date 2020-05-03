@@ -1,0 +1,26 @@
+
+Pi    GPIO                      FT232    Pin
+Pin   No.   Colour    Signal    Bit      Marking     ======================|
+18    24    Red       TDO       4        DTR      ----                     |
+37    26    Orange    TDI       1        RX       ----                ------
+22    25    Yellow    TCK       0        TX       ----   FT232RL     | USB |
+x     x     x         x         x        Vcc      ----   board       |     |
+13    27    Green     TMS       3        CTS      ----                ------
+20    Gnd   Blue      Gnd       x        Gnd      ----                     |
+                                                     ======================|
+
+
+
+
+
+
+
+
+    - bit 7 - RI
+    - bit 6 - DCD
+    - bit 5 - DSR
+    - bit 4 - DTR
+    - bit 3 - CTS
+    - bit 2 - RTS
+    - bit 1 - RXD
+    - bit 0 - TXD 
