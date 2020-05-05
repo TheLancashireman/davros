@@ -109,3 +109,21 @@ Details:
 			* the scheduler passes a message via a longjmp to the anchor
 				* the message contains a function code, some parameters
 				* and another jmp_buf reference so that the extended task can continue.
+
+	* Interrupt handling
+		* interrupt functionality is either entirely in the kernel or done by executables
+			* software vector calls a function
+				* for an interrupt that's serviced by an executable, the function is dv_activateexe()
+		* on targets where the "mode" isn't hardwired in the hardware logic:
+			* hardware interrupt logic disables interrupts
+			* low-level vector code saves the scratch registers
+				* on ARM, uses the SP.IRQ as a pointer to a context array
+			* switch back to base state (on ARM that's svc)
+			* call IRQ handler
+			* IRQ handler must save the context array on the stack
+			* IRQ handler can "run the queue" after processing all IRQs
+				* all executables of higher priority than the interrupted executable get scheduled
+			* IRQ hander restores context array and returns to low level vector code
+			* low-level vector code restores context and returns to interrupted place
+		* on targets where the hardware gets in the way of mode switches (e.g. cortex-m)
+			* to be defined

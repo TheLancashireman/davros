@@ -9,6 +9,7 @@
 
 #define DEMO_PI_ZERO	1
 #define DEMO_PI3_ARM64	2
+#define DEMO_BLUE_PILL	3
 
 #if DEMO_BOARD == DEMO_PI_ZERO
 
@@ -20,6 +21,11 @@
 #define DV_TARGET			<arm64/h/dv-target-pi3-arm64.h>
 #define DV_DEMO_TARGET		<demo-pi3-arm64.h>
 #define DV_TARGET_CORE		0
+
+#elif DEMO_BOARD == DEMO_BLUE_PILL
+
+#define DV_TARGET			<arm/h/dv-target-blue-pill.h>
+#define DV_DEMO_TARGET		<demo-blue-pill.h>
 
 #else
 #error "DEMO_BOARD not known"

@@ -1,4 +1,4 @@
-#	Makefile - demo Makefile for testing parts of davroska on raspberry pi (zero, 3)
+#	Makefile - demo Makefile for testing parts of davroska on raspberry pi (zero, 3) or Blue Pill
 #
 #	Copyright 2018 David Haworth
 #
@@ -18,26 +18,23 @@
 #	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 
 #	Usage:
-#		make [DV_BOARD=pi3-arm64|pi-zero] [DV_GNU_D=</path/to/gcc>] [INSTALL_DIR=</place/to/install/]
-#	Alternatively, you can set DV_BOARD DV_GNU_D and INSTALL_DIR as environment variables.
+#		make [DV_BOARD=pi3-arm64|pi-zero] [DV_GNU_D=</path/to/gcc>] [IMAGE_FILE=</place/to/install/file.img>]
+#	Alternatively, you can set DV_BOARD DV_GNU_D and IMAGE_FILE as environment variables.
 #
 #	Targets:
 #		clean: removes all object and binary files
 #		default: compiles and links
-#		install: objcopy the ELF file to a binary (img) file in INSTALL_DIR
+#		install: objcopy the ELF file to a binary (img) file IMAGE_FILE
 #		srec: objcopy the ELF to an S-record file in the bin directory
 
 # Find out where we are :-)
-DV_ROOT		= ../..
-DVSK_ROOT	= ../../davroska
+DV_ROOT		= /data1/projects/davros
+DVSK_ROOT	= $(DV_ROOT)/davroska
 
 # Select your hardware here
-DV_BOARD	?= pi3-arm64
+DV_BOARD	?= blue-pill
+#DV_BOARD	?= pi3-arm64
 #DV_BOARD	?= pi-zero
-
-# The directory where 'make install' puts the binary kernel.img
-# This could be a mounted sd card, or the msd directory of rpi-boot
-INSTALL_DIR	?= /data1/projects/raspberry-pi/usb-zero/msd
 
 # Select your compiler here
 ifeq ($(DV_BOARD), pi3-arm64)
@@ -54,10 +51,17 @@ DV_LDSCRIPT	?=	$(DVSK_ROOT)/hardware/arm64/ld/dv-pi3.ldscript
 
 DV_ENTRY	?=	dv_reset
 
-else
+# The directory where 'make install' puts the binary file could be a mounted sd card,
+# or the msd directory of rpi-boot
+IMAGE_FILE	?=	kernel.img
+
+endif
+
+ifeq ($(DV_BOARD), pi-zero)
 
 DEMO_BOARD	?=	DEMO_PI_ZERO
-DV_GNU_D	?=	/data1/gnu/gcc-linaro-6.3.1-2017.02-x86_64_arm-eabi
+#DV_GNU_D	?=	/data1/gnu/gcc-linaro-6.3.1-2017.02-x86_64_arm-eabi
+DV_GNU_D	?=	/data1/gnu/gcc-linaro-7.5.0-2019.12-x86_64_arm-eabi
 
 DV_GCC		?=	$(DV_GNU_D)/bin/arm-eabi-gcc
 DV_LD		?=	$(DV_GNU_D)/bin/arm-eabi-ld
@@ -67,7 +71,37 @@ DV_LDSCRIPT	?=	$(DVSK_ROOT)/hardware/arm/ld/dv-pi-zero.ldscript
 
 DV_ENTRY	?=	dv_trap_reset
 
+# The directory where 'make install' puts the binary file could be a mounted sd card,
+# or the msd directory of rpi-boot
+IMAGE_FILE	?=	/data1/projects/raspberry-pi/usb-zero/msd/kernel.img
+
 endif
+
+ifeq ($(DV_BOARD), blue-pill)
+
+DEMO_BOARD	?=	DEMO_BLUE_PILL
+DV_GNU_D	?=	/data1/gnu/gcc-linaro-7.5.0-2019.12-x86_64_arm-eabi
+
+DV_GCC		?=	$(DV_GNU_D)/bin/arm-eabi-gcc
+DV_LD		?=	$(DV_GNU_D)/bin/arm-eabi-ld
+DV_OBJCOPY	?=	$(DV_GNU_D)/bin/arm-eabi-objcopy
+DV_LDLIB_D	?=	$(DV_GNU_D)/arm-eabi/libc/usr/lib/
+DV_LDSCRIPT	?=	$(DVSK_ROOT)/hardware/arm/ld/dv-blue-pill.ldscript
+
+DV_ENTRY	?=	dv_reset
+
+IMAGE_FILE	?=	play.bin
+
+CC_OPT		+= -mcpu=cortex-m3
+
+endif
+
+ifeq ($(DEMO_BOARD), )
+
+$(error Unknown board)
+
+endif
+
 
 DV_BIN_D	= bin
 DV_OBJ_D	= obj
@@ -82,7 +116,6 @@ CC_OPT		+= -I $(DV_ROOT)/lib/h
 CC_OPT		+= -Wall
 CC_OPT		+= -fno-common
 
-# -O3 doesn't work for some reason. The system doesn't start - or dv_printf() doesn't work.
 CC_OPT		+= -O2
 
 #CC_OPT		+= -mfloat-abi=hard
@@ -104,7 +137,11 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/dv-printf.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-xprintf.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-memset32.o
 
-# Hardware-specific files
+VPATH 		+=	c
+VPATH 		+=	s
+VPATH		+=	$(DVSK_ROOT)/c
+
+# Hardware-specific files and paths
 ifeq ($(DV_BOARD), pi3-arm64)
 
 DV_LD_OBJS	+= $(DV_OBJ_D)/davroska-arm64.o
@@ -123,7 +160,12 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/dv-switch-el3el2.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-switch-el2el1.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-vectors.o
 
-else
+VPATH		+=	$(DVSK_ROOT)/hardware/arm64/c
+VPATH		+=	$(DVSK_ROOT)/hardware/arm64/s
+
+endif
+
+ifeq ($(DV_BOARD), pi-zero)
 
 DV_LD_OBJS	+= $(DV_OBJ_D)/davroska-arm.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/demo-pi-zero.o
@@ -139,19 +181,18 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/dv-switchcall.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-reset.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-arm-traps.o
 
+VPATH		+=	$(DVSK_ROOT)/hardware/arm/c
+VPATH		+=	$(DVSK_ROOT)/hardware/arm/s
+
 endif
 
-VPATH 		+=	c
-VPATH 		+=	s
-VPATH		+=	$(DVSK_ROOT)/c
-VPATH		+=	$(DVSK_ROOT)/c
+ifeq ($(DV_BOARD), blue-pill)
 
-ifeq ($(DV_BOARD), pi3-arm64)
-
-VPATH		+=	$(DVSK_ROOT)/hardware/arm64/c
-VPATH		+=	$(DVSK_ROOT)/hardware/arm64/s
-
-else
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-cortexm-vectors.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-stm32-rcc.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-nvic.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/demo-blue-pill.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-switchcall.o
 
 VPATH		+=	$(DVSK_ROOT)/hardware/arm/c
 VPATH		+=	$(DVSK_ROOT)/hardware/arm/s
@@ -166,16 +207,14 @@ VPATH		+=	$(DV_ROOT)/devices/s
 
 .PHONY:		default all help clean install srec
 
-default:	all
+default:	elf
 
 clean:
 	-rm -rf $(DV_OBJ_D) $(DV_BIN_D)
 
-all:		$(DV_OBJ_D) $(DV_BIN_D) elf
+elf:		$(DV_OBJ_D) $(DV_BIN_D)/davroska.elf
 
-elf:		$(DV_BIN_D)/davroska.elf
-
-$(DV_BIN_D)/davroska.elf:	$(DV_LD_OBJS)
+$(DV_BIN_D)/davroska.elf:	$(DV_BIN_D) $(DV_LD_OBJS)
 	$(DV_LD) -o $@ $(DV_LD_OBJS) $(LD_LIB) $(LD_OPT)
 
 $(DV_OBJ_D)/%.o:  %.c
@@ -190,8 +229,8 @@ $(DV_BIN_D):
 $(DV_OBJ_D):
 	mkdir -p obj
 
-install:	all
-	$(DV_OBJCOPY) bin/davroska.elf -O binary $(INSTALL_DIR)/kernel.img
+install:	$(DV_BIN_D)/davroska.elf
+	$(DV_OBJCOPY) $(DV_BIN_D)/davroska.elf -O binary $(IMAGE_FILE)
 
-srec:		all
-	$(DV_OBJCOPY) bin/davroska.elf -O srec --srec-forceS3 /dev/stdout | dos2unix | egrep -v '^S3..........00*..$$' > bin/davroska.srec
+srec:		$(DV_BIN_D)/davroska.elf
+	$(DV_OBJCOPY) $(DV_BIN_D)/davroska.elf -O srec --srec-forceS3 /dev/stdout | dos2unix | egrep -v '^S3..........00*..$$' > davroska.srec
