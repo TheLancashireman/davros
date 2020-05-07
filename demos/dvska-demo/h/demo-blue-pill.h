@@ -1,6 +1,6 @@
-/ demo-blue-pill.h - configuration to allow the demo to run on a Blue Pill
+/* demo-blue-pill.h - configuration to allow the demo to run on a Blue Pill
  *
- * (c) 2020 David Haworth
+ * (c) David Haworth
 */
 #ifndef DEMO_BLUE_PILL_H
 #define DEMO_BLUE_PILL_H	1
