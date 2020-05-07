@@ -1,4 +1,26 @@
-/* U-boot loads the binary at 0x10800000.
+/* rpi3-uboot.ldscript
+ *
+ * Copyright David Haworth
+ *
+ * This file is part of davros.
+ *
+ * davros is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * davros is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with davros.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+ *
+ *
+ * U-boot loads the binary at 0x10800000.
  * This script places the vectors there, so that "go 0x10800000" works like reset.
  * Immediately after the vectors comes the code and rom data
  * Variables are placed at 0x10900000 (i.e. 0x100000 above the ROM base)
