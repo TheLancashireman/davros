@@ -114,11 +114,12 @@ struct dv_cortexm3scr_s
 })
 
 #define dv_arm_msr(regname, value) \
-({	__asm__ volatile ("msr " #regname ", %[val]"	\
+do {												\
+	__asm__ volatile ("msr " #regname ", %[val]"	\
 		: /* no outputs */							\
 		: [val] "r" (value)							\
 		: /* nothing clobbered */);					\
-})
+} while (0)
 
 /* Interrupt status, locking and unlocking
 */
