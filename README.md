@@ -14,4 +14,4 @@ What's here?
 * LICENSE - a copy of GPL version 3
 * README.md - this file
 * davros-3 - the beginnings of an embedded OS with memory protection
- * **davros-3 is currently unavailable because of restructuring work**
+  * **davros-3 is currently unavailable because of restructuring work**
