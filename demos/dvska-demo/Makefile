@@ -80,12 +80,29 @@ endif
 ifeq ($(DV_BOARD), blue-pill)
 
 DEMO_BOARD	?=	DEMO_BLUE_PILL
+
+ifeq (A, A)
+
+# ARM gcc
+DV_GNU_D	?=	/data1/gnu/gcc-arm-none-eabi-9-2019-q4-major
+
+DV_GCC		?=	$(DV_GNU_D)/bin/arm-none-eabi-gcc
+DV_LD		?=	$(DV_GNU_D)/bin/arm-none-eabi-ld
+DV_OBJCOPY	?=	$(DV_GNU_D)/bin/arm-none-eabi-objcopy
+DV_LDLIB_D	?=	$(DV_GNU_D)/arm-none-eabi/lib/thumb/v7-m/nofp
+
+else
+
+# linaro gcc
 DV_GNU_D	?=	/data1/gnu/gcc-linaro-7.5.0-2019.12-x86_64_arm-eabi
 
 DV_GCC		?=	$(DV_GNU_D)/bin/arm-eabi-gcc
 DV_LD		?=	$(DV_GNU_D)/bin/arm-eabi-ld
 DV_OBJCOPY	?=	$(DV_GNU_D)/bin/arm-eabi-objcopy
-DV_LDLIB_D	?=	$(DV_GNU_D)/arm-eabi/libc/usr/lib/
+DV_LDLIB_D	?=	$(DV_GNU_D)/arm-eabi/libc/usr/lib/thumb
+
+endif
+
 DV_LDSCRIPT	?=	$(DVSK_ROOT)/hardware/arm/ld/dv-blue-pill.ldscript
 
 DV_ENTRY	?=	dv_reset
