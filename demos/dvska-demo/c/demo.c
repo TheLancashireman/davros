@@ -287,8 +287,13 @@ void callout_addtasks(dv_id_t mode)
 */
 void callout_addisrs(dv_id_t mode)
 {
+#if DEMO_BOARD == DEMO_BLUE_PILL
+/* Interrupts not implemented yet
+*/
+#else
 	Uart = dv_addisr("Uart", &main_Uart, hw_UartInterruptId, 7);
 	Timer = dv_addisr("Timer", &main_Timer, hw_TimerInterruptId, 8);
+#endif
 }
 
 /* callout_addgroups() - configure the executable groups
@@ -311,13 +316,17 @@ void callout_addgroups(dv_id_t mode)
 		dv_addtogroup(Bit3);
 		dv_finishgroup();
 	}
-
+#if DEMO_BOARD == DEMO_BLUE_PILL
+/* Interrupts not implemented yet
+*/
+#else
 	dv_startgroup("Sillier", 0);
 	{
 		dv_addtogroup(Init);
 		dv_addtogroup(Uart);
 		dv_finishgroup();
 	}
+#endif
 }
 
 /* callout_addmutexes() - configure the mutexes
@@ -358,6 +367,10 @@ void callout_autostart(dv_id_t mode)
 	dv_setalarm_rel(Ticker, BitDriver, 1000);
 	dv_setalarm_rel(Ticker, FlickerDriver, 1700);
 
+#if DEMO_BOARD == DEMO_BLUE_PILL
+/* Interrupts not implemented yet
+*/
+#else
 	/* Enable interrupts from the UART
 	*/
 	hw_EnableUartRxInterrupt();
@@ -365,6 +378,7 @@ void callout_autostart(dv_id_t mode)
 
 	hw_InitialiseMillisecondTicker();
 	dv_enable_irq(hw_TimerInterruptId);
+#endif
 }
 
 /* callout_reporterror() - called if an error is detected

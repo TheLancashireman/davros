@@ -1,0 +1,89 @@
+
+Dave's STM32/Blue Pill notes
+============================
+
+https://stm32-base.org/boards/STM32F103C8T6-Blue-Pill
+
+
+Pinout of ST-Link V2 (clone) dongle:
+
+             1 2
+     JRST--|-o o-|--3v3
+       5v--|-o o-|--SWCLK/JTCLK
+     SWIM----o o-|--SWDIO/JTMS
+      GND--|-o o-|--JTDO
+ SWIM RST--|-o o-|--JTDI
+             9 10
+           ^Note cutout!
+
+WARNING: This is for the dongle in the transparent blue/turquoise case. There are other dongles
+with metal sleeves that have a different pinout (and don't appear to have JTAG functionality).
+
+
+Blue Pill connections (4 pins at opposite end to USB connector):
+
+                  ____
+                    o-|--- GND
+                    o-|--- SWCLK
+                    o-|--- SWDIO
+                    o-|--- 3v3
+                  ----
+
+Connect the pins with the same name together (4 of them). The others on the dongle are unused.
+
+FTDI FT232RL - little red board:
+
+                  ____
+                    o-|--- GND .... connect to G (any)
+                    o-|--- CTS
+                    o-|--- Vcc .... make sure to select the correct Vcc on the jumper.
+                    o-|--- Tx  .... connect to Rx (PA10)
+                    o-|--- Rx  .... connect to Tx (PA9)
+                    o-|--- DTR
+                  ----
+
+Hints here:
+
+https://github.com/rogerclarkmelbourne/Arduino_STM32/wiki/Programming-an-STM32F103XXX-with-a-generic-%22ST-Link-V2%22-programmer-from-Linux
+
+Software: OpenOCD (latest from github)
+          stlink-gui (apt install)
+          stlink-tools (apt-install)
+          linaro gcc (arm-eabi "bare metal" build) from linaro.org - compiler/assembler/linker/debugger
+
+stlink software is not very useful.
+
+openocd startup (see script ocd.sh) in an xterm
+
+In another xterm:
+ > telnet localhost 4444
+Press and hold reset button on target
+ > reset halt
+--> timeout message
+Release reset button
+
+> reset halt
+(again)
+
+Now have full control over the MCU
+
+> flash write_image erase play.bin 0x08000000
+> reset halt
+(yet again)
+
+Now you can start gdb in a third xterm (see the gdb and tgtconn scripts)
+
+STM32 memory layout:
+====================
+
+Flash   0x08000000 to 0x0801ffff  (128 KiB)
+RAM     0x20000000 to 0x20004fff  (20 KiB)
+System  0x1ffff000 to 0x1ffff800  (2 KiB)  Probably can't be reprogrammed
+
+Address 0 aliased to Flash or System (or maybe RAM) depending on boot jumpers.
+
+Need to have Cortex M vector table at 0x08000000 so that aliasing it to 0x00000000
+causes system to start correctly when boot pins are set to boot from flash.
+Both boot jumpers at '0' do this.
+
+

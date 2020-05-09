@@ -27,6 +27,8 @@
 #include <dv-string.h>
 
 #include <dv-stm32-rcc.h>
+#include <dv-nvic.h>
+#include <dv-stm32-uart.h>
 
 extern unsigned dv_start_data, dv_end_data, dv_start_bss, dv_end_bss, dv_idata;
 
@@ -53,14 +55,55 @@ void dv_init_data(void)
 	}
 }
 
+/* Mapping functions for console
+*/
+int uart1_putc(int c)
+{
+	dv_stm32_uart_putc(&dv_uart1, c);
+	return 1;
+}
+
+int uart1_getc(void)
+{
+	return dv_stm32_uart_getc(&dv_uart1);
+}
+
+int uart1_isrx(void)
+{
+	return dv_stm32_uart_isrx(&dv_uart1);
+}
+
+int uart1_istx(void)
+{
+	return dv_stm32_uart_istx(&dv_uart1);
+}
+
+
 /* dv_reset() - entry point from the reset vector
  *
  * SP has been initialised, but that's all
 */
 void dv_reset(void)
 {
+	/* Initialise the PLL: 72 MHz
+	*/
 	dv_rcc_init();
+
+	/* Initialise variables
+	*/
 	dv_init_data();
+
+	/* Initialise the interrupt controllers
+	*/
+	dv_nvic_init();
+
+	/* Initialise uart1 and connect it to the stdio functions
+	*/
+	(void)dv_stm32_uart_init(&dv_uart1, 115200, "8N1");
+	dv_consoledriver.putc = uart1_putc;
+	dv_consoledriver.getc = uart1_getc;
+	dv_consoledriver.istx = uart1_istx;
+	dv_consoledriver.isrx = uart1_isrx;
 
 	(void)main(0, DV_NULL);
 }

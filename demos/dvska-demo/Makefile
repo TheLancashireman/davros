@@ -90,7 +90,7 @@ DV_LDSCRIPT	?=	$(DVSK_ROOT)/hardware/arm/ld/dv-blue-pill.ldscript
 
 DV_ENTRY	?=	dv_reset
 
-IMAGE_FILE	?=	play.bin
+IMAGE_FILE	?=	demo.bin
 
 CC_OPT		+= -mcpu=cortex-m3
 
@@ -115,6 +115,7 @@ CC_OPT		+= -I $(DV_ROOT)/devices/h
 CC_OPT		+= -I $(DV_ROOT)/lib/h
 CC_OPT		+= -Wall
 CC_OPT		+= -fno-common
+CC_OPT		+= -g
 
 CC_OPT		+= -O2
 
@@ -190,6 +191,7 @@ ifeq ($(DV_BOARD), blue-pill)
 
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-cortexm-vectors.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-stm32-rcc.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-stm32-uart.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-nvic.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/demo-blue-pill.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-switchcall.o
