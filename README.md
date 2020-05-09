@@ -28,7 +28,7 @@ For the Raspberry Pi, the Linaro builds of gcc are probably the best. Grab the b
 for the Pi3 (in 64-bit mode), otherwise arm-eabi. You could probably use the linux build with a bit of tweaking.
 
 For the Blue Pill (Cortex-M) the compiler from the arm-eabi build of linaro appears to work and the code
-runs until the first setjmp(). It seems that the libraries don't support the Cortex-M's thumb modei properly. So
+runs until the first setjmp(). It seems that the libraries don't support the Cortex-M's thumb mode properly. So
 use the compiler from developer.arm.com. Unfortunately it seems to produce slightly bigger binaries.
 
 ### Previous lives of davros
