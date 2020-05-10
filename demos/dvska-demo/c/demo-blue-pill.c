@@ -30,9 +30,14 @@
 #include <dv-nvic.h>
 #include <dv-stm32-uart.h>
 
+#define DV_SPSEL	0x02
+
 extern unsigned dv_start_data, dv_end_data, dv_start_bss, dv_end_bss, dv_idata;
+extern unsigned dv_pstacktop;
+extern unsigned dv_stacktop;
 
 extern int main(int argc, char **argv);
+extern void switchToPsp(unsigned *psp, unsigned *msp, unsigned control, void (*fp)(void));
 
 /* dv_init_data() - initialise variables
  *
@@ -78,6 +83,38 @@ int uart1_istx(void)
 	return dv_stm32_uart_istx(&dv_uart1);
 }
 
+/* sysinfo() - print some information about the state of the uC
+*/
+extern dv_u32_t getSp(void);
+extern dv_u32_t getMainSp(void);
+extern dv_u32_t getThreadSp(void);
+extern dv_u32_t getPrimask(void);
+extern dv_u32_t getFaultmask(void);
+extern dv_u32_t getBasepri(void);
+extern dv_u32_t getControl(void);
+extern dv_u32_t getXpsr(void);
+
+void sysinfo(void)
+{
+	dv_printf("Sysinfo:\n");
+	dv_printf("SP        = 0x%02x\n", getSp());
+	dv_printf("mainSP    = 0x%02x\n", getMainSp());
+	dv_printf("threadSP  = 0x%02x\n", getThreadSp());
+	dv_printf("PRIMASK   = 0x%02x\n", getPrimask());
+	dv_printf("FAULTMASK = 0x%02x\n", getFaultmask());
+	dv_printf("BASEPRI   = 0x%02x\n", getBasepri());
+	dv_printf("CONTROL   = 0x%02x\n", getControl());
+	dv_printf("XPSR      = 0x%02x\n", getXpsr());
+}
+
+/* dv_reset2() - call main() after switching to thread stack
+*/
+void dv_reset2(void)
+{
+	sysinfo();
+
+	(void)main(0, DV_NULL);
+}
 
 /* dv_reset() - entry point from the reset vector
  *
@@ -105,7 +142,13 @@ void dv_reset(void)
 	dv_consoledriver.istx = uart1_istx;
 	dv_consoledriver.isrx = uart1_isrx;
 
-	(void)main(0, DV_NULL);
+	sysinfo();
+
+	/* It would be possible to pass main() as the function pointer here,
+	 * but for the time being we'll use an intermediate function so that we can find out
+	 * what's going on.
+	*/
+	switchToPsp(&dv_pstacktop, &dv_stacktop, (getControl() | DV_SPSEL), &dv_reset2);
 }
 
 void dv_panic_return_from_switchcall_function(void)

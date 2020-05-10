@@ -108,6 +108,7 @@ DV_LDSCRIPT	?=	$(DVSK_ROOT)/hardware/arm/ld/dv-blue-pill.ldscript
 DV_ENTRY	?=	dv_reset
 
 IMAGE_FILE	?=	demo.bin
+SREC_FILE	?=	demo.srec
 
 CC_OPT		+= -mcpu=cortex-m3
 
@@ -212,6 +213,7 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/dv-stm32-uart.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-nvic.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/demo-blue-pill.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-switchcall.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/useful-m3.o
 
 VPATH		+=	$(DVSK_ROOT)/hardware/arm/c
 VPATH		+=	$(DVSK_ROOT)/hardware/arm/s
@@ -248,8 +250,13 @@ $(DV_BIN_D):
 $(DV_OBJ_D):
 	mkdir -p obj
 
-install:	$(DV_BIN_D)/davroska.elf
-	$(DV_OBJCOPY) $(DV_BIN_D)/davroska.elf -O binary $(IMAGE_FILE)
+install:		$(DV_OBJ_D) $(DV_BIN_D) $(IMAGE_FILE)
 
-srec:		$(DV_BIN_D)/davroska.elf
-	$(DV_OBJCOPY) $(DV_BIN_D)/davroska.elf -O srec --srec-forceS3 /dev/stdout | dos2unix | egrep -v '^S3..........00*..$$' > davroska.srec
+$(IMAGE_FILE):	$(DV_BIN_D)/davroska.elf
+	$(DV_OBJCOPY) $(DV_BIN_D)/davroska.elf -O binary $(IMAGE_FILE)
+	echo "flash write_image erase $(IMAGE_FILE) 0x08000000"
+
+srec:			$(DV_OBJ_D) $(DV_BIN_D) $(SREC_FILE)
+
+$(SREC_FILE):	$(DV_BIN_D)/davroska.elf
+	$(DV_OBJCOPY) $(DV_BIN_D)/davroska.elf -O srec --srec-forceS3 /dev/stdout | dos2unix | egrep -v '^S3..........00*..$$' > $(SREC_FILE)
