@@ -26,4 +26,4 @@ Raspberry pi SoC (BCM2837):
 		How to do inter-core interrupts?
 			-- mailboxes in BCM2836 block. Each core has 4 mailboxes, each with 32 separate flags.
 	No generic global timer. Have to use systimer/armtimer (no great problem)
-		There's also a 64-bit core timer and a 28 bit PIT/watchdog in the BCM2836 block 
+		There's also a 64-bit core timer and a 28 bit PIT/watchdog in the BCM2836 block

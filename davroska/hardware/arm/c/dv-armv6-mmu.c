@@ -1,4 +1,4 @@
-/*	dv-armv6-mmu.c - arm v6 MMU setup for davroska 
+/*	dv-armv6-mmu.c - arm v6 MMU setup for davroska
  *
  *	Copyright 2018 David Haworth
  *
@@ -59,7 +59,7 @@ void dv_armv6_mmu_setup(void)
 	dv_u32_t page = 0;
 
 	/* Map the memory pages:
-	 *	
+	 *
 	*/
 #if DV_DEBUG
 	dv_printf("dv_armv6_mmu_setup() - map the memory sections\n");

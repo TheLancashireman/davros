@@ -26,7 +26,7 @@
 
 DV_COVDEF(dv_dispatch_interrupt);
 
-/* If there's only one core, the SPI and PPI vectors are done directly, so 
+/* If there's only one core, the SPI and PPI vectors are done directly, so
  * the size of the software vector table is exactly the number of interrupt sources.
  * If there are 2 or more cores, the vectors 1-15 and 27-31 have to be demultiplexed.
  * That means 20 extra vectors per core. Interrupt 0 is the cross-core interrupt,

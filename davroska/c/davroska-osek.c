@@ -246,7 +246,7 @@ dv_id_t dv_addosekalarm_task(const char *name, dv_id_t c, dv_id_t t, dv_eventmas
 		return -1;
 	}
 
-	dv_id_t id; 
+	dv_id_t id;
 
 	if ( e == 0 )
 		id = dv_addosekalarm(name, c, dv_osekaf_activatetask);

@@ -234,31 +234,31 @@ static inline void dv_set_translation_table_base_0(dv_u32_t x)
 {
 	__asm__ volatile ("mcr  p15, 0, %0, c2, c0, 0" : : "r"(x) : );
 }
-	
+
 static inline void dv_set_translation_table_base_1(dv_u32_t x)
 {
 	__asm__ volatile ("mcr  p15, 0, %0, c2, c0, 1" : : "r"(x) : );
 }
-	
+
 static inline void dv_set_translation_table_base_control(dv_u32_t x)
 {
 	__asm__ volatile ("mcr  p15, 0, %0, c2, c0, 2" : : "r"(x) : );
 }
-	
+
 static inline dv_u32_t dv_get_translation_table_base_0(void)
 {
 	dv_u32_t x;
 	__asm__ volatile ("mrc  p15, 0, %0, c2, c0, 0" : "=r"(x) : );
 	return x;
 }
-	
+
 static inline dv_u32_t dv_get_translation_table_base_1(void)
 {
 	dv_u32_t x;
 	__asm__ volatile ("mrc  p15, 0, %0, c2, c0, 1" : "=r"(x) : );
 	return x;
 }
-	
+
 static inline dv_u32_t dv_get_translation_table_base_control(void)
 {
 	dv_u32_t x;

@@ -56,7 +56,7 @@ void Task_Bar(void);
 void Task_Qxx(void);
 const dv_execonfig_t task_foo_cfg =
 {   "task_foo",
-	Task_Foo,		
+	Task_Foo,
 	0,			/* Core */
 	200,		/* Stacksize (words) */
 	0,			/* Priority */
@@ -65,7 +65,7 @@ const dv_execonfig_t task_foo_cfg =
 };
 const dv_execonfig_t task_fot_cfg =
 {   "task_fot",
-	Task_Fot,		
+	Task_Fot,
 	0,			/* Core */
 	200,		/* Stacksize (words) */
 	0,			/* Priority */
@@ -74,7 +74,7 @@ const dv_execonfig_t task_fot_cfg =
 };
 const dv_execonfig_t task_bar_cfg =
 {   "task_bar",
-	Task_Bar,		
+	Task_Bar,
 	0,			/* Core */
 	200,		/* Stacksize (words) */
 	1,			/* Priority */
@@ -83,7 +83,7 @@ const dv_execonfig_t task_bar_cfg =
 };
 const dv_execonfig_t task_qxx_cfg =
 {   "task_qxx",
-	Task_Qxx,		
+	Task_Qxx,
 	0,			/* Core */
 	200,		/* Stacksize (words) */
 	2,			/* Priority */
@@ -351,7 +351,7 @@ void cortex_a_stuff(void)
 
 #if 1
 #define delay 100000000
-	
+
 	t = dv_readtime();
 	dv_kprintf("Task_Foo: initial t = 0x%08x%08x\n", (unsigned)(t>>32), (unsigned)t);
 	t += delay;

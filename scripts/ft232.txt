@@ -9,13 +9,6 @@ x     x     x         x         x        Vcc      ----   board       |     |
 20    Gnd   Blue      Gnd       x        Gnd      ----                     |
                                                      ======================|
 
-
-
-
-
-
-
-
     - bit 7 - RI
     - bit 6 - DCD
     - bit 5 - DSR
@@ -23,4 +16,4 @@ x     x     x         x         x        Vcc      ----   board       |     |
     - bit 3 - CTS
     - bit 2 - RTS
     - bit 1 - RXD
-    - bit 0 - TXD 
+    - bit 0 - TXD

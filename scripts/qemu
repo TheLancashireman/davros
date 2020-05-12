@@ -8,6 +8,6 @@ qemu-system-arm \
 	-hda /dev/zero \
 	-monitor stdio \
 	-nographic \
-	-serial pty 
+	-serial pty
 
 #	-machine integratorcp

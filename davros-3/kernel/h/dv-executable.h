@@ -86,8 +86,8 @@ struct dv_executable_s
 };
 
 #define DV_EXEFLAG_SYNCHRONOUS		0x00000001		/* Can be activated synchronously */
-#define DV_EXEFLAG_ASYNCHRONOUS		0x00000002		/* Can be activated asynchronously */ 
-#define DV_EXEFLAG_CALL				0x00000004		/* Activations have "call" semantics */ 
+#define DV_EXEFLAG_ASYNCHRONOUS		0x00000002		/* Can be activated asynchronously */
+#define DV_EXEFLAG_CALL				0x00000004		/* Activations have "call" semantics */
 #define DV_EXEFLAG_BLOCKING			0x00000008		/* Can use "blocking" APIs */
 #define DV_EXEFLAG_EVENTS			0x00000010		/* Can use events */
 #define DV_EXEFLAG_AUTODESTROY		0x00000020		/* Automatically destroy on termination */

@@ -53,7 +53,6 @@ void dv_sys_create_exe(dv_kernel_t *kvars, dv_index_t unused_sci)
 	}
 	else
 		e = dv_eid_InvalidPointerParameter;
-		
 
 	dv_set_rv0(kvars->current_thread->regs, e);
 }

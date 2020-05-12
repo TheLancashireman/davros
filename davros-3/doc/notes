@@ -35,4 +35,3 @@ Stack allocation
   a problem.
   The MMU could be used to glue non-contiguous pages together again, but this virtualization will
   blow away the global address space concept. Think about that later.
-  

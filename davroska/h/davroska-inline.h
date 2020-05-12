@@ -45,7 +45,7 @@ static inline void dv_enqueue(dv_prio_t p, dv_id_t e)
 
 	/* Sanity check
 	*/
-	if ( q->tail == q->head )	
+	if ( q->tail == q->head )
 		dv_panic(dv_panic_QueueOverflow, dv_sid_scheduler, "priority queue is full");
 }
 
@@ -173,7 +173,7 @@ static inline void dv_clearpending(dv_id_t t)
 #endif
 }
 
-/* dv_set_onkernelstack() - ef extended tasks supported, set the on-kernel-stack flag after task termination
+/* dv_set_onkernelstack() - if extended tasks supported, set the on-kernel-stack flag after task termination
 */
 static inline void dv_set_onkernelstack(void)
 {

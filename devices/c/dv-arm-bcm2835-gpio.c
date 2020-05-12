@@ -48,7 +48,7 @@ void dv_arm_bcm2835_gpio_pinconfig(dv_u32_t pin, dv_u32_t fsel, dv_u32_t pud)
 	}
 	dv_arm_bcm2835_gpio.pudclk[index] |= mask;
 	for ( delay = 0; delay < 150; delay++ )
-	{ 
+	{
 		/* Wait for 150 cycles hold time for the control signal */
 	}
 	dv_arm_bcm2835_gpio.pudclk[index] &= ~mask;

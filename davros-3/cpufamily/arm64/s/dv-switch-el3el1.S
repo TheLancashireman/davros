@@ -34,6 +34,6 @@ dv_switch_el3el1:
 	msr		sp_el2, x0
 	msr		sp_el1, x0
 	msr		elr_el3, x30		/* Place function return address (lr) into exception return address */
-	mov		x0, #5				/* PSTATE = EL3 */	
+	mov		x0, #5				/* PSTATE = EL3 */
 	msr		spsr_el3, x0
 	eret						/* Return to caller of function, but switch EL */

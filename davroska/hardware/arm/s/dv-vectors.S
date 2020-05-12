@@ -30,7 +30,7 @@
 	.extern	dv_trap_fiq
 
 /* dv_vectortable - a standard ARM vector table
- *     
+ *
  * Each vector loads the handler address directly into the PC using PC-relative addressing
 */
 	.section	.vectors

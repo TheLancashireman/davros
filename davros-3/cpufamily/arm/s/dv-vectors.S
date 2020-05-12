@@ -32,7 +32,7 @@
 	.extern dv_trap_unimplemented
 
 /* dv_vectortable - a standard ARM vector table
- *     
+ *
  * Each vector loads the handler address directly into the PC using PC-relative addressing
 */
 	.text
@@ -61,4 +61,4 @@ dv_vectortable_end:
 /* Temporary vectors for stuff that isn't handled yet
 */
 dv_trap_fiq:
-	b		dv_trap_unimplemented   
+	b		dv_trap_unimplemented

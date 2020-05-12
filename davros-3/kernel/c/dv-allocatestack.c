@@ -50,7 +50,7 @@ dv_mempage_t *dv_allocate_stack(dv_kernel_t *kvars, const dv_executable_t *exe)
 	{
 		/* Search all the executables to find a stack to share.
 		 * Cannot share with a blocking executable.
-		 * Todo: this assumes all executables have the same stack size - i.e. one page. 
+		 * Todo: this assumes all executables have the same stack size - i.e. one page.
 		*/
 		for ( i=0; i<dv_coreconfigs[kvars->core_index]->n_executables; i++ )
 		{

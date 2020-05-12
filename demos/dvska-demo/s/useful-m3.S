@@ -24,7 +24,7 @@
 /* Some of these functions will move to the davroska or devices subdir eventually
 */
 
-/* 
+/*
 void sysinfo(void)
 {
 	dv_printf("Sysinfo:\n");

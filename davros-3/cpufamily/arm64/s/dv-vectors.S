@@ -40,7 +40,7 @@
 	.extern		dv_catch_thread_syserror
 
 /* dv_vectortable - a standard ARM64 vector table
- *     
+ *
  * On arm-v8 architecture there are three major vector tables, one for each exception level
  * that the interrupt or exception is targeted at: EL1, EL2 and EL3. Interrupts and exceptions
  * cannot be targeted at EL0.

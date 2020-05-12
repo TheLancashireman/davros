@@ -73,7 +73,7 @@ int dv_stm32_uart_init(dv_uart_t *uart, unsigned baud, char *fmt)
 		break;
 
 	/* Todo: other baud rates */
-		
+
 	default:
 		return 1;
 	}

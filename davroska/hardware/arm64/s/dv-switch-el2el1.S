@@ -31,6 +31,6 @@ dv_switch_el2el1:
 	mov		x0, sp				/* Copy current sp to EL1 sp */
 	msr		sp_el1, x0
 	msr		elr_el2, x30		/* Place function return address (lr) into exception return address */
-	mov		x0, #5				/* PSTATE = EL2 */	
+	mov		x0, #5				/* PSTATE = EL2 */
 	msr		spsr_el2, x0
 	eret						/* Return to caller of function, but switch EL */

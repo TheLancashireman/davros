@@ -33,7 +33,7 @@
  *	arm_control=0x200				(start in ARM64 mode)
  *	disable_commandline_tags=1		(not sure, but davros-related images don't have command lines)
  * There might be more modern versions of these config options.
- * 
+ *
  * Initialise processor then call dv_board_start on core 0.
  * Cores 1, 2 and 3 loop until told what to do.
 */

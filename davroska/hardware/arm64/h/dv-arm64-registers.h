@@ -46,7 +46,7 @@
 #define DV_INTENABLED		0
 #define DV_INTDISABLED		DV_SPSR_I
 
-/* mrs and msr have to be macros because the register name is passed as a literla string
+/* mrs and msr have to be macros because the register name is passed as a literal string
 */
 #define dv_arm64_mrs(regname) \
 ({	dv_u64_t MRSresult;								\

@@ -20,7 +20,7 @@
 clean:
 	-rm	$(DV_LIB_D)/*.$(DV_A)
 	-rm	$(DV_OBJ_D)/*.$(DV_O)
-	
+
 
 help:
 	@echo ""

@@ -81,7 +81,7 @@ void get_cache_sizes(void)
 	 *	- an L1 data cache,
 	 *	- an L2 unified cache
 	 * and nothing else... (?)
-	 * If this assumption turns out to be wrong, 
+	 * If this assumption turns out to be wrong, ...
 	*/
 
 	dv_arm64_msr(CSSELR_EL1, 0);	/* L1 data cache */
@@ -110,13 +110,13 @@ void dv_invalidatecache(dv_u32_t level)
 	if ( level == 1 )
 	{
 		nsets = l1d_sets;
-		nways = l1d_assoc; 
+		nways = l1d_assoc;
 	}
 	else
 	if ( level == 2 )
 	{
 		nsets = l2_sets;
-		nways = l2_assoc; 
+		nways = l2_assoc;
 	}
 	else
 	{

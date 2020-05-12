@@ -35,7 +35,7 @@
 #define DV_INTENABLED		0
 #define DV_INTDISABLED		DV_ARM_IRQ_DIS
 
-/* mrs and msr have to be macros because the register name is passed as a literla string
+/* mrs and msr have to be macros because the register name is passed as a literal string
 */
 #define dv_arm_mrs(regname) \
 ({	dv_u32_t MRSresult;								\

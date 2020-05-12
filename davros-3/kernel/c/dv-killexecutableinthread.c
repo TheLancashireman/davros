@@ -52,7 +52,7 @@ void dv_remove_executable_from_thread(dv_kernel_t *kvars, dv_thread_t *thr)
 
 	dv_trace_threadstate(thr, dv_thread_idle);
 	thr->state = dv_thread_idle;
-	
+
 	thr->executable = DV_NULL;
 	thr->regs = DV_NULL;
 	thr->parent = DV_NULL;

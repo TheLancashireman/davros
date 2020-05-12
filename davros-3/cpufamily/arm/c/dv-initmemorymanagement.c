@@ -31,7 +31,7 @@
 #include <kernel/h/dv-stdio.h>
 
 extern dv_u32_t dv_start_text, dv_end_text;
-extern dv_u32_t dv_start_rodata, dv_end_rodata; 
+extern dv_u32_t dv_start_rodata, dv_end_rodata;
 extern dv_u32_t dv_start_pgtbl_c0, dv_end_pgtbl_c0;
 extern dv_u32_t dv_start_stack_c0, dv_end_stack_c0;
 extern dv_u32_t dv_start_data_c0, dv_end_bss_c0;
@@ -77,7 +77,7 @@ void dv_init_memory_management(dv_kernel_t *kvars)
 	{
 		dv_mmu_map_page(kvars, (void *)p, (void *)p, DV_L1_ATTR, DV_L2_ATTR_RW);
 	}
-	
+
 	/* Map read/write pages for the stack region.
 	*/
 	DV_DBG(dv_kprintf("dv_init_memory_management() - map pages for kernel stack\n"));

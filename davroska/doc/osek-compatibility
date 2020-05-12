@@ -2,7 +2,7 @@ Mapping OSEK requirements onto davroska
 =======================================
 
 This document provides some hints on how to get reasonably close to the OSEK specification using davroska.
-There's an abstraction layer (under development) in h/davroska-oek.h. 
+There's an abstraction layer (under development) in h/davroska-oek.h.
 
 In general, an OSEK-based application will need an abstaction layer in order to provide the
 OSEK API and functionality. In many case it's simply a case of defining macros (or preferably

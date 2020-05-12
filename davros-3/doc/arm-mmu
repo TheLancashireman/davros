@@ -6,5 +6,5 @@ Main TLB:
 	Unified instruction & data
     8 lockable entries
 	Shared => not cacheable
-	
+
 

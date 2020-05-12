@@ -29,7 +29,7 @@ Scalability:
 			Internal resources: no limit
 		Permit exclusion of extended task support at compile time
 		Setting "extra" slots to 0 may exclude multiple activations
-	
+
 Error checking:
 	Range checks - always on.
 	Checks for errors that could cause undefined behaviour - always on.

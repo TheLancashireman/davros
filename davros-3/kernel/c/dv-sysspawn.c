@@ -39,7 +39,7 @@ void dv_sys_spawn(dv_kernel_t *kvars, dv_index_t unused_sci)
 	dv_index_t exe_i = (dv_index_t)p0;
 	dv_executable_t *exe;
 	dv_errorid_t e = dv_eid_UnknownError;
-	
+
 	DV_DBG(dv_kprintf("dv_sys_spawn(): exe_i = %d\n", exe_i));
 	if ( exe_i < 0 || exe_i >= dv_coreconfigs[kvars->core_index]->n_executables )
 	{

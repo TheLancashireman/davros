@@ -1,4 +1,4 @@
-/*	dv-armv8-mmu.c - arm v8 MMU setup for davroska 
+/*	dv-armv8-mmu.c - arm v8 MMU setup for davroska
  *
  *	Copyright 2019 David Haworth
  *
@@ -164,7 +164,7 @@ void dv_armv8_mmu_setup(dv_boolean_t init_tables)
 	tcr |= 2uL << 32;			/* IPS = 2 (40-bit intermediate) */
 								/* AS = 0 -> 8-bit ASID */
 								/* TBI0 = TBI1 = 0 -> tagging disabled */
-	
+
 	dv_u64_t sctlr = dv_arm64_mrs(SCTLR_EL1);
 	sctlr |= DV_SCTLR_M;		/* Enable MMU */
 	sctlr |= DV_SCTLR_C;		/* Enable data cache */

@@ -276,7 +276,7 @@ dv_statustype_t dv_dropmutex(dv_id_t mutex)
 
 		dv_runqueued_onkernelstack(high, low, is);
 	}
-	
+
 	(void)dv_restore(is);
 	return dv_e_ok;
 }
@@ -877,7 +877,7 @@ void dv_runqueued(dv_prio_t high, dv_prio_t low, dv_intstatus_t is)
 				dv_exe[e].currprio = dv_exe[e].runprio;
 				dv_enqueue(dv_exe[e].currprio, e);
 			}
-			
+
 			dv_exe[e].state = dv_running;
 			dv_exe[e].jb = &jb;
 

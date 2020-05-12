@@ -219,7 +219,8 @@ static inline dv_u32_t dv_get_sp(void)
 
 /* Interrupt status, locking and unlocking
 */
-#define DV_INTENABLED	0
+#define DV_INTENABLED	0x0		/* PRIMASK value to enable interrupts */
+#define DV_INTDISABLED	0x1		/* PRIMASK value to disable interrupts */
 
 static inline dv_intstatus_t dv_disable(void)
 {
