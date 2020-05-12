@@ -64,4 +64,9 @@ static inline void hw_InitialiseMillisecondTicker(void)
 	dv_arm_bcm2835_armtimer_set_load(250000);
 }
 
+static inline void sysinfo(void)
+{
+	/* Nothing */
+}
+
 #endif

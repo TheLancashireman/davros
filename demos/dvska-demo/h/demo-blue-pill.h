@@ -27,6 +27,8 @@
 #include <dv-stm32-uart.h>
 #include <dv-nvic.h>
 
+extern void sysinfo(void);
+
 #define hw_UartInterruptId		0
 #define hw_TimerInterruptId		0
 

@@ -152,7 +152,7 @@ static inline dv_intlevel_t dv_setirqlevel(dv_intlevel_t lvl)
 		basepri = 0x0;
 	else
 		basepri = (unsigned)(16 - lvl);
-	dv_arm_msr(BASEPRI, basepri);
+	dv_set_basepri(basepri);
 
 	dv_restore(is);
 	return old;

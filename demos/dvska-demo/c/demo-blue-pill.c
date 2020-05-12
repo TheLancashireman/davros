@@ -30,7 +30,10 @@
 #include <dv-nvic.h>
 #include <dv-stm32-uart.h>
 
-#define DV_SPSEL	0x02
+#define DV_SPSEL		0x02
+#define DV_PENDSVSET	0x10000000
+#define DV_PENDSVCLR	0x08000000
+/*                        12345678 */
 
 extern unsigned dv_start_data, dv_end_data, dv_start_bss, dv_end_bss, dv_idata;
 extern unsigned dv_pstacktop;
@@ -38,6 +41,11 @@ extern unsigned dv_stacktop;
 
 extern int main(int argc, char **argv);
 extern void switchToPsp(unsigned *psp, unsigned *msp, unsigned control, void (*fp)(void));
+
+extern void preemptFrame(void);
+extern void preemptFrame_end(void);
+
+void dumpPstack(void);
 
 /* dv_init_data() - initialise variables
  *
@@ -85,26 +93,17 @@ int uart1_istx(void)
 
 /* sysinfo() - print some information about the state of the uC
 */
-extern dv_u32_t getSp(void);
-extern dv_u32_t getMainSp(void);
-extern dv_u32_t getThreadSp(void);
-extern dv_u32_t getPrimask(void);
-extern dv_u32_t getFaultmask(void);
-extern dv_u32_t getBasepri(void);
-extern dv_u32_t getControl(void);
-extern dv_u32_t getXpsr(void);
-
 void sysinfo(void)
 {
 	dv_printf("Sysinfo:\n");
-	dv_printf("SP        = 0x%02x\n", getSp());
-	dv_printf("mainSP    = 0x%02x\n", getMainSp());
-	dv_printf("threadSP  = 0x%02x\n", getThreadSp());
-	dv_printf("PRIMASK   = 0x%02x\n", getPrimask());
-	dv_printf("FAULTMASK = 0x%02x\n", getFaultmask());
-	dv_printf("BASEPRI   = 0x%02x\n", getBasepri());
-	dv_printf("CONTROL   = 0x%02x\n", getControl());
-	dv_printf("XPSR      = 0x%02x\n", getXpsr());
+	dv_printf("SP        = 0x%02x\n", dv_get_sp());
+	dv_printf("mainSP    = 0x%02x\n", dv_get_msp());
+	dv_printf("threadSP  = 0x%02x\n", dv_get_psp());
+	dv_printf("PRIMASK   = 0x%02x\n", dv_get_primask());
+	dv_printf("FAULTMASK = 0x%02x\n", dv_get_faultmask());
+	dv_printf("BASEPRI   = 0x%02x\n", dv_get_basepri());
+	dv_printf("CONTROL   = 0x%02x\n", dv_get_control());
+	dv_printf("XPSR      = 0x%02x\n", dv_get_xpsr());
 }
 
 /* dv_reset2() - call main() after switching to thread stack
@@ -148,7 +147,7 @@ void dv_reset(void)
 	 * but for the time being we'll use an intermediate function so that we can find out
 	 * what's going on.
 	*/
-	switchToPsp(&dv_pstacktop, &dv_stacktop, (getControl() | DV_SPSEL), &dv_reset2);
+	switchToPsp(&dv_pstacktop, &dv_stacktop, (dv_get_control() | DV_SPSEL), &dv_reset2);
 }
 
 void dv_panic_return_from_switchcall_function(void)
@@ -185,12 +184,51 @@ void dv_usagefault(void)
 
 void dv_svctrap(void)
 {
-	dv_panic(dv_panic_Exception, dv_sid_exceptionhandler, "Oops! An SVC occurred");
+	dv_printf("dv_svc()\n");
+	sysinfo();
+	dumpPstack();
+	dv_u32_t *psp = (dv_u32_t *)dv_get_psp();
+
+	sysinfo();
+
+	if ( (psp[6] & ~0x01) == (dv_u32_t)&preemptFrame_end )
+	{
+		psp += 8;
+		dv_set_psp((dv_u32_t)psp);
+	}
+	else
+	{
+		dv_panic(dv_panic_Exception, dv_sid_exceptionhandler, "Oops! Unexpected SVC");
+	}
+}
+
+void xyz(void)
+{
+	dv_printf("xyz()\n");
+	sysinfo();
 }
 
 void dv_pendsvtrap(void)
 {
 	dv_printf("dv_pendsvtrap()\n");
+	sysinfo();
+	dumpPstack();
+
+	dv_m3scr.icsr = DV_PENDSVCLR;
+
+	dv_u32_t *psp = (dv_u32_t *)dv_get_psp();
+	psp -= 8;
+	dv_set_psp((dv_u32_t)psp);
+
+	psp[0] = ((dv_u32_t)&xyz) | 0x01;				/* r0 */
+	psp[1] = psp[2] = psp[3] = psp[4] = 0;			/* r1-r3, r12 */
+	psp[5] = 0;										/* lr */
+	psp[6] = ((dv_u32_t)&preemptFrame) | 0x01;		/* pc */
+	psp[7] = psp[15];								/* xPSR */
+
+	dv_printf("dv_pendsvtrap() after pushing preeption frame\n");
+	sysinfo();
+	dumpPstack();
 }
 
 void dv_systickirq(void)
@@ -202,7 +240,19 @@ void dv_systickirq(void)
 void dv_irq(void)
 {
 	dv_printf("dv_irq()\n");
-	for (;;)	{ }
+	sysinfo();
+	dumpPstack();
+	dv_m3scr.icsr = DV_PENDSVSET;
+}
+
+void dumpPstack(void)
+{
+	dv_u32_t *psp = (dv_u32_t *)dv_get_psp();
+
+	for ( int i=15; i>=0; i-- )
+	{
+		dv_printf("psp[%02d] (0x%08x) = 0x%08x\n", i, (dv_u32_t)&psp[i], psp[i]);
+	}
 }
 
 void dv_unknowntrap(void)

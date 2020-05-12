@@ -225,11 +225,16 @@ void main_Bit3(void)
 */
 void main_Init(void)
 {
+	dv_printf("main_Init() reached\n");
+	sysinfo();
 	for ( int i = 0; i < dv_nexe; i++ )
 	{
 		dv_printf("%d %s  b=%d r=%d c=%d %d\n", i, dv_exe[i].name, dv_exe[i].baseprio, dv_exe[i].runprio,
 													dv_exe[i].currprio, dv_exe[i].state);
 	}
+#if DEMO_BOARD == DEMO_BLUE_PILL
+	dv_nvic_triggerirq(0);
+#endif
 }
 
 /* main_Uart() - body of ISR to handle uart rx interrupt
@@ -368,8 +373,10 @@ void callout_autostart(dv_id_t mode)
 	dv_setalarm_rel(Ticker, FlickerDriver, 1700);
 
 #if DEMO_BOARD == DEMO_BLUE_PILL
-/* Interrupts not implemented yet
-*/
+	/* Interrupt handling not implemented yet. Temporary test stuff
+	*/
+	dv_nvic_setprio(0, 12);
+	dv_nvic_enableirq(0);
 #else
 	/* Enable interrupts from the UART
 	*/
@@ -424,6 +431,8 @@ void callout_panic(dv_panic_t p, dv_sid_t sid, char *fault)
 int main(int argc, char **argv)
 {
 	dv_printf("davroska starting ...\n");
+
+	sysinfo();
 
 	dv_startos(0);
 

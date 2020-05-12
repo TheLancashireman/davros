@@ -29,8 +29,8 @@ void sysinfo(void)
 {
 	dv_printf("Sysinfo:\n");
 	dv_printf("SP        = ", getSp());
-	dv_printf("mainSP    = ", getMainSp());
-	dv_printf("threadSP  = ", getThreadSp());
+	dv_printf("MSP       = ", getMsp());
+	dv_printf("PSP       = ", getPsp());
 	dv_printf("PRIMASK   = ", getPrimask());
 	dv_printf("FAULTMASK = ", getFaultmask());
 	dv_printf("BASEPRI   = ", getBasepri());
@@ -42,50 +42,18 @@ void switchToPsp(unsigned *psp, unsigned *msp, unsigned control, void (*fp)(void
 */
 
 	.text
-	.globl	getSp
-	.globl	getMainSp
-	.globl	getThreadSp
-	.globl	getPrimask
-	.globl	getFaultmask
-	.globl	getBasepri
-	.globl	getControl
-	.globl	getXpsr
 	.globl	switchToPsp
-
-getSp:
-	mov		r0, sp
-	bx		lr
-
-getMainSp:
-	mrs		r0, MSP
-	bx		lr
-
-getThreadSp:
-	mrs		r0, PSP
-	bx		lr
-
-getPrimask:
-	mrs		r0, PRIMASK
-	bx		lr
-
-getFaultmask:
-	mrs		r0, FAULTMASK
-	bx		lr
-
-getBasepri:
-	mrs		r0, BASEPRI
-	bx		lr
-
-getControl:
-	mrs		r0, CONTROL
-	bx		lr
-
-getXpsr:
-	mrs		r0, XPSR
-	bx		lr
+	.globl	preemptFrame
+	.globl	preemptFrame_end
 
 switchToPsp:
 	msr		PSP, r0
 	msr		CONTROL, r2
 	msr		MSP, r1
 	bx		r3
+
+preemptFrame:
+	blx		r0
+	svc		#0
+preemptFrame_end:
+	b		preemptFrame_end

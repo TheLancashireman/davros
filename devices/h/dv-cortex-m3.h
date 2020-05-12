@@ -22,7 +22,7 @@
 
 #include <dv-devices.h>
 
-/* Aux control registers, including the SysTick timer
+/* Aux control registers
 */
 typedef struct dv_cortexm3acr_s dv_cortexm3acr_t;
 
@@ -31,15 +31,26 @@ struct dv_cortexm3acr_s
 	dv_reg32_t unknown;		/* What's this */
 	dv_reg32_t ictr;		/* Interrupt controller type */
 	dv_reg32_t actlr;		/* Aux control register */
-	dv_reg32_t gap;
+};
+
+#define DV_CORTEXM3ACR_BASE		0xe000e000
+#define dv_m3acr				((dv_cortexm3acr_t *)DV_CORTEXM3ACR_BASE)[0]
+
+/* Systick registers
+*/
+typedef struct dv_cortexm3systick_s dv_cortexm3systick_t;
+
+struct dv_cortexm3systick_s
+{
 	dv_reg32_t stcsr;		/* SysTick control/status */
 	dv_reg32_t strvr;		/* SysTick reload */
 	dv_reg32_t stcvr;		/* SysTick current value */
 	dv_reg32_t stcr;		/* SysTick calibration value */
 };
 
-#define DV_CORTEXM3ACR_BASE		0xe000e000
-#define dv_m3acr				((dv_cortexm3acr_t *)DV_CORTEXM3ACR_BASE)[0]
+#define DV_CORTEXM3SYSTICK_BASE	0xe000e010
+#define dv_systick				((dv_cortexm3systick_t *)DV_CORTEXM3SYSTICK_BASE)[0]
+
 
 /* NVIC has its own header file, but the base address is defined here.
 */
@@ -100,26 +111,111 @@ struct dv_cortexm3scr_s
 
 #define DV_SYST_MASK			0x00ffffff		/* Max value mask */
 
-/* Read and write special-purpose registers.
+/* dv_get_msp()/dv_set_msp() - get and set the MSP register (main SP)
  *
- * These have to be macros because the register name is pasted into the instruction as a literal string.
+ * WARNING: dv_set_msp() results in undefined behaviour if main SP is the current SP.
 */
-#define dv_arm_mrs(regname) \
-({	dv_u64_t MRSresult;								\
-	__asm__ volatile ("mrs %[result], " #regname	\
-		: [result] "=r" (MRSresult)					\
-		: /* no inputs */							\
-		: /* nothing clobbered */);					\
-	MRSresult;										\
-})
+static inline dv_u32_t dv_get_msp(void)
+{
+	dv_u32_t msp;
+	__asm__ volatile("mrs %[reg], MSP" : [reg] "=r" (msp) : : );
+	return msp;
+}
+static inline void dv_set_msp(dv_u32_t msp)
+{
+	__asm__ volatile ("msr MSP, %[reg]" : : [reg] "r" (msp) : );
+}
 
-#define dv_arm_msr(regname, value) \
-do {												\
-	__asm__ volatile ("msr " #regname ", %[val]"	\
-		: /* no outputs */							\
-		: [val] "r" (value)							\
-		: /* nothing clobbered */);					\
-} while (0)
+/* dv_get_psp()/dv_set_psp() - get and set the PSP register (process SP)
+ *
+ * WARNING: dv_set_psp() results in undefined behaviour if process SP is the current SP.
+*/
+static inline dv_u32_t dv_get_psp(void)
+{
+	dv_u32_t psp;
+	__asm__ volatile("mrs %[reg], PSP" : [reg] "=r" (psp) : : );
+	return psp;
+}
+static inline void dv_set_psp(dv_u32_t psp)
+{
+	__asm__ volatile ("msr PSP, %[reg]" : : [reg] "r" (psp) : );
+}
+
+/* dv_get_primask()/dv_set_primask() - get and set the PRIMASK register
+*/
+static inline dv_u32_t dv_get_primask(void)
+{
+	dv_u32_t primask;
+	__asm__ volatile("mrs %[reg], PRIMASK" : [reg] "=r" (primask) : : );
+	return primask;
+}
+static inline void dv_set_primask(dv_u32_t primask)
+{
+	__asm__ volatile ("msr PRIMASK, %[reg]" : : [reg] "r" (primask) : );
+}
+
+/* dv_get_faultmask()/dv_set_faultmask() - get and set the FAULTMASK register
+*/
+static inline dv_u32_t dv_get_faultmask(void)
+{
+	dv_u32_t faultmask;
+	__asm__ volatile("mrs %[reg], FAULTMASK" : [reg] "=r" (faultmask) : : );
+	return faultmask;
+}
+static inline void dv_set_faultmask(dv_u32_t faultmask)
+{
+	__asm__ volatile ("msr FAULTMASK, %[reg]" : : [reg] "r" (faultmask) : );
+}
+
+/* dv_get_basepri()/dv_set_basepri() - get and set the BASEPRI register
+*/
+static inline dv_u32_t dv_get_basepri(void)
+{
+	dv_u32_t basepri;
+	__asm__ volatile("mrs %[reg], BASEPRI" : [reg] "=r" (basepri) : : );
+	return basepri;
+}
+static inline void dv_set_basepri(dv_u32_t basepri)
+{
+	__asm__ volatile ("msr BASEPRI, %[reg]" : : [reg] "r" (basepri) : );
+}
+
+/* dv_get_control()/dv_set_control() - get and set the CONTROL register
+*/
+static inline dv_u32_t dv_get_control(void)
+{
+	dv_u32_t control;
+	__asm__ volatile("mrs %[reg], CONTROL" : [reg] "=r" (control) : : );
+	return control;
+}
+static inline void dv_set_control(dv_u32_t control)
+{
+	__asm__ volatile ("msr CONTROL, %[reg]" : : [reg] "r" (control) : );
+}
+
+/* dv_get_xpsr()/dv_set_xpsr() - get and set the XPSR register
+*/
+static inline dv_u32_t dv_get_xpsr(void)
+{
+	dv_u32_t xpsr;
+	__asm__ volatile("mrs %[reg], XPSR" : [reg] "=r" (xpsr) : : );
+	return xpsr;
+}
+static inline void dv_set_xpsr(dv_u32_t xpsr)
+{
+	__asm__ volatile ("msr XPSR, %[reg]" : : [reg] "r" (xpsr) : );
+}
+
+/* dv_get_sp() - get the current stack pointer
+ *
+ * There is no "set" function for the sp. Changing the SP from C code would result in undefined behaviour.
+*/
+static inline dv_u32_t dv_get_sp(void)
+{
+	dv_u32_t sp;
+	__asm__ volatile("mov %[reg], sp" : [reg] "=r" (sp) : : );
+	return sp;
+}
 
 /* Interrupt status, locking and unlocking
 */
@@ -127,15 +223,15 @@ do {												\
 
 static inline dv_intstatus_t dv_disable(void)
 {
-	dv_intstatus_t old = dv_arm_mrs(PRIMASK);
-	dv_arm_msr(PRIMASK, 0x1);
+	dv_intstatus_t old = dv_get_primask();
+	dv_set_primask(0x1);
 	return old;
 }
 
 static inline dv_intstatus_t dv_restore(dv_intstatus_t x)
 {
-	dv_intstatus_t old = dv_arm_mrs(PRIMASK);
-	dv_arm_msr(PRIMASK, x);
+	dv_intstatus_t old = dv_get_primask();
+	dv_set_primask(x);
 	return old;
 }
 
