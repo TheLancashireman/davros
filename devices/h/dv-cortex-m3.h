@@ -68,9 +68,7 @@ struct dv_cortexm3scr_s
 	dv_reg32_t aircr;		/* Application interrupt and reset control */
 	dv_reg32_t scr;			/* System control */
 	dv_reg32_t ccr;			/* Configuration and control */
-	dv_reg32_t shpr1;		/* System handler priority */
-	dv_reg32_t shpr2;		/* System handler priority */
-	dv_reg32_t shpr3;		/* System handler priority */
+	dv_reg32_t shpr[3];		/* System handler priority */
 	dv_reg32_t shcsr;		/* System handler control and state */
 	dv_reg32_t cfsr;		/* Configurable fault status */
 	dv_reg32_t hfsr;		/* Hardfault status */
@@ -78,19 +76,11 @@ struct dv_cortexm3scr_s
 	dv_reg32_t mmfar;		/* MemManage fault address */
 	dv_reg32_t bfar;		/* Bus fault address*/
 	dv_reg32_t afsr;		/* Auxiliary fault status */
-	dv_reg32_t id_pfr0;		/* RO */
-	dv_reg32_t id_pfr1;		/* RO */
+	dv_reg32_t id_pfr[2];	/* RO */
 	dv_reg32_t id_dfr0;		/* RO */
 	dv_reg32_t id_afr0;		/* RO */
-	dv_reg32_t id_mmfr0;	/* RO */
-	dv_reg32_t id_mmfr1;	/* RO */
-	dv_reg32_t id_mmfr2;	/* RO */
-	dv_reg32_t id_mmfr3;	/* RO */
-	dv_reg32_t id_isar0;	/* RO */
-	dv_reg32_t id_isar1;	/* RO */
-	dv_reg32_t id_isar2;	/* RO */
-	dv_reg32_t id_isar3;	/* RO */
-	dv_reg32_t id_isar4;	/* RO */
+	dv_reg32_t id_mmfr[4];	/* RO */
+	dv_reg32_t id_isar[5];	/* RO */
 };
 
 #define DV_CORTEXM3SCR_BASE		0xe000ed00
@@ -110,6 +100,8 @@ struct dv_cortexm3scr_s
 #define DV_SYST_ENABLE			0x00000001		/* 1 = counter is enabled */
 
 #define DV_SYST_MASK			0x00ffffff		/* Max value mask */
+
+#define DV_XPSR_IPSR			0x000001ff		/* Mask for IPSR in XPSR */
 
 /* dv_get_msp()/dv_set_msp() - get and set the MSP register (main SP)
  *
@@ -206,6 +198,17 @@ static inline void dv_set_xpsr(dv_u32_t xpsr)
 	__asm__ volatile ("msr XPSR, %[reg]" : : [reg] "r" (xpsr) : );
 }
 
+/* dv_get_ipsr() - get the IPSR register
+ *
+ * IPSR is part of XPSR (bits 0..8). During interrupt/exception handling it contains the vector number.
+ * IPSR cannot be written.
+*/
+static inline dv_u32_t dv_get_ipsr(void)
+{
+	dv_u32_t ipsr;
+	__asm__ volatile("mrs %[reg], IPSR" : [reg] "=r" (ipsr) : : );
+	return ipsr;
+}
 /* dv_get_sp() - get the current stack pointer
  *
  * There is no "set" function for the sp. Changing the SP from C code would result in undefined behaviour.

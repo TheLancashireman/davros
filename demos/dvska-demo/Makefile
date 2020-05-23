@@ -145,8 +145,13 @@ LD_OPT		+= -T $(DV_LDSCRIPT)
 LD_OPT		+=	-L $(DV_LDLIB_D)
 LD_OPT		+=	-lc
 
+ifeq ($(DV_BOARD), blue-pill)
+# Temporary - a hacked version of demo.c while developing the Cortex M support for Blue Pill
+DV_LD_OBJS	+= $(DV_OBJ_D)/demo-temp.o
+else
 # The demo code
 DV_LD_OBJS	+= $(DV_OBJ_D)/demo.o
+endif
 
 # davroska and associated library files
 DV_LD_OBJS	+= $(DV_OBJ_D)/davroska.o

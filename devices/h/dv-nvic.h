@@ -46,7 +46,7 @@ struct dv_nvic_s
 	dv_reg32_t iabr[32];		/* Read-only. a bit at 1 indicates interrupt is active */
 								/* Note: in the above register arrays, registers 16..31 are reserved */
 	dv_u32_t reserved[32];
-	dv_reg32_t	ipr[256];		/* Interrupt priorities; 8 bits per IRQ; last 124..127 are reserved */
+	dv_reg32_t ipr[256];		/* Interrupt priorities; 8 bits per IRQ; last 124..127 are reserved */
 };
 
 #define dv_nvic		((dv_nvic_t *)DV_NVIC_BASE)[0]
@@ -98,7 +98,7 @@ static inline void dv_nvic_clearirq(int irq)
 static inline void dv_nvic_setprio(int irq, dv_u8_t p)
 {
 	int shift = (irq%4) * 8;
-	dv_nvic.ipr[irq/4] = (dv_nvic.ipr[irq/4] & ~(0xff << shift)) | (((dv_u32_t)p) << shift);
+	dv_nvic.ipr[irq/4] = (dv_nvic.ipr[irq/4] & ~(0xff << shift)) | (((dv_u32_t)(p<<4)) << shift);
 }
 
 extern void dv_nvic_init(void);
@@ -107,7 +107,6 @@ extern void dv_nvic_init(void);
 #ifdef DV_DAVROSKA
 
 extern dv_intlevel_t dv_currentlocklevel;
-extern const int dv_nvic_nirq;
 
 /* Implement the davroska functions in terms of cortex M and NVIC functions.
 */
@@ -126,9 +125,21 @@ static inline void dv_disable_irq(int irq)
 	dv_nvic_disableirq(irq);
 }
 
-static inline void dv_config_irq(int irq, dv_intlevel_t level, int unused_core)
+/* dv_config_irq() - set the interrupt level of an individual interrupt source
+ *
+ * The lvl parameter runs from 1 (lowest) upwards. We need to limit the range.
+ * Also, NVIC has inverted levels (0 is highest) so we need to reverse the order.
+ * Davroska doesn't use hw level 0 so that mutexes don't block exceptions, so the
+ * maximum supported davroska level is 15.
+ * 1 --> 15, 2 --> 14, ... n --> 16-n, ... 15 --> 1
+ * 
+*/
+static inline void dv_config_irq(int irq, dv_intlevel_t lvl, int unused_core)
 {
-	dv_nvic_setprio(irq, (dv_u8_t)level);
+	if ( lvl > 15 )	lvl = 15;
+
+	dv_printf("dv_config_irq() - irq %d, lvl %d, set to %d\n", irq, lvl, (16-lvl));
+	dv_nvic_setprio(irq, (dv_u8_t)(16-lvl));
 }
 
 
@@ -138,22 +149,21 @@ static inline void dv_config_irq(int irq, dv_intlevel_t level, int unused_core)
 */
 static inline dv_intlevel_t dv_setirqlevel(dv_intlevel_t lvl)
 {
-	if ( lvl < 0 )  lvl = 0;
-	if ( lvl > 8 )  lvl = 8;
+	if ( lvl > 15 )  lvl = 15;
+	dv_printf("dv_setirqlevel() - reqested %d\n", lvl);
 	if ( dv_currentlocklevel == lvl )
 		return lvl;
 
 	dv_intstatus_t is = dv_disable();
 	dv_intlevel_t old = dv_currentlocklevel;
-	unsigned basepri;
 	dv_currentlocklevel = lvl;
 
 	if ( lvl == 0 )
-		basepri = 0x0;
+		dv_set_basepri(0x0);
 	else
-		basepri = (unsigned)(16 - lvl);
-	dv_set_basepri(basepri);
+		dv_set_basepri(((unsigned)(16 - lvl)) << 4);
 
+	dv_printf("dv_setirqlevel() - old %d, basepri %d\n", old, dv_get_basepri());
 	dv_restore(is);
 	return old;
 }

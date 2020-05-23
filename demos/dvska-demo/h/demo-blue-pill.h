@@ -26,10 +26,11 @@
 #include <dv-stm32-gpio.h>
 #include <dv-stm32-uart.h>
 #include <dv-nvic.h>
+#include <dv-stm32-interrupts.h>
 
 extern void sysinfo(void);
 
-#define hw_UartInterruptId		0
+#define hw_UartInterruptId		dv_irq_usart1
 #define hw_TimerInterruptId		0
 
 static inline void hw_ClearTimer(void)
@@ -44,7 +45,8 @@ static inline void hw_SetLed(int i, dv_boolean_t state)
 
 static inline void hw_EnableUartRxInterrupt(void)
 {
-	/* FIXME: to do */
+	dv_uart1.cr[0] |= DV_UART_RXNEIE;
+	dv_enable_irq(dv_irq_usart1);
 }
 
 static inline void hw_InitialiseMillisecondTicker(void)
