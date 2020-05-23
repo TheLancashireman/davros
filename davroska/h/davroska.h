@@ -355,8 +355,6 @@ typedef struct dv_softvector_s
 /* Task (etc.) management variables
 */
 extern dv_configstate_t *dv_configstate;
-extern dv_prio_t dv_highestprio;
-extern dv_id_t dv_currentexe;
 
 extern const dv_qty_t dv_maxexe;
 extern const dv_qty_t dv_maxextended;
