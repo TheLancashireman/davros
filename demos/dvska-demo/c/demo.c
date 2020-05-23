@@ -96,13 +96,11 @@ void main_Led(void)
 				cc[i] = ledstate[i] ? '*' : '-';
 			}
 
-#if DEMO_BOARD==DEMO_PI_ZERO
-			dv_printf("    %c %c %c %c\r", cc[3], cc[2], cc[1], cc[0]);
-#elif DEMO_BOARD==DEMO_PI3_ARM64
+#if DEMO_BOARD==DEMO_PI3_ARM64
 			extern volatile char core_state[];
 			dv_printf("    %c %c %c %c %c %c %c\r", cc[3], cc[2], cc[1], cc[0],
 													core_state[1], core_state[2], core_state[3]);
-#elif DEMO_BOARD==DEMO_BLUE_PILL
+#else
 			dv_printf("    %c %c %c %c\r", cc[3], cc[2], cc[1], cc[0]);
 #endif
 
@@ -232,9 +230,6 @@ void main_Init(void)
 		dv_printf("%d %s  b=%d r=%d c=%d %d\n", i, dv_exe[i].name, dv_exe[i].baseprio, dv_exe[i].runprio,
 													dv_exe[i].currprio, dv_exe[i].state);
 	}
-#if DEMO_BOARD == DEMO_BLUE_PILL
-	dv_nvic_triggerirq(0);
-#endif
 }
 
 /* main_Uart() - body of ISR to handle uart rx interrupt
@@ -292,13 +287,8 @@ void callout_addtasks(dv_id_t mode)
 */
 void callout_addisrs(dv_id_t mode)
 {
-#if DEMO_BOARD == DEMO_BLUE_PILL
-/* Interrupts not implemented yet
-*/
-#else
 	Uart = dv_addisr("Uart", &main_Uart, hw_UartInterruptId, 7);
 	Timer = dv_addisr("Timer", &main_Timer, hw_TimerInterruptId, 8);
-#endif
 }
 
 /* callout_addgroups() - configure the executable groups
@@ -321,17 +311,12 @@ void callout_addgroups(dv_id_t mode)
 		dv_addtogroup(Bit3);
 		dv_finishgroup();
 	}
-#if DEMO_BOARD == DEMO_BLUE_PILL
-/* Interrupts not implemented yet
-*/
-#else
 	dv_startgroup("Sillier", 0);
 	{
 		dv_addtogroup(Init);
 		dv_addtogroup(Uart);
 		dv_finishgroup();
 	}
-#endif
 }
 
 /* callout_addmutexes() - configure the mutexes
@@ -372,12 +357,6 @@ void callout_autostart(dv_id_t mode)
 	dv_setalarm_rel(Ticker, BitDriver, 1000);
 	dv_setalarm_rel(Ticker, FlickerDriver, 1700);
 
-#if DEMO_BOARD == DEMO_BLUE_PILL
-	/* Interrupt handling not implemented yet. Temporary test stuff
-	*/
-	dv_nvic_setprio(0, 12);
-	dv_nvic_enableirq(0);
-#else
 	/* Enable interrupts from the UART
 	*/
 	hw_EnableUartRxInterrupt();
@@ -385,7 +364,6 @@ void callout_autostart(dv_id_t mode)
 
 	hw_InitialiseMillisecondTicker();
 	dv_enable_irq(hw_TimerInterruptId);
-#endif
 }
 
 /* callout_reporterror() - called if an error is detected
