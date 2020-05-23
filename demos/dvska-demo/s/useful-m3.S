@@ -43,8 +43,8 @@ void switchToPsp(unsigned *psp, unsigned *msp, unsigned control, void (*fp)(void
 
 	.text
 	.globl	switchToPsp
-	.globl	preemptFrame
-	.globl	preemptFrame_end
+	.globl	dv_preemptframe
+	.globl	dv_preemptframe_end
 
 switchToPsp:
 	msr		PSP, r0
@@ -52,8 +52,8 @@ switchToPsp:
 	msr		MSP, r1
 	bx		r3
 
-preemptFrame:
+dv_preemptframe:
 	blx		r0
 	svc		#0
-preemptFrame_end:
-	b		preemptFrame_end
+dv_preemptframe_end:
+	b		dv_preemptframe_end

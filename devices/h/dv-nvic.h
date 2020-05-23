@@ -142,7 +142,6 @@ static inline void dv_config_irq(int irq, dv_intlevel_t lvl, int unused_core)
 	dv_nvic_setprio(irq, (dv_u8_t)(16-lvl));
 }
 
-
 /* In the davroska world, 0 is the lowest priority (enables all interrupts).
  * Interrupt sources have priorities from 1 upwards.
  * The various functions here map this onto the inverted Arm scheme
@@ -150,7 +149,6 @@ static inline void dv_config_irq(int irq, dv_intlevel_t lvl, int unused_core)
 static inline dv_intlevel_t dv_setirqlevel(dv_intlevel_t lvl)
 {
 	if ( lvl > 15 )  lvl = 15;
-	dv_printf("dv_setirqlevel() - reqested %d\n", lvl);
 	if ( dv_currentlocklevel == lvl )
 		return lvl;
 
@@ -163,7 +161,6 @@ static inline dv_intlevel_t dv_setirqlevel(dv_intlevel_t lvl)
 	else
 		dv_set_basepri(((unsigned)(16 - lvl)) << 4);
 
-	dv_printf("dv_setirqlevel() - old %d, basepri %d\n", old, dv_get_basepri());
 	dv_restore(is);
 	return old;
 }

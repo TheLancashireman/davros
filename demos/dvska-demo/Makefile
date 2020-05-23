@@ -218,6 +218,7 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/dv-stm32-uart.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-nvic.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/demo-blue-pill.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-switchcall.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-cortexm.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/useful-m3.o
 
 VPATH		+=	$(DVSK_ROOT)/hardware/arm/c
