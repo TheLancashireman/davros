@@ -43,7 +43,6 @@ const dv_qty_t dv_maxmutex = DV_CFG_MAXMUTEX;
 
 dv_configstate_t *dv_configstate;		/* Current state of configuration sequence */
 
-dv_prio_t dv_highprio;					/* Priority of highest activated exe (before running) */
 dv_prio_t dv_highestprio;				/* Highest priority in use */
 dv_id_t dv_currentexe;					/* Current executable */
 
@@ -1089,7 +1088,7 @@ static void dv_calculatelevels(void)
 #if DV_DEBUG
 	dv_printf("dv_calculatelevels() - dv_ntask %d dv_nexe %d\n", dv_ntask, dv_nexe);
 #endif
-	dv_prio_t l = 0;
+	dv_prio_t l = 1;
 	for ( dv_prio_t p = dv_maxtaskprio + 1; p <= dv_maxprio; p++ )
 	{
 #if DV_DEBUG
@@ -1114,9 +1113,9 @@ static void dv_calculatelevels(void)
 				dv_printf(" ... not at this prio\n");
 #endif
 		}
+		dv_queue[p].level = l;
 		if ( c > 0 )
 			l++;
-		dv_queue[p].level = l;
 #if DV_DEBUG
 		dv_printf("dv_calculatelevels() - queue prio %d, level %d\n", p, dv_queue[p].level);
 #endif
