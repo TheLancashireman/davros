@@ -57,7 +57,7 @@ void dv_board_start(int core_index)
  * The handler function must process all the known interrupts and then call the dispatcher.
  * Interrupt processing is performed by dv_bcm2835_interrupt_handler()
  *
- * FIXME: error handling for interrupt in the kernel?
+ * TODO: error handling for interrupt in the kernel?
 */
 void dv_irq_handler(dv_kernel_t *kvars)
 {

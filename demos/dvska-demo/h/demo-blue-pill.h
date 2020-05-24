@@ -35,12 +35,12 @@ extern void sysinfo(void);
 
 static inline void hw_ClearTimer(void)
 {
-	/* FIXME: to do */
+	/* TODO: to do */
 }
 
 static inline void hw_SetLed(int i, dv_boolean_t state)
 {
-	/* FIXME: to do */
+	/* TODO: to do */
 }
 
 static inline void hw_EnableUartRxInterrupt(void)
@@ -51,7 +51,7 @@ static inline void hw_EnableUartRxInterrupt(void)
 
 static inline void hw_InitialiseMillisecondTicker(void)
 {
-	/* FIXME: to do */
+	/* TODO: to do */
 }
 
 #endif

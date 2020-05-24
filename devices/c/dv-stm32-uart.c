@@ -110,7 +110,8 @@ int dv_stm32_uart_init(dv_uart_t *uart, unsigned baud, char *fmt)
 	/* Parameters are OK.
 	*/
 
-	/* Turn on GPIO A and USART1
+	/* Turn on GPIO A and USART1.
+	 * TODO: Generalise; this code enables USART1.
 	*/
 	dv_rcc.apb2en |= (DV_RCC_IOPA | DV_RCC_USART1);
 

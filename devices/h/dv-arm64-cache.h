@@ -61,17 +61,17 @@ static inline void dv_invalidate_instruction_cache_by_mva(dv_u64_t mva)
 
 static inline void dv_flush_prefetch_buffer(void)
 {
-	/* FIXME: to do */
+	/* TODO */
 }
 
 static inline void dv_flush_entire_branch_target_cache(void)
 {
-	/* FIXME: to do */
+	/* TODO */
 }
 
 static inline void dv_flush_branch_target_cache_by_mva(dv_u64_t mva)
 {
-	/* FIXME: to do */
+	/* TODO */
 }
 
 
@@ -79,7 +79,7 @@ static inline void dv_flush_branch_target_cache_by_mva(dv_u64_t mva)
 */
 static inline void dv_invalidate_entire_data_cache(void)
 {
-	/* FIXME: to do */
+	/* TODO */
 }
 
 static inline void dv_invalidate_data_cache_by_mva(dv_u64_t mva)
@@ -106,7 +106,7 @@ static inline void dv_invalidate_both_caches(void)
 */
 static inline void dv_clean_entire_data_cache(void)
 {
-	/* FIXME: to do */
+	/* TODO */
 }
 
 static inline void dv_clean_data_cache_by_mva_to_PoC(dv_u64_t mva)
@@ -136,12 +136,12 @@ static inline void dv_clean_data_cache_by_index(dv_u64_t index)
 
 static inline void dv_synchronization_barrier(void)
 {
-	/* FIXME: to do */
+	/* TODO */
 }
 
 static inline void dv_memory_barrier(void)
 {
-	/* FIXME: to do */
+	/* TODO */
 }
 
 
@@ -149,7 +149,7 @@ static inline void dv_memory_barrier(void)
 */
 static inline void dv_clean_and_invalidate_entire_data_cache(void)
 {
-	/* FIXME: to do */
+	/* TODO */
 }
 
 static inline void dv_clean_and_invalidate_data_cache_by_mva(dv_u64_t mva)
@@ -166,22 +166,22 @@ static inline void dv_clean_and_invalidate_data_cache_by_index(dv_u64_t index)
 */
 static inline void dv_invalidate_instruction_cache_range(dv_u64_t start, dv_u64_t end)
 {
-	/* FIXME: to do */
+	/* TODO */
 }
 
 static inline void dv_invalidate_data_cache_range(dv_u64_t start, dv_u64_t end)
 {
-	/* FIXME: to do */
+	/* TODO */
 }
 
 static inline void dv_clean_data_cache_range(dv_u64_t start, dv_u64_t end)
 {
-	/* FIXME: to do */
+	/* TODO */
 }
 
 static inline void dv_clean_and_invalidate_data_cache_range(dv_u64_t start, dv_u64_t end)
 {
-	/* FIXME: to do */
+	/* TODO */
 }
 
 #endif

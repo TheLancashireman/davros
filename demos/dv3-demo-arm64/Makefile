@@ -81,8 +81,9 @@ $(DV_BIN_D)/davros.bin:	 $(DV_BIN_D)/davros.elf
 $(DV_BIN_D)/davros.elf:	$(DV_LD_OBJS) $(DV_KLIB) $(DV_ULIB)
 	$(dv_ld)
 
+# TODO
 install:	$(DV_BIN_D)/davros.bin
-#	cp $(DV_BIN_D)/davros.bin ../../raspberry-pi/usb-zero/msd/kernel.img		FIXME
+#	cp $(DV_BIN_D)/davros.bin ../../raspberry-pi/usb-zero/msd/kernel.img
 
 
 include $(DV_ROOT)/make/dv-commontargets.make

@@ -69,6 +69,8 @@ dv_boolean_t ledstate[4];
 const dv_eventmask_t ev_Flicker = 0x01;	/* Calculates ledstate[3] */
 const dv_eventmask_t ev_Update = 0x08;	/* Transfers led states to I/O pins */
 
+extern void sysinfo();
+
 /* main_Led() - task body function for the Led task
 */
 void main_Led(void)
@@ -91,6 +93,7 @@ void main_Led(void)
 
 		dv_printf("main_Led(): SP = 0x%08x\n", dv_get_sp());
 		dv_printf("main_Led(): events = 0x%08x, count = %d\n", (dv_u32_t)(events & 0xffffffff), count);
+		sysinfo();
 		count++;
 	}
 }
@@ -100,6 +103,7 @@ void main_Led(void)
 void main_Bit0(void)
 {
 	dv_printf("main_Bit0(): started\n");
+	sysinfo();
 }
 
 /* main_Bit1() - task body function for the Bit1 task
@@ -107,6 +111,7 @@ void main_Bit0(void)
 void main_Bit1(void)
 {
 	dv_printf("main_Bit1(): started\n");
+	sysinfo();
 }
 
 /* main_Bit2() - task body function for the Bit2 task

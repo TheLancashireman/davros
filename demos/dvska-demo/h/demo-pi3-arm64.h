@@ -27,10 +27,6 @@
 #include <dv-arm-bcm2835-uart.h>
 #include <dv-arm-bcm2835-aux.h>
 #include <dv-arm-bcm2835-interruptcontroller.h>
-#if 0	/* FIXME */
-#include <dv-armv6-mmu.h>
-#include <dv-arm-cp15.h>
-#endif
 #include <dv-arm-bcm2835-systimer.h>
 #include <dv-arm-bcm2835-armtimer.h>
 
