@@ -29,6 +29,7 @@
 #include <dv-stm32-rcc.h>
 #include <dv-nvic.h>
 #include <dv-stm32-uart.h>
+#include <dv-stm32-gpio.h>
 
 #include <davroska-inline.h>
 
@@ -127,6 +128,20 @@ void dv_reset(void)
 	dv_consoledriver.getc = uart1_getc;
 	dv_consoledriver.istx = uart1_istx;
 	dv_consoledriver.isrx = uart1_isrx;
+
+	/* Initialise GPIO C for the on-board LED
+	 *
+	 * Pin 13 (LED_PIN) output, open-drain, 50 MHz, output to 1 (turn off)
+	*/
+	do {
+		dv_rcc.apb2en |= DV_RCC_IOPC;
+		int cr = LED_PIN / 8;
+		int shift = (LED_PIN % 8) * 4;
+		dv_u32_t mask = 0xf << shift;
+		dv_u32_t val = DV_GPIO_OUT_OD_50 << shift;
+		dv_gpio_c.cr[cr] = (dv_gpio_c.cr[cr] & mask) | val;
+		dv_gpio_c.bsrr = 0x1 << LED_PIN;
+	} while (0);
 
 	sysinfo();
 

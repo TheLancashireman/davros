@@ -28,6 +28,9 @@
 #include <dv-stm32-timx.h>
 #include <dv-nvic.h>
 #include <dv-stm32-interrupts.h>
+#include <dv-stm32-gpio.h>
+
+#define LED_PIN	13	/* On-board LED */
 
 extern void sysinfo(void);
 extern void dumpPstack(void);
@@ -49,7 +52,13 @@ static inline void hw_ClearTimer(void)
 
 static inline void hw_SetLed(int i, dv_boolean_t state)
 {
-	/* TODO: to do */
+	if ( i == 3 )
+	{
+		if ( state )
+			dv_gpio_c.brr = 0x1 << LED_PIN;
+		else
+			dv_gpio_c.bsrr = 0x1 << LED_PIN;
+	}
 }
 
 static inline void hw_EnableUartRxInterrupt(void)
