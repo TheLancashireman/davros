@@ -32,6 +32,8 @@
 
 #include <davroska-inline.h>
 
+#include <demo-blue-pill.h>
+
 #define DV_SPSEL		0x02
 
 extern unsigned dv_start_data, dv_end_data, dv_start_bss, dv_end_bss, dv_idata;
@@ -40,9 +42,6 @@ extern unsigned dv_stacktop;
 
 extern int main(int argc, char **argv);
 extern void switchToPsp(unsigned *psp, unsigned *msp, unsigned control, void (*fp)(void));
-
-void sysinfo(void);
-void dumpPstack(void);
 
 /* dv_init_data() - initialise variables
  *
