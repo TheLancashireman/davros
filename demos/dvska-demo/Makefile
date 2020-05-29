@@ -145,8 +145,8 @@ LD_OPT		+= -T $(DV_LDSCRIPT)
 LD_OPT		+=	-L $(DV_LDLIB_D)
 LD_OPT		+=	-lc
 
-ifeq ($(DV_BOARD), blue-pill)
-# Temporary - a hacked version of demo.c while developing the Cortex M support for Blue Pill
+ifeq ($(DV_BOARD), xxx)
+# Temporary - a hacked version of demo.c while developing a new board. Change xxx (above) to board name
 DV_LD_OBJS	+= $(DV_OBJ_D)/demo-temp.o
 else
 # The demo code
@@ -215,10 +215,11 @@ ifeq ($(DV_BOARD), blue-pill)
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-cortexm-vectors.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-stm32-rcc.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-stm32-uart.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-stm32-timx.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-nvic.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/demo-blue-pill.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-switchcall.o
-DV_LD_OBJS	+= $(DV_OBJ_D)/dv-cortexm.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/davroska-cortexm.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/useful-m3.o
 
 VPATH		+=	$(DVSK_ROOT)/hardware/arm/c
