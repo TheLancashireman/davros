@@ -102,30 +102,36 @@ void main_Led(void)
 */
 void main_Bit0(void)
 {
-	dv_printf("main_Bit0(): started\n");
+	dv_printf("main_Bit0() - begin\n");
 	sysinfo();
+	dv_printf("main_Bit0() - end\n");
 }
 
 /* main_Bit1() - task body function for the Bit1 task
 */
 void main_Bit1(void)
 {
-	dv_printf("main_Bit1(): started\n");
+	dv_printf("main_Bit1() - begin\n");
 	sysinfo();
+	dv_printf("main_Bit1() - end\n");
 }
 
 /* main_Bit2() - task body function for the Bit2 task
 */
 void main_Bit2(void)
 {
-	dv_printf("main_Bit2(): started\n");
+	dv_printf("main_Bit2() - begin\n");
+	sysinfo();
+	dv_printf("main_Bit2() - end\n");
 }
 
 /* main_Bit3() - task body function for the Bit3 task
 */
 void main_Bit3(void)
 {
-	dv_printf("main_Bit3(): started\n");
+	dv_printf("main_Bit3() - begin\n");
+	sysinfo();
+	dv_printf("main_Bit3() - end\n");
 }
 
 /* main_Init() - start the ball rolling
@@ -146,6 +152,7 @@ void main_Init(void)
 void main_Uart(void)
 {
 	dv_printf("main_Uart() - begin\n");
+	sysinfo();
 	while ( dv_consoledriver.isrx() )
 	{
 		int c = dv_consoledriver.getc();
@@ -153,7 +160,7 @@ void main_Uart(void)
 		dv_printf("uart rx : 0x%02x\n", c);
 	}
 	dv_activatetask(Bit0);
-	dv_setevent(Led, 0x80);
+	dv_nvic_triggerirq(dv_irq_tim2);
 
 	dv_printf("main_Uart() - end\n");
 }
@@ -162,11 +169,18 @@ void main_Uart(void)
 */
 void main_Timer(void)
 {
+#if 1
+	dv_printf("main_Timer() - begin\n");
+	sysinfo();
+	dv_setevent(Led, 0x80);
+	dv_printf("main_Timer() - end\n");
+#else
 	hw_ClearTimer();
 
 	dv_statustype_t ee = dv_advancecounter(Ticker, 1);
 	if ( ee != dv_e_ok )
 		dv_shutdown(ee);
+#endif
 }
 
 /* af_BitDriver() - alarm function to activate the Bit0 task every 1000 ticks
@@ -203,12 +217,7 @@ void callout_addisrs(dv_id_t mode)
 {
 	Uart = dv_addisr("Uart", &main_Uart, hw_UartInterruptId, 7);
 
-#if DEMO_BOARD == DEMO_BLUE_PILL
-/* Timers not implemented yet
-*/
-#else
 	Timer = dv_addisr("Timer", &main_Timer, hw_TimerInterruptId, 8);
-#endif
 }
 
 /* callout_addgroups() - configure the executable groups
@@ -282,13 +291,29 @@ void callout_autostart(dv_id_t mode)
 	hw_EnableUartRxInterrupt();
 	dv_enable_irq(hw_UartInterruptId);
 
-#if DEMO_BOARD == DEMO_BLUE_PILL
-/* Timer not implemented yet
-*/
-#else
 	hw_InitialiseMillisecondTicker();
+
+	/* Quick timer test */
+	unsigned x, y;
+
+	x = dv_tim2.cnt;
+
+	for (;;)
+	{
+		y = dv_tim2.cnt;
+		while ( y == x )
+		{
+			y = dv_tim2.cnt;
+		}
+
+		if ( y != (x+1) )
+			break;
+
+		x = y;
+	}
+
+	dv_printf("Timer test: x = %d, y = %d\n", x, y);
 	dv_enable_irq(hw_TimerInterruptId);
-#endif
 }
 
 /* callout_reporterror() - called if an error is detected
