@@ -276,11 +276,11 @@ dv_u64_t af_FlickerDriver(dv_id_t a, dv_param_t unused_d)
 void callout_addtasks(dv_id_t mode)
 {
 	Init = dv_addtask("Init", &main_Init, 4, 1);
-	Led = dv_addextendedtask("Led", &main_Led, 1, 8192);
+	Led = dv_addextendedtask("Led", &main_Led, 1, 2048);
 	Bit0 = dv_addtask("Bit0", &main_Bit0, 2, 1);
 	Bit1 = dv_addtask("Bit1", &main_Bit1, 2, 1);
 	Bit2 = dv_addtask("Bit2", &main_Bit2, 2, 1);
-	Bit3 = dv_addextendedtask("Bit3", &main_Bit3, 3, 8192);
+	Bit3 = dv_addextendedtask("Bit3", &main_Bit3, 3, 2048);
 }
 
 /* callout_addisrs() - configure the isrs
@@ -399,9 +399,13 @@ void callout_idle(void)
 
 /* callout_panic() - called from dv_panic
 */
+#ifndef panic_info
+#define panic_info()	do { } while (0)
+#endif
 void callout_panic(dv_panic_t p, dv_sid_t sid, char *fault)
 {
 	dv_printf("Panic %d in %d : %s\n", p, sid, fault);
+	panic_info();
 }
 
 /* main() - well, it's main, innit?
