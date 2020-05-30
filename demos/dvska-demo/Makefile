@@ -145,13 +145,8 @@ LD_OPT		+= -T $(DV_LDSCRIPT)
 LD_OPT		+=	-L $(DV_LDLIB_D)
 LD_OPT		+=	-lc
 
-ifeq ($(DV_BOARD), xxx)
-# Temporary - a hacked version of demo.c while developing a new board. Change xxx (above) to board name
-DV_LD_OBJS	+= $(DV_OBJ_D)/demo-temp.o
-else
 # The demo code
 DV_LD_OBJS	+= $(DV_OBJ_D)/demo.o
-endif
 
 # davroska and associated library files
 DV_LD_OBJS	+= $(DV_OBJ_D)/davroska.o
