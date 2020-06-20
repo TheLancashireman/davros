@@ -143,6 +143,10 @@ void dv_reset(void)
 		dv_gpio_c.bsrr = 0x1 << LED_PIN;
 	} while (0);
 
+	/* Print the contents of the MPU_TYPE register
+	*/
+	dv_printf("MPU_TYPE = 0x%08x\n", *(unsigned *)0xE000ED90);
+
 	sysinfo();
 
 	/* It would be possible to pass main() as the function pointer here,
