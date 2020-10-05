@@ -28,7 +28,8 @@
 #		srec: objcopy the ELF to an S-record file in the bin directory
 
 # Find out where we are :-)
-DV_ROOT		= /data1/projects/davros
+PRJ_ROOT	?= $(shell pwd)
+DV_ROOT		?= $(shell (cd $(PRJ_ROOT)/../../ ; pwd))
 DVSK_ROOT	= $(DV_ROOT)/davroska
 
 # Select your hardware here
