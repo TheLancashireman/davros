@@ -104,7 +104,7 @@ static inline void dv_nvic_setprio(int irq, dv_u8_t p)
 extern void dv_nvic_init(void);
 
 
-#ifdef DV_DAVROSKA
+#if DV_DAVROSKA
 
 extern dv_intlevel_t dv_currentlocklevel;
 

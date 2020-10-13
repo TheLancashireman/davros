@@ -20,7 +20,7 @@
 #ifndef dv_arm_bcm2835_aux_h
 #define dv_arm_bcm2835_aux_h	1
 
-#ifdef DV_DAVROSKA
+#if DV_DAVROSKA
 #include <dv-config.h>
 #include DV_TARGET
 #else

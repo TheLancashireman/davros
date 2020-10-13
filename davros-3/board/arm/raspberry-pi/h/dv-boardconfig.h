@@ -26,21 +26,9 @@
 #ifndef dv_boardconfig_h
 #define dv_boardconfig_h	1
 
-/* Select the family, CPU and compiler
-*/
-#define DV_FAMILY		DV_ARM
-#define DV_CPU			DV_ARM1176
-#define DV_COMPILER		DV_COMPILER_GNU
-
 /* PBASE - base address for the peripherals.
 */
 #define DV_PBASE			0x20000000
-
-/* DV_COVERAGE
- *	0		- don't trace code coverage
- *	other	- trace code coverage
-*/
-#define DV_COVERAGE		0
 
 /* See dv-arm-bcm2835-interruptcontroller.c for the list of supported interrupt sources.
  * ToDo: make the table configurable.

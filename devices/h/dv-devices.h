@@ -20,7 +20,11 @@
 #ifndef dv_devices_h
 #define dv_devices_h	1
 
-#ifdef DV_DAVROSKA
+#ifndef DV_DAVROSKA
+#define DV_DAVROSKA	0
+#endif
+
+#if DV_DAVROSKA
 
 #include <dv-config.h>
 #include DV_TARGET

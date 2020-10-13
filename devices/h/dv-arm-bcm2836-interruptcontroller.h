@@ -57,7 +57,7 @@ extern const dv_bcm2836_irq_t dv_bcm2836_irq_list[dv_n_bcm2836_iid - dv_n_bcm283
 
 /* Interrupt handler function
 */
-#ifdef DV_DAVROSKA
+#if DV_DAVROSKA
 
 void dv_bcm2836_interrupt_handler(void);
 

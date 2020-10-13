@@ -18,7 +18,7 @@
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <dv-arm-bcm2835-interruptcontroller.h>
-#ifdef DV_DAVROSKA
+#if DV_DAVROSKA
 #else
 #include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-interrupt.h>

@@ -21,7 +21,7 @@
 #include <dv-arm-bcm2835-aux.h>
 #include <dv-arm-bcm2835-gpio.h>
 
-#ifdef DV_DAVROSKA
+#if DV_DAVROSKA
 #else
 #include <kernel/h/dv-stdio.h>
 #endif

@@ -25,7 +25,7 @@
 #define DV_H_REGISTERS		<cpufamily/arm/h/dv-arm-registers.h>
 #define DV_H_DISPATCH		<cpufamily/arm/h/dv-arm-dispatch.h>
 #define DV_H_START			<cpufamily/arm/h/dv-arm-start.h>
-#define DV_H_MMU			<cpufamily/arm/h/dv-armv6-mmu.h>
+#define DV_H_MMU			<dv-armv6-mmu.h>
 
 /* 32-bit processor with no oddities.
 */

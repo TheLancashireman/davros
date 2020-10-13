@@ -41,7 +41,7 @@ struct dv_arm_bcm2835_systimer_s
 
 #define dv_arm_bcm2835_systimer	((dv_arm_bcm2835_systimer_t *)(DV_PBASE+0x003000))[0]
 
-#ifdef DV_DAVROSKA
+#if DV_DAVROSKA
 #else
 
 static inline dv_u64_t dv_readtime(void)
@@ -80,7 +80,7 @@ static inline void dv_clrmatch(int i)
 	dv_arm_bcm2835_systimer.cs = (1<<i);
 }
 
-#ifdef DV_DAVROSKA
+#if DV_DAVROSKA
 #else
 void dv_arm_bcm2835_systimerinterrupt(dv_kernel_t *kvars, dv_address_t param);
 void dv_init_system_timer(dv_kernel_t *kvars);

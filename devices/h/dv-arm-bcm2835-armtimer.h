@@ -133,7 +133,7 @@ static inline dv_u32_t dv_arm_bcm2835_armtimer_read_frc(void)
 	return dv_arm_bcm2835_armtimer.frc;
 }
 
-#ifdef DV_DAVROSKA
+#if DV_DAVROSKA
 static inline dv_u64_t dv_readtime(void)
 {
 	static dv_u64_t timestamp;

@@ -20,7 +20,7 @@
 #include <dv-arm-bcm2835-systimer.h>
 #include <dv-arm-bcm2835-interruptcontroller.h>
 
-#ifdef DV_DAVROSKA
+#if DV_DAVROSKA
 #else
 #include <kernel/h/dv-interrupt.h>
 #include <kernel/h/dv-executable.h>

@@ -30,28 +30,11 @@
 #define DV_ASM	0
 #endif
 
-#include <kernel/h/dv-defs.h>
+#include <dv-projectconfig.h>
 
 /* Include the configuration selections from the board.
- *
- * The included file MUST define
- *	- DV_FAMILY
- *	- DV_CPU
- *	- DV_COMPILER
 */
-#include <dv-boardconfig.h>
-
-#ifndef DV_FAMILY
-#error "dv_boardconfig.h does not define DV_FAMILY. Please fix it."
-#endif
-#ifndef DV_CPU
-#error "dv_boardconfig.h does not define DV_CPU. Please fix it."
-#endif
-#ifndef DV_COMPILER
-#error "dv_boardconfig.h does not define DV_COMPILER. Please fix it."
-#endif
-
-#include <project/h/dv-projectconfig.h>
+#include DV_BOARDCONFIG
 
 /* Default values for other kernel configuration options.
 */
@@ -99,6 +82,7 @@ void dv_idle(void);
 #endif
 #endif
 
+#include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-trace.h>
 #include <kernel/h/dv-coverage.h>
 
