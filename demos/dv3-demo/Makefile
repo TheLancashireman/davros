@@ -77,6 +77,8 @@ DV_ENTRY	?=	dv_trap_reset
 # or the msd directory of rpi-boot
 IMAGE_FILE	?=	/data1/projects/raspberry-pi/usb-zero/msd/kernel.img
 
+CC_OPT		+= -mcpu=arm1176jzf-s
+
 VPATH		+= $(DV3_ROOT)/cpufamily/arm/c
 VPATH		+= $(DV3_ROOT)/cpufamily/arm/s
 
@@ -88,6 +90,27 @@ DV_LIB_OBJS	+= $(DV_OBJ_D)/dv-armv6-mmu.o
 DV_LIB_OBJS	+= $(DV_OBJ_D)/dv-inithardware.o
 DV_LIB_OBJS	+= $(DV_OBJ_D)/dv-initmemorymanagement.o
 DV_LIB_OBJS	+= $(DV_OBJ_D)/dv-initvectors.o
+DV_LIB_OBJS	+= $(DV_OBJ_D)/dv-saveregs.o
+DV_LIB_OBJS	+= $(DV_OBJ_D)/dv-arm-returntothread.o
+DV_LIB_OBJS	+= $(DV_OBJ_D)/dv-getconfigbase.o
+DV_LIB_OBJS	+= $(DV_OBJ_D)/dv-getkvars.o
+DV_LIB_OBJS	+= $(DV_OBJ_D)/dv-setkvars.o
+DV_LIB_OBJS	+= $(DV_OBJ_D)/dv-dabort.o
+DV_LIB_OBJS	+= $(DV_OBJ_D)/dv-pfabort.o
+DV_LIB_OBJS	+= $(DV_OBJ_D)/dv-irq.o
+DV_LIB_OBJS	+= $(DV_OBJ_D)/dv-reserved.o
+DV_LIB_OBJS	+= $(DV_OBJ_D)/dv-sbreak.o
+DV_LIB_OBJS	+= $(DV_OBJ_D)/dv-undef.o
+
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-vectors.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-reset.o
+
+DV_USR_OBJS	+= $(DV_OBJ_D)/dv-nullsc.o
+DV_USR_OBJS	+= $(DV_OBJ_D)/dv-exit.o
+DV_USR_OBJS	+= $(DV_OBJ_D)/dv-createexe.o
+DV_USR_OBJS	+= $(DV_OBJ_D)/dv-spawn.o
+DV_USR_OBJS	+= $(DV_OBJ_D)/dv-sleep.o
+DV_USR_OBJS	+= $(DV_OBJ_D)/dv-sleepuntil.o
 
 endif
 
@@ -146,6 +169,7 @@ LD_OPT		+=	-L $(DV_LDLIB_D)
 LD_OPT		+=	-lc
 
 DV_LIBS		+=	$(DV_LIB_D)/libdavros3.a
+#DV_LIBS		+=	$(DV_LIB_D)/libdv3user.a
 
 # The demo code
 DV_LD_OBJS	+= $(DV_OBJ_D)/demo.o
@@ -154,11 +178,12 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/demo.o
 VPATH 		+= $(DV3_ROOT)/kernel/c
 VPATH 		+= $(DV_ROOT)/devices/c
 VPATH 		+= $(DV_ROOT)/devices/s
+VPATH 		+= $(DV_ROOT)/lib/c
 
 DV_LIB_OBJS	+= $(addprefix $(DV_OBJ_D)/,$(addsuffix .o,$(basename $(notdir $(wildcard $(DV3_ROOT)/kernel/c/*.c)))))
+DV_LIB_OBJS	+= $(addprefix $(DV_OBJ_D)/,$(addsuffix .o,$(basename $(notdir $(wildcard $(DV_ROOT)/lib/c/*.c)))))
 
-
-.PHONY:		default all help clean install srec tempdefault
+.PHONY:		default all help clean install srec tempdefault libs
 
 tempdefault:	libs
 
@@ -174,9 +199,13 @@ libs:		$(DV_OBJ_D) $(DV_LIBS)
 $(DV_BIN_D)/davros-3.elf:	$(DV_BIN_D) $(DV_LD_OBJS) libs
 	$(DV_LD) -o $@ $(DV_LD_OBJS) $(LD_LIB) $(LD_OPT)
 
-$(DV_LIB_D)/libdavros3.a:	$(DV_LIB_D) $(DV_LIB_OBJS)
+$(DV_LIB_D)/libdavros3.a:	$(DV_LIB_D) $(DV_LIB_OBJS) $(DV_USR_OBJS)
 	-rm $@
-	$(DV_AR) cqs $@ $(DV_LIB_OBJS)
+	$(DV_AR) cqs $@ $(DV_LIB_OBJS) $(DV_USR_OBJS)
+	
+#$(DV_LIB_D)/libdv3user.a:	$(DV_LIB_D) $(DV_USR_OBJS)
+#	-rm $@
+#	$(DV_AR) cqs $@ $(DV_USR_OBJS)
 	
 
 $(DV_OBJ_D)/%.o:  %.c

@@ -31,7 +31,7 @@
 dv_saveregs:
 	stmia	r0, {r0-r12}								/* save r0-r12 in regs structure */
 
-	mov		r1, lr										/* pc == link reg
+	mov		r1, lr										/* pc == link reg */
 	mrs		r2, cpsr									/* current mode */
 	mov		r3, sp										/* stack pointer */
 	mov		r4, lr										/* link reg */
