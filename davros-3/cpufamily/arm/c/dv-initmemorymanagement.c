@@ -26,8 +26,8 @@
 #include <dv-arm-bcm2835-gpio.h>
 #include <dv-arm-bcm2835-interruptcontroller.h>
 #include <dv-arm-bcm2835-systimer.h>
-#include <cpufamily/arm/h/dv-arm-cache.h>
-#include <cpufamily/arm/h/dv-arm-cp15.h>
+#include <dv-arm-cache.h>
+#include <dv-arm-cp15.h>
 #include <kernel/h/dv-stdio.h>
 
 extern dv_u32_t dv_start_text, dv_end_text;
@@ -123,13 +123,13 @@ void dv_init_memory_management(dv_kernel_t *kvars)
 	/* Caches not enabled yet, so no need to flush/invalidate/disable here.
 	 * N is zero, so all translations use TTB0.
 	*/
-	DV_dbg(dv_kprintf("dv_init_memory_management() - set ttb0 to 0x%08x\n", (dv_u32_t)kvars->cpu.page_table));
+	DV_DBG(dv_kprintf("dv_init_memory_management() - set ttb0 to 0x%08x\n", (dv_u32_t)kvars->cpu.page_table));
 	dv_set_translation_table_base_0((dv_u32_t)kvars->cpu.page_table);
-	DV_dbg(dv_kprintf("dv_init_memory_management() - set all domain access control to \"manager\"\n"));
+	DV_DBG(dv_kprintf("dv_init_memory_management() - set all domain access control to \"manager\"\n"));
 	dv_set_domain_access_control(0x55555555);		/* Everything to "client" */
-	DV_dbg(dv_kprintf("dv_init_memory_management() - enable MMU in armv6 mode\n"));
+	DV_DBG(dv_kprintf("dv_init_memory_management() - enable MMU in armv6 mode\n"));
 	dv_write_cp15_control(dv_read_cp15_control() | DV_CP15_CTRL_M | DV_CP15_CTRL_XP);
-	DV_dbg(dv_kprintf("dv_init_memory_management() - MMU should be enabled now\n"));
+	DV_DBG(dv_kprintf("dv_init_memory_management() - MMU should be enabled now\n"));
 	kvars->cpu.mmu_active = 1;
 
 }

@@ -21,7 +21,7 @@
 #include <dv-types.h>
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-mempage.h>
-#include <cpufamily/arm/h/dv-armv6-mmu.h>
+#include <dv-armv6-mmu.h>
 #include <kernel/h/dv-stdio.h>
 
 DV_COVDEF(armv6_mmu);

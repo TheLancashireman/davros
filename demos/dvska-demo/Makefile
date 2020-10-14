@@ -33,9 +33,9 @@ DV_ROOT		?= $(shell (cd $(PRJ_ROOT)/../../ ; pwd))
 DVSK_ROOT	= $(DV_ROOT)/davroska
 
 # Select your hardware here
-DV_BOARD	?= blue-pill
+#DV_BOARD	?= blue-pill
 #DV_BOARD	?= pi3-arm64
-#DV_BOARD	?= pi-zero
+DV_BOARD	?= pi-zero
 
 # Select your compiler here
 ifeq ($(DV_BOARD), pi3-arm64)

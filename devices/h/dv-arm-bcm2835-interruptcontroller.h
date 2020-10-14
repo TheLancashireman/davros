@@ -26,7 +26,6 @@
 #error	"No definition of DV_PBASE in the board headers. Please fix!"
 #endif
 
-#include <dv-stdio.h>
 
 #ifndef DV_SUPPORT_INTLEVEL
 #define DV_SUPPORT_INTLEVEL		0
@@ -34,6 +33,10 @@
 
 #ifndef DV_DEBUG
 #define DV_DEBUG 	0
+#endif
+
+#if DV_DEBUG
+#include <dv-stdio.h>
 #endif
 
 #if !DV_ASM

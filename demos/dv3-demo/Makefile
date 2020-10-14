@@ -77,6 +77,18 @@ DV_ENTRY	?=	dv_trap_reset
 # or the msd directory of rpi-boot
 IMAGE_FILE	?=	/data1/projects/raspberry-pi/usb-zero/msd/kernel.img
 
+VPATH		+= $(DV3_ROOT)/cpufamily/arm/c
+VPATH		+= $(DV3_ROOT)/cpufamily/arm/s
+
+# Selected files from the devices directory
+DV_LIB_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-interruptcontroller.o
+
+# Selected files from the cpufamily/arm directory
+DV_LIB_OBJS	+= $(DV_OBJ_D)/dv-armv6-mmu.o
+DV_LIB_OBJS	+= $(DV_OBJ_D)/dv-inithardware.o
+DV_LIB_OBJS	+= $(DV_OBJ_D)/dv-initmemorymanagement.o
+DV_LIB_OBJS	+= $(DV_OBJ_D)/dv-initvectors.o
+
 endif
 
 ifeq ($(DV_BOARD), blue-pill)
@@ -133,14 +145,18 @@ LD_OPT		+= -T $(DV_LDSCRIPT)
 LD_OPT		+=	-L $(DV_LDLIB_D)
 LD_OPT		+=	-lc
 
-DV_LIBS		+=	$(DV_LIB_D)/libdv3kernel.a
+DV_LIBS		+=	$(DV_LIB_D)/libdavros3.a
 
 # The demo code
 DV_LD_OBJS	+= $(DV_OBJ_D)/demo.o
 
 # davros-3 kernel library files
-VPATH 			+=	$(DV3_ROOT)/kernel/c
-DV_KLIB_OBJS	+=	$(addprefix $(DV_OBJ_D)/,$(addsuffix .o,$(basename $(notdir $(wildcard $(DV3_ROOT)/kernel/c/*.c)))))
+VPATH 		+= $(DV3_ROOT)/kernel/c
+VPATH 		+= $(DV_ROOT)/devices/c
+VPATH 		+= $(DV_ROOT)/devices/s
+
+DV_LIB_OBJS	+= $(addprefix $(DV_OBJ_D)/,$(addsuffix .o,$(basename $(notdir $(wildcard $(DV3_ROOT)/kernel/c/*.c)))))
+
 
 .PHONY:		default all help clean install srec tempdefault
 
@@ -158,9 +174,9 @@ libs:		$(DV_OBJ_D) $(DV_LIBS)
 $(DV_BIN_D)/davros-3.elf:	$(DV_BIN_D) $(DV_LD_OBJS) libs
 	$(DV_LD) -o $@ $(DV_LD_OBJS) $(LD_LIB) $(LD_OPT)
 
-$(DV_LIB_D)/libdv3kernel.a:	$(DV_LIB_D) $(DV_KLIB_OBJS)
+$(DV_LIB_D)/libdavros3.a:	$(DV_LIB_D) $(DV_LIB_OBJS)
 	-rm $@
-	$(DV_AR) cqs $@ $(DV_KLIB_OBJS)
+	$(DV_AR) cqs $@ $(DV_LIB_OBJS)
 	
 
 $(DV_OBJ_D)/%.o:  %.c
