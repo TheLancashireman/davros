@@ -1,6 +1,6 @@
 /*	dv-projectconfig.h - davros configuration for xxx project
  *
- *	Copyright 2017 David Haworth
+ *	Copyright 2020 David Haworth
  *
  *	This file is part of davros.
  *
@@ -20,32 +20,12 @@
 #ifndef dv_projectconfig_h
 #define dv_projectconfig_h	1
 
-#define DEMO_PI_ZERO	1
-#define DEMO_PI3_ARM64	2
-#define DEMO_BLUE_PILL	3
+/* Include the board config header.
+ * The name of the board configuration header is defined on the compiler command line
+*/
+#include DEMO_H_BOARDCFG
 
-#if DEMO_BOARD == DEMO_PI_ZERO
-
-#define DV_BOARDCONFIG		<board/arm/raspberry-pi/h/dv-boardconfig.h>
-#define DV_TARGET			<arm/h/dv-target-pi-zero.h>
-#define DV_DEMO_TARGET		<demo-pi-zero.h>
-
-#elif DEMO_BOARD == DEMO_PI3_ARM64
-
-#define DV_BOARDCONFIG		<board/arm64/raspberry-pi-3/h/dv-boardconfig.h>
-#define DV_TARGET			<arm64/h/dv-target-pi3-arm64.h>
-#define DV_DEMO_TARGET		<demo-pi3-arm64.h>
-#define DV_TARGET_CORE		0
-
-#elif DEMO_BOARD == DEMO_BLUE_PILL
-
-#define DV_BOARDCONFIG		<board/arm/blue-pill/h/dv-boardconfig.h>
-#define DV_TARGET			<arm/h/dv-target-blue-pill.h>
-#define DV_DEMO_TARGET		<demo-blue-pill.h>
-
-#else
-#error "DEMO_BOARD not known"
-#endif
+#include <kernel/h/dv-kernel-types.h>
 
 #define DV_MEMSIZE_MB			480
 
@@ -66,8 +46,6 @@
 #define DV_DEBUG				0
 
 #define DV_PRJ_STARTUP			1
-
-#include <kernel/h/dv-kernel-types.h>
 
 #if !DV_ASM
 void prj_init(void);

@@ -1,4 +1,4 @@
-/*	dv-vectors.s - ARM exception and interrupt vectors
+/*	dv-vectors.S - ARM exception and interrupt vectors
  *
  *	Copyright 2015 David Haworth
  *
