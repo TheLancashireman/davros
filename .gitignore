@@ -1,5 +1,9 @@
-*.elf
-*.o
+obj
+lib
 bin
+*.o
+*.a
+*.elf
 *.bin
 *.abs
+*.srec
