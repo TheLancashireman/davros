@@ -39,8 +39,8 @@ DV_BOARD	?= pi-zero
 include make/$(DV_BOARD).make
 
 DV_BIN_D	= bin
-DV_OBJ_D	= obj
-DV_LIB_D	= lib
+DV_OBJ_D	= o
+DV_LIB_D	= a
 
 CC_OPT		+=	-D DV_DAVROSKA=0
 CC_OPT		+=	-D DEMO_H_BOARDCFG="$(DEMO_H_BOARDCFG)"
