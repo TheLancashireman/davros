@@ -20,21 +20,21 @@
 DEMO_H_BOARDCFG	?= <dv-cfg-pi-zero.h>
 
 # Compiler selection.
-#DV_GNU_D	?=	/data1/gnu/gcc-linaro-6.3.1-2017.02-x86_64_arm-eabi
-DV_GNU_D	?=	/data1/gnu/gcc-linaro-7.5.0-2019.12-x86_64_arm-eabi
+#DV_GNU_D	?= /data1/gnu/gcc-linaro-6.3.1-2017.02-x86_64_arm-eabi
+DV_GNU_D	?= /data1/gnu/gcc-linaro-7.5.0-2019.12-x86_64_arm-eabi
 
-DV_GCC		?=	$(DV_GNU_D)/bin/arm-eabi-gcc
-DV_LD		?=	$(DV_GNU_D)/bin/arm-eabi-ld
-DV_AR		?=	$(DV_GNU_D)/bin/arm-eabi-ar
-DV_OBJCOPY	?=	$(DV_GNU_D)/bin/arm-eabi-objcopy
-DV_LDLIB_D	?=	$(DV_GNU_D)/arm-eabi/libc/usr/lib/
-DV_LDSCRIPT	?=	$(DV3_ROOT)/board/arm/raspberry-pi/ldscript/pi-zero.ldscript
+DV_GCC		?= $(DV_GNU_D)/bin/arm-eabi-gcc
+DV_LD		?= $(DV_GNU_D)/bin/arm-eabi-ld
+DV_AR		?= $(DV_GNU_D)/bin/arm-eabi-ar
+DV_OBJCOPY	?= $(DV_GNU_D)/bin/arm-eabi-objcopy
+DV_LDLIB_D	?= $(DV_GNU_D)/arm-eabi/libc/usr/lib/
+DV_LDSCRIPT	?= $(DV3_ROOT)/board/arm/raspberry-pi/ldscript/pi-zero.ldscript
 
-DV_ENTRY	?=	dv_trap_reset
+DV_ENTRY	?= dv_trap_reset
 
 # The directory where 'make install' puts the binary file could be a mounted sd card,
 # or the msd directory of rpi-boot
-IMAGE_FILE	?=	/data1/projects/raspberry-pi/usb-zero/msd/kernel.img
+DV_IMAGE	?= /data1/projects/raspberry-pi/usb-zero/msd/kernel.img
 
 CC_OPT		+= -mcpu=arm1176jzf-s
 
