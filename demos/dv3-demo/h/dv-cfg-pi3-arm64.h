@@ -24,4 +24,11 @@
 #define DV_DEMO_TARGET		<demo-pi3-arm64.h>
 #define DV_TARGET_CORE		0
 
+#define DV_PRJ_VBAR_EL3		((dv_u64_t)&prj_vectors)
+#define DV_PRJ_VBAR_EL2		((dv_u64_t)&prj_vectors)
+
+#if !DV_ASM
+extern void *prj_vectors;
+#endif
+
 #endif

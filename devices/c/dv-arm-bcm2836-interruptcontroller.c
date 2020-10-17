@@ -19,6 +19,7 @@
 */
 #include <dv-arm-bcm2836.h>
 #include <dv-arm-bcm2835-interruptcontroller.h>
+#include <dv-arm-bcm2836-interruptcontroller.h>
 
 #if DV_DAVROSKA
 #else
@@ -37,22 +38,22 @@
  *
 */
 
-const dv_bcm2836_irq_t dv_bcm2836_irq_list[dv_n_bcm2836_iid] =
+const dv_bcm2836_irq_t dv_bcm2836_irq_list[dv_n_bcm2836_iid - dv_n_bcm2835_iid] =
 {
-	[dv_iid_cntps]	= {	DV_BCM2836_SRC_CNTPS	},
-	[dv_iid_cntpns]	= {	DV_BCM2836_SRC_CNTPNS	},
-	[dv_iid_cnthp]	= {	DV_BCM2836_SRC_CNTHP	},
-	[dv_iid_cntv]	= {	DV_BCM2836_SRC_CNTV		},
-	[dv_iid_mb0]	= {	DV_BCM2836_SRC_MB0		},
-	[dv_iid_mb1]	= {	DV_BCM2836_SRC_MB1		},
-	[dv_iid_mb2]	= {	DV_BCM2836_SRC_MB2		},
-	[dv_iid_mb3]	= {	DV_BCM2836_SRC_MB3		},
-	[dv_iid_pmu]	= {	DV_BCM2836_SRC_PMU		},
-	[dv_iid_axi]	= {	DV_BCM2836_SRC_AXI		},
-	[dv_iid_lt]		= {	DV_BCM2836_SRC_LT		},
+	[dv_iid_cntps	- dv_n_bcm2835_iid]	= {	DV_BCM2836_SRC_CNTPS	},
+	[dv_iid_cntpns	- dv_n_bcm2835_iid]	= {	DV_BCM2836_SRC_CNTPNS	},
+	[dv_iid_cnthp	- dv_n_bcm2835_iid]	= {	DV_BCM2836_SRC_CNTHP	},
+	[dv_iid_cntv	- dv_n_bcm2835_iid]	= {	DV_BCM2836_SRC_CNTV		},
+	[dv_iid_mb0		- dv_n_bcm2835_iid]	= {	DV_BCM2836_SRC_MB0		},
+	[dv_iid_mb1		- dv_n_bcm2835_iid]	= {	DV_BCM2836_SRC_MB1		},
+	[dv_iid_mb2		- dv_n_bcm2835_iid]	= {	DV_BCM2836_SRC_MB2		},
+	[dv_iid_mb3		- dv_n_bcm2835_iid]	= {	DV_BCM2836_SRC_MB3		},
+	[dv_iid_pmu		- dv_n_bcm2835_iid]	= {	DV_BCM2836_SRC_PMU		},
+	[dv_iid_axi		- dv_n_bcm2835_iid]	= {	DV_BCM2836_SRC_AXI		},
+	[dv_iid_lt		- dv_n_bcm2835_iid]	= {	DV_BCM2836_SRC_LT		},
 #if 0
-	[dv_iid_gpu]	= { DV_BCM2836_SRC_GPU		},
-	[dv_iid_periph]	= { DV_BCM2836_SRC_PERIPH	},
+	[dv_iid_gpu		- dv_n_bcm2835_iid]	= { DV_BCM2836_SRC_GPU		},
+	[dv_iid_periph	- dv_n_bcm2835_iid]	= { DV_BCM2836_SRC_PERIPH	},
 #endif
 };
 
@@ -76,7 +77,7 @@ void dv_bcm2836_interrupt_handler(dv_kernel_t *kvars)
 
 		/* Loop over all interrupt sources. Clear and handle the configured sources.
 		*/
-		for ( i = 0; i < dv_n_bcm2836_iid; i++ )
+		for ( i = 0; i < dv_n_bcm2836_iid - dv_n_bcm2835_iid; i++ )
 		{
 			mask = dv_bcm2836_irq_list[i].mask;
 			if ( pend & mask )

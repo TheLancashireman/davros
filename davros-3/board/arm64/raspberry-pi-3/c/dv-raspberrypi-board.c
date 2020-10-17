@@ -21,7 +21,8 @@
 #include <kernel/h/dv-kernel.h>
 #include <dv-arm-bcm2835-uart.h>
 #include <dv-arm-bcm2836.h>
-#include <cpufamily/arm64/h/dv-arm64-core.h>
+#include <dv-arm-bcm2836-interruptcontroller.h>
+#include <dv-arm64-core.h>
 #include <kernel/h/dv-stdio.h>
 #include <dv-string.h>
 

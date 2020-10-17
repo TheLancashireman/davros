@@ -26,12 +26,6 @@
 #ifndef dv_boardconfig_h
 #define dv_boardconfig_h	1
 
-/* Select the family, CPU and compiler
-*/
-#define DV_FAMILY		DV_ARM64
-#define DV_CPU			DV_CORTEX_A53
-#define DV_COMPILER		DV_COMPILER_GNU
-
 /* DV_COVERAGE
  *	0		- don't trace code coverage
  *	other	- trace code coverage
@@ -49,7 +43,7 @@
  * On a single-core CPU there are no banked interrupts, so the number of vectors
  * is the same as the number of interrupts.
 */
-#define DV_N_IID			3
+#define DV_N_IID			dv_n_bcm2836_iid
 #define DV_N_SOFTVECTOR		DV_N_IID
 
 #include <cpufamily/arm64/h/dv-arm64-kconfig.h>
@@ -57,7 +51,7 @@
 /* Header files for BCM2835
 */
 #define DV_H_SYSTEMTIMER			<dv-arm-bcm2835-systimer.h>
-#define DV_H_INTERRUPTCONTROLLER	<dv-arm-bcm2835-interruptcontroller.h>
+#define DV_H_INTERRUPTCONTROLLER	<dv-arm-bcm2836-interruptcontroller.h>
 #define DV_H_CONSOLEUART			<dv-arm-bcm2835-uart.h>
 
 #endif

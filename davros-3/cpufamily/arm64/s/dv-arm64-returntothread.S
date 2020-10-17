@@ -20,7 +20,7 @@
 #include <kernel/h/dv-asm.h>
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-thread.h>
-#include <cpufamily/arm64/h/dv-arm64-registers.h>
+#include <dv-arm64-core.h>
 
 	.globl	dv_arm64_return_to_thread
 

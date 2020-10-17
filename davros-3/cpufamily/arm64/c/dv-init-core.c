@@ -18,15 +18,15 @@
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <kernel/h/dv-kconfig.h>
-#include <cpufamily/arm64/h/dv-arm64-core.h>
+#include <dv-arm64-core.h>
 #include <kernel/h/dv-stdio.h>
 
 #ifndef DV_PRJ_VBAR_EL2
-#define DV_PRJ_VBAR_EL2		0
+#define DV_PRJ_VBAR_EL2		((dv_u64_t)0)
 #endif
 
 #ifndef DV_PRJ_VBAR_EL3
-#define DV_PRJ_VBAR_EL3		0
+#define DV_PRJ_VBAR_EL3		((dv_u64_t)0)
 #endif
 
 /* dv_init_core() - initialise the core

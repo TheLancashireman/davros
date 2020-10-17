@@ -21,6 +21,7 @@
 #define dv_armv8_mmu_h	1
 
 #include <dv-devices.h>
+#include <dv-arm64-core.h>
 
 #if !DV_ASM
 

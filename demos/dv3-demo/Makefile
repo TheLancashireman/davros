@@ -33,8 +33,8 @@ DV3_ROOT	?= $(DV_ROOT)/davros-3
 
 # Select your hardware here
 #DV_BOARD	?= blue-pill
-#DV_BOARD	?= pi3-arm64
-DV_BOARD	?= pi-zero
+DV_BOARD	?= pi3-arm64
+#DV_BOARD	?= pi-zero
 
 DV_BIN_D	= bin
 DV_OBJ_D	= o
@@ -113,8 +113,10 @@ $(DV_LIB_D):
 $(DV_OBJ_D):
 	mkdir -p $(DV_OBJ_D)
 
+ifneq ($(DV_IMAGE),)
 $(DV_IMAGE):$(DV_ELF)
 	$(DV_OBJCOPY) $(DV_ELF) -O binary $(DV_IMAGE)
+endif
 
 $(DV_SREC):	$(DV_ELF)
 	$(DV_OBJCOPY) $< -O srec --srec-forceS3 /dev/stdout | dos2unix | egrep -v '^S3..........00*..$$' > $@

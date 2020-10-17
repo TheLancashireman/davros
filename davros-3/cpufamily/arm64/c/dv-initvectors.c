@@ -21,7 +21,7 @@
 #include <dv-types.h>
 #include <kernel/h/dv-coreconfig.h>
 #include <cpufamily/arm64/h/dv-arm64-vectors.h>
-#include <cpufamily/arm64/h/dv-arm64-core.h>
+#include <dv-arm64-core.h>
 #include <kernel//h/dv-stdio.h>
 
 DV_COVDEF(init_vectors);

@@ -22,6 +22,7 @@
 
 #include <kernel/h/dv-kconfig.h>
 #include <kernel/h/dv-kernel-types.h>
+#include DV_H_INTERRUPTCONTROLLER
 
 #if !DV_ASM
 

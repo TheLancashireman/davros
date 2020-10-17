@@ -36,7 +36,7 @@
  * On a single-core CPU there are no banked interrupts, so the number of vectors
  * is the same as the number of interrupts.
 */
-#define DV_N_IID			3
+#define DV_N_IID			dv_n_bcm2835_iid
 #define DV_N_SOFTVECTOR		DV_N_IID
 
 #include <cpufamily/arm/h/dv-arm-kconfig.h>

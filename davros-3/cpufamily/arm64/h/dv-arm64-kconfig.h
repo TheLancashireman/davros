@@ -22,10 +22,10 @@
 
 /* Include files for ARM.
 */
-#define DV_H_REGISTERS		<cpufamily/arm64/h/dv-arm64-registers.h>
+#define DV_H_REGISTERS		<dv-arm64-core.h>
 #define DV_H_DISPATCH		<cpufamily/arm64/h/dv-arm64-dispatch.h>
 #define DV_H_START			<cpufamily/arm64/h/dv-arm64-start.h>
-#define DV_H_MMU			<cpufamily/arm64/h/dv-armv8-mmu.h>
+#define DV_H_MMU			<dv-armv8-mmu.h>
 
 /* 64-bit processor with no oddities.
 */

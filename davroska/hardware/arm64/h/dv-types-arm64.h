@@ -24,7 +24,7 @@
 */
 #include <dv-types-64.h>
 #include <dv-types.h>
-#include <arm64/h/dv-arm64-registers.h>
+#include <dv-arm64-core.h>
 
 /* Use the compiler's setjmp/longjmp
 */
