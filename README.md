@@ -13,9 +13,9 @@ A tiny OS with similar features to OSEK. Apart from extended tasks, it runs on a
 Everything runs with full privileges; there is no memory protection.
 
 Works on:
-* Raspberry Pi zero
-* Raspberry Pi 3 (64-bit)
-* Blue Pill
+* [Raspberry Pi zero](#Raspberry-Pi-zero)
+* [Raspberry Pi 3](#Raspberry-Pi-3) (64-bit)
+* [Blue Pill](#Blue-Pill)
 
 For details, look in the [davroska](davroska/) directory.
 
@@ -31,7 +31,7 @@ Works on:
 * Raspberry Pi zero. Should also work on the old model A and B boards.
 * Should work on the pi3 with a little effort.
 
-## Contents
+## Directory contents
 
 * davroska/ - see above
 * davros-3/ - see above
