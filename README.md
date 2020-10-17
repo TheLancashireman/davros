@@ -29,7 +29,7 @@ For details, look in the [davros-3](davros-3/) directory.
 
 Works on:
 * [Raspberry pi zero](#raspberry-pi-zero). Should also work on the old model A and B boards.
-* [Raspberry pi 3](#raspberry-pi-3) (64-bit)
+* [Raspberry pi 3](#raspberry-pi-3) (64-bit) - in development
 
 ## Directory contents
 
