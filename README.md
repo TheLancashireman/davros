@@ -1,21 +1,49 @@
 # Davros
-Dave's real(time) operating systems
+
+## Dave's real(time) operating systems
 
 Just for fun.
 
 License - all GPL v3 unless otherwise stated.  See the LICENSE file
 
-What's here?
+### Davroska
+
+A tiny OS with similar features to OSEK. Apart from extended tasks, it runs on a single stack.
+
+Everything runs with full privileges; there is no memory protection.
+
+Works on:
+* Raspberry Pi zero
+* Raspberry Pi 3 (64-bit)
+* Blue Pill
+
+For details, look in the [davroska](davroska/) directory.
+
+### Davros-3
+
+An embedded OS with memory protection. Under development.
+
+Works on:
+* Raspberry Pi zero
+
+### What's here?
 
 * davroska/ - a tiny OS similar to OSEK
 * davros-3/ - the beginnings of an embedded OS with memory protection
-  * **davros-3 is currently undergoing renovation**
 * devices/ - header files and drivers for devices. Used by all davros flavours
 * lib/ - some library headers and code. Used by all davros flavours
 * demos/ - some demo code to show you how it works
 * scripts/ - scripts for starting openocd, minicom, gdb etc.
 * LICENSE - a copy of GPL version 3
 * README.md - this file
+
+## Supported hardware
+
+### Raspberry Pi zero
+
+### Raspberry Pi 3
+
+### Blue Pill
 
 ## Links
 
