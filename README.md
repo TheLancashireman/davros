@@ -13,9 +13,9 @@ A tiny OS with similar features to OSEK. Apart from extended tasks, it runs on a
 Everything runs with full privileges; there is no memory protection.
 
 Works on:
-* [Raspberry Pi zero](#Raspberry-Pi-zero)
-* [Raspberry Pi 3](#Raspberry-Pi-3) (64-bit)
-* [Blue Pill](#Blue-Pill)
+* [Raspberry pi zero](#raspberry-pi-zero). Should also work on the old model A and B boards.
+* [Raspberry pi 3](#raspberry-pi-3) (64-bit)
+* [Blue Pill](#blue-pIll)
 
 For details, look in the [davroska](davroska/) directory.
 
@@ -28,8 +28,8 @@ Forever under development ;-)
 For details, look in the [davros-3](davros-3/) directory.
 
 Works on:
-* Raspberry Pi zero. Should also work on the old model A and B boards.
-* Should work on the pi3 with a little effort.
+* [Raspberry pi zero](#raspberry-pi-zero). Should also work on the old model A and B boards.
+* [Raspberry pi 3](#raspberry-pi-3) (64-bit)
 
 ## Directory contents
 
@@ -44,12 +44,12 @@ Works on:
 
 ## Supported hardware
 
-### Raspberry Pi zero
+### Raspberry pi zero
 
 * Broadcom BCM2835 SoC based on an arm1176jzf-s core
 * Broadcom interrupt controller and peripheral block bolted on the side
 
-### Raspberry Pi 2
+### Raspberry pi 2
 
 Not supported.
 
@@ -57,7 +57,7 @@ Not supported.
 * Broadcom QA-7 block with interrupt controller, timers, mailboxes etc. bolted on the side
 * Broadcom interrupt controller and peripheral block (same as the pi zero) bolted on the side of the QA-7
 
-### Raspberry Pi 3
+### Raspberry pi 3
 
 * Broadcom BCM2836 SoC based on a quad-core Cortex A53 cluster
 * Broadcom QA-7 block with interrupt controller, timers, mailboxes etc. bolted on the side
