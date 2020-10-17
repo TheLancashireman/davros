@@ -33,7 +33,7 @@
 #include <dv-armv8-mmu.h>
 #include <dv-arm-bcm2835-systimer.h>
 #include <dv-arm-bcm2835-armtimer.h>
-#include <arm64/h/dv-arm64-registers.h>
+#include <dv-arm64-core.h>
 
 extern dv_u64_t dv_c1_stack_top, dv_c2_stack_top, dv_c3_stack_top;
 
