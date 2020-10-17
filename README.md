@@ -1,6 +1,6 @@
 # Davros
 
-## Dave's real(time) operating systems
+## Dave's real(time) operating system collection
 
 Just for fun.
 
@@ -21,15 +21,20 @@ For details, look in the [davroska](davroska/) directory.
 
 ### Davros-3
 
-An embedded OS with memory protection. Under development.
+An embedded OS with memory protection. More full-featured than davroska.
+
+Forever under development ;-)
+
+For details, look in the [davros-3](davros-3/) directory.
 
 Works on:
-* Raspberry Pi zero
+* Raspberry Pi zero. Should also work on the old model A and B boards.
+* Should work on the pi3 with a little effort.
 
-### What's here?
+## Contents
 
-* davroska/ - a tiny OS similar to OSEK
-* davros-3/ - the beginnings of an embedded OS with memory protection
+* davroska/ - see above
+* davros-3/ - see above
 * devices/ - header files and drivers for devices. Used by all davros flavours
 * lib/ - some library headers and code. Used by all davros flavours
 * demos/ - some demo code to show you how it works
@@ -41,9 +46,26 @@ Works on:
 
 ### Raspberry Pi zero
 
+* Broadcom BCM2835 SoC based on an arm1176jzf-s core
+* Broadcom interrupt controller and peripheral block bolted on the side
+
+### Raspberry Pi 2
+
+Not supported.
+
+* Broadcom BCM2836 SoC based on a quad-core Cortex A7 cluster
+* Broadcom QA-7 block with interrupt controller, timers, mailboxes etc. bolted on the side
+* Broadcom interrupt controller and peripheral block (same as the pi zero) bolted on the side of the QA-7
+
 ### Raspberry Pi 3
 
+* Broadcom BCM2836 SoC based on a quad-core Cortex A53 cluster
+* Broadcom QA-7 block with interrupt controller, timers, mailboxes etc. bolted on the side
+* Broadcom interrupt controller and peripheral block (same as the pi zero) bolted on the side of the QA-7
+
 ### Blue Pill
+
+* STM32F103T8 microcontroller based on a Cortex M3 core
 
 ## Links
 
