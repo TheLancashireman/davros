@@ -49,7 +49,7 @@ typedef enum dv_exestate_e
 	dv_exe_free = 0,		/* Not in use */
 	dv_exe_disabled,		/* Not permitted to run - might need allocations (stack, events etc.)  */
 	dv_exe_idle,			/* Idle. Must spawn to start it running */
-    dv_exe_active,			/* Occupying thread and ready to run when scheduled */
+    dv_exe_active,			/* Occupying thread or in job queue and ready to run when scheduled */
     dv_exe_suspended,		/* Spawned but doing nothing */
 	dv_exe_sleep,			/* Sleeping */
 	dv_exe_lock_wait,		/* Waiting for a lock */
