@@ -37,8 +37,7 @@ void dv_sys_exit(dv_kernel_t *kvars, dv_index_t unused_sci)
 
 #if 0
 	/* We'll need some stuff from the thread for later. The thread will either be idle or
-	 * hold a different executable (or a different instance of the same executable) after
-	 * dv_kill_executable_in_thread()
+	 * hold a different executable  after dv_kill_executable_in_thread()
 	*/
 	dv_executable_t *exe = thr->executable;
 	dv_i32_t prio = dv_get_prio(thr);

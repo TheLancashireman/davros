@@ -91,7 +91,6 @@ const dv_execonfig_t dv_c0_cfg_idle =
 	0,
 	DV_IDLE_STACK,
 	DV_MIN_PRIORITY,
-	1,
 	0
 };
 
@@ -103,7 +102,6 @@ const dv_execonfig_t dv_c0_cfg_init =
 	0,
 	DV_C0_INIT_STACK,
 	DV_MAX_PRIORITY,
-	1,
 	DV_EXEFLAG_AUTODESTROY
 };
 

@@ -35,7 +35,7 @@ DV_COVDEF(create_executable);
 static dv_boolean_t dv_is_free_exe(dv_index_t i, const void *tbl)
 {
 	const dv_executable_t *exe_tbl = tbl;
-	if ( exe_tbl[i].name == DV_NULL )
+	if ( exe_tbl[i].state == dv_exe_free )
 		return 1;
 	return 0;
 }
@@ -71,11 +71,9 @@ dv_index_t dv_create_executable(dv_kernel_t *kvars, const dv_execonfig_t *execfg
 		exe->baseprio = execfg->priority;
 		exe->runprio = execfg->priority;
 		exe->maxprio = execfg->priority;
-		exe->maxinstances = execfg->maxinstances;
 		exe->n_stack = execfg->n_stack;
 		exe->flags = execfg->flags;
 		exe->state = dv_exe_disabled;
-		exe->n_instances = 0;
 		exe->thread = DV_NULL;
 		exe->registers = DV_NULL;
 		exe->events = DV_NULL;

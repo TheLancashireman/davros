@@ -73,17 +73,13 @@ dv_thread_t *dv_allocate_thread(dv_kernel_t *kvars, const dv_executable_t *exe)
 				if ( exe_tbl[i].thread->jobqueue == DV_NULL )
 					dv_panic(dv_panic_objectsearchfailed, "dv_allocate_thread", "no ringbuffer available");
 
-				/* When we allocate a job queue for a shared thread, the original first executable in
-				 * the thread had a single instance. So the job queue's initial length is the number
-				 * of instances of the new executable.
-				*/
-				dv_rb_configure(exe_tbl[i].thread->jobqueue, rb_simple, 4, exe->maxinstances);
+				dv_rb_configure(exe_tbl[i].thread->jobqueue, rb_simple, 4, 1);
 				DV_DBG(dv_kprintf("dv_allocate_thread(): new jobj queue, length is %d\n",
 							exe_tbl[i].thread->jobqueue->length));
 			}
 			else
 			{
-				dv_rb_lengthen(exe_tbl[i].thread->jobqueue, exe->maxinstances);
+				dv_rb_lengthen(exe_tbl[i].thread->jobqueue, 1);
 				DV_DBG(dv_kprintf("dv_allocate_thread(): lengthen jobj queue, length is %d\n",
 							exe_tbl[i].thread->jobqueue->length));
 			}
@@ -102,29 +98,7 @@ dv_thread_t *dv_allocate_thread(dv_kernel_t *kvars, const dv_executable_t *exe)
 	thr_tbl[thr_i].n_exe = 1;
 	thr_tbl[thr_i].link.payload_type = dv_dll_thread;
 	thr_tbl[thr_i].link.payload = &thr_tbl[thr_i];
-	if ( exe-> maxinstances > 1 )
-	{
-		/* Multiple instances: we need a job queue immediately.
-		*/
-		thr_tbl[thr_i].jobqueue = dv_allocate_ringbuffer(kvars);
-
-		if ( thr_tbl[thr_i].jobqueue == DV_NULL )
-		{
-			/* ToDo: better error handling */
-			dv_panic(dv_panic_objectsearchfailed, "dv_allocate_thread", "no ringbuffer available");
-		}
-		else
-		{
-			/* When the first executable has multiple activations the job queue
-			 * needs one fewer entries because the first activation doesn't go in the queue.
-			*/
-			dv_rb_configure(thr_tbl[thr_i].jobqueue, rb_simple, 4, exe->maxinstances-1);
-		}
-	}
-	else
-	{
-		thr_tbl[thr_i].jobqueue = DV_NULL;
-	}
+	thr_tbl[thr_i].jobqueue = DV_NULL;
 
 	return &thr_tbl[thr_i];
 }

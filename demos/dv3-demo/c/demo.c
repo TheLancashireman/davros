@@ -60,7 +60,6 @@ const dv_execonfig_t task_foo_cfg =
 	0,			/* Core */
 	200,		/* Stacksize (words) */
 	0,			/* Priority */
-	1,			/* Max instances */
 	0			/* Flags */
 };
 const dv_execonfig_t task_fot_cfg =
@@ -69,7 +68,6 @@ const dv_execonfig_t task_fot_cfg =
 	0,			/* Core */
 	200,		/* Stacksize (words) */
 	0,			/* Priority */
-	2,			/* Max instances */
 	0			/* Flags */
 };
 const dv_execonfig_t task_bar_cfg =
@@ -78,7 +76,6 @@ const dv_execonfig_t task_bar_cfg =
 	0,			/* Core */
 	200,		/* Stacksize (words) */
 	1,			/* Priority */
-	1,			/* Max instances */
 	DV_EXEFLAG_BLOCKING	/* Flags */
 };
 const dv_execonfig_t task_qxx_cfg =
@@ -87,7 +84,6 @@ const dv_execonfig_t task_qxx_cfg =
 	0,			/* Core */
 	200,		/* Stacksize (words) */
 	2,			/* Priority */
-	1,			/* Max instances */
 	DV_EXEFLAG_BLOCKING	/* Flags */
 };
 
@@ -169,8 +165,6 @@ void Task_Foo(void)
 
 	dv_kprintf("Task_Foo: started\n");
 
-	e = dv_spawn(task_fot);		/* should run when foo finishes */
-	dv_kprintf("Task_Foo: dv_spawn(task_fot) returned %d\n", e);
 	e = dv_spawn(task_fot);		/* should fail: max instances exceeded */
 	dv_kprintf("Task_Foo: dv_spawn(task_fot) returned %d\n", e);
 

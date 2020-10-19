@@ -36,8 +36,7 @@ DV_COVDEF(kill_executable_in_thread);
 */
 void dv_kill_executable_in_thread(dv_kernel_t *kvars, dv_thread_t *thr)
 {
-	thr->executable->n_instances--;
-	thr->executable->state = dv_exe_idle;		/* May be short lived - there might be a queued instance */
+	thr->executable->state = dv_exe_idle;
 
 	dv_remove_executable_from_thread(kvars, thr);
 }

@@ -33,8 +33,8 @@ DV3_ROOT	?= $(DV_ROOT)/davros-3
 
 # Select your hardware here
 #DV_BOARD	?= blue-pill
-DV_BOARD	?= pi3-arm64
-#DV_BOARD	?= pi-zero
+#DV_BOARD	?= pi3-arm64
+DV_BOARD	?= pi-zero
 
 DV_BIN_D	= bin
 DV_OBJ_D	= o

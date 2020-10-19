@@ -39,7 +39,6 @@ struct dv_execonfig_s
 	dv_index_t core;				/* The core on which this executable runs */
 	dv_quantity_t n_stack;			/* Stack requirement (no. of stackwords) */
 	dv_i32_t priority;				/* Configured priority */
-	dv_quantity_t maxinstances;		/* No. of instances (for "basic tasks") */
 	dv_u32_t flags;					/* Configuration options (see below) */
 };
 
@@ -47,7 +46,8 @@ struct dv_execonfig_s
 */
 typedef enum dv_exestate_e
 {
-	dv_exe_disabled = 0,	/* Not permitted to run - might need allocations (stack, events etc.)  */
+	dv_exe_free = 0,		/* Not in use */
+	dv_exe_disabled,		/* Not permitted to run - might need allocations (stack, events etc.)  */
 	dv_exe_idle,			/* Idle. Must spawn to start it running */
     dv_exe_active,			/* Occupying thread and ready to run when scheduled */
     dv_exe_suspended,		/* Spawned but doing nothing */
@@ -78,10 +78,8 @@ struct dv_executable_s
 	dv_i32_t baseprio;
 	dv_i32_t runprio;
 	dv_i32_t maxprio;
-	dv_quantity_t maxinstances;		/* For OSEK-style multiple activations */
 	dv_u32_t flags;
 
-	dv_quantity_t n_instances;
 	dv_exestate_t state;
 };
 
