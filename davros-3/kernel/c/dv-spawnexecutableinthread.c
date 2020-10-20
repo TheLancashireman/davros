@@ -38,7 +38,7 @@ void dv_resume_executable_in_thread(dv_doublylinkedlist_t *dll, dv_executable_t 
 {
 	thr->executable = exe;
 	thr->parent = DV_NULL;
-	thr->state = dv_thread_new;
+	thr->state = dv_thread_ready;
 	thr->regs = exe->registers;
 	dv_set_prio(thr, exe->baseprio);
 	dv_dllinsertaftersame(dll, &thr->link);

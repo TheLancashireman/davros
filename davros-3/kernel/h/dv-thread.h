@@ -39,7 +39,6 @@ enum dv_threadstate_e
 	dv_thread_idle = 0,
 	dv_thread_running,
 	dv_thread_ready,
-	dv_thread_new,
 	dv_thread_nstates
 };
 typedef enum dv_threadstate_e dv_threadstate_t;
@@ -49,8 +48,7 @@ typedef enum dv_threadstate_e dv_threadstate_t;
 #define DV_THREADSTATES \
 	[dv_thread_idle]	= "dv_thread_idle",		\
 	[dv_thread_running]	= "dv_thread_running",	\
-	[dv_thread_ready]	= "dv_thread_ready",	\
-	[dv_thread_new]		= "dv_thread_new"
+	[dv_thread_ready]	= "dv_thread_ready"
 
 /* The structure representing a thread.
 */
