@@ -56,9 +56,9 @@ void dv_remove_executable_from_thread(dv_kernel_t *kvars, dv_thread_t *thr)
 	thr->regs = DV_NULL;
 	thr->parent = DV_NULL;
 
-	while ( thr->locktaken != DV_NULL )
+	while ( thr->semtaken != DV_NULL )
 	{
-		dv_panic(dv_panic_unimplemented, "dv_kill_executable_in_thread", "Locks not implemented yet");
+		dv_panic(dv_panic_unimplemented, "dv_kill_executable_in_thread", "Semaphores not implemented yet");
 	}
 
 	kvars->current_thread = DV_NULL;

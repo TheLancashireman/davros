@@ -39,6 +39,7 @@ typedef struct dv_softvector_s dv_softvector_t;
 typedef struct dv_ringbuffer_s dv_ringbuffer_t;
 typedef struct dv_job_s dv_job_t;
 typedef struct dv_kobjallocator_s dv_kobjallocator_t;
+typedef struct dv_semaphore_s dv_semaphore_t;
 
 typedef void (*dv_function_t)(void);
 #endif

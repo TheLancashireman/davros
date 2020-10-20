@@ -59,9 +59,10 @@ struct dv_thread_s
 	dv_executable_t *executable;		/* Current executable */
 	dv_thread_t *parent;				/* Parent thread (for synchronous threads) */
 	dv_ringbuffer_t *jobqueue;			/* Job queue (if any) */
-	dv_lock_t *locktaken;				/* Innermost lock occupied by thread. */
+	dv_semaphore_t *semtaken;			/* Innermost semaphore occupied by thread. */
 	dv_threadstate_t state;				/* Current state */
-	int n_exe;							/* No. of executables using this thread. */
+	dv_i32_t current_prio;				/* Current priority */
+	dv_i32_t n_exe;						/* No. of executables using this thread. */
 };
 
 /* dv_set_runprio() - set a thread's running priority

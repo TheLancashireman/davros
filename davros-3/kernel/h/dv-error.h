@@ -37,6 +37,11 @@ enum dv_errorid_e
 	dv_eid_ExecutableCreationFailed,
 	dv_eid_ExecutableIsNonBlocking,
 	dv_eid_TimeInThePast,
+	dv_eid_SemaphoreUnconfigured,
+	dv_eid_SemaphoreCeilingTooLow,
+	dv_eid_SemaphoreAlreadyOccupied,
+
+	dv_eid_NotImplemented,				/* A feature hasn't been implemented yet */
 
 	dv_nerrors							/* Not used as an error code */
 };
