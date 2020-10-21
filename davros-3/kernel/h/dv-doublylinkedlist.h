@@ -76,11 +76,38 @@ struct dv_doublylinkedlist_s
 
 /* Functions
 */
-void dv_dllinit(dv_doublylinkedlist_t *, dv_dlltype_t);
-void dv_dllinsertbeforesame(dv_doublylinkedlist_t *, dv_dllelement_t *);
-void dv_dllinsertaftersame(dv_doublylinkedlist_t *, dv_dllelement_t *);
-dv_boolean_t dv_dllinserttime(dv_doublylinkedlist_t *, dv_dllelement_t *);
+extern void dv_dllinit(dv_doublylinkedlist_t *, dv_dlltype_t);
+extern void dv_dllinsertbeforesame_elem(dv_dllelement_t *, dv_dllelement_t *);
+extern void dv_dllinsertaftersame_elem(dv_dllelement_t *, dv_dllelement_t *);
+extern dv_boolean_t dv_dllinserttime(dv_doublylinkedlist_t *, dv_dllelement_t *);
+extern dv_dllelement_t *dv_allocate_dllelement(dv_kernel_t *kvars);
 
+/* dv_dllinsertbeforesame() - insert an element into a list, before others of same priority.
+*/
+static inline void dv_dllinsertbeforesame(dv_doublylinkedlist_t *list, dv_dllelement_t *elem)
+{
+	dv_dllinsertbeforesame_elem(list->headtail.successor, elem);
+}
+
+/* dv_dllinsertaftersame() - insert an element into a list, after others of same priority.
+*/
+static inline void dv_dllinsertaftersame(dv_doublylinkedlist_t *list, dv_dllelement_t *elem)
+{
+	dv_dllinsertaftersame_elem(list->headtail.successor, elem);
+}
+
+/* dv_dllinsertbefore() - insert an element immediately before another element
+*/
+static inline void dv_dllinsertbefore(dv_dllelement_t *succ, dv_dllelement_t *elem)
+{
+	elem->predecessor = succ->predecessor;
+	elem->successor = succ;
+	succ->predecessor->successor = elem;
+	succ->predecessor = elem;
+}
+
+/* dv_dllremove() - remove an element from a doubly-linked list
+*/
 static inline void dv_dllremove(dv_dllelement_t *elem)
 {
 	elem->successor->predecessor = elem->predecessor;
@@ -88,12 +115,24 @@ static inline void dv_dllremove(dv_dllelement_t *elem)
 	elem->successor = elem->predecessor = DV_NULL;
 }
 
+/* dv_dlldemote() - demote an element to a new position lower down the priority list.
+*/
+static inline void dv_dlldemote(dv_dllelement_t *elem)
+{
+	if ( elem->key.i32_key < elem->successor->key.i32_key )
+	{
+		dv_dllelement_t *succ = elem->successor;
+		dv_dllremove(elem);
+		dv_dllinsertbeforesame_elem(succ, elem);
+	}
+}
+
+/* dv_dllisempty() - returns true if a list is empty.
+*/
 static inline dv_boolean_t dv_dllisempty(dv_doublylinkedlist_t *list)
 {
 	return (list->headtail.successor == list->headtail.predecessor);
 }
-
-dv_dllelement_t *dv_allocate_dllelement(dv_kernel_t *kvars);
 
 #endif
 

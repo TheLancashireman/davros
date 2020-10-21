@@ -20,6 +20,8 @@
 #ifndef dv_error_h
 #define dv_error_h	1
 
+#include <kernel/h/dv-kconfig.h>
+
 #if !DV_ASM
 /* API error handling.
 */
@@ -37,9 +39,11 @@ enum dv_errorid_e
 	dv_eid_ExecutableCreationFailed,
 	dv_eid_ExecutableIsNonBlocking,
 	dv_eid_TimeInThePast,
+
 	dv_eid_SemaphoreUnconfigured,
 	dv_eid_SemaphoreCeilingTooLow,
 	dv_eid_SemaphoreAlreadyOccupied,
+	dv_eid_SemaphoreNotOccupied,
 
 	dv_eid_NotImplemented,				/* A feature hasn't been implemented yet */
 
@@ -64,12 +68,26 @@ enum dv_panic_e
 	dv_panic_ringbuffernotallocated,
 	dv_panic_ringbufferwrongtype,
 	dv_panic_ringbufferinvalidsize,
+	dv_panic_semaphorecounterror,
+	dv_panic_semaphoreoccupied,
 	dv_panic_last
 };
 
 typedef enum dv_panic_e dv_panic_t;
 
-void dv_panic(dv_panic_t, char *, char *) __attribute__((noreturn));
+extern void dv_panic(dv_panic_t, char *, char *) __attribute__((noreturn));
+
+#ifndef DV_ASSERTIONS
+#define DV_ASSERTIONS	1
+#endif
+
+static inline void dv_assert(dv_boolean_t c, dv_panic_t p, char *f, char *m)
+{
+#if DV_ASSERTIONS
+	if ( !c )
+		dv_panic(p, f, m);
+#endif
+}
 
 #endif
 

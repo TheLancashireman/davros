@@ -23,23 +23,21 @@
 
 DV_COVDEF(dllinsertbeforesame);
 
-/* dv_dllinsertbeforesame() - insert an element into a priority queue.
+/* dv_dllinsertbeforesame_elem() - insert an element into a priority queue relative to a given element.
  *
- * The element is inserted after all others of the same or higher priority
+ * The element is inserted after all others of higher priority
  * but before those of lower or equal priority.
 */
-void dv_dllinsertbeforesame(dv_doublylinkedlist_t *list, dv_dllelement_t *elem)
+void dv_dllinsertbeforesame_elem(dv_dllelement_t *start, dv_dllelement_t *elem)
 {
-	dv_dllelement_t *e = list->headtail.successor;
 	dv_fcov(0);
+
+	dv_dllelement_t *e = start;
 
 	while ( dv_ccov(1, 2, (elem->key.i32_key < e->key.i32_key)) )
 	{
 		e = e->successor;
 	}
 
-	elem->predecessor = e->predecessor;
-	elem->successor = e;
-	e->predecessor->successor = elem;
-	e->predecessor = elem;
+	dv_dllinsertbefore(e, elem);
 }

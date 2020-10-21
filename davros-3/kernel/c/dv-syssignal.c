@@ -1,4 +1,4 @@
-/*	dv-syswait.c - wait system call for davros
+/*	dv-syssignal.c - signal system call for davros
  *
  *	Copyright 2020 David Haworth
  *
@@ -26,13 +26,13 @@
 #include <kernel/h/dv-semaphore.h>
 #include DV_H_REGISTERS
 
-DV_COVDEF(sys_wait);
+DV_COVDEF(sys_signal);
 
-/* dv_sys_wait() - wait for a semaphore
+/* dv_sys_signal() - signal a semaphore
  *
- * This function implements the kernel side of the wait system call.
+ * This function implements the kernel side of the signal system call.
 */
-void dv_sys_wait(dv_kernel_t *kvars, dv_index_t unused_sci)
+void dv_sys_signal(dv_kernel_t *kvars, dv_index_t unused_sci)
 {
 	dv_machineword_t p0 = dv_get_p0(kvars->current_thread->regs);
 	dv_semaphore_t *sem_tbl = dv_coreconfigs[kvars->core_index]->semaphores;
@@ -40,11 +40,11 @@ void dv_sys_wait(dv_kernel_t *kvars, dv_index_t unused_sci)
 	dv_semaphore_t *sem;
 	dv_errorid_t e = dv_eid_UnknownError;
 
-	DV_DBG(dv_kprintf("dv_sys_wait(): sem_i = %d\n", sem_i));
+	DV_DBG(dv_kprintf("dv_sys_signal(): sem_i = %d\n", sem_i));
 	if ( sem_i < 0 || sem_i >= dv_coreconfigs[kvars->core_index]->n_semaphores )
 	{
 		e = dv_eid_IndexOutOfRange;
-		DV_DBG(dv_kprintf("dv_sys_wait(): e = %d (IndexOutOfRange)\n", e));
+		DV_DBG(dv_kprintf("dv_sys_signal(): e = %d (IndexOutOfRange)\n", e));
 	}
 	else
 	{
@@ -53,23 +53,23 @@ void dv_sys_wait(dv_kernel_t *kvars, dv_index_t unused_sci)
 		switch ( sem->protocol )
 		{
 		case dv_semaphore_fifo:
-			e = dv_wait_semfifo(kvars, sem);
+			e = dv_signal_semfifo(kvars, sem);
 			break;
 		case dv_semaphore_priority:
-			e = dv_wait_semqprio(kvars, sem);
+			e = dv_signal_semqprio(kvars, sem);
 			break;
 		case dv_semaphore_deferredceiling:
-			e = dv_wait_semdefceil(kvars, sem);
+			e = dv_signal_semdefceil(kvars, sem);
 			break;
 		case dv_semaphore_immediateceiling:
-			e = dv_wait_semimmceil(kvars, sem);
+			e = dv_signal_semimmceil(kvars, sem);
 			break;
 		default:
 			e = dv_eid_SemaphoreUnconfigured;
 			break;
 		}
 
-		DV_DBG(dv_kprintf("dv_sys_wait(): e = %d (returned from dv_wait_***())\n", e));
+		DV_DBG(dv_kprintf("dv_sys_signal(): e = %d (returned from dv_signal_***())\n", e));
 	}
 
 	dv_set_rv0(kvars->current_thread->regs, e);

@@ -62,63 +62,81 @@ struct dv_semaphore_s
 	dv_i32_t count;						/* Counter */
 };
 
-/* dv_occupy_sempahore() - occupy a sempahore; push onto a thread's "taken" list, set owner, etc.
+
+extern dv_errorid_t dv_wait_semimmceil(dv_kernel_t *, dv_semaphore_t *);
+extern dv_errorid_t dv_signal_semimmceil(dv_kernel_t *, dv_semaphore_t *);
+
+/* dv_acquire_sempahore() - acquire a sempahore; push onto a thread's "taken" list, set owner, etc.
  *
  * The "taken" list is a simple LIFO list. Double linking is not needed.
 */
-static inline void dv_occupy_semaphore(dv_semaphore_t *sem, dv_thread_t *thr)
+static inline void dv_acquire_mutex(dv_semaphore_t *sem, dv_thread_t *thr)
 {
 	sem->owner = thr;
 	sem->link = thr->semtaken;
-	sem->oldprio = dv_get_prio(thr);
 	thr->semtaken = sem;
+	sem->oldprio = dv_get_prio(thr);
 }
 
+/* dv_relinquish_sempahore() - relinquish a sempahore; pop the thread's "taken" list, clear owner, etc.
+ *
+ * The "taken" list is a simple LIFO list. Double linking is not needed.
+*/
+static inline void dv_relinquish_mutex(dv_semaphore_t *sem, dv_thread_t *thr)
+{
+	sem->owner = DV_NULL;
+	thr->semtaken = sem->link;
+	sem->link = DV_NULL;
+	dv_set_prio(thr, sem->oldprio);
+	dv_dlldemote(&thr->link);
+}
+
+/* dv_wait_semfifo() - wait for a fifo semaphore
+ *
+*/
 static inline dv_errorid_t dv_wait_semfifo(dv_kernel_t *kvars, dv_semaphore_t *sem)
 {
 	return dv_eid_NotImplemented;
 }
 
+/* dv_signal_semfifo() - signal a fifo semaphore
+ *
+*/
+static inline dv_errorid_t dv_signal_semfifo(dv_kernel_t *kvars, dv_semaphore_t *sem)
+{
+	return dv_eid_NotImplemented;
+}
+
+/* dv_wait_semfifo() - wait for a priority semaphore
+ *
+*/
 static inline dv_errorid_t dv_wait_semqprio(dv_kernel_t *kvars, dv_semaphore_t *sem)
 {
 	return dv_eid_NotImplemented;
 }
 
+/* dv_signal_semfifo() - signal a priority semaphore
+ *
+*/
+static inline dv_errorid_t dv_signal_semqprio(dv_kernel_t *kvars, dv_semaphore_t *sem)
+{
+	return dv_eid_NotImplemented;
+}
+
+/* dv_wait_semdefceil() - acquire a mutex with deferred ceiling priority protocol
+ *
+*/
 static inline dv_errorid_t dv_wait_semdefceil(dv_kernel_t *kvars, dv_semaphore_t *sem)
 {
 	return dv_eid_NotImplemented;
 }
 
-/* dv_wait_semimmceil() - occupy an immediate priority ceiling protocol mutex
+/* dv_signal_semdefceil() - relinquish a mutex with deferred ceiling priority protocol
  *
- * Executables with higher base priority are not allowed to occupy.
 */
-static inline dv_errorid_t dv_wait_semimmceil(dv_kernel_t *kvars, dv_semaphore_t *sem)
+static inline dv_errorid_t dv_signal_semdefceil(dv_kernel_t *kvars, dv_semaphore_t *sem)
 {
-	/* It's an error if the caller's base priority is higher than the semaphore's ceiling priority.
-	*/
-	if ( kvars->current_thread->executable->baseprio > sem->ceiling )
-		return dv_eid_SemaphoreCeilingTooLow;
-
-	sem->count--;
-
-	/* Queueing on a semaphore with immediate priority ceiling protocol should never happen.
-	*/
-	if ( sem->count < 0 )
-	{
-		sem->count++;
-		return dv_eid_SemaphoreAlreadyOccupied;
-	}
-
-	/* Occupy the semaphore.
-	*/
-	dv_occupy_semaphore(sem, kvars->current_thread);
-
-	/* Raise the priority of the caller to the ceiling.
-	*/
-	dv_set_prio(kvars->current_thread, sem->ceiling);
-
-	return dv_eid_None;
+	return dv_eid_NotImplemented;
 }
 
 #endif
