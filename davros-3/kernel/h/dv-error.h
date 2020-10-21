@@ -77,10 +77,6 @@ typedef enum dv_panic_e dv_panic_t;
 
 extern void dv_panic(dv_panic_t, char *, char *) __attribute__((noreturn));
 
-#ifndef DV_ASSERTIONS
-#define DV_ASSERTIONS	1
-#endif
-
 static inline void dv_assert(dv_boolean_t c, dv_panic_t p, char *f, char *m)
 {
 #if DV_ASSERTIONS

@@ -41,10 +41,8 @@ dv_errorid_t dv_wait_semimmceil(dv_kernel_t *kvars, dv_semaphore_t *sem)
 
 	if ( sem->count < 0 )
 	{
-#if 0
-		dv_assert( (sem->owner != kvars->current_thread )
-			dv_panic(dv_panic_semaphoreoccupied, "dv_wait_semimmceil", "Mutex is occupied by a different thread");
-#endif
+		dv_assert( (sem->owner != kvars->current_thread),
+			dv_panic_semaphoreoccupied, "dv_wait_semimmceil", "Mutex is occupied by a different thread");
 
 		return dv_eid_None;
 	}
@@ -72,9 +70,8 @@ dv_errorid_t dv_signal_semimmceil(dv_kernel_t *kvars, dv_semaphore_t *sem)
 
 	sem->count++;
 
-	/* ToDo: make this an assertion */
-	if ( sem->count > 1 )
-		dv_panic(dv_panic_semaphorecounterror, "dv_signal_semimmceil", "Unexpected value in semaphore counter");
+	dv_assert( (sem->count < 2),
+		dv_panic_semaphorecounterror, "dv_signal_semimmceil", "Unexpected value in semaphore counter");
 
 	if ( sem->count >= 1 )
 	{

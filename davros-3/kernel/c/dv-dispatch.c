@@ -87,8 +87,8 @@ void dv_dispatch(dv_kernel_t *kvars)
 
 	/* ToDo: make the following an optional assertion.
 	*/
-	if ( incoming == DV_NULL )
-		dv_panic(dv_panic_threadqueueempty, "dv_dispatch", "No thread to run");
+	dv_assert( (incoming != DV_NULL),
+		dv_panic_threadqueueempty, "dv_dispatch", "No thread to run");
 
 	if ( outgoing == incoming )
 	{

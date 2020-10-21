@@ -72,6 +72,12 @@
 #define DV_TRACE		0
 #endif
 
+/* Assume assertions on unless told otherwise
+*/
+#ifndef DV_ASSERTIONS
+#define DV_ASSERTIONS	1
+#endif
+
 /* Assume standard idle function unless told otherwise.
 */
 #ifndef DV_IDLE_FUNC
