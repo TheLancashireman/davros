@@ -91,7 +91,7 @@ image:	dirs $(DV_IMAGE)
 srec:	dirs $(DV_SREC)
 
 
-$(DV_ELF):	$(DV_BIN_D) $(DV_LD_OBJS) libs
+$(DV_ELF):	$(DV_BIN_D) $(DV_LD_OBJS) $(DV_LIBS)
 	$(DV_LD) -o $@ $(DV_LD_OBJS)  -ldavros3 $(LD_OPT)
 
 $(DV_LIB_D)/libdavros3.a:	$(DV_LIB_D) $(DV_LIB_OBJS) $(DV_USR_OBJS)
