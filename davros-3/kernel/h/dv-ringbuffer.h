@@ -87,11 +87,11 @@ struct dv_ringbuffer_s
 	dv_u32_t *buf;						/* The buffer - contains at least (length*size) bytes */
 };
 
-dv_quantity_t dv_rb_remove_simple(dv_ringbuffer_t *, void *);
-dv_quantity_t dv_rb_append_simple(dv_ringbuffer_t *, void *);
-dv_ringbuffer_t *dv_allocate_ringbuffer(dv_kernel_t *);
-dv_index_t dv_allocate_buf(dv_kobjallocator_t *allocator, dv_quantity_t n_required);
-void dv_rb_allocate(dv_kernel_t *, dv_ringbuffer_t *);
+extern dv_quantity_t dv_rb_remove_simple(dv_ringbuffer_t *, void *);
+extern dv_quantity_t dv_rb_append_simple(dv_ringbuffer_t *, void *);
+extern dv_ringbuffer_t *dv_allocate_ringbuffer(dv_kernel_t *);
+extern dv_index_t dv_allocate_buf(dv_kobjallocator_t *allocator, dv_quantity_t n_required);
+extern void dv_rb_allocate(dv_kernel_t *, dv_ringbuffer_t *);
 
 static inline void dv_rb_configure(dv_ringbuffer_t *rb, dv_rbtype_t t, dv_quantity_t s, dv_quantity_t l)
 {

@@ -78,7 +78,7 @@
 #define DV_IDLE_FUNC	dv_idle
 #define DV_IDLE_STACK	16
 #if !DV_ASM
-void dv_idle(void);
+extern void dv_idle(void);
 #endif
 #endif
 

@@ -31,7 +31,7 @@ struct dv_eventstatus_s
 	dv_boolean_t allocated;
 };
 
-dv_eventstatus_t *dv_allocate_eventstatus(dv_kernel_t *kvars);
+extern dv_eventstatus_t *dv_allocate_eventstatus(dv_kernel_t *kvars);
 
 #define DV_NO_EVENTS	0LL
 

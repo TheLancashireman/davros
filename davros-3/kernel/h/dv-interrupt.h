@@ -36,12 +36,12 @@ struct dv_softvector_s
 
 extern dv_softvector_t dv_softvector[DV_N_SOFTVECTOR];
 
-void dv_unknown_interrupt(dv_kernel_t *, dv_address_t);
-void dv_unconfigured_interrupt(dv_kernel_t *, dv_address_t);
+extern void dv_unknown_interrupt(dv_kernel_t *, dv_address_t);
+extern void dv_unconfigured_interrupt(dv_kernel_t *, dv_address_t);
 
-void dv_dispatch_interrupt(dv_kernel_t *, int);
-void dv_init_softvector(void);
-void dv_attach_irq(int, dv_inthandler_t, dv_address_t);
+extern void dv_dispatch_interrupt(dv_kernel_t *, int);
+extern void dv_init_softvector(void);
+extern void dv_attach_irq(int, dv_inthandler_t, dv_address_t);
 
 #endif
 

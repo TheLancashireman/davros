@@ -69,7 +69,7 @@
 
 /* Empty versions of the coverage macros if coverage tracing is turned off
 */
-#define DV_COVDEF(x)	void dv_nothing(void)
+#define DV_COVDEF(x)	extern void dv_nothing(void)
 
 #define dv_fcov(p)			do{}while(0)
 #define dv_ccov(pt,pf,c)	(c)
@@ -83,8 +83,8 @@ struct dv_coverage_s
 	dv_u8_t *counters;
 };
 
-void dv_functioncovered(dv_coverage_t *, int);
-dv_boolean_t dv_conditioncovered(dv_coverage_t *, int, int, dv_boolean_t);
+extern void dv_functioncovered(dv_coverage_t *, int);
+extern dv_boolean_t dv_conditioncovered(dv_coverage_t *, int, int, dv_boolean_t);
 
 #endif
 

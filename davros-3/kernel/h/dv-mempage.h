@@ -45,6 +45,6 @@ struct dv_mempage_s
 	int n_use;
 };
 
-dv_mempage_t *dv_allocate_page(dv_kernel_t *);
+extern dv_mempage_t *dv_allocate_page(dv_kernel_t *);
 
 #endif

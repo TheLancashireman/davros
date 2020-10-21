@@ -48,11 +48,11 @@ extern dv_uartdriver_t dv_consoledriver;		/* Must be set up by the board init. *
  *	the given mode and returns the old mode. The only specified value
  *	of mode is 0 (KPOLLED)
 */
-int dv_kprintf(const char *fmt, ...);
-int dv_kputc(int c);
+extern int dv_kprintf(const char *fmt, ...);
+extern int dv_kputc(int c);
 
 #if 0
-int dv_kmode(int m);
+extern int dv_kmode(int m);
 #define KPOLLED 0
 #define KINTR	1
 #endif

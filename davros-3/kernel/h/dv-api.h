@@ -27,12 +27,12 @@
 #include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-error.h>
 
-void dv_nullsc(dv_machineword_t, dv_machineword_t, dv_machineword_t, dv_machineword_t);
-void dv_exit(dv_machineword_t, dv_machineword_t);
-dv_errorid_t dv_spawn(dv_index_t);
-dv_dual_t dv_create_exe(const dv_execonfig_t *);
-dv_errorid_t dv_sleep(dv_u32_t);
-dv_errorid_t dv_sleep_until(dv_u64_t);
+extern void dv_nullsc(dv_machineword_t, dv_machineword_t, dv_machineword_t, dv_machineword_t);
+extern void dv_exit(dv_machineword_t, dv_machineword_t);
+extern dv_errorid_t dv_spawn(dv_index_t);
+extern dv_dual_t dv_create_exe(const dv_execonfig_t *);
+extern dv_errorid_t dv_sleep(dv_u32_t);
+extern dv_errorid_t dv_sleep_until(dv_u64_t);
 
 #endif
 

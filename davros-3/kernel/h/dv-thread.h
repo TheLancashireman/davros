@@ -91,7 +91,7 @@ static inline void dv_set_prio(dv_thread_t *thr, dv_i32_t p)
 	thr->link.key.i32_key = p;
 }
 
-void dv_return_from_main(dv_machineword_t, dv_machineword_t);
+extern void dv_return_from_main(dv_machineword_t, dv_machineword_t);
 
 #endif
 

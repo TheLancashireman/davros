@@ -93,7 +93,7 @@ enum dv_sc_e
 
 typedef enum dv_sc_t dv_sc_e;
 
-void dv_syscall(dv_kernel_t *, dv_machineword_t) __attribute__((noreturn));
+extern void dv_syscall(dv_kernel_t *, dv_machineword_t) __attribute__((noreturn));
 
 typedef void (*dv_sc_function_t)(dv_kernel_t *, dv_index_t);
 
@@ -105,21 +105,21 @@ struct dv_syscall_s
 
 extern const dv_syscall_t dv_syscalltable[DV_N_SYSCALL+1];
 
-void dv_sys_null(dv_kernel_t *, dv_index_t);
-void dv_sys_exit(dv_kernel_t *, dv_index_t);
-void dv_sys_yield(dv_kernel_t *, dv_index_t);
-void dv_sys_create_exe(dv_kernel_t *, dv_index_t);
-void dv_sys_spawn(dv_kernel_t *, dv_index_t);
-void dv_sys_chain(dv_kernel_t *, dv_index_t);
-void dv_sys_acquire(dv_kernel_t *, dv_index_t);
-void dv_sys_drop(dv_kernel_t *, dv_index_t);
+extern void dv_sys_null(dv_kernel_t *, dv_index_t);
+extern void dv_sys_exit(dv_kernel_t *, dv_index_t);
+extern void dv_sys_yield(dv_kernel_t *, dv_index_t);
+extern void dv_sys_create_exe(dv_kernel_t *, dv_index_t);
+extern void dv_sys_spawn(dv_kernel_t *, dv_index_t);
+extern void dv_sys_chain(dv_kernel_t *, dv_index_t);
+extern void dv_sys_acquire(dv_kernel_t *, dv_index_t);
+extern void dv_sys_drop(dv_kernel_t *, dv_index_t);
 #if 0
-void dv_sys_event_wait(dv_kernel_t *, dv_index_t);
-void dv_sys_event_wgc(dv_kernel_t *, dv_index_t);
-void dv_sys_event_wgc_all(dv_kernel_t *, dv_index_t);
-void dv_sys_event_set(dv_kernel_t *, dv_index_t);
-void dv_sys_event_get(dv_kernel_t *, dv_index_t);
-void dv_sys_event_clear(dv_kernel_t *, dv_index_t);
+extern void dv_sys_event_wait(dv_kernel_t *, dv_index_t);
+extern void dv_sys_event_wgc(dv_kernel_t *, dv_index_t);
+extern void dv_sys_event_wgc_all(dv_kernel_t *, dv_index_t);
+extern void dv_sys_event_set(dv_kernel_t *, dv_index_t);
+extern void dv_sys_event_get(dv_kernel_t *, dv_index_t);
+extern void dv_sys_event_clear(dv_kernel_t *, dv_index_t);
 #else
 #define dv_sys_event_wait		dv_sys_unknown
 #define dv_sys_event_wgc		dv_sys_unknown
@@ -129,10 +129,10 @@ void dv_sys_event_clear(dv_kernel_t *, dv_index_t);
 #define dv_sys_event_get		dv_sys_unknown
 #define dv_sys_event_clear		dv_sys_unknown
 #endif
-void dv_sys_sleep(dv_kernel_t *, dv_index_t);
-void dv_sys_sleep_until(dv_kernel_t *, dv_index_t);
+extern void dv_sys_sleep(dv_kernel_t *, dv_index_t);
+extern void dv_sys_sleep_until(dv_kernel_t *, dv_index_t);
 
-void dv_sys_unknown(dv_kernel_t *, dv_index_t);
+extern void dv_sys_unknown(dv_kernel_t *, dv_index_t);
 
 #endif
 

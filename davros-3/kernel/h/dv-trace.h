@@ -32,12 +32,12 @@
 
 /* The following must be provided by the project.
 */
-void dv_trace_threadstate(dv_thread_t *thread, dv_threadstate_t newstate);
-void dv_trace_api(dv_thread_t *thread, dv_index_t sci, const dv_syscall_t *sc);
-void dv_trace_api_done(dv_thread_t *thread, dv_index_t sci, const dv_syscall_t *sc);
-void dv_trace_dumpregs(const char *str, const dv_registers_t *r);
-void dv_trace_dumpcpuregs(void);
-void dv_trace_error(dv_errorid_t e, dv_thread_t *thread);
+extern void dv_trace_threadstate(dv_thread_t *thread, dv_threadstate_t newstate);
+extern void dv_trace_api(dv_thread_t *thread, dv_index_t sci, const dv_syscall_t *sc);
+extern void dv_trace_api_done(dv_thread_t *thread, dv_index_t sci, const dv_syscall_t *sc);
+extern void dv_trace_dumpregs(const char *str, const dv_registers_t *r);
+extern void dv_trace_dumpcpuregs(void);
+extern void dv_trace_error(dv_errorid_t e, dv_thread_t *thread);
 
 #else
 
