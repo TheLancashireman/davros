@@ -46,6 +46,7 @@
 #define DV_DEBUG				0
 
 #define DV_PRJ_STARTUP			1
+#define DV_PRJ_STARTUP_FUNC		prj_startup
 
 #if !DV_ASM
 void prj_init(void);

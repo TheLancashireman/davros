@@ -84,7 +84,7 @@ void dv_start(dv_index_t ci)
 #if DV_PRJ_STARTUP
 	/* Optional: call the project's startup function.
 	*/
-	prj_startup(kvars);
+	DV_PRJ_STARTUP_FUNC(kvars);
 #endif
 
 	/* Dispatch the highest-priority thread.

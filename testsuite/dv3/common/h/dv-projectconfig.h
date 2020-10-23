@@ -68,7 +68,7 @@
 #endif
 
 #ifndef DV_C0_INIT_FUNC
-#define DV_C0_INIT_FUNC			prj_init
+#define DV_C0_INIT_FUNC			dt3_init
 #endif
 
 #ifndef DV_C0_INIT_STACK
@@ -85,11 +85,12 @@
 
 #ifndef DV_PRJ_STARTUP
 #define DV_PRJ_STARTUP			1
+#define DV_PRJ_STARTUP_FUNC		dt3_startup
 #endif
 
 #if !DV_ASM
-void prj_init(void);
-void prj_startup(dv_kernel_t *kvars);
+void dt3_init(void);
+void dt3_startup(dv_kernel_t *kvars);
 #endif
 
 #endif
