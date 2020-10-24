@@ -49,11 +49,31 @@ extern void d3t_controltask(void);
 */
 extern void d3t_abort(char *, int);
 
-/* d3t_sequencepoint() - records a sequence point
+/* d3t_starttest() - start a new test
+ *
+ *	- Can be called to start an individual test of a test case.
+ *	- Clears the test point sequence, sets the test name etc.
+*/
+extern void d3t_starttest(char *);
+
+/* d3t_finishtest() - finish a test
+ *
+ *	- Can be called to finish an individual test of a test case.
+*/
+extern void d3t_finishtest(char *);
+
+/* d3t_testpoint() - records that the test reached a given place
  *
  *	- Can be called from a test case to record a sequence of execution
 */
-extern void d3t_sequencepoint(char);
+extern void d3t_testpoint(char);
+
+/* d3t_alldone() - records the end of a set of tests.
+ *
+ *	- Called to notifiy the world that the set of tests has finised.
+ *	- Stops in an endless loop.
+*/
+extern void d3t_alldone(char *);
 
 /* d3t_coreindex() - returns the core that it is called on
  *
