@@ -84,8 +84,7 @@
 #endif
 
 #ifndef DV_PRJ_STARTUP
-#define DV_PRJ_STARTUP			1
-#define DV_PRJ_STARTUP_FUNC		dt3_startup
+#define DV_PRJ_STARTUP			0
 #endif
 
 #if !DV_ASM

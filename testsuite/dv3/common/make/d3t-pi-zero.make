@@ -73,7 +73,9 @@ DV_LIB_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-interruptcontroller.o
 DV_LIB_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-uart.o
 DV_LIB_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-gpio.o
 DV_LIB_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-systimer.o
-DV_LIB_OBJS	+= $(DV_OBJ_D)/d3t-traps-arm.o
+
+# Files needed by the test suite
+DT3_LIB_OBJS	+= $(DV_OBJ_D)/d3t-traps-arm.o
 
 # Files to feed to the linker
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-vectors.o

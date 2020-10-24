@@ -30,9 +30,10 @@ DV_SREC		?= $(DV_ELF:.elf=.srec)
 include $(TEST_COMMON_D)/make/dt3-$(DV_BOARD).make
 include $(TEST_COMMON_D)/make/dt3-davros-3.make
 
-VPATH		+= $(TEST_COMMON_D)/c
+VPATH			+= $(TEST_COMMON_D)/c
 
-DV_LIB_OBJS	+= $(DV_OBJ_D)/dt3-panic.o
+DT3_LIB_OBJS	+= $(DV_OBJ_D)/dt3-panic.o
+DT3_LIB_OBJS	+= $(DV_OBJ_D)/dt3-init.o
 
 # Standard compiler options
 CC_OPT		+= -D DT3_H_BOARDCFG="$(DT3_H_BOARDCFG)"
@@ -76,9 +77,9 @@ srec:	dirs $(DV_SREC)
 $(DV_ELF):	$(DV_BIN_D) $(DV_LD_OBJS) $(DV_LIBS)
 	$(DV_LD) -o $@ $(DV_LD_OBJS)  -ldavros3 $(LD_OPT)
 
-$(DV_LIB_D)/libdavros3.a:	$(DV_LIB_D) $(DV_LIB_OBJS) $(DV_USR_OBJS)
+$(DV_LIB_D)/libdavros3.a:	$(DV_LIB_D) $(DV_LIB_OBJS) $(DV_USR_OBJS) $(DT3_LIB_OBJS)
 	-rm $@
-	$(DV_AR) cqs $@ $(DV_LIB_OBJS) $(DV_USR_OBJS)
+	$(DV_AR) cqs $@ $(DV_LIB_OBJS) $(DV_USR_OBJS) $(DT3_LIB_OBJS)
 	
 $(DV_OBJ_D)/%.o:  %.c
 	$(DV_GCC) $(CC_OPT) -o $@ -c $<
