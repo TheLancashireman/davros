@@ -38,4 +38,10 @@ void d3t_testcase_init(void)
 */
 void d3t_controltask(void)
 {
+	d3t_starttest("Template-1");
+	d3t_testpoint('a');
+	d3t_testpoint('b');
+	d3t_testpoint('c');
+	d3t_finishtest("Template-1");
+	d3t_alldone("Template");
 }
