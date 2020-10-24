@@ -1,4 +1,4 @@
-/*	dv-api.h - API header file for davros
+/*	dv-get-exeid.c - dv_get_exeid()
  *
  *	Copyright 2017 David Haworth
  *
@@ -17,24 +17,21 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef dv_api_h
-#define dv_api_h	1
-
-#if !DV_ASM
-
 #include <kernel/h/dv-kconfig.h>
 #include <dv-types.h>
 #include <kernel/h/dv-kernel-types.h>
-#include <kernel/h/dv-error.h>
+#include <kernel/h/dv-kernel.h>
 
-extern void dv_nullsc(dv_machineword_t, dv_machineword_t, dv_machineword_t, dv_machineword_t);
-extern void dv_exit(dv_machineword_t, dv_machineword_t);
-extern dv_errorid_t dv_spawn(dv_index_t);
-extern dv_dual_t dv_create_exe(const dv_execonfig_t *);
-extern dv_errorid_t dv_sleep(dv_u32_t);
-extern dv_errorid_t dv_sleep_until(dv_u64_t);
-extern dv_index_t dv_get_exeid(void);
+/* dv_get_exeid() - return the ID of the current executable (if there is one)
+*/
+dv_index_t dv_get_exeid(void)
+{
+	dv_kernel_t *kvars = dv_get_kvars();
 
-#endif
-
-#endif
+	if ( kvars == DV_NULL ||
+		 kvars->current_thread == DV_NULL ||
+		 kvars->current_thread->executable == DV_NULL )
+		return -1;
+	else
+		return kvars->current_thread->executable->id;
+}

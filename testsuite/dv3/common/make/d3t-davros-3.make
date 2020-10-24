@@ -19,6 +19,7 @@
 
 # Where to find the davros-3 source files
 VPATH 	+= $(DV3_ROOT)/kernel/c
+VPATH 	+= $(DV3_ROOT)/user/c
 VPATH 	+= $(DV_ROOT)/devices/c
 VPATH 	+= $(DV_ROOT)/devices/s
 VPATH 	+= $(DV_ROOT)/lib/c
@@ -29,3 +30,6 @@ DV_LIBS		+=	$(DV_LIB_D)/libdavros3.a
 # Object files to put into the libraries; everything from kernel/c and lib/c
 DV_LIB_OBJS	+= $(addprefix $(DV_OBJ_D)/,$(addsuffix .o,$(basename $(notdir $(wildcard $(DV3_ROOT)/kernel/c/*.c)))))
 DV_LIB_OBJS	+= $(addprefix $(DV_OBJ_D)/,$(addsuffix .o,$(basename $(notdir $(wildcard $(DV_ROOT)/lib/c/*.c)))))
+
+DV_USR_OBJS	+= $(addprefix $(DV_OBJ_D)/,$(addsuffix .o,$(basename $(notdir $(wildcard $(DV3_ROOT)/user/c/*.c)))))
+
