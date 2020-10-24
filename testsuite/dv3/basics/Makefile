@@ -39,7 +39,7 @@ DV_BOARD	?= pi-zero
 
 VPATH	+= c
 
-DV_LD_OBJS	+= $(DV_OBJ_D)/demo.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/d3t-basics.o
 
-include $(TEST_COMMON_D)/make/dt3.make
+include $(TEST_COMMON_D)/make/d3t.make
 
