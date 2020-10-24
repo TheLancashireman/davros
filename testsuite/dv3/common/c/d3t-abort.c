@@ -1,4 +1,4 @@
-/* dt3-abort.c - abort function for davros-3 test suite
+/* d3t-abort.c - abort function for davros-3 test suite
  *
  * Copyright David Haworth
  *
@@ -21,10 +21,10 @@
 */
 #include <kernel/h/dv-kconfig.h>
 #include <dv-projectconfig.h>
-#include <dt3.h>
+#include <d3t.h>
 
 void dv_abort(char *message, int code)
 {
-    dv_kprintf("!!! dt3_abort %d : %s\n", code, message);
+    dv_kprintf("!!! d3t_abort %d : %s\n", code, message);
     for (;;) {}
 }

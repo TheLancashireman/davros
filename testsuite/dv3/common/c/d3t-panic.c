@@ -1,4 +1,4 @@
-/* dt3-panic.c - panic function for davros-3 test suite
+/* d3t-panic.c - panic function for davros-3 test suite
  *
  * Copyright David Haworth
  *

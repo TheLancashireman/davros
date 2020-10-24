@@ -20,12 +20,12 @@
 #ifndef dv_projectconfig_h
 #define dv_projectconfig_h	1
 
-#include "dt3-testconfig.h"
+#include "d3t-testconfig.h"
 
 /* Include the board config header.
  * The name of the board configuration header is defined on the compiler command line
 */
-#include DT3_H_BOARDCFG
+#include D3T_H_BOARDCFG
 
 #include <kernel/h/dv-kernel-types.h>
 
@@ -68,7 +68,7 @@
 #endif
 
 #ifndef DV_C0_INIT_FUNC
-#define DV_C0_INIT_FUNC			dt3_init
+#define DV_C0_INIT_FUNC			d3t_init
 #endif
 
 #ifndef DV_C0_INIT_STACK
@@ -88,8 +88,8 @@
 #endif
 
 #if !DV_ASM
-void dt3_init(void);
-void dt3_startup(dv_kernel_t *kvars);
+void d3t_init(void);
+void d3t_startup(dv_kernel_t *kvars);
 #endif
 
 #endif

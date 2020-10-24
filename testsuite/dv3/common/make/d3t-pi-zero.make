@@ -1,4 +1,4 @@
-#	dt3-pi-zero.make - makefile fragment for building davros-3 test suite for raspberry pi zero
+#	d3t-pi-zero.make - makefile fragment for building davros-3 test suite for raspberry pi zero
 #
 #	Copyright 2020 David Haworth
 #
@@ -17,7 +17,7 @@
 #	You should have received a copy of the GNU General Public License
 #	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 
-DT3_H_BOARDCFG	?= <dt3-cfg-pi-zero.h>
+D3T_H_BOARDCFG	?= <d3t-cfg-pi-zero.h>
 
 # Compiler selection.
 #DV_GNU_D	?= /data1/gnu/gcc-linaro-6.3.1-2017.02-x86_64_arm-eabi
@@ -75,7 +75,7 @@ DV_LIB_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-gpio.o
 DV_LIB_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-systimer.o
 
 # Files needed by the test suite
-DT3_LIB_OBJS	+= $(DV_OBJ_D)/d3t-traps-arm.o
+D3T_LIB_OBJS	+= $(DV_OBJ_D)/d3t-traps-arm.o
 
 # Files to feed to the linker
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-vectors.o

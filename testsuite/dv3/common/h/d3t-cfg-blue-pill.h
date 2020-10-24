@@ -1,4 +1,4 @@
-/*	dt3-cfg-blue-pill.h - davros configuration for the Blue Pill board
+/*	d3t-cfg-blue-pill.h - davros configuration for the Blue Pill board
  *
  *	Copyright 2020 David Haworth
  *
@@ -17,8 +17,8 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef dt3_cfg_blue_pill_h
-#define dt3_cfg_blue_pill_h	1
+#ifndef d3t_cfg_blue_pill_h
+#define d3t_cfg_blue_pill_h	1
 
 #define DV_BOARDCONFIG		<board/arm/blue-pill/h/dv-boardconfig.h>
 

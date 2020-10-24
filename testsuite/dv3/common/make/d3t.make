@@ -1,4 +1,4 @@
-#	dt3.make - common makefile fragment for davros-3 test suite
+#	d3t.make - common makefile fragment for davros-3 test suite
 #
 #	Copyright 2020 David Haworth
 #
@@ -27,16 +27,16 @@ DV_LIB_D	= a
 DV_ELF		?= $(DV_BIN_D)/dv3-test-$(TEST_NAME).elf
 DV_SREC		?= $(DV_ELF:.elf=.srec)
 
-include $(TEST_COMMON_D)/make/dt3-$(DV_BOARD).make
-include $(TEST_COMMON_D)/make/dt3-davros-3.make
+include $(TEST_COMMON_D)/make/d3t-$(DV_BOARD).make
+include $(TEST_COMMON_D)/make/d3t-davros-3.make
 
 VPATH			+= $(TEST_COMMON_D)/c
 
-DT3_LIB_OBJS	+= $(DV_OBJ_D)/dt3-panic.o
-DT3_LIB_OBJS	+= $(DV_OBJ_D)/dt3-init.o
+D3T_LIB_OBJS	+= $(DV_OBJ_D)/d3t-panic.o
+D3T_LIB_OBJS	+= $(DV_OBJ_D)/d3t-init.o
 
 # Standard compiler options
-CC_OPT		+= -D DT3_H_BOARDCFG="$(DT3_H_BOARDCFG)"
+CC_OPT		+= -D D3T_H_BOARDCFG="$(D3T_H_BOARDCFG)"
 CC_OPT		+= -I h
 CC_OPT		+= -I $(TEST_COMMON_D)/h
 CC_OPT		+= -I $(DV3_ROOT)
@@ -77,9 +77,9 @@ srec:	dirs $(DV_SREC)
 $(DV_ELF):	$(DV_BIN_D) $(DV_LD_OBJS) $(DV_LIBS)
 	$(DV_LD) -o $@ $(DV_LD_OBJS)  -ldavros3 $(LD_OPT)
 
-$(DV_LIB_D)/libdavros3.a:	$(DV_LIB_D) $(DV_LIB_OBJS) $(DV_USR_OBJS) $(DT3_LIB_OBJS)
+$(DV_LIB_D)/libdavros3.a:	$(DV_LIB_D) $(DV_LIB_OBJS) $(DV_USR_OBJS) $(D3T_LIB_OBJS)
 	-rm $@
-	$(DV_AR) cqs $@ $(DV_LIB_OBJS) $(DV_USR_OBJS) $(DT3_LIB_OBJS)
+	$(DV_AR) cqs $@ $(DV_LIB_OBJS) $(DV_USR_OBJS) $(D3T_LIB_OBJS)
 	
 $(DV_OBJ_D)/%.o:  %.c
 	$(DV_GCC) $(CC_OPT) -o $@ -c $<

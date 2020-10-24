@@ -1,4 +1,4 @@
-#	dt3-pi3-arm64.make - makefile fragment for building davros-3 test suite for raspberry pi 3 (aarch64)
+#	d3t-pi3-arm64.make - makefile fragment for building davros-3 test suite for raspberry pi 3 (aarch64)
 #
 #	Copyright 2020 David Haworth
 #
@@ -17,7 +17,7 @@
 #	You should have received a copy of the GNU General Public License
 #	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 
-DT3_H_BOARDCFG	?= <dt3-cfg-pi3-arm64.h>
+D3T_H_BOARDCFG	?= <d3t-cfg-pi3-arm64.h>
 
 # Compiler selection.
 #DV_GNU_D	?=	/data1/gnu/gcc-linaro-6.3.1-2017.02-x86_64_aarch64-elf

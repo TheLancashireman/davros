@@ -1,4 +1,4 @@
-/*	dt3-cfg-pi-zero.h - davros configuration for the raspberry pi zero board
+/*	d3t-cfg-pi-zero.h - davros configuration for the raspberry pi zero board
  *
  *	Copyright 2020 David Haworth
  *
@@ -17,8 +17,8 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef dt3_cfg_pi_zero_h
-#define dt3_cfg_pi_zero_h	1
+#ifndef d3t_cfg_pi_zero_h
+#define d3t_cfg_pi_zero_h	1
 
 #define DV_BOARDCONFIG		<board/arm/raspberry-pi/h/dv-boardconfig.h>
 

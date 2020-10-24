@@ -1,4 +1,4 @@
-/* dt3-init.c - davros-3 test suite initialization task
+/* d3t-init.c - davros-3 test suite initialization task
  *
  * Copyright David Haworth
  *
@@ -23,40 +23,40 @@
 #include <dv-types.h>
 #include <kernel/h/dv-syscall.h>
 #include <kernel/h/dv-error.h>
-#include "dt3.h"
+#include "d3t.h"
 
 /* Control task configuration
 */
-const dv_execonfig_t dt3_controltask_cfg =
-{   "dt3_controltask",	/* Task name */
-	dt3_controltask,	/* Task function */
+const dv_execonfig_t d3t_controltask_cfg =
+{   "d3t_controltask",	/* Task name */
+	d3t_controltask,	/* Task function */
 	0,					/* Core */
 	200,				/* Stacksize (words) */
 	0,					/* Priority */
 	0					/* Flags */
 };
 
-/* dt3-init() - initialization task
+/* d3t-init() - initialization task
 */
-void dt3_init(void)
+void d3t_init(void)
 {
 	dv_errorid_t e;
 
-	if ( dt3_coreindex() == 0 )
+	if ( d3t_coreindex() == 0 )
 	{
 		dv_dual_t rv;
-		rv = dv_create_exe(&dt3_controltask_cfg);
+		rv = dv_create_exe(&d3t_controltask_cfg);
 
 		if ( rv.rv0 == dv_eid_None )
 		{
 			e = dv_spawn((dv_index_t)rv.rv1);
 
 			if ( e != dv_eid_None )
-				dt3_abort("dt3_init() : couldn't spawn dt3_controltsask", e);
+				d3t_abort("d3t_init() : couldn't spawn d3t_controltsask", e);
 		}
 		else
-			dt3_abort("dt3_init() : couldn't create dt3_controltsask", rv.rv0);
+			d3t_abort("d3t_init() : couldn't create d3t_controltsask", rv.rv0);
 	}
 
-	dt3_testcase_init();
+	d3t_testcase_init();
 }
