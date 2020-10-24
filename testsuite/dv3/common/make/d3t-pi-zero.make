@@ -78,5 +78,5 @@ DV_LIB_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-systimer.o
 D3T_LIB_OBJS	+= $(DV_OBJ_D)/d3t-traps-arm.o
 
 # Files to feed to the linker
-DV_LD_OBJS	+= $(DV_OBJ_D)/dv-vectors.o
+DV_LD_VECT	+= $(DV_OBJ_D)/dv-vectors.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-raspberrypi-board.o
