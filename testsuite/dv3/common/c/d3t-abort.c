@@ -23,7 +23,7 @@
 #include <dv-projectconfig.h>
 #include <d3t.h>
 
-void dv_abort(char *message, int code)
+void d3t_abort(char *message, int code)
 {
     dv_kprintf("!!! d3t_abort %d : %s\n", code, message);
     for (;;) {}

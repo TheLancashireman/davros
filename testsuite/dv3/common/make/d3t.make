@@ -34,6 +34,7 @@ VPATH			+= $(TEST_COMMON_D)/c
 
 D3T_LIB_OBJS	+= $(DV_OBJ_D)/d3t-panic.o
 D3T_LIB_OBJS	+= $(DV_OBJ_D)/d3t-init.o
+D3T_LIB_OBJS	+= $(DV_OBJ_D)/d3t-abort.o
 
 # Standard compiler options
 CC_OPT		+= -D D3T_H_BOARDCFG="$(D3T_H_BOARDCFG)"
