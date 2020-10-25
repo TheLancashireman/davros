@@ -25,5 +25,5 @@
 
 void d3t_starttest(char *name)
 {
-    dv_kprintf("+++ %s : test started.\n", name);
+    dv_kprintf("! start  : %s\n", name);
 }

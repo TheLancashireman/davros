@@ -62,6 +62,12 @@ extern void d3t_starttest(char *);
 */
 extern void d3t_finishtest(char *);
 
+/* d3t_expect() - records the expected sequence of testpoints
+ *
+ *	- Can be called from a test case to set the expected sequence
+*/
+extern void d3t_expect(char *);
+
 /* d3t_testpoint() - records that the test reached a given place
  *
  *	- Can be called from a test case to record a sequence of execution

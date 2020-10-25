@@ -1,4 +1,4 @@
-/* d3t-finishtest.c - finish a single test
+/* d3t-expect.c - set the expected sequence
  *
  * Copyright David Haworth
  *
@@ -23,7 +23,7 @@
 #include <dv-projectconfig.h>
 #include <d3t.h>
 
-void d3t_finishtest(char *name)
+void d3t_expect(char *seq)
 {
-    dv_kprintf("\n! finish : %s\n", name);
+    dv_kprintf("! expect : %s\n", seq);
 }

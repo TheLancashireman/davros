@@ -39,6 +39,7 @@ D3T_LIB_OBJS	+= $(DV_OBJ_D)/d3t-starttest.o
 D3T_LIB_OBJS	+= $(DV_OBJ_D)/d3t-finishtest.o
 D3T_LIB_OBJS	+= $(DV_OBJ_D)/d3t-alldone.o
 D3T_LIB_OBJS	+= $(DV_OBJ_D)/d3t-testpoint.o
+D3T_LIB_OBJS	+= $(DV_OBJ_D)/d3t-expect.o
 
 # Standard compiler options
 CC_OPT		+= -D D3T_H_BOARDCFG="$(D3T_H_BOARDCFG)"
