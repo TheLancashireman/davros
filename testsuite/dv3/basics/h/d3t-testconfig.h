@@ -20,4 +20,9 @@
 #ifndef d3t_testconfig_h
 #define d3t_testconfig_h	1
 
+#if !DV_ASM
+extern void main_Foo(void);
+extern void main_Bar(void);
+#endif
+
 #endif

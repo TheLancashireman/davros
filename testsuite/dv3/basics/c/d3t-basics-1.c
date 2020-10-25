@@ -25,8 +25,6 @@
 #include "d3t.h"
 
 /* d3t_basics_1() - error returns from dv_spawn()
- *
- * Expect: abcdefghi
 */
 void d3t_basics_1(void)
 {
@@ -35,6 +33,7 @@ void d3t_basics_1(void)
 	dv_kprintf("d3t_controltask has ID %d\n", myId);
 
 	d3t_starttest("basics-1 - errors from dv_spawn()");
+	d3t_expect("abcdefghi");
 
 	if ( dv_spawn(-1) == dv_eid_IndexOutOfRange )
 		d3t_testpoint('a');
@@ -106,5 +105,5 @@ void d3t_basics_1(void)
 #endif
 
 
-	d3t_finishtest("basics-1 - errors");
+	d3t_finishtest("basics-1");
 }

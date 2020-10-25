@@ -47,10 +47,35 @@ void d3t_testcase_init(void)
 void d3t_controltask(void)
 {
 	d3t_basics_1();
-#if 0
 	d3t_basics_2();
 	d3t_basics_3();
+#if 0
 	d3t_basics_4();
 #endif
 	d3t_alldone("basics");
+}
+
+/* main_Foo() - spawns the executable with the next higher ID
+*/
+void main_Foo(void)
+{
+	d3t_testpoint('F');
+
+	dv_index_t myId = dv_get_exeid();
+
+	d3t_testpoint('G');
+
+	dv_errorid_t e = dv_spawn(myId+1);
+
+	if ( e == dv_eid_None )
+		d3t_testpoint('H');
+	else
+		d3t_testpoint('@');
+}
+
+/* main_Bar() - records a testpoint
+*/
+void main_Bar(void)
+{
+	d3t_testpoint('B');
 }
