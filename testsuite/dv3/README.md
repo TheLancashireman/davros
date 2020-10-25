@@ -18,7 +18,7 @@ Contains a template test set with no tests.
 
 Serves as an example of how to construct test sets using the framework.
 
-### d3t-basics
+### basics
 
 Contains tests for the basic functionality of creating and spawning executables.
 
