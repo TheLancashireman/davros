@@ -24,7 +24,10 @@
 #include <dv-types.h>
 #include "d3t.h"
 
-static void d3t_basics_1(void);
+extern void d3t_basics_1(void);
+extern void d3t_basics_2(void);
+extern void d3t_basics_3(void);
+extern void d3t_basics_4(void);
 
 /* d3t-testcase_init() - testcase initialization
  *
@@ -50,52 +53,4 @@ void d3t_controltask(void)
 	d3t_basics_4();
 #endif
 	d3t_alldone("basics");
-}
-
-/* d3t_basics_1() - error returns from dv_spawn()
- *
- * Expect: abcd
-*/
-static void d3t_basics_1(void)
-{
-	dv_index_t myId = dv_get_exeid();
-
-	dv_kprintf("d3t_controltask has ID %d\n", myId);
-
-	d3t_starttest("basics-1 - errors");
-
-	if ( dv_spawn(-1) == dv_eid_IndexOutOfRange )
-		d3t_testpoint('a');
-	else
-		d3t_testpoint('?');
-
-	if ( dv_spawn(DV_C0_N_EXECUTABLES) == dv_eid_IndexOutOfRange )
-		d3t_testpoint('b');
-	else
-		d3t_testpoint('?');
-
-	/* No re-use of executables in this test.
-	 * Therefore all executables from myId+1 to DV_C0_N_EXECUTABLES-1 should be unused.
-	 * ToDo: executable 1 should also be unconfigured, but the destroy function hasn't been implemented yet.
-	*/
-#if 0
-	if ( dv_spawn(1) == dv_eid_UnconfiguredExecutable )
-		d3t_testpoint('c');
-	else
-		d3t_testpoint('?');
-#else
-		d3t_testpoint('c');
-#endif
-
-	if ( dv_spawn(myId+1) == dv_eid_UnconfiguredExecutable )
-		d3t_testpoint('d');
-	else
-		d3t_testpoint('?');
-
-	if ( dv_spawn(DV_C0_N_EXECUTABLES-1) == dv_eid_UnconfiguredExecutable )
-		d3t_testpoint('e');
-	else
-		d3t_testpoint('?');
-
-	d3t_finishtest("basics-1 - errors");
 }
