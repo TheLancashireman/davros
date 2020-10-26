@@ -28,7 +28,32 @@
 
 DV_COVDEF(dv_syscall);
 
-const dv_syscall_t dv_syscalltable[DV_N_SYSCALL+1] = { DV_SYSCALLTABLE };
+const dv_syscall_t dv_syscalltable[DV_N_SYSCALL+1] =
+{
+	[dv_sc_null]			= { dv_sys_null,			"dv_sys_null"				},
+	[dv_sc_exit]			= { dv_sys_exit,			"dv_sys_exit"				},
+	[dv_sc_yield]			= { dv_sys_yield,			"dv_sys_yield"				},
+	[dv_sc_create_exe]		= { dv_sys_create_exe,		"dv_sys_create_exe"			},
+	[dv_sc_destroy_exe]		= { dv_sys_destroy_exe,		"dv_sys_destroy_exe"		},
+	[dv_sc_spawn]			= { dv_sys_spawn,			"dv_sys_spawn"				},
+	[dv_sc_chain]			= { dv_sys_chain,			"dv_sys_chain"				},
+	[dv_sc_terminate]		= { dv_sys_terminate,		"dv_sys_terminate"			},
+	[dv_sc_sleep]			= { dv_sys_sleep,			"dv_sys_sleep"				},
+	[dv_sc_sleep_until]		= { dv_sys_sleep_until,		"dv_sys_sleep_until"		},
+	[dv_sc_sleep_until]		= { dv_sys_sleep_until,		"dv_sys_sleep_until"		},
+	[dv_sc_unknown]			= { dv_sys_unknown,			"dv_sys_unknown"			},
+};
+
+#if 0
+	[dv_sc_acquire]			= { dv_sys_acquire,			"dv_sys_acquire"			},
+	[dv_sc_drop]			= { dv_sys_drop,			"dv_sys_drop"				},
+	[dv_sc_event_wait]		= { dv_sys_event_wait,		"dv_sys_event_wait"			},
+	[dv_sc_event_wgc]		= { dv_sys_event_wgc,		"dv_sys_event_wgc"			},
+	[dv_sc_event_wgc_all]	= { dv_sys_event_wgc_all,	"dv_sys_event_wgc_all"		},
+	[dv_sc_event_set]		= { dv_sys_event_set,		"dv_sys_event_set"			},
+	[dv_sc_event_get]		= { dv_sys_event_set,		"dv_sys_event_set_async"	},
+	[dv_sc_event_clear]		= { dv_sys_event_get,		"dv_sys_event_get"			},
+#endif
 
 /* dv_function() - short description
  *
