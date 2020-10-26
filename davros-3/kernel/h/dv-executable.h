@@ -94,7 +94,7 @@ extern dv_index_t dv_create_executable(dv_kernel_t *, const dv_execonfig_t *);
 extern dv_errorid_t dv_spawn_executable(dv_kernel_t *, dv_executable_t *);
 extern void dv_spawn_executable_in_thread(dv_doublylinkedlist_t *, dv_executable_t *, dv_thread_t *);
 extern void dv_resume_executable_in_thread(dv_doublylinkedlist_t *, dv_executable_t *, dv_thread_t *);
-extern void dv_kill_executable_in_thread(dv_kernel_t *, dv_thread_t *);
+extern void dv_terminate_executable_in_thread(dv_kernel_t *, dv_thread_t *);
 extern void dv_remove_executable_from_thread(dv_kernel_t *, dv_thread_t *);
 extern dv_u64_t dv_wakeup(dv_kernel_t *);
 

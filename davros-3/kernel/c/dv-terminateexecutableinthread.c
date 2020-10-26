@@ -1,4 +1,4 @@
-/*	dv-killexecutableinthread.c - kill the executable that is running in a thread.
+/*	dv-terminateexecutableinthread.c - terminate the executable that is running in a thread.
  *
  *	Copyright 2017 David Haworth
  *
@@ -28,13 +28,13 @@
 #include <kernel/h/dv-ringbuffer.h>
 #include <kernel/h/dv-stdio.h>
 
-DV_COVDEF(kill_executable_in_thread);
+DV_COVDEF(terminate_executable_in_thread);
 
-/* dv_kill_executable_in_thread() - kill the executable in the specified thread.
+/* dv_terminate_executable_in_thread() - terminate the executable in the specified thread.
  *
- * Kill the specified executable, which is running in the specified thread.
+ * Terminate the executable that is running in the specified thread.
 */
-void dv_kill_executable_in_thread(dv_kernel_t *kvars, dv_thread_t *thr)
+void dv_terminate_executable_in_thread(dv_kernel_t *kvars, dv_thread_t *thr)
 {
 	thr->executable->state = dv_exe_idle;
 
@@ -43,7 +43,7 @@ void dv_kill_executable_in_thread(dv_kernel_t *kvars, dv_thread_t *thr)
 
 /* dv_remove_executable_from_thread() - remove the executable from the specified thread.
  *
- * Kill the specified executable, which is running in the specified thread.
+ * Remove an executable from its thread when terminated or blocked.
 */
 void dv_remove_executable_from_thread(dv_kernel_t *kvars, dv_thread_t *thr)
 {
@@ -58,7 +58,7 @@ void dv_remove_executable_from_thread(dv_kernel_t *kvars, dv_thread_t *thr)
 
 	while ( thr->semtaken != DV_NULL )
 	{
-		dv_panic(dv_panic_unimplemented, "dv_kill_executable_in_thread", "Semaphores not implemented yet");
+		dv_panic(dv_panic_unimplemented, "dv_terminate_executable_in_thread", "Semaphores not implemented yet");
 	}
 
 	kvars->current_thread = DV_NULL;
