@@ -26,6 +26,7 @@
 #include <dv-types.h>
 #include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-error.h>
+#include DV_H_SYSTEMTIMER		/* For dv_readtime(), DV_MIN_SLEEP etc. */
 
 extern void dv_nullsc(dv_machineword_t, dv_machineword_t, dv_machineword_t, dv_machineword_t);
 extern void dv_exit(dv_machineword_t, dv_machineword_t);
