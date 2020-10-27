@@ -42,7 +42,7 @@ void dv_sys_sleep(dv_kernel_t *kvars, dv_index_t sci)
 
 	exe = kvars->current_thread->executable;
 
-	if ( exe->dll_element == DV_NULL )
+	if ( (exe->flags & DV_EXEFLAG_BLOCKING) == 0 )
 	{
 		e = dv_eid_ExecutableIsNonBlocking;
 		DV_DBG(dv_kprintf("dv_sys_sleep(): e = %d (ExecutableIsNonBlocking)\n", e));
@@ -50,6 +50,8 @@ void dv_sys_sleep(dv_kernel_t *kvars, dv_index_t sci)
 	else
 	if ( p0 >= DV_MIN_SLEEP )
 	{
+		dv_assert((exe->dll_element != DV_NULL), dv_panic_initialisationerror, "dv_sys_sleep",
+																	"blocking executable has no dll element");
 		e = dv_eid_None;
 		dv_remove_executable_from_thread(kvars, kvars->current_thread);
 		exe->state = dv_exe_sleep;
