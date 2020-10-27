@@ -53,7 +53,7 @@ dv_registers_t *dv_allocate_registers(dv_kernel_t *kvars, const dv_executable_t 
 
 	/* Can only share registers if the executable is non-blocking.
 	*/
-	if ( (exe->flags & (DV_EXEFLAG_EVENTS | DV_EXEFLAG_BLOCKING)) == 0 )
+	if ( (exe->flags & DV_EXEFLAG_BLOCKING) == 0 )
 	{
 		/* Search all the executables to find a registers to share.
 		 * Cannot share with a blocking executable.
