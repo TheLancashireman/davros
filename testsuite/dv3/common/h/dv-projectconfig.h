@@ -75,6 +75,14 @@
 #define DV_C0_INIT_STACK		200
 #endif
 
+#ifndef	DV_MIN_THREADRB
+#define	DV_MIN_THREADRB			8
+#endif
+
+#ifndef	DV_ROUND_THREADRB
+#define	DV_ROUND_THREADRB		4
+#endif
+
 #ifndef DV_TRACE
 #define DV_TRACE				0
 #endif
