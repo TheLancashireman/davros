@@ -80,14 +80,23 @@ static inline void dv_deallocate_obj(dv_kobjallocator_t *allocator)
 	allocator->n_free++;
 }
 
+static inline void dv_deallocate_stack(dv_kernel_t *kvars, dv_mempage_t *stackpage)
+{
+}
+
 extern void dv_start(dv_index_t) __attribute__((noreturn));
 extern void dv_init_kvars(dv_kernel_t *, const dv_coreconfig_t *);
 extern void dv_dispatch(dv_kernel_t *kvars) __attribute__((noreturn));
 
 extern dv_index_t dv_allocate_obj(dv_kobjallocator_t *, dv_quantity_t,
 												dv_boolean_t (*is_free)(dv_index_t, const void *), const void *);
+
 extern dv_thread_t *dv_allocate_thread(dv_kernel_t *, const dv_executable_t *);
+extern void dv_deallocate_thread(dv_kernel_t *, dv_thread_t *);
+
 extern dv_registers_t *dv_allocate_registers(dv_kernel_t *, const dv_executable_t *);
+extern void dv_deallocate_registers(dv_kernel_t *, dv_registers_t *);
+
 extern dv_mempage_t *dv_allocate_stack(dv_kernel_t *, const dv_executable_t *);
 
 #endif

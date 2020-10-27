@@ -81,6 +81,7 @@ extern void dv_dllinsertbeforesame_elem(dv_dllelement_t *, dv_dllelement_t *);
 extern void dv_dllinsertaftersame_elem(dv_dllelement_t *, dv_dllelement_t *);
 extern dv_boolean_t dv_dllinserttime(dv_doublylinkedlist_t *, dv_dllelement_t *);
 extern dv_dllelement_t *dv_allocate_dllelement(dv_kernel_t *kvars);
+extern void dv_deallocate_dllelement(dv_kernel_t *kvars, dv_dllelement_t *);
 
 /* dv_dllinsertbeforesame() - insert an element into a list, before others of same priority.
 */

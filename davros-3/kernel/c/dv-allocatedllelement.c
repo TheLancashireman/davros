@@ -57,3 +57,13 @@ dv_dllelement_t *dv_allocate_dllelement(dv_kernel_t *kvars)
 
 	return &dllelem_tbl[dllelem_i];
 }
+
+/* dv_deallocate_dllelement() - deallocate a dllelement structure
+ *
+ * No sharing, so this is a simple deallocator.
+*/
+void dv_deallocate_dllelement(dv_kernel_t *kvars, dv_dllelement_t *elem)
+{
+	elem->payload_type = dv_dll_free;
+	dv_deallocate_obj(&kvars->dllelem_allocator);
+}

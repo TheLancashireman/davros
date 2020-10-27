@@ -65,3 +65,13 @@ dv_mempage_t *dv_allocate_page(dv_kernel_t *kvars)
 
 	return &pge_tbl[pge_i];
 }
+
+void dv_deallocate_page(dv_kernel_t *kvars, dv_mempage_t *mempage)
+{
+	dv_assert((mempage->n_use > 0), dv_panic_initialisationerror, "dv_allocate_page", "in-use counter incorrect");
+
+	mempage->n_use--;
+
+	if ( mempage->n_use <= 0 )
+		dv_deallocate_obj(&kvars->page_allocator);
+}

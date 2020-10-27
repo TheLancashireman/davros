@@ -82,3 +82,33 @@ dv_thread_t *dv_allocate_thread(dv_kernel_t *kvars, const dv_executable_t *exe)
 
 	return &thr_tbl[thr_i];
 }
+
+/* dv_deallocate_thread() - deallocate a thread
+ *
+ * There's a small problem here; what to do about the job queue?
+ *
+ * Deallocating the ringbuffer structure is simple. However, the job queue has allocated some memory for the
+ * buffer storage, and we would have to release that to the pool. Eventually, the pool would become
+ * fragmented.
+ * One possibility might be to compact the pool to remove the gap.
+ * For now, however, we'll leave the job queue attached to the thread.
+*/
+void dv_deallocate_thread(dv_kernel_t *kvars, dv_thread_t *thr)
+{
+	dv_assert((thr->n_exe > 0), dv_panic_initialisationerror, "dv_deallocate_thread", "in-use counter error");
+
+	thr->n_exe--;
+
+	if ( thr->n_exe <= 0 )
+	{
+#if 0
+		if ( thr->jobqueue != DV_NULL )
+		{
+			dv_deallocate_ringbuffer(kvars, thr->jobqueue);
+			thr->jobqueue = DV_NULL;
+		}
+#endif
+
+		dv_deallocate_obj(&kvars->thr_allocator);
+	}
+}

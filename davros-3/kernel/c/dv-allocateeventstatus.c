@@ -57,3 +57,13 @@ dv_eventstatus_t *dv_allocate_eventstatus(dv_kernel_t *kvars)
 
 	return &evs_tbl[evs_i];
 }
+
+/* dv_deallocate_eventstatus() - deallocate an eventstatus structure
+ *
+ * No sharing, so this is a simple deallocator.
+*/
+void dv_deallocate_eventstatus(dv_kernel_t *kvars, dv_eventstatus_t *evs)
+{
+	evs->allocated = 0;
+	dv_deallocate_obj(&kvars->evs_allocator);
+}

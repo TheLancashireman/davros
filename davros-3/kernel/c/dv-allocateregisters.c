@@ -1,6 +1,6 @@
-/*	dv-allocateregisters.c - allocate a register structure for an executable
+/*	dv-allocateregisters.c - allocate/deallocate a register structure for an executable
  *
- *	Copyright 2017 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *
@@ -37,12 +37,11 @@ static dv_boolean_t dv_is_free_registers(dv_index_t i, const void *tbl)
 	return 0;
 }
 
-/* dv_allocate_registers() - allocate a registers
+/* dv_allocate_registers() - allocate a register structure
  *
  * Find and allocate a register structure for an executable.
  * Searches the executable table for another non-blockable executable with the same priority and shares
  * the registers.
- * There will be some exceptions to the sharing rule depending on the executable type.
 */
 dv_registers_t *dv_allocate_registers(dv_kernel_t *kvars, const dv_executable_t *exe)
 {
@@ -84,4 +83,25 @@ dv_registers_t *dv_allocate_registers(dv_kernel_t *kvars, const dv_executable_t 
 	reg_tbl[reg_i].n_exe = 1;
 
 	return &reg_tbl[reg_i];
+}
+
+/* dv_deallocate_registers() - deallocate a register structure
+ *
+ * Decrement the occupation counter; if zero, deallocate the object.
+*/
+void dv_deallocate_registers(dv_kernel_t *kvars, dv_registers_t *reg)
+{
+	dv_assert((reg->n_exe > 0), dv_panic_initialisationerror,
+			"dv_deallocate_registers", "register structure is not occupied");
+
+	/* Decrement the occupation counter
+	*/
+	reg->n_exe--;
+
+	/* Free the object when there are no more occupiers
+	*/
+	if ( reg->n_exe <= 0 )
+	{
+		dv_deallocate_obj(&kvars->reg_allocator);
+	}
 }

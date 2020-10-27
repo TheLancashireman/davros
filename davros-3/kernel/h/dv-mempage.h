@@ -26,11 +26,11 @@
 
 /* This is a very simple way of allocating memory (e.g. for stacks)s, designed for use
  * with an MMU or an MPU with large fixed granularity.
- * A page of memory is represented by the dv_mempage_t structure. The system has an array
+ * A page of memory is represented by the dv_page_t structure. The system has an array
  * of these, correctly aligned on a page boundary.
  * We can't assume that the kernel has write access to the pages -- and in any case we don't
  * want to steal a word or two from each page for management -- so they are managed by
- * means of a parallel array of dv_mempagestatus_t structures.
+ * means of a parallel array of dv_mempage_t structures.
  * cf. "slab allocator" in linux kernel 2.x
 */
 
@@ -46,5 +46,6 @@ struct dv_mempage_s
 };
 
 extern dv_mempage_t *dv_allocate_page(dv_kernel_t *);
+extern void dv_deallocate_page(dv_kernel_t *, dv_mempage_t *);
 
 #endif

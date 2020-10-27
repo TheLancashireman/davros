@@ -32,6 +32,7 @@ struct dv_eventstatus_s
 };
 
 extern dv_eventstatus_t *dv_allocate_eventstatus(dv_kernel_t *kvars);
+extern void dv_deallocate_eventstatus(dv_kernel_t *kvars, dv_eventstatus_t *);
 
 #define DV_NO_EVENTS	0LL
 
