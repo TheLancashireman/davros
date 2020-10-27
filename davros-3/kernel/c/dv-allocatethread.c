@@ -64,26 +64,6 @@ dv_thread_t *dv_allocate_thread(dv_kernel_t *kvars, const dv_executable_t *exe)
 															exe->name, (unsigned)exe_tbl[i].thread, exe_tbl[i].name));
 			exe_tbl[i].thread->n_exe++;
 
-			if ( exe_tbl[i].thread->jobqueue == DV_NULL )
-			{
-				/* If there's no job queue we allocate one.
-				*/
-				exe_tbl[i].thread->jobqueue = dv_allocate_ringbuffer(kvars);
-
-				if ( exe_tbl[i].thread->jobqueue == DV_NULL )
-					dv_panic(dv_panic_objectsearchfailed, "dv_allocate_thread", "no ringbuffer available");
-
-				dv_rb_configure(exe_tbl[i].thread->jobqueue, rb_simple, 4, 1);
-				DV_DBG(dv_kprintf("dv_allocate_thread(): new jobj queue, length is %d\n",
-							exe_tbl[i].thread->jobqueue->length));
-			}
-			else
-			{
-				dv_rb_lengthen(exe_tbl[i].thread->jobqueue, 1);
-				DV_DBG(dv_kprintf("dv_allocate_thread(): lengthen jobj queue, length is %d\n",
-							exe_tbl[i].thread->jobqueue->length));
-			}
-
 			return exe_tbl[i].thread;
 		}
 	}
