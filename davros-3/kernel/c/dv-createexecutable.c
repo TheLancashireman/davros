@@ -96,6 +96,7 @@ dv_index_t dv_create_executable(dv_kernel_t *kvars, const dv_execonfig_t *execfg
 
 		if ( exe->flags & DV_EXEFLAG_EVENTS )
 		{
+			exe->flags |= DV_EXEFLAG_BLOCKING;
 			exe->events = dv_allocate_eventstatus(kvars);
 			if ( exe->events == DV_NULL )
 			{
