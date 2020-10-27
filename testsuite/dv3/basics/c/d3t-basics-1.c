@@ -21,7 +21,6 @@
 */
 #include <kernel/h/dv-kconfig.h>
 #include <dv-types.h>
-#include <dv-types.h>
 #include "d3t.h"
 
 /* d3t_basics_1() - error returns from dv_spawn()

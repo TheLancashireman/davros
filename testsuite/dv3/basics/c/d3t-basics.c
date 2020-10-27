@@ -21,13 +21,11 @@
 */
 #include <kernel/h/dv-kconfig.h>
 #include <dv-types.h>
-#include <dv-types.h>
 #include "d3t.h"
 
 extern void d3t_basics_1(void);
 extern void d3t_basics_2(void);
 extern void d3t_basics_3(void);
-extern void d3t_basics_4(void);
 
 /* d3t-testcase_init() - testcase initialization
  *
@@ -49,9 +47,6 @@ void d3t_controltask(void)
 	d3t_basics_1();
 	d3t_basics_2();
 	d3t_basics_3();
-#if 0
-	d3t_basics_4();
-#endif
 	d3t_alldone("basics");
 }
 
