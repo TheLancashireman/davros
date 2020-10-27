@@ -53,27 +53,18 @@ void d3t_basics_1(void)
 	 *  myId is the current executable
 	 * Therefore executables from 1 to myId-1 and from myId+1 to DV_C0_N_EXECUTABLES-1 should be unused.
 	*/
-#if 0
-	// ToDo: executable 1 should be free, but the destroy functionality hasn't been implemented yet.
 	if ( dv_spawn(1) == dv_eid_UnconfiguredExecutable )
 		d3t_testpoint('c');
 	else
 		d3t_testpoint('?');
-#else
-	d3t_testpoint('c');
-#endif
 
-#if 0
 	/* myId-1 should be the same as 1, but we test the boundary anyway.
 	*/
 	// ToDo: executable myId-1 should be free, but the destroy functionality hasn't been implemented yet.
 	if ( dv_spawn(myId-1) == dv_eid_UnconfiguredExecutable )
-		d3t_testpoint('c');
+		d3t_testpoint('d');
 	else
 		d3t_testpoint('?');
-#else
-	d3t_testpoint('d');
-#endif
 
 	if ( dv_spawn(myId+1) == dv_eid_UnconfiguredExecutable )
 		d3t_testpoint('e');
@@ -95,7 +86,7 @@ void d3t_basics_1(void)
 	else
 		d3t_testpoint('?');
 
-#if 0
+#if 0	/* ToDo: quarantine an executable */
 	if ( dv_spawn(XXX) == dv_eid_ExecutableQuarantined )
 		d3t_testpoint('i');
 	else
