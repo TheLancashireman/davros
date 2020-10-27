@@ -29,20 +29,37 @@
 
 DV_COVDEF(spawn_executable);
 
-/* Append executable's ID to job queue.
+/* Ensure that the thread has a job queue
 */
-static inline void dv_enqueue_job_in_jobqueue(dv_kernel_t *kvars, dv_executable_t *exe)
+static inline void dv_get_thread_jobqueue(dv_kernel_t *kvars, dv_executable_t *exe)
 {
 	if ( exe->thread->jobqueue == DV_NULL )
-		dv_panic(dv_panic_initialisationerror, "dv_spawn_executable", "no jobqueue allocated");
-
-	if ( exe->thread->jobqueue->buf == DV_NULL )
 	{
+		/* If there's no job queue we allocate one.
+		*/
+		exe->thread->jobqueue = dv_allocate_ringbuffer(kvars);
+
+		if ( exe->thread->jobqueue == DV_NULL )
+			dv_panic(dv_panic_objectsearchfailed, "dv_enqueue_job_in_jobqueue", "no ringbuffer available");
+
+		dv_rb_configure(exe->thread->jobqueue, rb_simple, 4, dv_thread_rb_length(exe->thread->n_exe));
+		DV_DBG(dv_kprintf("dv_enqueue_job_in_jobqueue(): new jobj queue, length is %d\n",
+																	exe->thread->jobqueue->length));
+
 		dv_rb_allocate(kvars, exe->thread->jobqueue);
 	}
+}
+
+/* Append executable's ID to job queue.
+*/
+static inline dv_errorid_t dv_enqueue_job_in_jobqueue(dv_kernel_t *kvars, dv_executable_t *exe)
+{
+	dv_get_thread_jobqueue(kvars, exe);
 
 	if ( dv_rb_append_simple(exe->thread->jobqueue, &exe->id) == 0 )
-		dv_panic(dv_panic_initialisationerror, "dv_spawn_executable", "insufficient space in jobqueue");
+		return dv_eid_ThreadJobQueueFull;
+
+	return dv_eid_None;
 }
 
 /* dv_spawn_executable() - spawn an instance of an executable
@@ -71,20 +88,18 @@ dv_errorid_t dv_spawn_executable(dv_kernel_t *kvars, dv_executable_t *exe)
 		}
 
 		if ( exe->thread->state == dv_thread_idle )
+		{
 			dv_spawn_executable_in_thread(&kvars->thread_queue, exe, exe->thread);
+			ecode = dv_eid_None;
+		}
 		else
-			dv_enqueue_job_in_jobqueue(kvars, exe);
+			ecode = dv_enqueue_job_in_jobqueue(kvars, exe);
 
-		ecode = dv_eid_None;
 	}
 	else if ( exe->state == dv_exe_disabled )
-	{
 		ecode = dv_eid_ExecutableQuarantined;
-	}
 	else
-	{
 		ecode = dv_eid_ExecutableAlreadySpawned;
-	}
 
 	return ecode;
 }

@@ -91,6 +91,21 @@ static inline void dv_set_prio(dv_thread_t *thr, dv_i32_t p)
 	thr->link.key.i32_key = p;
 }
 
+/* dv_thread_rb_length() - calculate required ringbuffer length
+*/
+static inline dv_i32_t dv_thread_rb_length(dv_i32_t n)
+{
+	/* Ensure that the length is at least the minumum.
+	*/
+	if ( n < DV_MIN_THREADRB )
+		return DV_MIN_THREADRB;
+
+	/* Increase to the next multiple of the rounding config.
+	*/
+	return n + DV_ROUND_THREADRB - n % DV_ROUND_THREADRB;
+}
+
+
 extern void dv_return_from_main(dv_machineword_t, dv_machineword_t);
 
 #endif

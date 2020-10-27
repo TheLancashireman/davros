@@ -36,7 +36,7 @@
 */
 #include DV_BOARDCONFIG
 
-/* Default values for other kernel configuration options.
+/* Assume no coverage unless told otherwise.
 */
 #ifndef DV_COVERAGE
 #define DV_COVERAGE		0
@@ -76,6 +76,16 @@
 */
 #ifndef DV_ASSERTIONS
 #define DV_ASSERTIONS	1
+#endif
+
+/* Default values for caclulating thread ringbuffer size.
+*/
+#ifndef DV_MIN_THREADRB
+#define DV_MIN_THREADRB         8
+#endif
+
+#ifndef DV_ROUND_THREADRB
+#define DV_ROUND_THREADRB       4
 #endif
 
 /* Assume standard idle function unless told otherwise.
