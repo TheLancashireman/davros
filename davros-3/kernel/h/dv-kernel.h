@@ -75,6 +75,11 @@ static inline dv_thread_t *dv_threadqueuehead(dv_kernel_t *kvars)
 	return (kvars->thread_queue.headtail.successor->payload);
 }
 
+static inline void dv_deallocate_obj(dv_kobjallocator_t *allocator)
+{
+	allocator->n_free++;
+}
+
 extern void dv_start(dv_index_t) __attribute__((noreturn));
 extern void dv_init_kvars(dv_kernel_t *, const dv_coreconfig_t *);
 extern void dv_dispatch(dv_kernel_t *kvars) __attribute__((noreturn));
