@@ -21,7 +21,7 @@
 */
 #include <kernel/h/dv-kconfig.h>
 #include <dv-types.h>
-#include <kernel//h/dv-api.h>
+#include <kernel/h/dv-api.h>
 #include "d3t.h"
 
 void main_Foo2(void);
@@ -46,7 +46,7 @@ void d3t_blocking_2(void)
 	dv_dual_t rv;
 
 	d3t_starttest("blocking-2 - dv_sleep() and dv_sleep_until()");
-	d3t_expect("aFbGHcIJd");
+	d3t_expect("aFbcGHdIJe");
 
 	rv = dv_create_exe(&foo_2);
 
@@ -60,17 +60,23 @@ void d3t_blocking_2(void)
 		{
 			d3t_testpoint('b');
 
-			while ( foo2_state == 0 )
+			while ( foo2_state != 1 )
 			{
 			}
 
 			d3t_testpoint('c');
 
-			while ( foo2_state == 1 )
+			while ( foo2_state != 2 )
 			{
 			}
 
 			d3t_testpoint('d');
+
+			while ( foo2_state != 3 )
+			{
+			}
+
+			d3t_testpoint('e');
 		}
 		else
 			d3t_testpoint('?');
@@ -93,6 +99,8 @@ void main_Foo2(void)
 
 	d3t_testpoint('F');
 
+	foo2_state = 1;
+
 	e = dv_sleep(DELAY);
 	t2 = dv_readtime();
 
@@ -111,7 +119,7 @@ void main_Foo2(void)
 
 	d1 = (d > 0xffffffff) ? 0xffffffff : d;
 
-	foo2_state = 1;
+	foo2_state = 2;
 
 	e = dv_sleep_until(t2+DELAY);
 	t1 = dv_readtime();
@@ -131,5 +139,5 @@ void main_Foo2(void)
 
 	d2 = (d > 0xffffffff) ? 0xffffffff : d;
 
-	foo2_state = 2;
+	foo2_state = 3;
 }
