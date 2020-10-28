@@ -1,6 +1,6 @@
 /*	d3t-cfg-pi3-arm64.h - davros configuration for raspberry pi 3 (aarch64)
  *
- *	Copyright 2020 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

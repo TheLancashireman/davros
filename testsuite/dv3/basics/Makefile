@@ -1,6 +1,6 @@
 #	Makefile - for dv3 "basics" test
 #
-#	Copyright 2020 David Haworth
+#	Copyright David Haworth
 #
 #	This file is part of davros.
 #

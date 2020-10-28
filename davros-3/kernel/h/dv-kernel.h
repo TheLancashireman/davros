@@ -1,6 +1,6 @@
 /*	dv-kernel.h - kernel variables for davros
  *
- *	Copyright 2015 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

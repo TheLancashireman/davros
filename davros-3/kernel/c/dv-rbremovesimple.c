@@ -1,6 +1,6 @@
 /*	dv-rbremovesimple.c - dv_rb_remove_simple()
  *
- *	Copyright 2018 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

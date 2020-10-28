@@ -1,6 +1,6 @@
 /*	dv-arm-bcm2836-interruptcontroller.c - BCM2836 interrupt controller functions for davroska
  *
- *	Copyright 2019 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

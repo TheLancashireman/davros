@@ -1,6 +1,6 @@
 /*	dv-arm-returntothread.s - ARM thread resumption.
  *
- *	Copyright 2017 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

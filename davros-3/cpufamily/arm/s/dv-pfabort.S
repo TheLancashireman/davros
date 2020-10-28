@@ -1,6 +1,6 @@
 /*	dv-pfabort.s - ARM prefetch-abort kernel entry
  *
- *	Copyright 2018 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

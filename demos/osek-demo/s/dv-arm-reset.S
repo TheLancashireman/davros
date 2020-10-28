@@ -1,6 +1,6 @@
 /*	dv-arm-reset.S - arm startup code for davroska demo
  *
- *	Copyright 2018 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

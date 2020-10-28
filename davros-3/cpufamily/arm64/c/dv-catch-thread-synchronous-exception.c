@@ -1,6 +1,6 @@
 /*	dv-catch-thread-synchronous-exception.c - catch a synchronous exception from a thread (arm64)
  *
- *	Copyright 2018 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

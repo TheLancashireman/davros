@@ -1,6 +1,6 @@
 /*  dv-devices.h - common environment selection for all device files
  *
- *  Copyright 2018 David Haworth
+ *  Copyright David Haworth
  *
  *  This file is part of davros.
  *

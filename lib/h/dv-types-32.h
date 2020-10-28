@@ -1,6 +1,6 @@
 /*	dv-types-32.h - standard data types for 32-bit processors
  *
- *	Copyright 2017 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

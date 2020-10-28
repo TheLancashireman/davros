@@ -1,6 +1,6 @@
 /*	dv-sysexit.c - exit system call for davros
  *
- *	Copyright 2017 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

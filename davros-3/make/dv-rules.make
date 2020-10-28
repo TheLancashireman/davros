@@ -1,6 +1,6 @@
 #	dv-rules.make - rules for making things
 #
-#	Copyright 2015 David Haworth
+#	Copyright David Haworth
 #
 #	This file is part of davros.
 #

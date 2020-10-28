@@ -1,6 +1,6 @@
 /*	dv-dllinsertbeforesame.c - insert an element into a priority queue, before elements of the same priority
  *
- *	Copyright 2015 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

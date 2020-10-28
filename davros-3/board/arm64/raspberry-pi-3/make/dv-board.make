@@ -1,6 +1,6 @@
 #	dv-make.make - board make definitions for davros raspberry-pi-3
 #
-#	Copyright 2018 David Haworth
+#	Copyright David Haworth
 #
 #	This file is part of davros.
 #

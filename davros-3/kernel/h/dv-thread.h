@@ -1,6 +1,6 @@
 /*	dv-thread.h - thread structure for davros
  *
- *	Copyright 2015 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

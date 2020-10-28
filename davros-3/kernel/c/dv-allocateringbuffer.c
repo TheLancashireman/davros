@@ -1,6 +1,6 @@
 /*	dv-allocateringbuffer.c - allocate a ringbuffer
  *
- *	Copyright 2018 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

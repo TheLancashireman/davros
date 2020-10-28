@@ -1,6 +1,6 @@
 #	dv-klist.make - davros kernel library files for arm64
 #
-#	Copyright 2018 David Haworth
+#	Copyright David Haworth
 #
 #	This file is part of davros.
 #

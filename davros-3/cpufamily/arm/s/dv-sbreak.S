@@ -1,6 +1,6 @@
 /*	dv-sbreak.s - ARM sbreak (system call) kernel entry
  *
- *	Copyright 2017 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

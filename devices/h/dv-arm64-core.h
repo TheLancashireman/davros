@@ -1,6 +1,6 @@
 /*	dv-arm64-core.h - ARM64 core utilities
  *
- *	Copyright 2018 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

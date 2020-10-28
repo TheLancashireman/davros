@@ -1,6 +1,6 @@
 /*	dv-types-arm64.h - header file for davroska; ARM64 data types
  *
- *	Copyright 2019 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

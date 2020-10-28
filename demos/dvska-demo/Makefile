@@ -1,6 +1,6 @@
 #	Makefile - demo Makefile for testing parts of davroska on raspberry pi (zero, 3) or Blue Pill
 #
-#	Copyright 2018 David Haworth
+#	Copyright David Haworth
 #
 #	This file is part of davros.
 #

@@ -1,6 +1,6 @@
 /*	dv-createexe.S - arm64 "create_exe" system call
  *
- *	Copyright 2018 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

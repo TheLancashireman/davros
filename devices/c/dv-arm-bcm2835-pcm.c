@@ -1,6 +1,6 @@
 /*	dv-arm-bcm2835-pcm.c - driver functions for the raspberry pi PCM/I2S interface
  *
- *	Copyright 2018 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

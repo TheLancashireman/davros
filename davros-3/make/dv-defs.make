@@ -1,6 +1,6 @@
 #	dv-defs.make - general make definitions for davros
 #
-#	Copyright 2015 David Haworth
+#	Copyright David Haworth
 #
 #	This file is part of davros.
 #

@@ -1,6 +1,6 @@
 #	d3t.make - common makefile fragment for davros-3 test suite
 #
-#	Copyright 2020 David Haworth
+#	Copyright David Haworth
 #
 #	This file is part of davros.
 #

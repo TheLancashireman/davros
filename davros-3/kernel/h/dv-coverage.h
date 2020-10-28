@@ -1,6 +1,6 @@
 /*	dv-coverage.h - instrumentation for test coverage tracing
  *
- *	Copyright 2015 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

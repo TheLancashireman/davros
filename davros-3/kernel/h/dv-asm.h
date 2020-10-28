@@ -4,7 +4,7 @@
  * *before* including anything else.
  * This file must *never* be included by files of any other language.
  *
- *	Copyright 2017 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

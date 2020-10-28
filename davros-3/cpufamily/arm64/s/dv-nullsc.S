@@ -1,6 +1,6 @@
 /*	dv-nullsc.S - arm64 "do nothing" system call
  *
- *	Copyright 2018 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

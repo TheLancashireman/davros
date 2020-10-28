@@ -1,6 +1,6 @@
 #	dv-arm64-gnu.make - gnu compiler settings for arm64
 #
-#	Copyright 2015 David Haworth
+#	Copyright David Haworth
 #
 #	This file is part of davros.
 #

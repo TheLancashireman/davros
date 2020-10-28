@@ -1,6 +1,6 @@
 /*	d3t-cfg-blue-pill.h - davros configuration for the Blue Pill board
  *
- *	Copyright 2020 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

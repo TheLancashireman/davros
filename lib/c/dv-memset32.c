@@ -1,6 +1,6 @@
 /*	dv-memset32.c - out-of-line version of dv_memset32
  *
- *	Copyright 2019 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

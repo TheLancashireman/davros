@@ -1,6 +1,6 @@
 /*	dv-init-core.c - initialise an arm64 core
  *
- *	Copyright 2018 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

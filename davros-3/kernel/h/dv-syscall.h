@@ -1,6 +1,6 @@
 /*	dv-syscall.h - header file for davros systrem call handling
  *
- *	Copyright 2017 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

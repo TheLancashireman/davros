@@ -1,6 +1,6 @@
 /*	dv-armv8-mmu.h - arm v8 MMU header file for davros
  *
- *	Copyright 2019 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

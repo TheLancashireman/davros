@@ -1,6 +1,6 @@
 /*	dv-unknowninterrupt.c - unknown interrupt handler for davros
  *
- *	Copyright 2017 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

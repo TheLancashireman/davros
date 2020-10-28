@@ -1,6 +1,6 @@
 /*	dv-arm64-registers.h - ARM64 registers structure for davros
  *
- *	Copyright 2018 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

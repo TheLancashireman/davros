@@ -1,6 +1,6 @@
 /*	dv-createexecutable.c - create a new executable object
  *
- *	Copyright 2017 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

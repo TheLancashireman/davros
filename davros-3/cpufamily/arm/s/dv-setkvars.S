@@ -1,6 +1,6 @@
 /*	dv-setkvars.s - store the kvars address in a register
  *
- *	Copyright 2017 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

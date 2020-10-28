@@ -1,6 +1,6 @@
 /*	dv-cfg-pi-zero.h - davros configuration for the raspberry pi zero board
  *
- *	Copyright 2020 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

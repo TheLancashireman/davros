@@ -1,6 +1,6 @@
 /*	dv-doublylinkedlist.h - doubly-linked list structures for davros
  *
- *	Copyright 2015 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

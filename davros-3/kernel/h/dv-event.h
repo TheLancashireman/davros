@@ -1,6 +1,6 @@
 /*	dv-event.h - event status structure
  *
- *	Copyright 2016 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

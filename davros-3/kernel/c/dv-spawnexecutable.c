@@ -1,6 +1,6 @@
 /*	dv-spawnexecutable.c - spawn an instance of an executable object
  *
- *	Copyright 2015 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

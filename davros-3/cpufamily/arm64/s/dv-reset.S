@@ -1,6 +1,6 @@
 /*	dv-reset.S - ARM64 startup code for davros
  *
- *	Copyright 2018 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

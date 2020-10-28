@@ -1,6 +1,6 @@
 /*	dv-getkvars.s - retrieve the kvars address from the special-purpose register
  *
- *	Copyright 2017 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

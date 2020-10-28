@@ -1,6 +1,6 @@
 /*	dv-saveregs.s - ARM save current CPU registers to structure
  *
- *	Copyright 2017 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

@@ -1,6 +1,6 @@
 /*  dv-arm-bcm2835-armtimer.h - ARM timer on bcm2835 (raspberry pi)
  *
- *  Copyright 2018 David Haworth
+ *  Copyright David Haworth
  *
  *  This file is part of davros.
  *

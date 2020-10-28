@@ -1,6 +1,6 @@
 /*	dv-arm-kconfig.h - kernel configuration for ARM processors
  *
- *	Copyright 2015 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

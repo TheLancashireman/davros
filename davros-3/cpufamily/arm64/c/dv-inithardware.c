@@ -1,6 +1,6 @@
 /*	dv-inithardware.c - ARM64 hardware initialisation source file for davros
  *
- *	Copyright 2018 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

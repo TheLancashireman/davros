@@ -1,6 +1,6 @@
 /*	dv-switch-el3el1.S - arm64 "switch from el3 to el1" function
  *
- *	Copyright 2018 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

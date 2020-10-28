@@ -1,6 +1,6 @@
 /*  dv-arm-bcm2836.h - timers, interrupts and mailboxes on bcm2836 (raspberry pi2 and 3)
  *
- *  Copyright 2018 David Haworth
+ *  Copyright David Haworth
  *
  *  This file is part of davros.
  *

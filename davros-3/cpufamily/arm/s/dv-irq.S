@@ -1,6 +1,6 @@
 /*	dv-irq.s - ARM irq kernel entry
  *
- *	Copyright 2017 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

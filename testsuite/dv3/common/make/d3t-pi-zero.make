@@ -1,6 +1,6 @@
 #	d3t-pi-zero.make - makefile fragment for building davros-3 test suite for raspberry pi zero
 #
-#	Copyright 2020 David Haworth
+#	Copyright David Haworth
 #
 #	This file is part of davros.
 #

@@ -1,6 +1,6 @@
 /*	dv-initvectors.c - initialise vectors for ARM cpu
  *
- *	Copyright 2017 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

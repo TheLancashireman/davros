@@ -1,6 +1,6 @@
 /*	d3t-testconfig.h - configuration for a d3t test
  *
- *	Copyright 2020 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

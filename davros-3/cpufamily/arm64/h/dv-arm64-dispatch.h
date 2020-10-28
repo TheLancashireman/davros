@@ -1,6 +1,6 @@
 /*	dv-arm64-dispatch.h - ARM64 dispatcher functions for davros
  *
- *	Copyright 2018 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

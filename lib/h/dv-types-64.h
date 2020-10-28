@@ -1,6 +1,6 @@
 /*	dv-types-64.h - standard data types for 64-bit processors
  *
- *	Copyright 2018 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

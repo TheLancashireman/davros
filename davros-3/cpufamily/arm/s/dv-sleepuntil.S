@@ -1,6 +1,6 @@
 /*	dv-sleepuntil.S - ARM "sleep until" system call
  *
- *	Copyright 2017 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

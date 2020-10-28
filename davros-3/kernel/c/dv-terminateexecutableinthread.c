@@ -1,6 +1,6 @@
 /*	dv-terminateexecutableinthread.c - terminate the executable that is running in a thread.
  *
- *	Copyright 2017 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

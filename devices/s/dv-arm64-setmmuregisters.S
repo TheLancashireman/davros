@@ -1,6 +1,6 @@
 /*	dv-arm64-setmmuregisters.S - set all the MMU-related registers (TTBR, SCTLR, MAIR, TCR)
  *
- *	Copyright 2019 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

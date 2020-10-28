@@ -1,6 +1,6 @@
 /*	dv-arm-bcm2835-interruptcontroller.c - BCM2835 interrupt controller functions
  *
- *	Copyright 2018 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

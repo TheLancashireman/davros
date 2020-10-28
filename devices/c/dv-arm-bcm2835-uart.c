@@ -1,6 +1,6 @@
 /*  dv-arm-bcm2835-uart.c - UART on bcm2835 etc. (raspberry pi)
  *
- *  Copyright 2017 David Haworth
+ *  Copyright David Haworth
  *
  *  This file is part of davros.
  *

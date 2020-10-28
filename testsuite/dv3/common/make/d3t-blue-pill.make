@@ -1,6 +1,6 @@
 #	d3t-blue-pill.make - makefile fragment for building davros-3 test suite for Blue Pill
 #
-#	Copyright 2020 David Haworth
+#	Copyright David Haworth
 #
 #	This file is part of davros.
 #

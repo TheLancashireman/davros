@@ -1,6 +1,6 @@
 /*	dv-allocatestack.c - allocate a stack for an executable
  *
- *	Copyright 2017 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

@@ -1,6 +1,6 @@
 /*	dv-xstdio.h - stdio (subset of)
  *
- *	Copyright 2001 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by

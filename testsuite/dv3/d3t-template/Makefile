@@ -1,6 +1,6 @@
 #	Makefile - part of the d3t test template
 #
-#	Copyright 2020 David Haworth
+#	Copyright David Haworth
 #
 #	This file is part of davros.
 #

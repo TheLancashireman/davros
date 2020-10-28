@@ -1,6 +1,6 @@
 /*	dv-raspberrypi3-board.c - Raspberry Pi3 board start for davros
  *
- *	Copyright 2018 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

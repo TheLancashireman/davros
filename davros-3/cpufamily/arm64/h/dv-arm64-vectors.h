@@ -1,6 +1,6 @@
 /*	dv-arm64-vectors.h - ARM64 vector table for davros
  *
- *	Copyright 2018 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

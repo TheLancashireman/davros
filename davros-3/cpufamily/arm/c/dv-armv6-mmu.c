@@ -1,6 +1,6 @@
 /*	dv-armv6-mmu.c - mmu management functions for armv6 MMU
  *
- *	Copyright 2018 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

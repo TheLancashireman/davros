@@ -1,6 +1,6 @@
 /*	dv-c0.h - davros declarations for core 0
  *
- *	Copyright 2017 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

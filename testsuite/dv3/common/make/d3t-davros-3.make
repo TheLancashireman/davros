@@ -1,6 +1,6 @@
 #	d3t-davros-3.make - makefile fragment for building davros-3 libraries
 #
-#	Copyright 2020 David Haworth
+#	Copyright David Haworth
 #
 #	This file is part of davros.
 #

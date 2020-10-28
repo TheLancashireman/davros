@@ -1,6 +1,6 @@
 /*	dv-arm-v6mmu.h - arm v6 MMU header file for davros
  *
- *	Copyright 2018 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

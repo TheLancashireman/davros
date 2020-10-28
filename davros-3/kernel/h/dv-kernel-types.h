@@ -1,6 +1,6 @@
 /*	dv-kernel-types.h - kernel data types for davros
  *
- *	Copyright 2015 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

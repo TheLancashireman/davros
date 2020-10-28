@@ -1,6 +1,6 @@
 /*	dv-vectors.s - ARM64 exception and interrupt vectors for davroska
  *
- *	Copyright 2019 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

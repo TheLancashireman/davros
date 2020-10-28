@@ -1,6 +1,6 @@
 /*	dv-arm-cache.h - arm cache control via cp15
  *
- *	Copyright 2018 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

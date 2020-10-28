@@ -1,6 +1,6 @@
 /*	dv-spawnexecutableinthread.c - spawn or resume an executable in directly in its thread.
  *
- *	Copyright 2017 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *

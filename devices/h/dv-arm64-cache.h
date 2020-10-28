@@ -1,6 +1,6 @@
 /*	dv-arm64-cache.h - arm64 cache control via DC/IC instructions
  *
- *	Copyright 2020 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *
