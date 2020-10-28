@@ -52,10 +52,10 @@ void d3t_init(void)
 			e = dv_spawn((dv_index_t)rv.rv1);
 
 			if ( e != dv_eid_None )
-				d3t_abort("d3t_init() : couldn't spawn d3t_controltsask", e);
+				d3t_abort("d3t_init() : couldn't spawn d3t_controltask", e);
 		}
 		else
-			d3t_abort("d3t_init() : couldn't create d3t_controltsask", rv.rv0);
+			d3t_abort("d3t_init() : couldn't create d3t_controltask", rv.rv0);
 	}
 
 	d3t_testcase_init();
