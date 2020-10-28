@@ -105,7 +105,7 @@ static inline dv_i32_t dv_thread_rb_length(dv_i32_t n)
 	return n + DV_ROUND_THREADRB - n % DV_ROUND_THREADRB;
 }
 
-
+extern dv_errorid_t dv_enqueue_job_in_jobqueue(dv_kernel_t *, dv_executable_t *);
 extern void dv_return_from_main(dv_machineword_t, dv_machineword_t);
 
 #endif

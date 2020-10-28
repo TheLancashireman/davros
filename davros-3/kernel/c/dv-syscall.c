@@ -40,7 +40,8 @@ const dv_syscall_t dv_syscalltable[DV_N_SYSCALL+1] =
 	[dv_sc_terminate]		= { dv_sys_terminate,		"dv_sys_terminate"			},
 	[dv_sc_sleep]			= { dv_sys_sleep,			"dv_sys_sleep"				},
 	[dv_sc_sleep_until]		= { dv_sys_sleep_until,		"dv_sys_sleep_until"		},
-	[dv_sc_sleep_until]		= { dv_sys_sleep_until,		"dv_sys_sleep_until"		},
+	[dv_sc_suspend]			= { dv_sys_suspend,			"dv_sys_suspend"			},
+	[dv_sc_resume]			= { dv_sys_resume,			"dv_sys_resume"				},
 	[dv_sc_unknown]			= { dv_sys_unknown,			"dv_sys_unknown"			},
 };
 

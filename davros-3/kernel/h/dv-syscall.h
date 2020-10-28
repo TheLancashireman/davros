@@ -34,6 +34,8 @@
 #define DV_SC_terminate			7
 #define DV_SC_sleep				8
 #define DV_SC_sleep_until		9
+#define DV_SC_suspend			10
+#define DV_SC_resume			11
 
 #define DV_SC_acquire			XX
 #define DV_SC_drop				XX
@@ -44,7 +46,7 @@
 #define DV_SC_event_get			XX
 #define DV_SC_event_clear		XX
 
-#define DV_N_SYSCALL			10
+#define DV_N_SYSCALL			12
 
 #if !DV_ASM
 
@@ -60,6 +62,8 @@ typedef enum dv_sc_e
 	dv_sc_terminate			= DV_SC_terminate,
 	dv_sc_sleep				= DV_SC_sleep,
 	dv_sc_sleep_until		= DV_SC_sleep_until,
+	dv_sc_suspend			= DV_SC_suspend,
+	dv_sc_resume			= DV_SC_resume,
 
 	dv_sc_unknown			= DV_N_SYSCALL
 } dv_sc_t;
@@ -97,6 +101,8 @@ extern void dv_sys_chain(dv_kernel_t *, dv_index_t);
 extern void dv_sys_terminate(dv_kernel_t *, dv_index_t);
 extern void dv_sys_sleep(dv_kernel_t *, dv_index_t);
 extern void dv_sys_sleep_until(dv_kernel_t *, dv_index_t);
+extern void dv_sys_suspend(dv_kernel_t *, dv_index_t);
+extern void dv_sys_resume(dv_kernel_t *, dv_index_t);
 
 extern void dv_sys_unknown(dv_kernel_t *, dv_index_t);
 

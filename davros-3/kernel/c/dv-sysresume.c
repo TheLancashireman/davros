@@ -1,6 +1,6 @@
-/*	dv-sysspawn.c - spawn system call for davros
+/*	dv-sysresume.c - resume system call for davros
  *
- *	Copyright 2017 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *
@@ -26,13 +26,13 @@
 #include <kernel/h/dv-executable.h>
 #include DV_H_REGISTERS
 
-DV_COVDEF(sys_spawn);
+DV_COVDEF(sys_resume);
 
-/* dv_sys_spawn() - spawn an executable
+/* dv_sys_resume() - wake up an executable from suspended animation
  *
- * This function implements the kernel side of the spawn and spawn_async system calls.
+ * This function implements the kernel side of the resume system call.
 */
-void dv_sys_spawn(dv_kernel_t *kvars, dv_index_t unused_sci)
+void dv_sys_resume(dv_kernel_t *kvars, dv_index_t unused_sci)
 {
 	dv_machineword_t p0 = dv_get_p0(kvars->current_thread->regs);
 	dv_executable_t *exe_tbl = dv_coreconfigs[kvars->core_index]->executables;
@@ -40,19 +40,19 @@ void dv_sys_spawn(dv_kernel_t *kvars, dv_index_t unused_sci)
 	dv_executable_t *exe;
 	dv_errorid_t e = dv_eid_UnknownError;
 
-	DV_DBG(dv_kprintf("dv_sys_spawn(): exe_i = %d\n", exe_i));
+	DV_DBG(dv_kprintf("dv_sys_resume(): exe_i = %d\n", exe_i));
 	if ( exe_i < 0 || exe_i >= dv_coreconfigs[kvars->core_index]->n_executables )
 	{
 		e = dv_eid_IndexOutOfRange;
-		DV_DBG(dv_kprintf("dv_sys_spawn(): e = %d (IndexOutOfRange)\n", e));
+		DV_DBG(dv_kprintf("dv_sys_resume(): e = %d (IndexOutOfRange)\n", e));
 	}
 	else
 	{
 		exe = &exe_tbl[exe_i];
 
-		if ( exe->state == dv_exe_idle )
+		if ( exe->state == dv_exe_suspended )
 		{
-			e = dv_spawn_executable(kvars, exe);
+			e = dv_resume_executable(kvars, exe);
 			DV_DBG(dv_kprintf("dv_sys_spawn(): e = %d (returned from dv_spawn_executable())\n", e));
 		}
 	    else if ( exe->state == dv_exe_free )
@@ -60,8 +60,8 @@ void dv_sys_spawn(dv_kernel_t *kvars, dv_index_t unused_sci)
 	    else if ( exe->state == dv_exe_disabled )
 	        e = dv_eid_ExecutableQuarantined;
 	    else
-	        e = dv_eid_ExecutableNotIdle;
-
+	        e = dv_eid_ExecutableNotSuspended;
+		
 	}
 
 	dv_set_rv0(kvars->current_thread->regs, e);

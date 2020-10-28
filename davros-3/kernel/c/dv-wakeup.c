@@ -61,16 +61,15 @@ dv_u64_t dv_wakeup(dv_kernel_t *kvars)
 			{
 			case dv_dll_exe:
 				exe = (dv_executable_t *)first->payload;
-				exe->state = dv_exe_active;
 				exe->dll_element->key.u64_key = 0;
-				if ( exe->thread->state == dv_thread_idle )
-					dv_resume_executable_in_thread(&kvars->thread_queue, exe, exe->thread);
-				else
-					dv_enqueue_job_in_jobqueue(exe->thread, exe);
+				if ( dv_resume_executable(kvars, exe) != dv_eid_None )
+				{
+					/* ToDo: this error (job queue full) cannot be reported. */
+				}
 				break;
 
-				/* ToDo: other payload_type cases as required
-				*/
+			/* ToDo: other payload_type cases as required
+			*/
 
 			default:
 				dv_panic(dv_panic_unimplemented, "dv_wakeup", "incorrect payload type for sleep queue");

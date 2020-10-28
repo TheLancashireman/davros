@@ -1,6 +1,6 @@
-/*	dv-syscreateexe.c - create_exe system call for davros
+/*	dv-syssuspend.c - suspend system call for davros
  *
- *	Copyright 2017 David Haworth
+ *	Copyright David Haworth
  *
  *	This file is part of davros.
  *
@@ -21,38 +21,36 @@
 #include <dv-types.h>
 #include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-kernel.h>
-#include <kernel/h/dv-syscall.h>
 #include <kernel/h/dv-executable.h>
+#include <kernel/h/dv-thread.h>
+#include <kernel/h/dv-doublylinkedlist.h>
 #include DV_H_REGISTERS
-#include <kernel/h/dv-coreconfig.h>
 
-DV_COVDEF(sys_create_exe);
+DV_COVDEF(sys_suspend);
 
-/* dv_sys_create_exe() - create an executable
+/* dv_sys_suspend() - put a task into suspended animation
  *
- * This function implements the kernel side of the create_exe system call.
+ * This function implements the kernel side of the suspend system call.
+ * The calling executable is placed into a suspended state. It gets woken up again by a call to dv_resume()
 */
-void dv_sys_create_exe(dv_kernel_t *kvars, dv_index_t unused_sci)
+void dv_sys_suspend(dv_kernel_t *kvars, dv_index_t sci)
 {
-	dv_machineword_t p0 = dv_get_p0(kvars->current_thread->regs);
 	dv_errorid_t e = dv_eid_UnknownError;
-	dv_index_t exe;
+	dv_executable_t *exe;
 
-	/* ToDo: pointer parameter validation. For now, just check alignment
-	*/
-	if ( (p0 & 0x03) == 0 )
+	exe = kvars->current_thread->executable;
+
+	if ( (exe->flags & DV_EXEFLAG_BLOCKING) == 0 )
 	{
-		exe = dv_create_executable(kvars, (dv_execonfig_t *)p0);
-		if ( exe < 0 )
-			e = dv_eid_ExecutableCreationFailed;		/* ToDo: be more specific */
-		else
-		{
-			e = dv_eid_None;
-			dv_set_rv1(kvars->current_thread->regs, exe);
-		}
+		e = dv_eid_ExecutableIsNonBlocking;
+		DV_DBG(dv_kprintf("dv_sys_suspend(): e = %d (ExecutableIsNonBlocking)\n", e));
 	}
 	else
-		e = dv_eid_InvalidPointerParameter;
+	{
+		e = dv_eid_None;
+		dv_remove_executable_from_thread(kvars, kvars->current_thread);
+		exe->state = dv_exe_suspended;
+	}
 
-	dv_set_rv0(kvars->current_thread->regs, e);
+	dv_set_rv0(exe->registers, e);
 }

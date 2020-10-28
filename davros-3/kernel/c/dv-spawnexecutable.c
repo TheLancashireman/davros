@@ -31,7 +31,7 @@ DV_COVDEF(spawn_executable);
 
 /* Ensure that the thread has a job queue
 */
-static inline void dv_get_thread_jobqueue(dv_kernel_t *kvars, dv_executable_t *exe)
+static inline dv_ringbuffer_t *dv_get_thread_jobqueue(dv_kernel_t *kvars, dv_executable_t *exe)
 {
 	if ( exe->thread->jobqueue == DV_NULL )
 	{
@@ -48,15 +48,17 @@ static inline void dv_get_thread_jobqueue(dv_kernel_t *kvars, dv_executable_t *e
 
 		dv_rb_allocate(kvars, exe->thread->jobqueue);
 	}
+
+	return exe->thread->jobqueue;
 }
 
 /* Append executable's ID to job queue.
 */
-static inline dv_errorid_t dv_enqueue_job_in_jobqueue(dv_kernel_t *kvars, dv_executable_t *exe)
+dv_errorid_t dv_enqueue_job_in_jobqueue(dv_kernel_t *kvars, dv_executable_t *exe)
 {
-	dv_get_thread_jobqueue(kvars, exe);
+	dv_ringbuffer_t *jq = dv_get_thread_jobqueue(kvars, exe);
 
-	if ( dv_rb_append_simple(exe->thread->jobqueue, &exe->id) == 0 )
+	if ( dv_rb_append_simple(jq, &exe->id) == 0 )
 		return dv_eid_ThreadJobQueueFull;
 
 	return dv_eid_None;
@@ -96,6 +98,8 @@ dv_errorid_t dv_spawn_executable(dv_kernel_t *kvars, dv_executable_t *exe)
 			ecode = dv_enqueue_job_in_jobqueue(kvars, exe);
 
 	}
+	else if ( exe->state == dv_exe_free )
+		ecode = dv_eid_UnconfiguredExecutable;
 	else if ( exe->state == dv_exe_disabled )
 		ecode = dv_eid_ExecutableQuarantined;
 	else
