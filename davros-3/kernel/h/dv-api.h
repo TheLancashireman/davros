@@ -34,6 +34,8 @@ extern dv_errorid_t dv_spawn(dv_index_t);
 extern dv_dual_t dv_create_exe(const dv_execonfig_t *);
 extern dv_errorid_t dv_sleep(dv_u32_t);
 extern dv_errorid_t dv_sleep_until(dv_u64_t);
+extern dv_errorid_t dv_suspend(void);
+extern dv_errorid_t dv_resume(dv_index_t);
 extern dv_index_t dv_get_exeid(void);
 
 #endif
