@@ -35,14 +35,14 @@ const dv_execonfig_t foo_1 =
     .flags      = DV_EXEFLAG_AUTODESTROY | DV_EXEFLAG_BLOCKING
 };
 
-/* d3t_blocking_1() - error returns from dv_sleep() and dv_sleep_until()
+/* d3t_blocking_1() - error returns from dv_sleep(), dv_sleep_until(), dv_suspend() and dv_resume()
 */
 void d3t_blocking_1(void)
 {
 	dv_dual_t rv;
 
-	d3t_starttest("blocking-1 - errors from dv_sleep() and dv_sleep_until()");
-	d3t_expect("abcFGHd");
+	d3t_starttest("blocking-1 - errors from dv_sleep(), dv_sleep_until(), dv_suspend() and dv_resume()");
+	d3t_expect("abcdefghFGHi");
 
 	/* The control task is non-blocking, so test those errors here.
 	*/
@@ -56,15 +56,40 @@ void d3t_blocking_1(void)
 	else
 		d3t_testpoint('?');
 
+	if ( dv_suspend() == dv_eid_ExecutableIsNonBlocking )
+		d3t_testpoint('c');
+	else
+		d3t_testpoint('?');
+
+	if ( dv_resume(-1) == dv_eid_IndexOutOfRange )
+		d3t_testpoint('d');
+	else
+		d3t_testpoint('?');
+
+	if ( dv_resume(DV_C0_N_EXECUTABLES) == dv_eid_IndexOutOfRange )
+		d3t_testpoint('e');
+	else
+		d3t_testpoint('?');
+
+	if ( dv_resume(DV_C0_N_EXECUTABLES-1) == dv_eid_UnconfiguredExecutable )
+		d3t_testpoint('f');
+	else
+		d3t_testpoint('?');
+
 	rv = dv_create_exe(&foo_1);
 
 	if ( rv.rv0 == dv_eid_None )
 	{
-		d3t_testpoint('c');
+		d3t_testpoint('g');
+
+		if ( dv_resume(rv.rv1) == dv_eid_ExecutableNotSuspended )
+			d3t_testpoint('h');
+		else
+			d3t_testpoint('?');
 
 		if ( dv_spawn(rv.rv1) == dv_eid_None )
 		{
-			d3t_testpoint('d');
+			d3t_testpoint('i');
 		}
 		else
 			d3t_testpoint('?');

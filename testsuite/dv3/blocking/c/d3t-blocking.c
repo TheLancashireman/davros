@@ -46,8 +46,6 @@ void d3t_controltask(void)
 {
 	d3t_blocking_1();
 	d3t_blocking_2();
-#if 0
 	d3t_blocking_3();
-#endif
 	d3t_alldone("blocking");
 }
