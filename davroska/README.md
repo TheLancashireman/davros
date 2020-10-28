@@ -4,17 +4,25 @@ Any similarities with OSEK are purely intentional :-)
 
 The contents of this sub-tree are unrelated to the main davros-3 tree.
 
+The idea for davroska came from a little challenge that I set for myself:
+How long would it take to hack out a usable operating system kernel?
+
+I chose to be guided by the OSEK specification because it is the simplest kernel that I know,
+and because following a standard relieved me of the burden of deciding what features the kernel
+should have.
+
+The answer to the "how long" question is "not very long at all".
+About four weeks worth of spare time; two weeks while working
+at my day job, and two weeks during the christmas break with family."
+That was for the davroska kernel. The OSEK compatibility layer came later.
+
 ## Status:
 
 * tested on a raspberry pi zero - uart and timer interrupts working. MMU and caches enabled
-* tested on a rapberry pi 3 (aarch64) - uart and timer interrupts working. MMU and caches enabled
-* activation and termination of basic tasks works.
-* chaining a task works
-* taking and dropping mutexes works
-* setting an alarm works
-* advancing a counter works
-* extended tasks working
-* executable groups and non-preemptable tasks working.
+* tested on a raspberry pi 3 (aarch64) - uart and timer interrupts working. MMU and caches enabled
+* tested on a "blue pill" (STM32, Cortex-M) - uart and timer interrupts working.
+
+Note: the kernel only runs on one core of the pi3. I'm using this kernel in a real project.
 
 ## Quick user's guide
 
