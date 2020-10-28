@@ -7,11 +7,11 @@ This set of tests is designed to exercise the basic thread/executable functional
 Tests the error return values from the dv_spawn() system call.
 
 * Index out of range
-** boundary conditions: -1 and no-of-executables
+  * boundary conditions: -1 and no-of-executables
 * Executable not created
-** boundary conditions: two ranges (before and after caller)
+  * boundary conditions: two ranges (before and after caller)
 * Executable already spawned
-** specific executables (idle and test control task); no boundary conditions
+  * specific executables (idle and test control task); no boundary conditions
 
 ## basics-2
 
