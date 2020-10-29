@@ -63,6 +63,18 @@ static inline int dv_strlen(const char *str)
 	return (s-str);
 }
 
+/* dv_strcmp() - compare two strings
+*/
+static inline int dv_strcmp(const char *s1, const char *s2)
+{
+	while ( *s1 != '\0'  && *s1 == *s2 )
+	{
+		s1++;
+		s2++;
+	}
+	return (*s1-*s2);
+}
+
 /* Real functions
 */
 extern unsigned *dv_memset32(unsigned *d, unsigned v, unsigned n);
