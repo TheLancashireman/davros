@@ -25,5 +25,12 @@
 
 void d3t_testpoint(char tp)
 {
+#if 1
+	if ( d3t_seqcount >= D3T_MAX_SEQ )
+		d3t_abort("test sequence overflow", d3t_seqcount);
+
+	d3t_testsequence[d3t_seqcount++] = tp;
+#else
 	dv_kputc(tp);
+#endif
 }

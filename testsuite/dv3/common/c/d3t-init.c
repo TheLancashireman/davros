@@ -25,6 +25,10 @@
 #include <kernel/h/dv-error.h>
 #include "d3t.h"
 
+char d3t_testsequence[D3T_MAX_SEQ+1];
+int d3t_seqcount;
+char *d3t_expected;
+
 /* Control task configuration
 */
 const dv_execonfig_t d3t_controltask_cfg =

@@ -23,7 +23,17 @@
 #include <dv-projectconfig.h>
 #include <d3t.h>
 
+/* d3t_starttest() - start a new test
+ *
+ * Print a message, clear out the expected and actual sequence variables.
+*/
 void d3t_starttest(char *name)
 {
     dv_kprintf("! start  : %s\n", name);
+
+	for ( int i = 0; i <= D3T_MAX_SEQ; i++ )
+		d3t_testsequence[i] = 0;
+
+	d3t_seqcount = 0;
+	d3t_expected = DV_NULL;
 }

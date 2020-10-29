@@ -28,6 +28,15 @@
 #define d3t_xstr(s)		d3t_str(s)
 #define d3t_str(s)		#s
 
+/* d3t_testsequence and d3t_testsequence
+ *
+ * Variables to hold the sequence of testpoints called and the expected sequence
+*/
+#define D3T_MAX_SEQ	127
+extern char d3t_testsequence[D3T_MAX_SEQ+1];
+extern int d3t_seqcount;
+extern char *d3t_expected;
+
 /* d3t_testcase_init() - test case initialization
  *
  *	- Called from the d3t init task just before termination.

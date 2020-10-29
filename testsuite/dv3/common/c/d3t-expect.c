@@ -23,7 +23,13 @@
 #include <dv-projectconfig.h>
 #include <d3t.h>
 
+/* d3t_expect() - set the expected sequence for a test case
+ *
+ * Print a message, set the expected sequence
+*/
 void d3t_expect(char *seq)
 {
     dv_kprintf("! expect : %s\n", seq);
+
+	d3t_expected = seq;
 }

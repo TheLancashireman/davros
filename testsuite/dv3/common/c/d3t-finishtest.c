@@ -22,8 +22,24 @@
 #include <kernel/h/dv-kconfig.h>
 #include <dv-projectconfig.h>
 #include <d3t.h>
+#include <dv-string.h>
 
+/* d3t_finishtest() - finish a test case
+ *
+ * Print the actual sequence.
+ * Compate actual with expected.
+ * Print a message with passed/fail.
+*/
 void d3t_finishtest(char *name)
 {
-    dv_kprintf("\n! finish : %s\n", name);
+	char *result;
+	dv_kprintf("! got    : %s\n", d3t_testsequence);
+
+	if ( d3t_expected == DV_NULL )
+		result = "no expected sequence";
+	else if ( dv_strcmp(d3t_testsequence, d3t_expected) == 0 )
+		result = "passed";
+	else
+		result = "failed";
+    dv_kprintf("! finish : %s %s\n", name, result);
 }
