@@ -46,28 +46,38 @@ as plain C functions.
 ### System calls
 
 * void dv_nullsc(dv_machineword_t, dv_machineword_t, dv_machineword_t, dv_machineword_t);
+
 	Does nothing. Used for testing the interface when adding support for new hardware.
 * void dv_exit(dv_machineword_t, dv_machineword_t);
+
 	Terminates the caller. The two parameters can be returned to the parent executable under some circumstances.
 * dv_errorid_t dv_spawn(dv_index_t);
+
 	Activates an executable and places it in its thread, or in the job queue if the thread isn't idle.
 * dv_dual_t dv_create_exe(const dv_execonfig_t *);
+
 	Creates an executable using the configuration parameters provided; returns a a status code and
 	the executable ID.
 * dv_errorid_t dv_sleep(dv_u32_t);
+
 	Blocks the executable for the given number of system timer ticks.
 * dv_errorid_t dv_sleep_until(dv_u64_t);
+
 	Blocks the executable until the system timer reaches the given value.
 * dv_errorid_t dv_suspend(void);
+
 	Suspends the executable. Another executable can call dv_resume() to allow execution to continue.
 * dv_errorid_t dv_resume(dv_index_t);
-	Takes an exectuable out of the suspended state.
+
+	Takes an executable out of the suspended state and makes it ready to run.
 
 ### Plain function calls
 
 * dv_index_t dv_get_exeid(void);
+
 	Returns the ID of the calling executable.
 * dv_u64_t dv_readtime()
+
 	Returns the value of the system timer.
 
 ## Comparison with davroska and OSEK
