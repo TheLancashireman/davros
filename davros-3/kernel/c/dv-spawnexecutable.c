@@ -70,40 +70,30 @@ dv_errorid_t dv_spawn_executable(dv_kernel_t *kvars, dv_executable_t *exe)
 {
 	dv_errorid_t ecode = dv_eid_UnknownError;
 
-	if ( exe->state == dv_exe_idle )
+	exe->state = dv_exe_active;
+
+	if ( exe->events != DV_NULL )
 	{
-		exe->state = dv_exe_active;
-
-		if ( exe->events != DV_NULL )
-		{
-			exe->events->pending_events = DV_NO_EVENTS;
-			exe->events->awaited_events = DV_NO_EVENTS;
-		}
-
-		if ( exe->dll_element != DV_NULL )
-		{
-			exe->dll_element->successor = DV_NULL;
-			exe->dll_element->predecessor = DV_NULL;
-			exe->dll_element->key.u64_key = 0;
-			exe->dll_element->payload_type = dv_dll_exe;
-			exe->dll_element->payload = exe;
-		}
-
-		if ( exe->thread->state == dv_thread_idle )
-		{
-			dv_spawn_executable_in_thread(&kvars->thread_queue, exe, exe->thread);
-			ecode = dv_eid_None;
-		}
-		else
-			ecode = dv_enqueue_job_in_jobqueue(kvars, exe);
-
+		exe->events->pending_events = DV_NO_EVENTS;
+		exe->events->awaited_events = DV_NO_EVENTS;
 	}
-	else if ( exe->state == dv_exe_free )
-		ecode = dv_eid_UnconfiguredExecutable;
-	else if ( exe->state == dv_exe_disabled )
-		ecode = dv_eid_ExecutableQuarantined;
+
+	if ( exe->dll_element != DV_NULL )
+	{
+		exe->dll_element->successor = DV_NULL;
+		exe->dll_element->predecessor = DV_NULL;
+		exe->dll_element->key.u64_key = 0;
+		exe->dll_element->payload_type = dv_dll_exe;
+		exe->dll_element->payload = exe;
+	}
+
+	if ( exe->thread->state == dv_thread_idle )
+	{
+		dv_spawn_executable_in_thread(&kvars->thread_queue, exe, exe->thread);
+		ecode = dv_eid_None;
+	}
 	else
-		ecode = dv_eid_ExecutableAlreadySpawned;
+		ecode = dv_enqueue_job_in_jobqueue(kvars, exe);
 
 	return ecode;
 }

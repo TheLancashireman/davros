@@ -75,12 +75,12 @@ void d3t_basics_1(void)
 	else
 		d3t_testpoint('?');
 
-	if ( dv_spawn(0) == dv_eid_ExecutableAlreadySpawned )
+	if ( dv_spawn(0) == dv_eid_ExecutableNotIdle )
 		d3t_testpoint('g');
 	else
 		d3t_testpoint('?');
 
-	if ( dv_spawn(myId) == dv_eid_ExecutableAlreadySpawned )
+	if ( dv_spawn(myId) == dv_eid_ExecutableNotIdle )
 		d3t_testpoint('h');
 	else
 		d3t_testpoint('?');

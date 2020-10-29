@@ -53,7 +53,7 @@ void dv_sys_resume(dv_kernel_t *kvars, dv_index_t unused_sci)
 		if ( exe->state == dv_exe_suspended )
 		{
 			e = dv_resume_executable(kvars, exe);
-			DV_DBG(dv_kprintf("dv_sys_spawn(): e = %d (returned from dv_spawn_executable())\n", e));
+			DV_DBG(dv_kprintf("dv_sys_resume(): e = %d (returned from dv_resume_executable())\n", e));
 		}
 	    else if ( exe->state == dv_exe_free )
 	        e = dv_eid_UnconfiguredExecutable;
