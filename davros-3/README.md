@@ -46,44 +46,62 @@ as plain C functions.
 ### System calls
 
 * void dv_nullsc(dv_machineword_t, dv_machineword_t, dv_machineword_t, dv_machineword_t);
-
-	Does nothing. Used for testing the interface when adding support for new hardware.
+	* Does nothing.
+	* Used for testing the interface when adding support for new hardware.
 * void dv_exit(dv_machineword_t, dv_machineword_t);
-
-	Terminates the caller. The two parameters can be returned to the parent executable under some circumstances.
+	* Terminates the caller.
+	* The two parameters can be returned to the parent executable under some circumstances.
 * dv_errorid_t dv_spawn(dv_index_t);
-
-	Activates an executable and places it in its thread, or in the job queue if the thread isn't idle.
+	* Activates an executable and places it in its thread, or in the job queue if the thread isn't idle.
 * dv_dual_t dv_create_exe(const dv_execonfig_t *);
-
-	Creates an executable using the configuration parameters provided; returns a a status code and
-	the executable ID.
+	* Creates an executable using the configuration parameters provided.
+	* Returns a a status code and the executable ID.
 * dv_errorid_t dv_sleep(dv_u32_t);
-
-	Blocks the executable for the given number of system timer ticks.
+	* Blocks the executable for the given number of system timer ticks.
 * dv_errorid_t dv_sleep_until(dv_u64_t);
-
-	Blocks the executable until the system timer reaches the given value.
+	* Blocks the executable until the system timer reaches the given value.
 * dv_errorid_t dv_suspend(void);
-
-	Suspends the executable. Another executable can call dv_resume() to allow execution to continue.
+	* Suspends the executable.
+	* Another executable can call dv_resume() to allow execution to continue.
 * dv_errorid_t dv_resume(dv_index_t);
-
-	Takes an executable out of the suspended state and makes it ready to run.
+	* Takes an executable out of the suspended state and makes it ready to run.
 
 ### Plain function calls
 
 * dv_index_t dv_get_exeid(void);
-
-	Returns the ID of the calling executable.
+	* Returns the ID of the calling executable.
 * dv_u64_t dv_readtime()
+	* Returns the value of the system timer.
 
-	Returns the value of the system timer.
+### More to come ...
+
+* semaphores and mutexes
+* events (similar to davroska)
+* priority elevation when execution begins (automatic ceiling priority)
+* yield() system call to relinquish an elevated priority (see above)
+* chain() system call to combine spawn and exit
+* terminate() to terminate an arbitrary exectuable
+* memory protection
+* multi-core support
+* aarch64 support
+
+## Configuration and startup.
+
+* Each project using davros-3 provides a configuration header, dv-projectconfig.h, that specifies the hardware,
+the quantities of all the kernel objects and various other configuration.
+* davros-3 can optionally call a project-defined function at startup. This function is called before
+executable scheduling starts, so cannot make saystem calls.
+* davros-3 creates and spawns a high priority executable at startup. The name of the main function is
+provided in the configuration. In this executable you can create more executables and other kernel
+objects such as mutexes.
+
+Look in the demo project for details.
 
 ## Comparison with davroska and OSEK
 
 * davros-3 does not support multiple activations of tasks
-* davros-3 supports *basic* tasks; they are tasks that have neither DV_EXEFLAG_BLOCKING nor DV_EXEFLAG_EVENTS
+* davros-3 supports *basic* tasks; they are tasks that have neither DV_EXEFLAG_BLOCKING nor DV_EXEFLAG_EVENTS.
+Non-blocking executables of the same priority share a stack and a register store.
 
 ## Known bugs and limitations
 
