@@ -39,10 +39,11 @@ Works on:
 * lib/ - some library headers and code. Used by all davros flavours
 * demos/ - some demo code to show you how it works
 * scripts/ - scripts for starting openocd, minicom, gdb etc.
+* testsuite/dv3 - a growing test suite for davros-3
 * LICENSE - a copy of GPL version 3
 * README.md - this file
 
-## Supported hardware
+## Hardware
 
 ### Raspberry pi zero
 
@@ -87,7 +88,7 @@ use the compiler from developer.arm.com. Unfortunately it seems to produce sligh
 
 Yes, it really has been around that long.
 
-## Why davros?
+## Why the name "davros"?
 
 I used to work for a company that manufactured work-time recording machines and access control systems.
 The work-time machines went under the brand name of TimeLord. There was a machine for printing
@@ -95,7 +96,7 @@ the cards that the TimeLord used that looked remarkably like Doctor Who's robot 
 in fact, that it got the nickname K9.
 
 As part of my work there, I created a XINU-like operating system to run on Hitachi 6303 and similar processors.
-It was during that time that I thought of the name Davros, continuing the Doctor Who theme, but the OS
+It was during that time that I thought of the name davros, continuing the Doctor Who theme, but the OS
 developed for the company I worked for was only ever used internally, so it never needed a name.
 
 Many years later I started fiddling around with my own OS - and of course the name davros seemed like an
