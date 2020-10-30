@@ -20,4 +20,10 @@
 #ifndef d3t_testconfig_h
 #define d3t_testconfig_h	1
 
+#if !DV_ASM
+extern void d3t_blocking_1(void);
+extern void d3t_blocking_2(void);
+extern void d3t_blocking_3(void);
+#endif
+
 #endif

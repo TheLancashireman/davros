@@ -23,10 +23,6 @@
 #include <dv-types.h>
 #include "d3t.h"
 
-extern void d3t_basics_1(void);
-extern void d3t_basics_2(void);
-extern void d3t_basics_3(void);
-
 /* d3t-testcase_init() - testcase initialization
  *
  *	- Called from d3t_init

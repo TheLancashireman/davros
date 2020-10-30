@@ -23,6 +23,9 @@
 #if !DV_ASM
 extern void main_Foo(void);
 extern void main_Bar(void);
+extern void d3t_basics_1(void);
+extern void d3t_basics_2(void);
+extern void d3t_basics_3(void);
 #endif
 
 #endif

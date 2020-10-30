@@ -23,10 +23,6 @@
 #include <dv-types.h>
 #include "d3t.h"
 
-extern void d3t_blocking_1(void);
-extern void d3t_blocking_2(void);
-extern void d3t_blocking_3(void);
-
 /* d3t-testcase_init() - testcase initialization
  *
  *	- Called from d3t_init.
