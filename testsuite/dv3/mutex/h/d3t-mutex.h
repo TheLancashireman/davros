@@ -22,6 +22,7 @@
 
 #if !DV_ASM
 extern dv_index_t Foo, Bar, Quxx, Mutex;
+
 extern const dv_execonfig_t foo_cfg;
 extern const dv_execonfig_t bar_cfg;
 extern const dv_execonfig_t quxx_cfg;

@@ -25,7 +25,6 @@
 #include "d3t.h"
 #include "d3t-mutex.h"
 
-
 /* d3t_mutex_2() - spawning a higher-priority executable while holding a mutex
 */
 void d3t_mutex_2(void)
@@ -38,45 +37,46 @@ void d3t_mutex_2(void)
 
 	d3t_testpoint('a');
 
-	rv = dv_create_exe(&foo_cfg);
+	rv = dv_create_semaphore(dv_semaphore_immediateceiling, 1);
 
 	if ( rv.rv0 == dv_eid_None )
 	{
 		d3t_testpoint('b');
 
-		Foo = rv.rv1;
+		Mutex = rv.rv1;
 
-		rv = dv_create_exe(&bar_cfg);
-	}
+		e = dv_uses_semaphore(Mutex, Foo);
 
-	if ( rv.rv0 == dv_eid_None )
-	{
-		d3t_testpoint('c');
+		if ( e == dv_eid_None )
+			d3t_testpoint('c');
+		else
+			d3t_testpoint('?');
 
-		Bar = rv.rv1;
+		e = dv_uses_semaphore(Mutex, Bar);
 
-		rv = dv_create_exe(&quxx_cfg);
-	}
+		if ( e == dv_eid_None )
+			d3t_testpoint('d');
+		else
+			d3t_testpoint('?');
 
-	if ( rv.rv0 == dv_eid_None )
-	{
-		d3t_testpoint('d');
+		e = dv_uses_semaphore(Mutex, Quxx);
 
-		Quxx = rv.rv1;
-
-		rv = dv_create_mutex(&mutex_cfg);
-	}
-
-	if ( rv.rv0 == dv_eid_None )
-	{
-		d3t_testpoint('e');
+		if ( e == dv_eid_None )
+			d3t_testpoint('e');
+		else
+			d3t_testpoint('?');
 
 		e = dv_spawn(Foo);
 
 		if ( e == dv_eid_None )
-		{
-			d3t_testpoint('d');
-		}
+			d3t_testpoint('f');
+		else
+			d3t_testpoint('?');
+
+		e = dv_destroy_semaphore(Mutex);
+
+		if ( e == dv_eid_None )
+			d3t_testpoint('g');
 		else
 			d3t_testpoint('?');
 	}

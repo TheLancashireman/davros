@@ -24,13 +24,15 @@
 #include "d3t.h"
 #include "d3t-mutex.h"
 
+dv_index_t Foo, Bar, Quxx, Mutex;
+
 const dv_execonfig_t foo_cfg =
 {	.name		= "Foo",
 	.function	= main_Foo,
 	.core		= 0,
 	.n_stack	= 200,
 	.priority	= 1,
-	.flags		= DV_EXEFLAG_AUTODESTROY
+	.flags		= 0
 };
 
 const dv_execonfig_t bar_cfg =
@@ -39,7 +41,7 @@ const dv_execonfig_t bar_cfg =
 	.core		= 0,
 	.n_stack	= 200,
 	.priority	= 2,
-	.flags		= DV_EXEFLAG_AUTODESTROY | DV_EXEFLAG_BLOCKING
+	.flags		= DV_EXEFLAG_BLOCKING
 };
 
 const dv_execonfig_t quxx_cfg =
@@ -48,7 +50,7 @@ const dv_execonfig_t quxx_cfg =
 	.core		= 0,
 	.n_stack	= 200,
 	.priority	= 3,
-	.flags		= DV_EXEFLAG_AUTODESTROY | DV_EXEFLAG_BLOCKING
+	.flags		= DV_EXEFLAG_BLOCKING
 };
 
 /* d3t-testcase_init() - testcase initialization
@@ -58,8 +60,30 @@ const dv_execonfig_t quxx_cfg =
 */
 void d3t_testcase_init(void)
 {
-	/* Nothing done here because creating executables is part of the test.
+	dv_dual_t rv;
+
+	/* Create the three executables.
 	*/
+	rv = dv_create_exe(&foo_cfg);
+
+	if ( rv.rv0 == dv_eid_None )
+		Foo = rv.rv1;
+	else
+		dv_kprintf("Failed to create executable Foo: error = %d\n", rv.rv0);
+
+	rv = dv_create_exe(&bar_cfg);
+
+	if ( rv.rv0 == dv_eid_None )
+		Bar = rv.rv1;
+	else
+		dv_kprintf("Failed to create executable Bar: error = %d\n", rv.rv0);
+
+	rv = dv_create_exe(&quxx_cfg);
+
+	if ( rv.rv0 == dv_eid_None )
+		Quxx = rv.rv1;
+	else
+		dv_kprintf("Failed to create executable Quxx: error = %d\n", rv.rv0);
 }
 
 /* d3t-controltask() - control the test sequence
@@ -82,21 +106,21 @@ void main_Foo(void)
 
 	d3t_testpoint('F');
 
-	e = dv_acquire(Mutex);
+	e = dv_wait(Mutex);
 
 	if ( e == dv_eid_None )
 		d3t_testpoint('G');
 	else
 		d3t_testpoint('@');
 
-	dv_errorid_t e = dv_spawn(Bar);
+	e = dv_spawn(Bar);
 
 	if ( e == dv_eid_None )
 		d3t_testpoint('H');
 	else
 		d3t_testpoint('@');
 
-	e = dv_relinquish(Mutex);
+	e = dv_signal(Mutex);
 
 	if ( e == dv_eid_None )
 		d3t_testpoint('O');
@@ -112,14 +136,14 @@ void main_Bar(void)
 
 	d3t_testpoint('B');
 
-	e = dv_acquire(Mutex);
+	e = dv_wait(Mutex);
 
 	if ( e == dv_eid_None )
 		d3t_testpoint('C');
 	else
 		d3t_testpoint('#');
 
-	e = dv_relinquish(Mutex);
+	e = dv_signal(Mutex);
 
 	if ( e == dv_eid_None )
 		d3t_testpoint('D');
@@ -135,14 +159,14 @@ void main_Quxx(void)
 
 	d3t_testpoint('Q');
 
-	e = dv_acquire(Mutex);
+	e = dv_wait(Mutex);
 
 	if ( e == dv_eid_None )
 		d3t_testpoint('R');
 	else
 		d3t_testpoint('$');
 
-	e = dv_relinquish(Mutex);
+	e = dv_signal(Mutex);
 
 	if ( e == dv_eid_None )
 		d3t_testpoint('S');
