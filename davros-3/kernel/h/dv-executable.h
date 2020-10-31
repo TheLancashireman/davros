@@ -73,6 +73,7 @@ struct dv_executable_s
 	dv_eventstatus_t *events;
 	dv_mempage_t *stackpage;
 	dv_stackword_t *initial_sp;
+	dv_semaphore_t *semtaken;		/* Innermost mutex semaphore occupied by executable. */
 	dv_quantity_t n_stack;
 	dv_index_t id;
 	dv_i32_t baseprio;

@@ -21,6 +21,7 @@
 #include <dv-types.h>
 #include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-semaphore.h>
+#include <kernel/h/dv-semaphore-inline.h>
 #include <kernel/h/dv-doublylinkedlist.h>
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-error.h>
@@ -41,8 +42,8 @@ dv_errorid_t dv_wait_semimmceil(dv_kernel_t *kvars, dv_semaphore_t *sem)
 
 	if ( sem->count < 0 )
 	{
-		dv_assert( (sem->owner != kvars->current_thread),
-			dv_panic_semaphoreoccupied, "dv_wait_semimmceil", "Mutex is occupied by a different thread");
+		dv_assert( (sem->owner != kvars->current_thread->executable),
+			dv_panic_semaphoreoccupied, "dv_wait_semimmceil", "Mutex is occupied by a different executable");
 
 		return dv_eid_None;
 	}
@@ -65,7 +66,7 @@ dv_errorid_t dv_wait_semimmceil(dv_kernel_t *kvars, dv_semaphore_t *sem)
 */
 dv_errorid_t dv_signal_semimmceil(dv_kernel_t *kvars, dv_semaphore_t *sem)
 {
-	if ( sem->owner != kvars->current_thread )
+	if ( sem->owner != kvars->current_thread->executable )
 		return dv_eid_SemaphoreNotOccupied;
 
 	sem->count++;

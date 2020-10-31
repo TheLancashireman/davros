@@ -27,15 +27,24 @@
 #include <kernel/h/dv-kernel-types.h>
 #include <kernel/h/dv-error.h>
 #include DV_H_SYSTEMTIMER		/* For dv_readtime(), DV_MIN_SLEEP etc. */
+#include <kernel/h/dv-semaphore.h>
 
 extern void dv_nullsc(dv_machineword_t, dv_machineword_t, dv_machineword_t, dv_machineword_t);
 extern void dv_exit(dv_machineword_t, dv_machineword_t);
 extern dv_errorid_t dv_spawn(dv_index_t);
 extern dv_dual_t dv_create_exe(const dv_execonfig_t *);
+
 extern dv_errorid_t dv_sleep(dv_u32_t);
 extern dv_errorid_t dv_sleep_until(dv_u64_t);
 extern dv_errorid_t dv_suspend(void);
 extern dv_errorid_t dv_resume(dv_index_t);
+
+extern dv_dual_t dv_create_semaphore(dv_semaphoreprotocol_t, dv_i32_t);
+extern dv_errorid_t dv_uses_semaphore(dv_index_t, dv_index_t);
+extern dv_errorid_t dv_destroy_semaphore(dv_index_t);
+extern dv_errorid_t dv_wait(dv_index_t);
+extern dv_errorid_t dv_signal(dv_index_t);
+
 extern dv_index_t dv_get_exeid(void);
 
 #endif

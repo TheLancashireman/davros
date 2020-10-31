@@ -24,6 +24,7 @@
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-syscall.h>
 #include <kernel/h/dv-semaphore.h>
+#include <kernel/h/dv-semaphore-inline.h>
 #include DV_H_REGISTERS
 
 DV_COVDEF(sys_wait);

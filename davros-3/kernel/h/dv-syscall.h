@@ -36,17 +36,20 @@
 #define DV_SC_sleep_until		9
 #define DV_SC_suspend			10
 #define DV_SC_resume			11
+#define DV_SC_create_semaphore	12
+#define DV_SC_destroy_semaphore	13
+#define DV_SC_uses_semaphore	14
+#define DV_SC_wait				15
+#define DV_SC_signal			16
 
-#define DV_SC_acquire			XX
-#define DV_SC_drop				XX
+#define DV_N_SYSCALL			17
+
 #define DV_SC_event_wait		XX
 #define DV_SC_event_wgc			XX
 #define DV_SC_event_wgc_all		XX
 #define DV_SC_event_set			XX
 #define DV_SC_event_get			XX
 #define DV_SC_event_clear		XX
-
-#define DV_N_SYSCALL			12
 
 #if !DV_ASM
 
@@ -64,13 +67,16 @@ typedef enum dv_sc_e
 	dv_sc_sleep_until		= DV_SC_sleep_until,
 	dv_sc_suspend			= DV_SC_suspend,
 	dv_sc_resume			= DV_SC_resume,
+	dv_sc_create_semaphore	= DV_SC_create_semaphore,
+	dv_sc_destroy_semaphore	= DV_SC_destroy_semaphore,
+	dv_sc_uses_semaphore	= DV_SC_uses_semaphore,
+	dv_sc_wait				= DV_SC_wait,
+	dv_sc_signal			= DV_SC_signal,
 
 	dv_sc_unknown			= DV_N_SYSCALL
 } dv_sc_t;
 
 #if 0
-	dv_sc_acquire			= DV_SC_acquire,
-	dv_sc_drop				= DV_SC_drop,
 	dv_sc_event_wait		= DV_SC_event_wait,
 	dv_sc_event_wgc			= DV_SC_event_wgc,
 	dv_sc_event_wgc_all		= DV_SC_event_wgc_all,
@@ -103,12 +109,15 @@ extern void dv_sys_sleep(dv_kernel_t *, dv_index_t);
 extern void dv_sys_sleep_until(dv_kernel_t *, dv_index_t);
 extern void dv_sys_suspend(dv_kernel_t *, dv_index_t);
 extern void dv_sys_resume(dv_kernel_t *, dv_index_t);
+extern void dv_sys_create_semaphore(dv_kernel_t *, dv_index_t);
+extern void dv_sys_destroy_semaphore(dv_kernel_t *, dv_index_t);
+extern void dv_sys_uses_semaphore(dv_kernel_t *, dv_index_t);
+extern void dv_sys_wait(dv_kernel_t *, dv_index_t);
+extern void dv_sys_signal(dv_kernel_t *, dv_index_t);
 
 extern void dv_sys_unknown(dv_kernel_t *, dv_index_t);
 
 #if 0
-extern void dv_sys_acquire(dv_kernel_t *, dv_index_t);
-extern void dv_sys_drop(dv_kernel_t *, dv_index_t);
 extern void dv_sys_event_wait(dv_kernel_t *, dv_index_t);
 extern void dv_sys_event_wgc(dv_kernel_t *, dv_index_t);
 extern void dv_sys_event_wgc_all(dv_kernel_t *, dv_index_t);

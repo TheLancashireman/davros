@@ -30,19 +30,24 @@ DV_COVDEF(dv_syscall);
 
 const dv_syscall_t dv_syscalltable[DV_N_SYSCALL+1] =
 {
-	[dv_sc_null]			= { dv_sys_null,			"dv_sys_null"				},
-	[dv_sc_exit]			= { dv_sys_exit,			"dv_sys_exit"				},
-	[dv_sc_yield]			= { dv_sys_yield,			"dv_sys_yield"				},
-	[dv_sc_create_exe]		= { dv_sys_create_exe,		"dv_sys_create_exe"			},
-	[dv_sc_destroy_exe]		= { dv_sys_destroy_exe,		"dv_sys_destroy_exe"		},
-	[dv_sc_spawn]			= { dv_sys_spawn,			"dv_sys_spawn"				},
-	[dv_sc_chain]			= { dv_sys_chain,			"dv_sys_chain"				},
-	[dv_sc_terminate]		= { dv_sys_terminate,		"dv_sys_terminate"			},
-	[dv_sc_sleep]			= { dv_sys_sleep,			"dv_sys_sleep"				},
-	[dv_sc_sleep_until]		= { dv_sys_sleep_until,		"dv_sys_sleep_until"		},
-	[dv_sc_suspend]			= { dv_sys_suspend,			"dv_sys_suspend"			},
-	[dv_sc_resume]			= { dv_sys_resume,			"dv_sys_resume"				},
-	[dv_sc_unknown]			= { dv_sys_unknown,			"dv_sys_unknown"			},
+	[dv_sc_null]				= { dv_sys_null,				"dv_sys_null"				},
+	[dv_sc_exit]				= { dv_sys_exit,				"dv_sys_exit"				},
+	[dv_sc_yield]				= { dv_sys_yield,				"dv_sys_yield"				},
+	[dv_sc_create_exe]			= { dv_sys_create_exe,			"dv_sys_create_exe"			},
+	[dv_sc_destroy_exe]			= { dv_sys_destroy_exe,			"dv_sys_destroy_exe"		},
+	[dv_sc_spawn]				= { dv_sys_spawn,				"dv_sys_spawn"				},
+	[dv_sc_chain]				= { dv_sys_chain,				"dv_sys_chain"				},
+	[dv_sc_terminate]			= { dv_sys_terminate,			"dv_sys_terminate"			},
+	[dv_sc_sleep]				= { dv_sys_sleep,				"dv_sys_sleep"				},
+	[dv_sc_sleep_until]			= { dv_sys_sleep_until,			"dv_sys_sleep_until"		},
+	[dv_sc_suspend]				= { dv_sys_suspend,				"dv_sys_suspend"			},
+	[dv_sc_resume]				= { dv_sys_resume,				"dv_sys_resume"				},
+	[dv_sc_create_semaphore]	= { dv_sys_create_semaphore,	"dv_sys_create_semaphore"	},
+	[dv_sc_destroy_semaphore]	= { dv_sys_destroy_semaphore,	"dv_sys_destroy_semaphore"	},
+	[dv_sc_uses_semaphore]		= { dv_sys_uses_semaphore,		"dv_sys_uses_semaphore"		},
+	[dv_sc_wait]				= { dv_sys_wait,				"dv_sys_wait"				},
+	[dv_sc_signal]				= { dv_sys_signal,				"dv_sys_signal"				},
+	[dv_sc_unknown]				= { dv_sys_unknown,				"dv_sys_unknown"			},
 };
 
 #if 0

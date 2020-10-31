@@ -1,4 +1,4 @@
-/*	dv-semaphore.h - semaphore structure for davros
+/*	dv-semaphore-inline.h - inline semaphore functions for davros
  *
  *	Copyright David Haworth
  *
@@ -17,57 +17,15 @@
  *	You should have received a copy of the GNU General Public License
  *	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef dv_semaphore_h
-#define dv_semaphore_h	1
+#ifndef dv_semaphore_inline_h
+#define dv_semaphore_inline_h	1
 
-#include <kernel/h/dv-kconfig.h>
-#include <dv-types.h>
-#include <kernel/h/dv-kernel-types.h>
-#include <kernel/h/dv-doublylinkedlist.h>
+#include <kernel/h/dv-semaphore.h>
 #include <kernel/h/dv-thread.h>
 #include <kernel/h/dv-executable.h>
+#include <kernel/h/dv-kernel-types.h>
 
 #if !DV_ASM
-
-/* Semaphore protocols
-*/
-enum dv_semaphoreprotocol_e
-{
-	dv_semaphore_none = 0,			/* No mechanism; semaphore has not been configured */
-	dv_semaphore_fifo,				/* Classic P/V (wait/signal) semaphore with fifo queue */
-	dv_semaphore_priority,			/* Classic P/V (wait/signal) semaphore with priority queue */
-	dv_semaphore_inheritance,		/* Priority inheritance protocol - always has priority queue */
-	dv_semaphore_deferredceiling,	/* Priority ceiling protocol - always has priority queue */
-	dv_semaphore_immediateceiling,	/* Immediate priority ceiling protocol (like OSEK/AUTOSAR) - no queue */
-	dv_semaphore_nprotocols
-};
-typedef enum dv_semaphoreprotocol_e dv_semaphoreprotocol_t;
-
-/* String representations for info functions.
-*/
-#define DV_SEMAPHOREPROTOCOLS \
-	[dv_semaphore_none]				= "dv_semaphore_none",				\
-	[dv_semaphore_fifo]				= "dv_semaphore_fifo",				\
-	[dv_semaphore_priority]			= "dv_semaphore_priority",			\
-	[dv_semaphore_deferredceiling]	= "dv_semaphore_deferredceiling",	\
-	[dv_semaphore_immediateceiling]	= "dv_semaphore_immediateceiling"
-
-/* The structure representing a semaphore.
-*/
-struct dv_semaphore_s
-{
-	dv_doublylinkedlist_t exe_queue;	/* List of executables that are waiting for the semaphore */
-	dv_executable_t *owner;				/* Current owner of the semaphore */
-	dv_semaphore_t *link;				/* Next in the list of semaphores that are held by the owner. */
-	dv_i32_t oldprio;					/* Priority of owner before taking the semaphore */
-	dv_i32_t ceiling;					/* Ceiling priority */
-	dv_semaphoreprotocol_t protocol;	/* Protocol to use for this semaphore */
-	dv_i32_t count;						/* Counter */
-};
-
-
-extern dv_errorid_t dv_wait_semimmceil(dv_kernel_t *, dv_semaphore_t *);
-extern dv_errorid_t dv_signal_semimmceil(dv_kernel_t *, dv_semaphore_t *);
 
 /* dv_acquire_mutex() - acquire a mutex sempahore; push onto executable's "taken" list, set owner, etc.
  *
@@ -75,7 +33,7 @@ extern dv_errorid_t dv_signal_semimmceil(dv_kernel_t *, dv_semaphore_t *);
 */
 static inline void dv_acquire_mutex(dv_semaphore_t *sem, dv_thread_t *thr)
 {
-	dv_executable_t exe = thr->executable;
+	dv_executable_t *exe = thr->executable;
 	sem->owner = exe;
 	sem->link = exe->semtaken;
 	exe->semtaken = sem;
@@ -89,7 +47,7 @@ static inline void dv_acquire_mutex(dv_semaphore_t *sem, dv_thread_t *thr)
 static inline void dv_relinquish_mutex(dv_semaphore_t *sem, dv_thread_t *thr)
 {
 	sem->owner = DV_NULL;
-	thr->exectuable->semtaken = sem->link;
+	thr->executable->semtaken = sem->link;
 	sem->link = DV_NULL;
 	dv_set_prio(thr, sem->oldprio);
 	dv_dlldemote(&thr->link);
