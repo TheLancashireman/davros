@@ -52,14 +52,14 @@ void dv_remove_executable_from_thread(dv_kernel_t *kvars, dv_thread_t *thr)
 	dv_trace_threadstate(thr, dv_thread_idle);
 	thr->state = dv_thread_idle;
 
+	while ( thr->executable->semtaken != DV_NULL )
+	{
+		dv_panic(dv_panic_unimplemented, "dv_terminate_executable_in_thread", "Semaphore release not implemented yet");
+	}
+
 	thr->executable = DV_NULL;
 	thr->regs = DV_NULL;
 	thr->parent = DV_NULL;
-
-	while ( thr->semtaken != DV_NULL )
-	{
-		dv_panic(dv_panic_unimplemented, "dv_terminate_executable_in_thread", "Semaphores not implemented yet");
-	}
 
 	kvars->current_thread = DV_NULL;
 
