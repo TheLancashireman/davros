@@ -69,6 +69,11 @@ DV_USR_OBJS	+= $(DV_OBJ_D)/dv-sleep.o
 DV_USR_OBJS	+= $(DV_OBJ_D)/dv-sleepuntil.o
 DV_USR_OBJS	+= $(DV_OBJ_D)/dv-suspend.o
 DV_USR_OBJS	+= $(DV_OBJ_D)/dv-resume.o
+DV_USR_OBJS	+= $(DV_OBJ_D)/dv-createsemaphore.o
+DV_USR_OBJS	+= $(DV_OBJ_D)/dv-destroysemaphore.o
+DV_USR_OBJS	+= $(DV_OBJ_D)/dv-usessemaphore.o
+DV_USR_OBJS	+= $(DV_OBJ_D)/dv-wait.o
+DV_USR_OBJS	+= $(DV_OBJ_D)/dv-signal.o
 
 # Selected files from the devices directory
 DV_LIB_OBJS	+= $(DV_OBJ_D)/dv-arm-bcm2835-interruptcontroller.o
