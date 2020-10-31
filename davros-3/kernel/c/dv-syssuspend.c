@@ -45,6 +45,11 @@ void dv_sys_suspend(dv_kernel_t *kvars, dv_index_t sci)
 		e = dv_eid_ExecutableIsNonBlocking;
 		DV_DBG(dv_kprintf("dv_sys_suspend(): e = %d (ExecutableIsNonBlocking)\n", e));
 	}
+	else if ( exe->semtaken != DV_NULL )
+	{
+		e = dv_eid_ExecutableOccupiesSemaphore;
+		DV_DBG(dv_kprintf("dv_sys_suspend(): e = %d (ExecutableOccupiesSemaphore)\n", e));
+	}
 	else
 	{
 		e = dv_eid_None;

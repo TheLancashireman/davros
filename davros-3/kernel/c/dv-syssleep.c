@@ -47,6 +47,11 @@ void dv_sys_sleep(dv_kernel_t *kvars, dv_index_t sci)
 		e = dv_eid_ExecutableIsNonBlocking;
 		DV_DBG(dv_kprintf("dv_sys_sleep(): e = %d (ExecutableIsNonBlocking)\n", e));
 	}
+	else if ( exe->semtaken != DV_NULL )
+	{
+		e = dv_eid_ExecutableOccupiesSemaphore;
+		DV_DBG(dv_kprintf("dv_sys_sleep(): e = %d (ExecutableOccupiesSemaphore)\n", e));
+	}
 	else
 	if ( p0 >= DV_MIN_SLEEP )
 	{

@@ -37,20 +37,6 @@ DV_COVDEF(sys_sleep);
 */
 void dv_sys_sleep_until(dv_kernel_t *kvars, dv_index_t sci)
 {
-	dv_machineword_t p0 = dv_get_p0(kvars->current_thread->regs);
-	dv_u64_t t;
-
-	if (sizeof(dv_machineword_t) == 4)	/* ToDo: need a function to get 64-bit argument */
-	{
-		dv_machineword_t p1 = dv_get_p1(kvars->current_thread->regs);
-		t = ((dv_u64_t)p1) << 32 | (dv_u64_t)p0;
-		DV_DBG(dv_kprintf("dv_sleep_until(0x%08x%08x)\n", p1, p0));
-	}
-	else
-	{
-		t = (dv_u64_t)p0;
-	}
-
 	dv_errorid_t e = dv_eid_UnknownError;
 	dv_executable_t *exe;
 
@@ -59,29 +45,52 @@ void dv_sys_sleep_until(dv_kernel_t *kvars, dv_index_t sci)
 	if ( (exe->flags & DV_EXEFLAG_BLOCKING) == 0 )
 	{
 		e = dv_eid_ExecutableIsNonBlocking;
-		DV_DBG(dv_kprintf("dv_sys_sleep(): e = %d (ExecutableIsNonBlocking)\n", e));
+		DV_DBG(dv_kprintf("dv_sys_sleep_until(): e = %d (ExecutableIsNonBlocking)\n", e));
+	}
+	else if ( exe->semtaken != DV_NULL )
+	{
+		e = dv_eid_ExecutableOccupiesSemaphore;
+		DV_DBG(dv_kprintf("dv_sys_sleep_until(): e = %d (ExecutableOccupiesSemaphore)\n", e));
 	}
 	else
-	if ( t > (dv_readtime() + DV_MIN_SLEEP) )
 	{
-		dv_assert((exe->dll_element != DV_NULL), dv_panic_initialisationerror, "dv_sys_sleep_until",
-																	"blocking executable has no dll element");
-		e = dv_eid_None;
-		dv_remove_executable_from_thread(kvars, kvars->current_thread);
-		exe->state = dv_exe_sleep;
+		dv_machineword_t p0 = dv_get_p0(kvars->current_thread->regs);
+		dv_u64_t t;
 
-		exe->dll_element->key.u64_key = t;
-
-		if ( dv_dllinserttime(&kvars->sleep_queue, exe->dll_element) )
+		if (sizeof(dv_machineword_t) == 4)	/* ToDo: need a function to get 64-bit argument */
 		{
-			/* Inserted at queue head; need to set the timer interrupt.
-			*/
-			dv_set_system_timer_alarm(t);
+			dv_machineword_t p1 = dv_get_p1(kvars->current_thread->regs);
+			t = ((dv_u64_t)p1) << 32 | (dv_u64_t)p0;
+			DV_DBG(dv_kprintf("dv_sleep_until(0x%08x%08x)\n", p1, p0));
 		}
-	}
-	else
-	{
-		e = dv_eid_TimeInThePast;
+		else
+		{
+			t = (dv_u64_t)p0;
+		}
+
+		if ( t >= (dv_readtime() + DV_MIN_SLEEP) )
+		{
+			dv_assert((exe->dll_element != DV_NULL), dv_panic_initialisationerror, "dv_sys_sleep_until",
+																	"blocking executable has no dll element");
+
+			e = dv_eid_None;
+
+			dv_remove_executable_from_thread(kvars, kvars->current_thread);
+			exe->state = dv_exe_sleep;
+
+			exe->dll_element->key.u64_key = t;
+
+			if ( dv_dllinserttime(&kvars->sleep_queue, exe->dll_element) )
+			{
+				/* Inserted at queue head; need to set the timer interrupt.
+				*/
+				dv_set_system_timer_alarm(t);
+			}
+		}
+		else
+		{
+			e = dv_eid_TimeInThePast;
+		}
 	}
 
 	dv_set_rv0(exe->registers, e);
