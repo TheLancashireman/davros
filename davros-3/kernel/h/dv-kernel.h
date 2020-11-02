@@ -45,6 +45,10 @@ struct dv_kobjallocator_s
 	dv_index_t next;				/* Next object to begin search for a free object */
 };
 
+/* struct dv_kernel_s
+ *
+ * The kernel data structure
+*/
 struct dv_kernel_s
 {
 	dv_thread_t *current_thread;
@@ -61,6 +65,7 @@ struct dv_kernel_s
 	dv_kobjallocator_t rbbuf_allocator;
 	dv_kobjallocator_t dllelem_allocator;
 	dv_kobjallocator_t page_allocator;
+	dv_kobjallocator_t sem_allocator;
 #if DV_CPU_HAS_KVARS
 	DV_CPU_KVARS_TYPE cpu;
 #endif
@@ -73,6 +78,12 @@ extern void dv_init_vectors(void);
 static inline dv_thread_t *dv_threadqueuehead(dv_kernel_t *kvars)
 {
 	return (kvars->thread_queue.headtail.successor->payload);
+}
+
+static inline void dv_init_allocator(dv_kobjallocator_t *all, dv_quantity_t n_obj)
+{
+	all->n_free = n_obj;
+	all->next = 0;
 }
 
 static inline void dv_deallocate_obj(dv_kobjallocator_t *allocator)

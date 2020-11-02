@@ -51,22 +51,15 @@ void dv_init_kvars(dv_kernel_t *kvars, const dv_coreconfig_t * ccfg)
 	dv_dllinit(&kvars->sleep_queue, dv_dll_time);
 	kvars->panic_reason[0] = kvars->panic_reason[1] = dv_panic_none;
 
-	kvars->exe_allocator.n_free = ccfg->n_executables;
-	kvars->exe_allocator.next = 0;
-	kvars->thr_allocator.n_free = ccfg->n_threads;
-	kvars->thr_allocator.next = 0;
-	kvars->reg_allocator.n_free = ccfg->n_registers;
-	kvars->reg_allocator.next = 0;
-	kvars->evs_allocator.n_free = ccfg->n_events;
-	kvars->evs_allocator.next = 0;
-	kvars->dllelem_allocator.n_free = ccfg->n_dll_elements;
-	kvars->dllelem_allocator.next = 0;
-	kvars->rb_allocator.n_free = ccfg->n_ringbuffers;
-	kvars->rb_allocator.next = 0;
-	kvars->rbbuf_allocator.n_free = ccfg->n_ringbufferwords;
-	kvars->rbbuf_allocator.next = 0;
-	kvars->page_allocator.n_free = ccfg->n_pages;
-	kvars->page_allocator.next = 0;
+	dv_init_allocator(&kvars->exe_allocator, ccfg->n_executables);
+	dv_init_allocator(&kvars->thr_allocator, ccfg->n_threads);
+	dv_init_allocator(&kvars->reg_allocator, ccfg->n_registers);
+	dv_init_allocator(&kvars->evs_allocator, ccfg->n_events);
+	dv_init_allocator(&kvars->dllelem_allocator, ccfg->n_dll_elements);
+	dv_init_allocator(&kvars->rb_allocator, ccfg->n_ringbuffers);
+	dv_init_allocator(&kvars->rbbuf_allocator, ccfg->n_ringbufferwords);
+	dv_init_allocator(&kvars->page_allocator, ccfg->n_pages);
+	dv_init_allocator(&kvars->page_allocator, ccfg->n_semaphores);
 
 	dv_set_kvars(kvars);
 }

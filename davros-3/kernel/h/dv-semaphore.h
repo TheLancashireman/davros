@@ -47,6 +47,7 @@ typedef enum dv_semaphoreprotocol_e dv_semaphoreprotocol_t;
 	[dv_semaphore_none]				= "dv_semaphore_none",				\
 	[dv_semaphore_fifo]				= "dv_semaphore_fifo",				\
 	[dv_semaphore_priority]			= "dv_semaphore_priority",			\
+	[dv_semaphore_inheritance]		= "dv_semaphore_inheritance",		\
 	[dv_semaphore_deferredceiling]	= "dv_semaphore_deferredceiling",	\
 	[dv_semaphore_immediateceiling]	= "dv_semaphore_immediateceiling"
 
@@ -54,6 +55,7 @@ typedef enum dv_semaphoreprotocol_e dv_semaphoreprotocol_t;
 */
 struct dv_semaphore_s
 {
+	char *name;							/* Name of the semaphore */
 	dv_doublylinkedlist_t exe_queue;	/* List of executables that are waiting for the semaphore */
 	dv_executable_t *owner;				/* Current owner of the semaphore */
 	dv_semaphore_t *link;				/* Next in the list of semaphores that are held by the owner. */

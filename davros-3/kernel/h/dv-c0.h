@@ -26,6 +26,10 @@
 #include <dv-types.h>
 #include <kernel/h/dv-kernel-types.h>
 
+#ifndef DV_C0_N_SEMAPHORES
+#define DV_C0_N_SEMAPHORES	0
+#endif
+
 extern const dv_coreconfig_t dv_c0_coreconfig;
 
 #endif

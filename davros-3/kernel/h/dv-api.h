@@ -39,13 +39,20 @@ extern dv_errorid_t dv_sleep_until(dv_u64_t);
 extern dv_errorid_t dv_suspend(void);
 extern dv_errorid_t dv_resume(dv_index_t);
 
-extern dv_dual_t dv_create_semaphore(dv_semaphoreprotocol_t, dv_i32_t);
+extern dv_dual_t dv_create_semaphore(char *, dv_semaphoreprotocol_t, dv_i32_t);
 extern dv_errorid_t dv_uses_semaphore(dv_index_t, dv_index_t);
 extern dv_errorid_t dv_destroy_semaphore(dv_index_t);
 extern dv_errorid_t dv_wait(dv_index_t);
 extern dv_errorid_t dv_signal(dv_index_t);
 
 extern dv_index_t dv_get_exeid(void);
+
+/* dv_create_mutex() - simplified interface for creating a mutex semaphore
+*/
+static inline dv_dual_t dv_create_mutex(char *n, dv_semaphoreprotocol_t p)
+{
+	return dv_create_semaphore(n, p, 1);
+}
 
 #endif
 

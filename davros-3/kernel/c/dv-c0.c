@@ -82,6 +82,15 @@ dv_u32_t dv_c0_rb_buffers[DV_C0_N_RINGBUFFERWORDS];
 */
 dv_mempage_t dv_c0_mempage[DV_C0_N_PAGES];
 
+/* Semaphore array
+*/
+#if DV_C0_N_SEMAPHORES == 0
+#define DV_C0_SEMAPHORE	DV_NULL
+#else
+dv_semaphore_t dv_c0_semaphore[DV_C0_N_SEMAPHORES];
+#define DV_C0_SEMAPHORE	&dv_c0_semaphore[0]
+#endif
+
 
 /* Configuration for idle executable.
 */
@@ -119,6 +128,7 @@ const dv_coreconfig_t dv_c0_coreconfig =
 	.buffers			= &dv_c0_rb_buffers[0],
 	.pages				= &dv_c0_pages[0],
 	.mempage			= &dv_c0_mempage[0],
+	.semaphores			= DV_C0_SEMAPHORE,
 	.idle_cfg			= &dv_c0_cfg_idle,
 	.init_cfg			= &dv_c0_cfg_init,
 
@@ -131,7 +141,8 @@ const dv_coreconfig_t dv_c0_coreconfig =
 	.n_dll_elements		= DV_C0_N_DLLELEMENT,
 	.n_ringbuffers		= DV_C0_N_RINGBUFFERS,
 	.n_ringbufferwords	= DV_C0_N_RINGBUFFERWORDS,
-	.n_pages			= DV_C0_N_PAGES
+	.n_pages			= DV_C0_N_PAGES,
+	.n_semaphores		= DV_C0_N_SEMAPHORES
 };
 
 #else

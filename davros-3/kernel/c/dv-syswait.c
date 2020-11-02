@@ -35,9 +35,8 @@ DV_COVDEF(sys_wait);
 */
 void dv_sys_wait(dv_kernel_t *kvars, dv_index_t unused_sci)
 {
-	dv_machineword_t p0 = dv_get_p0(kvars->current_thread->regs);
+	dv_index_t sem_i = (dv_index_t)dv_get_p0(kvars->current_thread->regs);
 	dv_semaphore_t *sem_tbl = dv_coreconfigs[kvars->core_index]->semaphores;
-	dv_index_t sem_i = (dv_index_t)p0;
 	dv_semaphore_t *sem;
 	dv_errorid_t e = dv_eid_UnknownError;
 
@@ -66,7 +65,7 @@ void dv_sys_wait(dv_kernel_t *kvars, dv_index_t unused_sci)
 			e = dv_wait_semimmceil(kvars, sem);
 			break;
 		default:
-			e = dv_eid_SemaphoreUnconfigured;
+			e = dv_eid_UnconfiguredSemaphore;
 			break;
 		}
 

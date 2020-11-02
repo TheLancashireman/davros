@@ -43,9 +43,11 @@ enum dv_errorid_e
 	dv_eid_ExecutableNotIdle,
 	dv_eid_ExecutableOccupiesSemaphore,
 
-	dv_eid_SemaphoreUnconfigured,
+	dv_eid_UnknownSemaphoreProtocol,
+	dv_eid_InvalidCountForMutex,
+	dv_eid_UnconfiguredSemaphore,
 	dv_eid_SemaphoreCeilingTooLow,
-	dv_eid_SemaphoreAlreadyOccupied,
+	dv_eid_SemaphoreOccupied,
 	dv_eid_SemaphoreNotOccupied,
 
 	dv_eid_NotImplemented,				/* A feature hasn't been implemented yet */

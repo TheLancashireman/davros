@@ -1,4 +1,4 @@
-/*	dv-syssignal.c - signal system call for davros
+/*	dv-sysusessemaphore.c - uses semaphore system call for davros
  *
  *	Copyright David Haworth
  *
@@ -20,56 +20,55 @@
 #include <kernel/h/dv-kconfig.h>
 #include <dv-types.h>
 #include <kernel/h/dv-kernel-types.h>
-#include <kernel/h/dv-coreconfig.h>
 #include <kernel/h/dv-kernel.h>
 #include <kernel/h/dv-syscall.h>
-#include <kernel/h/dv-semaphore.h>
-#include <kernel/h/dv-semaphore-inline.h>
-#include DV_H_REGISTERS
+#include <kernel/h/dv-coreconfig.h>
+#include <kernel/h/dv-doublylinkedlist.h>
 
-DV_COVDEF(sys_signal);
+DV_COVDEF(sys_uses_semaphore);
 
-/* dv_sys_signal() - signal a semaphore
- *
- * This function implements the kernel side of the signal system call.
+/* dv_sys_uses_semaphore() - uses a semaphore
 */
-void dv_sys_signal(dv_kernel_t *kvars, dv_index_t unused_sci)
+void dv_sys_uses_semaphore(dv_kernel_t *kvars, dv_index_t unused_sci)
 {
 	dv_index_t sem_i = (dv_index_t)dv_get_p0(kvars->current_thread->regs);
 	dv_semaphore_t *sem_tbl = dv_coreconfigs[kvars->core_index]->semaphores;
 	dv_semaphore_t *sem;
 	dv_errorid_t e = dv_eid_UnknownError;
 
-	DV_DBG(dv_kprintf("dv_sys_signal(): sem_i = %d\n", sem_i));
 	if ( sem_i < 0 || sem_i >= dv_coreconfigs[kvars->core_index]->n_semaphores )
 	{
 		e = dv_eid_IndexOutOfRange;
-		DV_DBG(dv_kprintf("dv_sys_signal(): e = %d (IndexOutOfRange)\n", e));
 	}
 	else
 	{
 		sem = &sem_tbl[sem_i];
 
-		switch ( sem->protocol )
-		{
-		case dv_semaphore_fifo:
-			e = dv_signal_semfifo(kvars, sem);
-			break;
-		case dv_semaphore_priority:
-			e = dv_signal_semqprio(kvars, sem);
-			break;
-		case dv_semaphore_deferredceiling:
-			e = dv_signal_semdefceil(kvars, sem);
-			break;
-		case dv_semaphore_immediateceiling:
-			e = dv_signal_semimmceil(kvars, sem);
-			break;
-		default:
+		if ( sem->protocol == dv_semaphore_none )
 			e = dv_eid_UnconfiguredSemaphore;
-			break;
-		}
+		else
+		{
+			dv_index_t exe_i = (dv_index_t)dv_get_p1(kvars->current_thread->regs);
+			dv_executable_t *exe_tbl = dv_coreconfigs[kvars->core_index]->executables;
+			dv_executable_t *exe;
 
-		DV_DBG(dv_kprintf("dv_sys_signal(): e = %d (returned from dv_signal_***())\n", e));
+			if ( exe_i < 0 || exe_i >= dv_coreconfigs[kvars->core_index]->n_executables )
+				e = dv_eid_IndexOutOfRange;
+			else
+			{
+				exe = &exe_tbl[exe_i];
+
+				if ( exe->state == dv_exe_free )
+					e = dv_eid_UnconfiguredExecutable;
+				else
+				{
+					e = dv_eid_None;
+
+					if ( sem->ceiling < exe->baseprio )
+						sem->ceiling = exe->baseprio;
+				}
+			}
+		}
 	}
 
 	dv_set_rv0(kvars->current_thread->regs, e);
