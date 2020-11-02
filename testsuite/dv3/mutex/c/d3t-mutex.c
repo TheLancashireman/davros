@@ -123,7 +123,7 @@ void main_Foo(void)
 	e = dv_signal(Mutex);
 
 	if ( e == dv_eid_None )
-		d3t_testpoint('O');
+		d3t_testpoint('J');
 	else
 		d3t_testpoint('@');
 }
