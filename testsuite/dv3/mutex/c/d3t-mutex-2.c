@@ -37,7 +37,7 @@ void d3t_mutex_2(void)
 
 	d3t_testpoint('a');
 
-	rv = dv_create_semaphore(dv_semaphore_immediateceiling, 1);
+	rv = dv_create_semaphore("Mutt", dv_semaphore_immediateceiling, 1);
 
 	if ( rv.rv0 == dv_eid_None )
 	{
