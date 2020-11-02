@@ -24,5 +24,11 @@
 	.text
 
 dv_create_semaphore:
+	mov		r12, r0
+	mov		r0, r1
+	mov		r1, r2
+	mov		r2, r3
 	swi		#DV_SC_create_semaphore
+	str		r0, [r12, #0]
+	str		r1, [r12, #4]
 	bx		lr
