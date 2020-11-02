@@ -60,6 +60,8 @@ void dv_sys_destroy_semaphore(dv_kernel_t *kvars, dv_index_t unused_sci)
 				sem->protocol = dv_semaphore_none;
 				sem->count = 0;
 				dv_deallocate_obj(&kvars->sem_allocator);
+
+				e = dv_eid_None;
 			}
 			else
 				e = dv_eid_SemaphoreOccupied;
