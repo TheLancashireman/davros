@@ -42,6 +42,7 @@ void dv_init_kvars(dv_kernel_t *kvars, const dv_coreconfig_t * ccfg)
 	dv_kprintf("     -- %d ring buffers\n",		ccfg->n_ringbuffers);
 	dv_kprintf("     -- %d buffer words\n",		ccfg->n_ringbufferwords);
 	dv_kprintf("     -- %d pages\n",			ccfg->n_pages);
+	dv_kprintf("     -- %d pages\n",			ccfg->n_semaphores);
 
 	kvars->current_thread = DV_NULL;
 	kvars->kernel_sp = ccfg->kernelstacktop;
@@ -59,7 +60,7 @@ void dv_init_kvars(dv_kernel_t *kvars, const dv_coreconfig_t * ccfg)
 	dv_init_allocator(&kvars->rb_allocator, ccfg->n_ringbuffers);
 	dv_init_allocator(&kvars->rbbuf_allocator, ccfg->n_ringbufferwords);
 	dv_init_allocator(&kvars->page_allocator, ccfg->n_pages);
-	dv_init_allocator(&kvars->page_allocator, ccfg->n_semaphores);
+	dv_init_allocator(&kvars->sem_allocator, ccfg->n_semaphores);
 
 	dv_set_kvars(kvars);
 }
