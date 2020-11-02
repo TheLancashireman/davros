@@ -77,6 +77,7 @@ void dv_sys_create_semaphore(dv_kernel_t *kvars, dv_index_t unused_sci)
 			sem->protocol = protocol;
 			sem->count = count;
 
+			e = dv_eid_None;
 			dv_set_rv1(kvars->current_thread->regs, sem_i);
 		}
 	}
