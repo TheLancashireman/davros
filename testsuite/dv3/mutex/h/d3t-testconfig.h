@@ -20,4 +20,6 @@
 #ifndef d3t_testconfig_h
 #define d3t_testconfig_h	1
 
+#define DV_C0_N_SEMAPHORES	5
+
 #endif
