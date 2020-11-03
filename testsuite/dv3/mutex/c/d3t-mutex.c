@@ -143,10 +143,17 @@ void main_Bar(void)
 	else
 		d3t_testpoint('#');
 
-	e = dv_signal(Mutex);
+	e = dv_spawn(Quxx);
 
 	if ( e == dv_eid_None )
 		d3t_testpoint('D');
+	else
+		d3t_testpoint('#');
+
+	e = dv_signal(Mutex);
+
+	if ( e == dv_eid_None )
+		d3t_testpoint('E');
 	else
 		d3t_testpoint('#');
 }
@@ -162,14 +169,18 @@ void main_Quxx(void)
 	e = dv_wait(Mutex);
 
 	if ( e == dv_eid_None )
+	{
 		d3t_testpoint('R');
-	else
-		d3t_testpoint('$');
 
-	e = dv_signal(Mutex);
+		e = dv_signal(Mutex);
 
-	if ( e == dv_eid_None )
-		d3t_testpoint('S');
+		if ( e == dv_eid_None )
+			d3t_testpoint('S');
+		else
+			d3t_testpoint('$');
+	}
+	else if ( e == dv_eid_SemaphoreCeilingTooLow )
+		d3t_testpoint('T');
 	else
 		d3t_testpoint('$');
 }

@@ -33,7 +33,7 @@ void d3t_mutex_2(void)
 	dv_errorid_t e;
 
 	d3t_starttest("mutex-2 - preemption while holding a mutex");
-	d3t_expect("abcdeFGHBCDJfg");
+	d3t_expect("abcdFGHBCQTDEJef");
 
 	d3t_testpoint('a');
 
@@ -59,24 +59,17 @@ void d3t_mutex_2(void)
 		else
 			d3t_testpoint('?');
 
-		e = dv_uses_semaphore(Mutex, Quxx);
+		e = dv_spawn(Foo);
 
 		if ( e == dv_eid_None )
 			d3t_testpoint('e');
 		else
 			d3t_testpoint('?');
 
-		e = dv_spawn(Foo);
-
-		if ( e == dv_eid_None )
-			d3t_testpoint('f');
-		else
-			d3t_testpoint('?');
-
 		e = dv_destroy_semaphore(Mutex);
 
 		if ( e == dv_eid_None )
-			d3t_testpoint('g');
+			d3t_testpoint('f');
 		else
 			d3t_testpoint('?');
 	}
