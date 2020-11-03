@@ -36,6 +36,8 @@
 extern char d3t_testsequence[D3T_MAX_SEQ+1];
 extern int d3t_seqcount;
 extern char *d3t_expected;
+extern int d3t_npass;
+extern int d3t_nfail;
 
 /* d3t_testcase_init() - test case initialization
  *

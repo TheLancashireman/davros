@@ -28,6 +28,8 @@
 char d3t_testsequence[D3T_MAX_SEQ+1];
 int d3t_seqcount;
 char *d3t_expected;
+int d3t_npass;
+int d3t_nfail;
 
 /* Control task configuration
 */

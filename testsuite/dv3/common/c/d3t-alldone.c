@@ -25,6 +25,6 @@
 
 void d3t_alldone(char *name)
 {
-    dv_kprintf("!!! %s : all tests completed.\n", name);
+    dv_kprintf("!!! %s : all tests completed. %d passed, %d failed.\n", name, d3t_npass, d3t_nfail);
     for (;;) {}
 }

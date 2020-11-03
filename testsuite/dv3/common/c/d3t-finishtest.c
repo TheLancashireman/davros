@@ -38,8 +38,14 @@ void d3t_finishtest(char *name)
 	if ( d3t_expected == DV_NULL )
 		result = "no expected sequence";
 	else if ( dv_strcmp(d3t_testsequence, d3t_expected) == 0 )
+	{
 		result = "passed";
+		d3t_npass++;
+	}
 	else
+	{
 		result = "failed";
+		d3t_nfail++;
+	}
     dv_kprintf("! finish : %s %s\n", name, result);
 }
