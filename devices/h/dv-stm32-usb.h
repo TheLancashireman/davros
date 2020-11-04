@@ -22,8 +22,18 @@
 
 #include "dv-devices.h"
 
+/* DV_USB_N_ENDPOINTS is a configuration parameter. If it is zero or undefined, USB is not used.
+*/
+#ifndef DV_USB_N_ENDPOINTS
+#define DV_USB_N_ENDPOINTS	0
+#endif
+
+#if DV_USB_N_ENDPOINTS > 0
+
+/* dv_stm32usb_t - a structure to model the registers in the USB device.
+*/
+
 #define DV_USB_BASE			0x40005C00
-#define DV_USB_SRAM_BASE	0x40006000
 
 typedef struct dv_stm32usb_s dv_stm32usb_t;
 
@@ -89,4 +99,79 @@ struct dv_stm32usb_s
 */
 #define DV_USB_BTABLE	0xfff8	/* Buffer table address */
 
+/* EPR[n] (Endpoint register)
+*/
+#define DV_USB_CTR_RX	0x8000	/* Correct transfer for reception - write 0 to clear */
+#define DV_USB_DTOG_RX	0x4000	/* Data toggle for reception - write 1 to invert */
+#define DV_USB_STAT_RX	0x3000	/* Status bits for reception - write 1 to invert */
+#define DV_USB_SETUP	0x0800	/* Setup transaction completed */
+#define DV_USB_EP_TYPE	0x0600	/* Endpoint type */
+#define DV_USB_EP_KIND	0x0100	/* Endpoint kind */
+#define DV_USB_CTR_TX	0x0080	/* Correct transfer for transmission - write 0 to clear */
+#define DV_USB_DTOG_TX	0x0040	/* Data toggle for transmission - write 1 to invert */
+#define DV_USB_STAT_TX	0x0030	/* Status bits for transmission - write 1 to invert */
+#define DV_USB_EA		0x000f	/* Endpoint address */
+
+/* Values of DV_USB_STAT_RX
+*/
+#define DV_USB_RX_DISABLED	0x0000
+#define DV_USB_RX_STALL		0x1000
+#define DV_USB_RX_NAK		0x2000
+#define DV_USB_RX_VALID		0x3000
+
+/* Values of DV_USB_STAT_TX
+*/
+#define DV_USB_TX_DISABLED	0x0000
+#define DV_USB_TX_STALL		0x0010
+#define DV_USB_TX_NAK		0x0020
+#define DV_USB_TX_VALID		0x0030
+
+/* Values of DV_USB_EP_TYPE
+*/
+#define DV_USB_BULK			0x0000	/* DV_USB_EP_KIND==1 --> double-buffered */
+#define DV_USB_CONTROL		0x0200	/* DV_USB_EP_KIND==1 --> status-out */
+#define DV_USB_ISO			0x0400	/* DV_USB_EP_KIND not used */
+#define DV_USB_INTERRUPT	0x0600	/* DV_USB_EP_KIND not used */
+#define DV_USB_DBL_BUF		DV_USB_EP_KIND	/* only when EP_TYPE==BULK */
+#define DV_USB_STATUS_OUT	DV_USB_EP_KIND	/* only when EP_TYPE==CONTROL */
+
+/* Structures for the buffer pool
+ *
+ * There's a pool of dual-port memory that's used for buffering USB communications.
+ * The pool starts at address 0x40006000 (on the STM32F103xx) and is 512 bytes long.
+ * Part of the pool is allocated for the buffer table, which is an array of endpoint descriptors.
+ * Each endpoint descriptor contains two buffer descriptors.
+ * For double-buffered endpoints both are used for either tx or rx, hence double-buffered
+ * endpoints are unidirectional.
+ * For single-buffered endpoints the first buffer descriptor is for tx and the second is for rx. 
+*/
+#define DV_USB_SRAM_BASE	0x40006000
+#define DV_USB_SRAM_LENGTH	512
+
+typedef struct dv_epbuf_descr_s
+{
+	dv_u16_t addr;
+	dv_u16_t count;
+} dv_epbuf_descr_t;
+
+typedef struct dv_ep_descr_s
+{
+	dv_epbuf_descr_t buf[2];
+} dv_ep_descr_t;
+
+#define DV_USB_EPB_TX	0
+#define DV_USB_EPB_RX	0
+
+typedef struct dv_epbuffers_s
+{
+	dv_ep_descr_t ep[DV_USB_N_ENDPOINTS];
+} dv_epbuffers_t;
+
+/* The buffer table is placed at the end of the buffer pool RAM, so that the actual buffers
+ * can be allocated starting from 0
+*/
+#define DV_BTABLE_OFFSET	(DV_USB_SRAM_LENGTH-DV_USB_N_ENDPOINTS*8)
+#define dv_btable			((dv_epbuffers_t *)(DV_USB_SRAM_BASE+DV_BTABLE_OFFSET))
+
+#endif
 #endif
