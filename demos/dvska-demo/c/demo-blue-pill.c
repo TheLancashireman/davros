@@ -42,7 +42,7 @@ extern unsigned dv_pstacktop;
 extern unsigned dv_stacktop;
 
 extern int main(int argc, char **argv);
-extern void switchToPsp(unsigned *psp, unsigned *msp, unsigned control, void (*fp)(void));
+extern void dv_switchToPsp(unsigned *psp, unsigned *msp, unsigned control, void (*fp)(void));
 
 /* dv_init_data() - initialise variables
  *
@@ -153,7 +153,7 @@ void dv_reset(void)
 	 * but for the time being we'll use an intermediate function so that we can find out
 	 * what's going on.
 	*/
-	switchToPsp(&dv_pstacktop, &dv_stacktop, (dv_get_control() | DV_SPSEL), &dv_reset2);
+	dv_switchToPsp(&dv_pstacktop, &dv_stacktop, (dv_get_control() | DV_SPSEL), &dv_reset2);
 }
 
 void dv_panic_return_from_switchcall_function(void)

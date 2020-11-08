@@ -216,7 +216,7 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/dv-nvic.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/demo-blue-pill.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-switchcall.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/davroska-cortexm.o
-DV_LD_OBJS	+= $(DV_OBJ_D)/useful-m3.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-cortexm-ctxsw.o
 
 VPATH		+=	$(DVSK_ROOT)/hardware/arm/c
 VPATH		+=	$(DVSK_ROOT)/hardware/arm/s

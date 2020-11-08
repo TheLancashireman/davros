@@ -1,4 +1,4 @@
-/* useful-m3.S - hardware-specific assembly functions for davroska demo
+/* dv-cortexm-ctxsw.S - context switch functions for Cortex-M CPUs
  *
  * Copyright David Haworth
  *
@@ -21,37 +21,25 @@
  *
 */
 
-/* Some of these functions will move to the davroska or devices subdir eventually
-*/
-
-/*
-void sysinfo(void)
-{
-	dv_printf("Sysinfo:\n");
-	dv_printf("SP        = ", getSp());
-	dv_printf("MSP       = ", getMsp());
-	dv_printf("PSP       = ", getPsp());
-	dv_printf("PRIMASK   = ", getPrimask());
-	dv_printf("FAULTMASK = ", getFaultmask());
-	dv_printf("BASEPRI   = ", getBasepri());
-	dv_printf("CONTROL   = ", getControl());
-	dv_printf("XPSR      = ", getXpsr());
-}
-
-void switchToPsp(unsigned *psp, unsigned *msp, unsigned control, void (*fp)(void));
-*/
-
 	.text
-	.globl	switchToPsp
+	.globl	dv_switchToPsp
 	.globl	dv_preemptframe
 	.globl	dv_preemptframe_end
 
-switchToPsp:
+/* void dv_switchToPsp(unsigned *psp, unsigned *msp, unsigned control, void (*fp)(void));
+ *
+ * Switches to the PSP and calls a function.
+*/
+dv_switchToPsp:
 	msr		PSP, r0
 	msr		CONTROL, r2
 	msr		MSP, r1
 	bx		r3
 
+/* void dv_preemptframe(void (*fp)(void));
+ *
+ * Calls a function in a preemption frame then exits via svc.
+*/
 dv_preemptframe:
 	blx		r0
 	svc		#0
