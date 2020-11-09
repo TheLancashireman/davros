@@ -21,22 +21,18 @@
 #define DV_STM32_USB_H
 
 #include "dv-devices.h"
+#include DV_USB_CONFIG
 
-/* DV_USB_N_ENDPOINTS is a configuration parameter. If it is zero or undefined, USB is not used.
+/* DV_CFG_USB_N_ENDPOINTS is a configuration parameter. If it is zero or undefined, USB is not used.
 */
-#ifndef DV_USB_N_ENDPOINTS
-#define DV_USB_N_ENDPOINTS	0
+#ifndef DV_CFG_USB_N_ENDPOINTS
+#define DV_CFG_USB_N_ENDPOINTS	0
 #endif
 
-#if DV_USB_N_ENDPOINTS > 0
+#if DV_CFG_USB_N_ENDPOINTS > 0
 
 /* dv_stm32usb_t - a structure to model the registers in the USB device.
 */
-
-#define DV_USB_BASE			0x40005C00
-
-typedef struct dv_stm32usb_s dv_stm32usb_t;
-
 struct dv_stm32usb_s
 {
 	dv_reg32_t epr[16];			/* Endpoint registers. "Up to 8" are implemented */
@@ -47,7 +43,11 @@ struct dv_stm32usb_s
 	dv_reg32_t btable;			/* Buffer table address */
 };
 
-#define dv_usb	((dv_stm32usb_t *)DV_USB_BASE)[0]
+typedef struct dv_stm32usb_s dv_stm32usb_t;
+
+#define DV_USB_BASE			0x40005C00
+
+#define dv_usb		((dv_stm32usb_t *)DV_USB_BASE)[0]
 
 /* CNTR
 */
@@ -68,14 +68,7 @@ struct dv_stm32usb_s
 /* ISTR
  * Bits 15..8 are the interrupt status bits that correspond with the interrupt enable bits in CNTR[15..8]
 */
-#define DV_USB_CTR		0x8000	/* Correct transfer */
-#define DV_USB_PMAOVR	0x4000	/* Packet memory area over-/underrun */
-#define DV_USB_ERR		0x2000	/* Error */
-#define DV_USB_WKUP		0x1000	/* Wakeup */
-#define DV_USB_SUSP		0x0800	/* Suspend mode */
-#define DV_USB_RESET	0x0400	/* USB reset */
-#define DV_USB_SOF		0x0200	/* Start of frame */
-#define DV_USB_ESOF		0x0100	/* Expected start of frame */
+#define DV_USB_ISTRM	0xff00	/* All interrupt status flags */
 #define DV_USB_DIR		0x0010	/* Direction of transaction */
 #define DV_USB_EP_ID	0x000f	/* Endpoint identifier */
 
@@ -159,19 +152,122 @@ typedef struct dv_ep_descr_s
 	dv_epbuf_descr_t buf[2];
 } dv_ep_descr_t;
 
-#define DV_USB_EPB_TX	0
-#define DV_USB_EPB_RX	0
+#define DV_USB_EPB_TX	0	/* Index of the tx descriptor */
+#define DV_USB_EPB_RX	1	/* Index of the rx descriptor */
+
+/* epbuf_descr.count
+ *
+ * BL_SIZE and N_BLOCK are only used for the RX descriptor.
+ * In the RX descriptor, the COUNT field is set by the hardware to indicate how many bytes were received.
+ * In the TX descriptor, the COUNT field is set by the software to indicate how many bytes to transmit.
+ *
+ * This implies that:
+ *	- RX_SIZE must be a multiple of 2
+ *	- If RX_SIZE is 64 or more, it must be a multiple of 32
+*/
+#define DV_USB_BL_SIZE	0x8000	/* 0 => block size of 2 bytes; 1 => block size of 32 bytes */
+#define DV_USB_N_BLOCK	0x7c00	/* No. of blocks */
+#define DV_USB_COUNT	0x03ff	/* No. of bytes received or to transmit */
+
+#define DV_USB_NBLK_TO_REG(x)	((x)<<10)
 
 typedef struct dv_epbuffers_s
 {
-	dv_ep_descr_t ep[DV_USB_N_ENDPOINTS];
+	dv_ep_descr_t ep[DV_CFG_USB_N_ENDPOINTS];
 } dv_epbuffers_t;
 
 /* The buffer table is placed at the end of the buffer pool RAM, so that the actual buffers
  * can be allocated starting from 0
 */
-#define DV_BTABLE_OFFSET	(DV_USB_SRAM_LENGTH-DV_USB_N_ENDPOINTS*8)
-#define dv_btable			((dv_epbuffers_t *)(DV_USB_SRAM_BASE+DV_BTABLE_OFFSET))
+#define DV_BTABLE_OFFSET	(DV_USB_SRAM_LENGTH-DV_CFG_USB_N_ENDPOINTS*8)
+#define dv_btable			((dv_epbuffers_t *)(DV_USB_SRAM_BASE+DV_BTABLE_OFFSET))[0]
 
+/* The startup delay. 1 us according to the data sheet. The sample program doesn't delay,
+ * but 1 us at 72 MHz must be about 20 times round even the shortest loop.
+*/
+#define DV_USB_TSTARTUP_DELAY	20
+
+/* Functions
+*/
+extern void dv_stm32_usb_init(void);
+extern void dv_stm32_usb_connect(void);
+extern void dv_stm32_usb_disconnect(void);
+extern void dv_stm32_usb_lp_isr(void);
+extern void dv_stm32_usb_hp_isr(void);		/* Not supported */
+extern void dv_stm32_usb_wakeup_isr(void);	/* Not supported */
+
+extern dv_u32_t dv_free_pbuf;
+
+/* dv_alloc_pbuf() - allocate some bytes of packet buffer
+*/
+static inline dv_u32_t dv_alloc_pbuf(dv_u32_t len)
+{
+	/* Is there enough free space? Return out-of-range if not.
+	*/
+	if ( (dv_free_pbuf + len) > DV_BTABLE_OFFSET )
+		return DV_USB_SRAM_LENGTH;
+
+	/* Allocate the buffer; move the index to the next free byte
+	*/
+	dv_u32_t alloc = dv_free_pbuf;
+	dv_free_pbuf += len;
+
+	return alloc;
+}
+
+/* dv_configure_pbuf() - configure a packet buffer
+ *
+ * Note: isochronous/double-buffered endpoints not supported.
+*/
+static inline void dv_configure_pbuf(dv_i32_t ep, dv_u32_t tx_size, dv_u32_t rx_size)
+{
+	if ( ep < DV_CFG_USB_N_ENDPOINTS )
+	{
+		if ( tx_size <= 0 )
+		{
+			/* TX not used. */
+		}
+		else
+		{
+			dv_u16_t n_blocks = (tx_size+1) / 2;
+			dv_btable.ep[ep].buf[DV_USB_EPB_TX].addr = dv_alloc_pbuf(n_blocks * 2);
+		}
+
+		if ( rx_size <= 0 )
+		{
+			/* RX not used. */
+		}
+		else if ( rx_size <= 62 )
+		{
+			/* Block size = 2 bytes
+			*/
+			dv_u16_t n_blocks = (rx_size+1) / 2;		/* Round up */
+			dv_btable.ep[ep].buf[DV_USB_EPB_RX].addr = dv_alloc_pbuf(n_blocks * 2);
+			dv_btable.ep[ep].buf[DV_USB_EPB_RX].count = DV_USB_NBLK_TO_REG(n_blocks);
+		}
+		else
+		{
+			/* Block size 32 bytes
+			*/
+			dv_u16_t n_blocks = (rx_size+31) / 32;		/* Round up */
+			dv_btable.ep[ep].buf[DV_USB_EPB_RX].addr = dv_alloc_pbuf(n_blocks * 32);
+			dv_btable.ep[ep].buf[DV_USB_EPB_RX].count = DV_USB_NBLK_TO_REG(n_blocks-1) | DV_USB_BL_SIZE;
+		}
+	}
+}
+
+#if DV_DAVROSKA
+/* dv_stm32_usb_attach_lp_isr() - attach the low-priority interrupt handler.
+*/
+#include <davroska.h>
+#include <dv-stm32-interrupts.h>
+
+static inline dv_id_t dv_stm32_usb_attach_lp_isr(dv_prio_t p)
+{
+	/* Attach the ISR to the dv_irq_usb_lp_can_rx0 vector
+	*/
+	return dv_addisr("Usb-lp", &dv_stm32_usb_lp_isr, dv_irq_usb_lp_can_rx0, p);
+}
+#endif
 #endif
 #endif
