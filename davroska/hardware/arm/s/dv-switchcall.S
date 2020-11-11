@@ -37,4 +37,6 @@
 dv_switchcall:
 	mov		sp, r2
 	blx		r3
-	b		dv_panic_return_from_switchcall_function
+	ldr		r1, =dv_panic_return_from_switchcall_function
+	blx		r1
+	b		.
