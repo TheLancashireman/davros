@@ -33,14 +33,17 @@ Works on:
 
 ## Directory contents
 
-* davroska/ - see above
 * davros-3/ - see above
-* devices/ - header files and drivers for devices. Used by all davros flavours
-* lib/ - some library headers and code. Used by all davros flavours
+* davroska/ - see above
 * demos/ - some demo code to show you how it works
+* devices/ - header files and drivers for devices. Used by all davros flavours
+* doc/ - some development notes and other documentation
+* lib/ - some library headers and code. Used by all davros flavours
 * scripts/ - scripts for starting openocd, minicom, gdb etc.
 * testsuite/dv3 - a growing test suite for davros-3
+* usb/ - a USB device stack
 * LICENSE - a copy of GPL version 3
+* CONTRIBUTING.md - how to contribute. tl;dr: send me a patch
 * README.md - this file
 
 ## Hardware
