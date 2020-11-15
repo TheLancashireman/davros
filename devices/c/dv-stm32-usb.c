@@ -20,6 +20,7 @@
 #include "dv-stm32-usb.h"
 #include "dv-stm32-gpio.h"
 #include "dv-stm32-rcc.h"
+#include "dv-usb-util.h"
 
 #include DV_USB_CALLOUT
 
@@ -263,6 +264,36 @@ void dv_stm32_usb_lp_isr(void)
 
 	if ( events != 0 )
 		callout_usb_events(events);
+}
+
+/* dv_stm32_usb_write_ep() - write some data to an EP
+ *
+ * Returns the number of bytes copied to the SRAM.
+ * The SRAM can only be accessed 16 bits at a time.
+*/
+dv_i32_t dv_stm32_usb_write_ep(dv_i32_t ep, const dv_u8_t *src, dv_i32_t n)
+{
+	/* Calculate the address of the EP buffer in the dual-port SRAM
+	*/
+	dv_u16_t *buf = &((dv_u16_t *)DV_USB_SRAM_BASE)[dv_btable.ep[ep].buf[DV_USB_EPB_RX].addr/2];
+
+	/* Write n/2 words (16 bit) to the SRAM
+	*/
+	int i, j;
+	for ( i=0, j=0; i<(n/2); i++, j+=2 )
+		buf[i] = dv_usb_load_16(&src[j]);
+
+	/* Write the final byte if the length is odd
+	*/
+	if ( n%2 != 0 )
+		buf[i] = src[j];
+
+	/* Set the STAT_TX bits of the EP register to TX_VALID.
+	*/
+	dv_stm32_usb_set_ep_stat_tx(ep, DV_USB_TX_VALID);
+
+
+	return n;
 }
 
 /* dv_stm32_usb_read_ep() - read the data from an EP

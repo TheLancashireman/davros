@@ -207,6 +207,7 @@ extern void dv_stm32_usb_hp_isr(void);		/* Not supported */
 extern void dv_stm32_usb_wakeup_isr(void);	/* Not supported */
 extern void dv_configure_pbuf(dv_i32_t ep, dv_u32_t tx_size, dv_u32_t rx_size);
 extern dv_i32_t dv_stm32_usb_read_ep(dv_i32_t, dv_u8_t *, dv_i32_t);
+extern dv_i32_t dv_stm32_usb_write_ep(dv_i32_t, const dv_u8_t *, dv_i32_t);
 
 /* dv_alloc_pbuf() - allocate some bytes of packet buffer
 */
@@ -280,5 +281,28 @@ static inline dv_id_t dv_stm32_usb_attach_lp_isr(dv_prio_t p)
 	return dv_addisr("Usb-lp", &dv_stm32_usb_lp_isr, dv_irq_usb_lp_can_rx0, p);
 }
 #endif
+
+/* Driver functions required by the USB device stack
+*/
+static inline dv_i32_t dv_usbdrv_read_ep(dv_i32_t ep, dv_u8_t *dest, dv_i32_t max)
+{
+	return dv_stm32_usb_read_ep(ep, dest, max);
+}
+
+static inline dv_i32_t dv_usbdrv_write_ep(dv_i32_t ep, const dv_u8_t *src, dv_i32_t n)
+{
+	return  dv_stm32_usb_write_ep(ep, src, n);
+}
+
+static inline void dv_usbdrv_stall_rx(dv_i32_t ep)
+{
+	dv_stm32_usb_set_ep_stat_rx(ep, DV_USB_RX_STALL);
+}
+
+static inline void dv_usbdrv_stall_tx(dv_i32_t ep)
+{
+	dv_stm32_usb_set_ep_stat_tx(ep, DV_USB_TX_STALL);
+}
+
 #endif
 #endif

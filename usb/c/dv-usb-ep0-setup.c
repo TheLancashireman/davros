@@ -147,10 +147,10 @@ dv_i32_t dv_usb_setup_request_device_standard(dv_usb_setup_packet_t *pkt)
 		break;
 
 	case DV_USB_REQ_SetDescriptor:
-		USB_SetStallEP(0x00);	/* !!! TODO */
+		dv_usbdrv_stall_rx(0);
 		dv_ep0_state.data = DV_NULL;
 		dv_ep0_state.count = 0;
-		return 0;		/* Quit without stalling the input */
+		return 0;		/* Quit without stalling the tx */
 		break;
 
 	case DV_USB_REQ_GetConfiguration:
@@ -175,9 +175,7 @@ dv_i32_t dv_usb_setup_request_device_standard(dv_usb_setup_packet_t *pkt)
 
 	if ( !ok )
 	{
-		/* TODO: one branch uses USB_SetStallEP(0x00) !!! */
-		/* stall_i */
-		USB_SetStallEP(0x80);		/* TODO */
+		dv_usbdrv_stall_tx(0);
 		dv_ep0_state.data = DV_NULL;
 		dv_ep0_state.count = 0;
 	}
@@ -211,10 +209,10 @@ dv_i32_t dv_usb_setup_request_interface_standard(dv_usb_setup_packet_t *pkt)
 		break;
 
 	case DV_USB_REQ_SetDescriptor:
-		USB_SetStallEP(0x00);	/* !!! TODO */
+		dv_usbdrv_stall_rx(0);
 		dv_ep0_state.data = DV_NULL;
 		dv_ep0_state.count = 0;
-		return 0;		/* Quit without stalling the input */
+		return 0;		/* Quit without stalling the tx */
 		break;
 
 	case DV_USB_REQ_GetInterface:
@@ -240,12 +238,32 @@ dv_i32_t dv_usb_setup_request_interface_standard(dv_usb_setup_packet_t *pkt)
 
 	if ( !ok )
 	{
-		/* TODO: one branch uses USB_SetStallEP(0x00) !!! */
-		/* stall_i */
-		USB_SetStallEP(0x80);		/* TODO */
+		dv_usbdrv_stall_tx(0);
 		dv_ep0_state.data = DV_NULL;
 		dv_ep0_state.count = 0;
 	}
 
 	return ok;
+}
+
+/* Still to implement ...
+*/
+dv_i32_t dv_usb_setup_request_endpoint_standard(dv_usb_setup_packet_t *pkt)
+{
+	return 0;
+}
+
+dv_i32_t dv_usb_setup_request_device_class(dv_usb_setup_packet_t *pkt)
+{
+	return 0;
+}
+
+dv_i32_t dv_usb_setup_request_interface_class(dv_usb_setup_packet_t *pkt)
+{
+	return 0;
+}
+
+dv_i32_t dv_usb_setup_request_endpoint_class(dv_usb_setup_packet_t *pkt)
+{
+	return 0;
 }

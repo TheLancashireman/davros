@@ -22,6 +22,8 @@
 
 #include "dv-devices.h"
 #include DV_USB_CONFIG
+#include DV_CFG_USBDRV
+#include "dv-usb-util.h"
 
 /* dv_usb_epstate_t - endpoint data buffering control and status
 */
@@ -186,31 +188,6 @@ typedef struct dv_usb_devdescr_s
 #define DV_USB_CLASS_STORAGE					0x08
 #define DV_USB_CLASS_HUB						0x09
 #define DV_USB_CLASS_VENDOR_SPECIFIC			0xff
-
-/* Data access
- * ===========
- *
- * To avoid endianness and alignment problems, all USB descriptors and packets are defined as arrays of bytes.
- * Storing a multi-byte value into consecutive bytes in the array is done in two ways
- * 	- a macro for for initialising a constant or variable at compile time
- *	- a function for storing into a variable at runtime
- *
- * dv_usb_init_16()		- used for initializing two consecutive bytes. Expands to two c99-style initialisers
- * dv_usb_store_16()	- used for storing into two consecutive bytes at runtime
- * dv_usb_load_16()		- used for loading from two consecutive bytes at runtime
-*/
-#define dv_usb_init_16(b, x)	[b] = ((x) & 0xff), [b+1] = (((x) >> 8) & 0xff)
-
-static inline void dv_usb_store_16(dv_u8_t *b0, dv_u16_t w)
-{
-	b0[0] = w & 0xff;
-	b0[1] = (w >> 8) & 0xff;
-}
-
-static inline dv_u16_t dv_usb_load_16(dv_u8_t *b0)
-{
-	return (((dv_u16_t)b0[1]) << 8) | (dv_u16_t)b0[0];
-}
 
 /* Assorted inline functions
  * =========================
