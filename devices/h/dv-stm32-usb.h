@@ -23,6 +23,12 @@
 #include "dv-devices.h"
 #include DV_USB_CONFIG
 
+/* Vendor and device IDs that could be "borrowed"
+*/
+#define DV_USB_VENDOR_ID_STM					0x0483		/* STMicroelectronics vendor ID */
+#define DV_USB_DEVICE_ID_STM_INTERRUPT_DEMO		0x5721		/* STM interrupt demo device */
+#define DV_USB_DEVICE_ID_STM_BULK_DEMO	 		0x5722		/* STM bulk demo device */
+
 /* DV_CFG_USB_N_ENDPOINTS is a configuration parameter. If it is zero or undefined, USB is not used.
 */
 #ifndef DV_CFG_USB_N_ENDPOINTS
@@ -187,6 +193,10 @@ typedef struct dv_epbuffers_s
 */
 #define DV_USB_TSTARTUP_DELAY	20
 
+/* Variables
+*/
+extern dv_u32_t dv_free_pbuf;
+
 /* Functions
 */
 extern void dv_stm32_usb_init(void);
@@ -195,8 +205,8 @@ extern void dv_stm32_usb_disconnect(void);
 extern void dv_stm32_usb_lp_isr(void);
 extern void dv_stm32_usb_hp_isr(void);		/* Not supported */
 extern void dv_stm32_usb_wakeup_isr(void);	/* Not supported */
-
-extern dv_u32_t dv_free_pbuf;
+extern void dv_configure_pbuf(dv_i32_t ep, dv_u32_t tx_size, dv_u32_t rx_size);
+extern dv_i32_t dv_stm32_usb_read_ep(dv_i32_t, dv_u8_t *, dv_i32_t);
 
 /* dv_alloc_pbuf() - allocate some bytes of packet buffer
 */
@@ -215,45 +225,46 @@ static inline dv_u32_t dv_alloc_pbuf(dv_u32_t len)
 	return alloc;
 }
 
-/* dv_configure_pbuf() - configure a packet buffer
+/* dv_stm32_usb_set_ep_stat_tx() - set the endpoint STAT_TX field
  *
- * Note: isochronous/double-buffered endpoints not supported.
+ * Sets the STAT_TX field of the endpoint register without changing any other bits.
+ *
+ * Basically a read/modify/write operation, except:
+ *	- CTR_RX and CTR_TX are "write 0 to clear" so must be written with 1
+ *	- DTOG_RX, STAT_RX and DTOG_TX are "write 1 to toggle" so must be written with 0
+ *	- STAT_TX bits are "write 1 to toggle" so they are XORed with the parameter first
+ *	- writing back the STAT_TX bits is an XOR operation, so the whole is STAT_TX = STAT_TX xor PARAM xor STAT_TX
+ *    which is equivalent to STAT_TX = PARAM
 */
-static inline void dv_configure_pbuf(dv_i32_t ep, dv_u32_t tx_size, dv_u32_t rx_size)
+static inline void dv_stm32_usb_set_ep_stat_tx(dv_i32_t ep, dv_u16_t val)
 {
-	if ( ep < DV_CFG_USB_N_ENDPOINTS )
-	{
-		if ( tx_size <= 0 )
-		{
-			/* TX not used. */
-		}
-		else
-		{
-			dv_u16_t n_blocks = (tx_size+1) / 2;
-			dv_btable.ep[ep].buf[DV_USB_EPB_TX].addr = dv_alloc_pbuf(n_blocks * 2);
-		}
+	dv_u32_t reg;
+	reg = dv_usb.epr[ep];
+	reg ^= val & DV_USB_STAT_TX;
+	reg &= DV_USB_SETUP | DV_USB_EP_TYPE | DV_USB_EP_KIND | DV_USB_EA | DV_USB_STAT_TX;
+	reg |= DV_USB_CTR_RX | DV_USB_CTR_TX;
+	dv_usb.epr[ep] = reg;
+}
 
-		if ( rx_size <= 0 )
-		{
-			/* RX not used. */
-		}
-		else if ( rx_size <= 62 )
-		{
-			/* Block size = 2 bytes
-			*/
-			dv_u16_t n_blocks = (rx_size+1) / 2;		/* Round up */
-			dv_btable.ep[ep].buf[DV_USB_EPB_RX].addr = dv_alloc_pbuf(n_blocks * 2);
-			dv_btable.ep[ep].buf[DV_USB_EPB_RX].count = DV_USB_NBLK_TO_REG(n_blocks);
-		}
-		else
-		{
-			/* Block size 32 bytes
-			*/
-			dv_u16_t n_blocks = (rx_size+31) / 32;		/* Round up */
-			dv_btable.ep[ep].buf[DV_USB_EPB_RX].addr = dv_alloc_pbuf(n_blocks * 32);
-			dv_btable.ep[ep].buf[DV_USB_EPB_RX].count = DV_USB_NBLK_TO_REG(n_blocks-1) | DV_USB_BL_SIZE;
-		}
-	}
+/* dv_stm32_usb_set_ep_stat_rx() - set the endpoint STAT_RX field
+ *
+ * Sets the STAT_RX field of the endpoint register without changing any other bits.
+ *
+ * Basically a read/modify/write operation, except:
+ *	- CTR_RX and CTR_TX are "write 0 to clear" so must be written with 1
+ *	- DTOG_RX, STAT_TX and DTOG_TX are "write 1 to toggle" so must be written with 0
+ *	- STAT_RX bits are "write 1 to toggle" so they are XORed with the parameter first
+ *	- writing back the STAT_RX bits is an XOR operation, so the whole is STAT_RX = STAT_RX xor PARAM xor STAT_RX
+ *    which is equivalent to STAT_RX = PARAM
+*/
+static inline void dv_stm32_usb_set_ep_stat_rx(dv_i32_t ep, dv_u16_t val)
+{
+	dv_u32_t reg;
+	reg = dv_usb.epr[ep];
+	reg ^= val & DV_USB_STAT_RX;
+	reg &= DV_USB_SETUP | DV_USB_EP_TYPE | DV_USB_EP_KIND | DV_USB_EA | DV_USB_STAT_RX;
+	reg |= DV_USB_CTR_RX | DV_USB_CTR_TX;
+	dv_usb.epr[ep] = reg;
 }
 
 #if DV_DAVROSKA

@@ -267,31 +267,85 @@ void dv_stm32_usb_lp_isr(void)
 
 /* dv_stm32_usb_read_ep() - read the data from an EP
  *
- * Returns the number of bytes transferred.
+ * Returns the number of bytes copied to the destination.
  * The SRAM can only be accessed 16 bits at a time.
 */
 dv_i32_t dv_stm32_usb_read_ep(dv_i32_t ep, dv_u8_t *dest, dv_i32_t max)
 {
+	/* Get the no. of bytes received
+	*/
 	dv_i32_t len = dv_btable.ep[ep].buf[DV_USB_EPB_RX].count & DV_USB_COUNT;
 
+	/* Ensure we don't write more than the destination buffer size
+	*/
 	if ( len > max )
 		len = max;
 
+	/* Calculate the address of the EP buffer in the dual-port SRAM
+	*/
 	dv_u16_t *buf = &((dv_u16_t *)DV_USB_SRAM_BASE)[dv_btable.ep[ep].buf[DV_USB_EPB_RX].addr/2];
 
 	dv_u32_t i, j;
-	dv_u16_t w = 0;
+	dv_u16_t w = 0;		/* Initialisation here mutes a warning "w might be used uninitialised" in the else branch */
 
+	/* Read words from the EP buffer and write bytes to the destination buffer
+	*/
 	for ( i = 0, j = 0; i < len; i++ )
 	{
 		if ( (i & 0x01) == 0 )
 		{
 			w = buf[j++];
-			dest[i] = w & 0xff;
+			dest[i] = w & 0xff;		/* Little endian ==> LS byte first */
 		}
 		else
-			dest[i] = (w >> 8) & 0xff;
+			dest[i] = w >> 8;
 	}
 
+	/* Set the STAT_RX bits of the EP register back to RX_VALID. The hardware has set them to something
+	 * else (RX_NAK?) on packet reception
+	*/
+	dv_stm32_usb_set_ep_stat_rx(ep, DV_USB_RX_VALID);
+
 	return len;
+}
+
+/* dv_configure_pbuf() - configure a packet buffer
+ *
+ * Note: isochronous/double-buffered endpoints not supported.
+*/
+void dv_configure_pbuf(dv_i32_t ep, dv_u32_t tx_size, dv_u32_t rx_size)
+{
+	if ( ep < DV_CFG_USB_N_ENDPOINTS )
+	{
+		if ( tx_size <= 0 )
+		{
+			/* TX not used. */
+		}
+		else
+		{
+			dv_u16_t n_blocks = (tx_size+1) / 2;
+			dv_btable.ep[ep].buf[DV_USB_EPB_TX].addr = dv_alloc_pbuf(n_blocks * 2);
+		}
+
+		if ( rx_size <= 0 )
+		{
+			/* RX not used. */
+		}
+		else if ( rx_size <= 62 )
+		{
+			/* Block size = 2 bytes
+			*/
+			dv_u16_t n_blocks = (rx_size+1) / 2;		/* Round up */
+			dv_btable.ep[ep].buf[DV_USB_EPB_RX].addr = dv_alloc_pbuf(n_blocks * 2);
+			dv_btable.ep[ep].buf[DV_USB_EPB_RX].count = DV_USB_NBLK_TO_REG(n_blocks);
+		}
+		else
+		{
+			/* Block size 32 bytes
+			*/
+			dv_u16_t n_blocks = (rx_size+31) / 32;		/* Round up */
+			dv_btable.ep[ep].buf[DV_USB_EPB_RX].addr = dv_alloc_pbuf(n_blocks * 32);
+			dv_btable.ep[ep].buf[DV_USB_EPB_RX].count = DV_USB_NBLK_TO_REG(n_blocks-1) | DV_USB_BL_SIZE;
+		}
+	}
 }
