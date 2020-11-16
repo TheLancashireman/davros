@@ -42,9 +42,7 @@ void dv_usb_ep0_ev_setup(void)
 	*/
 	dv_usbdrv_read_ep(0, &setup_packet.b[0], DV_USB_SETUPPKT_LEN);
 
-#if 0		/* TODO - not needed on stm32 */
-	USB_DirCtrlEP(SetupPacket.bmRequestType.BM.Dir);
-#endif
+	dv_usbdrv_set_ep_direction(setup_packet.b[DV_USB_SETUPPKT_bmRequestType] & DV_USB_SETUPPKT_DIR);
 
 	/* Get packet type and recipient and call corresponding subfunction
 	*/
@@ -110,10 +108,10 @@ dv_i32_t dv_usb_setup_request_device_standard(dv_usb_setup_packet_t *pkt)
 	case DV_USB_REQ_ClearFeature:
 		if ( rqlen == 0 && rqval == DV_USB_FEATURE_REMOTE_WAKEUP )
 		{
-			USB_WakeUpCfg(0);
+			dv_usbdrv_disable_wakeup();
 			dv_usb_dev.device_status &= ~DV_USB_DEVSTATUS_REMOTE_WAKEUP;
 			ok = 1;
-#if USB_FEATURE_EVENT
+#if DV_CFG_USB_FEATURE_EVENT
 			USB_Feature_Event();
 #endif
 		}
@@ -122,10 +120,10 @@ dv_i32_t dv_usb_setup_request_device_standard(dv_usb_setup_packet_t *pkt)
 	case DV_USB_REQ_SetFeature:
 		if ( rqlen == 0 && rqval == DV_USB_FEATURE_REMOTE_WAKEUP )
 		{
-			USB_WakeUpCfg(1);
+			dv_usbdrv_enable_wakeup();
 			dv_usb_dev.device_status |= DV_USB_DEVSTATUS_REMOTE_WAKEUP;
 			ok = 1;
-#if USB_FEATURE_EVENT
+#if DV_CFG_USB_FEATURE_EVENT
 			USB_Feature_Event();
 #endif
 		}
@@ -164,7 +162,7 @@ dv_i32_t dv_usb_setup_request_device_standard(dv_usb_setup_packet_t *pkt)
 
 	case DV_USB_REQ_SetConfiguration:
 		ok = USB_SetConfiguration_Device();	/* TODO */
-#if USB_CONFIGURE_EVENT
+#if DV_CFG_USB_CONFIGURE_EVENT
 		USB_Configure_Event();
 #endif
 		break;
@@ -226,7 +224,7 @@ dv_i32_t dv_usb_setup_request_interface_standard(dv_usb_setup_packet_t *pkt)
 
 	case DV_USB_REQ_SetInterface:
 		ok = USB_SetInterface();	/* TODO */
-#if USB_INTERFACE_EVENT
+#if DV_CFG_USB_INTERFACE_EVENT
 		if ( ok )
 			USB_Interface_Event();
 #endif

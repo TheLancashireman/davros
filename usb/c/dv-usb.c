@@ -22,4 +22,4 @@
 #include <dv-usb.h>
 
 dv_usb_device_t dv_usb_dev;
-dv_u8_t dv_ep0_buffer[DV_CFG_EP0_TX_SIZE];
+dv_u8_t dv_ep0_buffer[DV_CFG_EP0_SIZE];

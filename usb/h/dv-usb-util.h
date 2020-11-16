@@ -28,11 +28,18 @@
  * 	- a macro for for initialising a constant or variable at compile time
  *	- a function for storing into a variable at runtime
  *
+ * dv_usb_init_8()		- used for initializing one byte. Expands to a c99-style initialiser
  * dv_usb_init_16()		- used for initializing two consecutive bytes. Expands to two c99-style initialisers
+ * dv_usb_init_8_c90()	- used for initializing one byte. Expands to a c90-style initialiser
+ * dv_usb_init_16_c90()	- used for initializing two consecutive bytes. Expands to two c90-style initialisers
  * dv_usb_store_16()	- used for storing into two consecutive bytes at runtime
  * dv_usb_load_16()		- used for loading from two consecutive bytes at runtime
 */
+#define dv_usb_init_8(b, x)		[b] = (x)
 #define dv_usb_init_16(b, x)	[b] = ((x) & 0xff), [b+1] = (((x) >> 8) & 0xff)
+
+#define dv_usb_init_8_c90(x)	(x)
+#define dv_usb_init_16_c90(x)	((x) & 0xff), (((x) >> 8) & 0xff)
 
 static inline void dv_usb_store_16(dv_u8_t *b0, dv_u16_t w)
 {

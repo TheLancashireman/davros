@@ -54,7 +54,7 @@ typedef struct dv_usb_device_s
 } dv_usb_device_t;
 
 extern dv_usb_device_t dv_usb_dev;
-extern dv_u8_t dv_ep0_buffer[DV_CFG_EP0_TX_SIZE];
+extern dv_u8_t dv_ep0_buffer[DV_CFG_EP0_SIZE];
 
 #define dv_ep0_state	dv_usb_dev.epstate[0]
 
@@ -170,10 +170,77 @@ typedef struct dv_usb_setup_packet_s
 #define DV_USB_DEVDESC_IDX_iSerialNumber		16	/* 1 byte	: Index of serial number string descriptor */
 #define DV_USB_DEVDESC_IDX_bNumConfigurations	17	/* 1 byte	: Number of possible configurations */
 
-typedef struct dv_usb_devdescr_s
-{
-	dv_u8_t b[DV_USB_DEVDESC_LEN];
-} dv_usb_devdescr_t;
+/* USB string descriptor
+ * Variable. Strings are wide characters
+*/
+#define DV_USB_STRDESC_IDX_string				2	/* n*2 bytes : wide characters */
+
+/* USB configuration descriptor
+ * 9 bytes
+*/
+#define DV_USB_CFGDESC_LEN						9
+#define DV_USB_CFGDESC_IDX_wTotalLength			2	/* 2 bytes	: total length of all config descriptors */
+#define DV_USB_CFGDESC_IDX_bNumInterfaces		4	/* 1 byte 	: number of interfaces */
+#define DV_USB_CFGDESC_IDX_bConfigurationValue	5	/* 1 byte	: value to select this configuration */
+#define DV_USB_CFGDESC_IDX_iConfiguration		6	/* 1 byte	: index of string descriptor describing this cfg */
+#define DV_USB_CFGDESC_IDX_bmAttributes			7	/* 1 byte	: attributes (see below) */
+#define DV_USB_CFGDESC_IDX_bMaxPower			8	/* 1 byte	: max power in units of 2mA */
+
+/* Config descriptor bmAttributes
+ * Remaining bits: reserved, set to zero
+*/
+#define DV_USB_CFGDESC_ATTR_BUS_POWERED			0x80	/* USB 1.0; for 1.1 and above, reserved, set to 1 */
+#define DV_USB_CFGDESC_ATTR_SELF_POWERED		0x40
+#define DV_USB_CFGDESC_ATTR_REMOTE_WAKEUP		0x20
+
+/* Convert mA to bMaxPower
+*/
+#define DV_USB_mA_to_bMaxPower(x)				(((x)+1)/2)		/* Round up */
+
+/* USB interface descriptor
+ * 9 bytes
+*/
+#define DV_USB_IFDESC_LEN						9
+#define DV_USB_IFDESC_IDX_bInterfaceNumber		2
+#define DV_USB_IFDESC_IDX_bAlternateSetting		3
+#define DV_USB_IFDESC_IDX_bNumEndpoints			4
+#define DV_USB_IFDESC_IDX_bInterfaceClass		5
+#define DV_USB_IFDESC_IDX_bInterfaceSubClass	6
+#define DV_USB_IFDESC_IDX_bInterfaceProtocol	7
+#define DV_USB_IFDESC_IDX_iInterface			8
+
+/* USB endpoint descriptor
+ * 7 bytes
+*/
+#define DV_USB_EPDESC_LEN						7
+#define DV_USB_EPDESC_IDX_bEndpointAddress		2	/* 1 byte	: EP number + direction */
+#define DV_USB_EPDESC_IDX_bmAttributes			3	/* 1 byte	: attributes (see below) */
+#define DV_USB_EPDESC_IDX_wMaxPacketSize		4	/* 2 bytes	: maximum packet size */
+#define DV_USB_EPDESC_IDX_bInterval				6	/* 1 byte	: polling interval in milliseconds */
+
+/* IN (tx) and OUT (rx) endpoint addresses are differentiated by the DIR bit (0x80)
+*/
+#define DV_USB_EP_IN(x)		(0x80 | (x))
+#define DV_USB_EP_OUT(x)	(0x00 | (x))
+
+/* EP descriptor bmAttributes
+*/
+#define DV_USB_EPDESC_ATTR_TYPE					0x03
+#define DV_USB_EPDESC_ATTR_CONTROL				0x00
+#define DV_USB_EPDESC_ATTR_ISOCHRONOUS			0x01
+#define DV_USB_EPDESC_ATTR_BULK					0x02
+#define DV_USB_EPDESC_ATTR_INTERRUPT			0x03
+#define DV_USB_EPDESC_ATTR_SYNC					0x0c
+#define DV_USB_EPDESC_ATTR_NOSYNC				0x00
+#define DV_USB_EPDESC_ATTR_ASYNCHRONOUS			0x04
+#define DV_USB_EPDESC_ATTR_ADAPTIVE				0x08
+#define DV_USB_EPDESC_ATTR_SYNCHRONOUS			0x0c
+#define DV_USB_EPDESC_ATTR_USAGE				0x30
+#define DV_USB_EPDESC_ATTR_DATA					0x00
+#define DV_USB_EPDESC_ATTR_FEEDBACK				0x10
+#define DV_USB_EPDESC_ATTR_IMPLICIT_FEEDBACK	0x20
+#define DV_USB_EPDESC_ATTR_RESERVED				0x30
+
 
 /* USB device classes defined by the USB standard
 */
