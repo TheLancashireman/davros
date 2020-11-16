@@ -148,7 +148,7 @@ static void dv_stm32_usb_reset(void)
 	/* Set up the control endpoint (EP0)
 	*/
 	dv_free_pbuf = 0;
-	dv_configure_pbuf(0, DV_CFG_EP0_TX_SIZE, DV_CFG_EP0_RX_SIZE);
+	dv_configure_pbuf(0, DV_CFG_EP0_SIZE, DV_CFG_EP0_SIZE);
 	dv_usb.epr[0] = DV_USB_CONTROL | DV_USB_RX_VALID;
 
 	/* Set the device address to default (0) and enable the function.
