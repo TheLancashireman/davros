@@ -304,5 +304,20 @@ static inline void dv_usbdrv_stall_tx(dv_i32_t ep)
 	dv_stm32_usb_set_ep_stat_tx(ep, DV_USB_TX_STALL);
 }
 
+static inline void dv_usbdrv_set_ep_direction(dv_u8_t unused_dir)
+{
+	/* Nothing to do */
+}
+
+static inline void dv_usbdrv_enable_wakeup(void)
+{
+	/* Nothing to do */
+}
+
+static inline void dv_usbdrv_disable_wakeup(void)
+{
+	/* Nothing to do */
+}
+
 #endif
 #endif
