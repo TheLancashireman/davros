@@ -36,10 +36,20 @@
  * dv_usb_load_16()		- used for loading from two consecutive bytes at runtime
 */
 #define dv_usb_init_8(b, x)		[b] = (x)
-#define dv_usb_init_16(b, x)	[b] = ((x) & 0xff), [b+1] = (((x) >> 8) & 0xff)
+#define dv_usb_init_16(b, x)	[b]   = (((dv_u16_t)(x)) & 0xff), \
+								[b+1] = ((((dv_u16_t)(x)) >> 8) & 0xff)
+#define dv_usb_init_32(b, x)	[b]   = (((dv_u32_t)(x)) & 0xff), \
+								[b+1] = ((((dv_u32_t)(x)) >> 8) & 0xff), \
+								[b+2] = ((((dv_u32_t)(x)) >> 16) & 0xff), \
+								[b+3] = ((((dv_u32_t)(x)) >> 24) & 0xff)
 
 #define dv_usb_init_8_c90(x)	(x)
-#define dv_usb_init_16_c90(x)	((x) & 0xff), (((x) >> 8) & 0xff)
+#define dv_usb_init_16_c90(x)	(((dv_u16_t)(x)) & 0xff), \
+								((((dv_u16_t)(x)) >> 8) & 0xff)
+#define dv_usb_init_32_c90(x)	(((dv_u32_t)(x)) & 0xff), \
+								((((dv_u32_t)(x)) >> 8) & 0xff), \
+								((((dv_u32_t)(x)) >> 16) & 0xff), \
+								((((dv_u32_t)(x)) >> 24) & 0xff)
 
 static inline void dv_usb_store_16(dv_u8_t *b0, dv_u16_t w)
 {

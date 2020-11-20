@@ -85,6 +85,80 @@ void dv_usb_ep0_ev_setup(void)
 		dv_usb_stage_tx(0);
 }
 
+/* dv_usb_setup_request_device_get_descriptor() - send the requested descriptor
+ *
+ * Descriptor can be one of DV_USB_DESCRIPTOR_DEVICE, DV_USB_DESCRIPTOR_CONFIGURATION, DV_USB_DESCRIPTOR_STRING.
+*/
+static dv_i32_t dv_usb_setup_request_device_get_descriptor(dv_u16_t rqlen, dv_u16_t rqval)
+{
+	dv_i32_t ok = 0;
+	dv_u16_t dtype = rqval >> 8;
+	dv_u16_t dnum;
+	dv_u16_t i;
+	dv_u16_t idx;
+	dv_u16_t len;
+
+	switch ( dtype )
+	{
+	case DV_USB_DESCRIPTOR_DEVICE:
+		dv_ep0_state.data = &DV_USB_DEVICE_DESCRIPTOR[0];
+		dv_ep0_state.count = (rqlen > DV_USB_DEVDESC_LEN) ? DV_USB_DEVDESC_LEN : rqlen;
+		ok = 1;
+		break;
+
+	case DV_USB_DESCRIPTOR_CONFIGURATION:
+		/* There might be several configuration descriptors. They're stored in a single
+		 * array. Q: Why not have an array of references to them, rather than walking the
+		 * list?
+		*/
+		if ( DV_USB_CONFIGURATION_DESCRIPTOR[0] == 0 )
+			return 0;		/* No descriptors! Can this ever happen? */
+		dnum = rqval & 0xff;
+		idx = 0;					/* Index of the bLength of the descriptor */
+		for ( i = 0; i < dnum; i++ )
+		{
+			idx += dv_usb_load_16(&DV_USB_CONFIGURATION_DESCRIPTOR[idx+DV_USB_CFGDESC_IDX_wTotalLength]);
+
+			if ( DV_USB_CONFIGURATION_DESCRIPTOR[idx] == 0 )
+				return 0;		/* Descriptor doesn't exist */
+		}
+		dv_ep0_state.data = &DV_USB_CONFIGURATION_DESCRIPTOR[idx];
+		len = dv_usb_load_16(&DV_USB_CONFIGURATION_DESCRIPTOR[idx+DV_USB_CFGDESC_IDX_wTotalLength]);
+		dv_ep0_state.count = (rqlen > len) ? len : rqlen;
+		ok = 1;
+		break;
+
+	case DV_USB_DESCRIPTOR_STRING:
+		/* The various other descriptors (device etc.) contain the byte offsets of the
+		 * string descriptors, so error checking is difficult.
+		 * Heuristics:
+		 *	- index is in range AND
+		 *	- bLength of descriptor is non-zero AND
+		 *	- bDescriptorType of descriptor is correct
+		*/
+		idx = rqval & 0xff;
+		if ( idx >= DV_USB_STRING_DESCRIPTOR_LENGTH )
+			return 0;				/* Totally out of range */
+
+		len = DV_USB_STRING_DESCRIPTOR[idx+DV_USB_DESC_IDX_bLength];
+		if ( len == 0 )
+			return 0;				/* Descriptor length zero - terminator */
+
+		if ( DV_USB_STRING_DESCRIPTOR[idx+DV_USB_DESC_IDX_bDescriptorType] != DV_USB_DESCRIPTOR_STRING )
+			return 0;				/* Not a string descriptor */
+
+		dv_ep0_state.data = &DV_USB_STRING_DESCRIPTOR[idx];
+		dv_ep0_state.count = (rqlen > len) ? len : rqlen;
+		ok = 1;
+		break;
+
+	default:
+		break;
+	}
+
+	return ok;
+}
+
 /* dv_usb_setup_request_device_standard() - handle a standard device setup request
 */
 dv_i32_t dv_usb_setup_request_device_standard(dv_usb_setup_packet_t *pkt)
@@ -138,10 +212,7 @@ dv_i32_t dv_usb_setup_request_device_standard(dv_usb_setup_packet_t *pkt)
 		break;
 
 	case DV_USB_REQ_GetDescriptor:
-		if ( USB_GetDescriptor_Device() ) 	/* TODO */
-		{
-			ok = 1;
-		}
+		ok = dv_usb_setup_request_device_get_descriptor(rqlen, rqval);
 		break;
 
 	case DV_USB_REQ_SetDescriptor:

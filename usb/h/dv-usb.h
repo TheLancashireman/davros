@@ -29,11 +29,11 @@
 */
 typedef struct dv_usb_epstate_s
 {
-	dv_u8_t *data;		/* Current data pointer */
-	dv_u16_t count;		/* No of bytes left to transmit */
-	dv_u16_t status;	/* Current status: HALT etc. */
-	dv_u16_t max_tx;	/* Biggest tx packet */
-	dv_u16_t max_rx;	/* Biggest rx packet */
+	const dv_u8_t *data;	/* Current data pointer */
+	dv_u16_t count;			/* No of bytes left to transmit */
+	dv_u16_t status;		/* Current status: HALT etc. */
+	dv_u16_t max_tx;		/* Biggest tx packet */
+	dv_u16_t max_rx;		/* Biggest rx packet */
 } dv_usb_epstate_t;
 
 /* Bits in dv_usb_epstate_t.status
@@ -143,6 +143,8 @@ typedef struct dv_usb_setup_packet_s
 #define DV_USB_DESC_IDX_bDescriptorType			1
 
 /* Descriptor types
+ *
+ * In the GetDescriptor request, the descriptor type can be found in the high byte of the wValue field
 */
 #define DV_USB_DESCRIPTOR_DEVICE				1
 #define DV_USB_DESCRIPTOR_CONFIGURATION			2
@@ -152,6 +154,7 @@ typedef struct dv_usb_setup_packet_s
 #define DV_USB_DESCRIPTOR_DEVICE_QUALIFIER		6
 #define DV_USB_DESCRIPTOR_OTHER_SPEED_CONFIG	7
 #define DV_USB_DESCRIPTOR_INTERFACE_POWER		8
+#define DV_USB_DESCRIPTOR_ON_THE_GO				9
 
 /* USB device descriptor
  * 18 bytes
