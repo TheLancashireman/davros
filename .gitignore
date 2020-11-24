@@ -2,6 +2,7 @@ obj
 o
 a
 bin
+loft
 *.o
 *.a
 *.elf
