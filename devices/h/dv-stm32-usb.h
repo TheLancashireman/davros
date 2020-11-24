@@ -142,15 +142,17 @@ typedef struct dv_stm32usb_s dv_stm32usb_t;
  * Each endpoint descriptor contains two buffer descriptors.
  * For double-buffered endpoints both are used for either tx or rx, hence double-buffered
  * endpoints are unidirectional.
- * For single-buffered endpoints the first buffer descriptor is for tx and the second is for rx. 
+ * For single-buffered endpoints the first buffer descriptor is for tx and the second is for rx.
+ *
+ * IMPORTANT! It looks like the addr and count "registers" are actually 32 bits wide.
 */
 #define DV_USB_SRAM_BASE	0x40006000
 #define DV_USB_SRAM_LENGTH	512
 
 typedef struct dv_epbuf_descr_s
 {
-	dv_u16_t addr;
-	dv_u16_t count;
+	dv_u32_t addr;
+	volatile dv_u32_t count;
 } dv_epbuf_descr_t;
 
 typedef struct dv_ep_descr_s
@@ -185,7 +187,8 @@ typedef struct dv_epbuffers_s
 /* The buffer table is placed at the end of the buffer pool RAM, so that the actual buffers
  * can be allocated starting from 0
 */
-#define DV_BTABLE_OFFSET	(DV_USB_SRAM_LENGTH-DV_CFG_USB_N_ENDPOINTS*8)
+#define DV_BTABLE_OFFSET	0
+#define DV_BTABLE_LEN		(DV_CFG_USB_N_ENDPOINTS*sizeof(dv_ep_descr_t))
 #define dv_btable			((dv_epbuffers_t *)(DV_USB_SRAM_BASE+DV_BTABLE_OFFSET))[0]
 
 /* The startup delay. 1 us according to the data sheet. The sample program doesn't delay,
@@ -213,9 +216,12 @@ extern dv_i32_t dv_stm32_usb_write_ep(dv_i32_t, const dv_u8_t *, dv_i32_t);
 */
 static inline dv_u32_t dv_alloc_pbuf(dv_u32_t len)
 {
+#if 0
+	dv_printf("dv_alloc_pbuf() : dv_free_pbuf (before) = 0x%04x, len = %d\n", dv_free_pbuf, len);
+#endif
 	/* Is there enough free space? Return out-of-range if not.
 	*/
-	if ( (dv_free_pbuf + len) > DV_BTABLE_OFFSET )
+	if ( (dv_free_pbuf + len) > DV_USB_SRAM_LENGTH )
 		return DV_USB_SRAM_LENGTH;
 
 	/* Allocate the buffer; move the index to the next free byte
@@ -223,6 +229,9 @@ static inline dv_u32_t dv_alloc_pbuf(dv_u32_t len)
 	dv_u32_t alloc = dv_free_pbuf;
 	dv_free_pbuf += len;
 
+#if 0
+	dv_printf("dv_alloc_pbuf() : dv_free_pbuf (after) = 0x%04x, alloc = 0x%04x\n", dv_free_pbuf, alloc);
+#endif
 	return alloc;
 }
 

@@ -21,6 +21,8 @@
 #include "dv-stm32-gpio.h"
 #include "dv-stm32-rcc.h"
 #include "dv-usb-util.h"
+#include "dv-usb-log.h"
+#include "dv-usb.h"
 
 #include DV_USB_CALLOUT
 
@@ -59,15 +61,33 @@ dv_u32_t dv_free_pbuf;
 */
 void dv_stm32_usb_init(void)
 {
+	/* Assert the reset signal
+	*/
+	dv_rcc.apb1rst |= DV_RCC_USB;
+
+	/* Ensure a 1.5 prescaler to divide the 72 MHz down to 48 MHz for the USB port
+	*/
+	dv_rcc.cfg &= ~DV_RCC_USBPRE;
+
 	/* Enable the clock to the USB peripheral
 	*/
 	dv_rcc.apb1en |= DV_RCC_USB;
+
+	/* Deassert the reset signal
+	*/
+	dv_rcc.apb1rst &= ~DV_RCC_USB;
 
 	/* Ensure that both FRES and PDWN are set
 	 * This also clears all the interrupt enable flags
 	*/
 	dv_usb.cntr = (DV_USB_FRES | DV_USB_PDWN);
 
+	/* Set the SRAM to funny values
+	*/
+	dv_u16_t *p = (dv_u16_t *)DV_USB_SRAM_BASE;
+	for ( int i = 0; i < (DV_USB_SRAM_LENGTH/2); i++ )
+		*p++ = 0xdead;
+	
 	dv_stm32_usb_connect();
 }
 
@@ -93,6 +113,14 @@ void dv_stm32_usb_connect(void)
 	/* De-assert controller reset
 	*/
 	dv_usb.cntr &= ~DV_USB_FRES;
+
+	/* Clear any spurious or leftover interrupts
+	*/
+	dv_usb.istr = 0;
+
+	/* Enable the reset interrupt
+	*/
+	dv_usb.cntr |= DV_USB_RESETM;
 }
 
 /* dv_stm32_usb_disconnect() - go to power-down
@@ -106,6 +134,10 @@ void dv_stm32_usb_disconnect(void)
 	/* Assert controller reset and power-down
 	*/
 	dv_usb.cntr = DV_USB_FRES | DV_USB_PDWN;
+
+	/* Clear any spurious or leftover interrupts
+	*/
+	dv_usb.istr = 0;
 }
 
 /* dv_stm32_usb_error() - handle an error interrupt
@@ -133,6 +165,7 @@ static void dv_stm32_usb_overrun(void)
 */
 static void dv_stm32_usb_reset(void)
 {
+	dv_printf("dv_stm32_usb_reset()\n");
 	/* Clear all interrupt status
 	*/
 	dv_usb.istr = 0;	
@@ -147,7 +180,7 @@ static void dv_stm32_usb_reset(void)
 
 	/* Set up the control endpoint (EP0)
 	*/
-	dv_free_pbuf = 0;
+	dv_free_pbuf = DV_BTABLE_LEN;
 	dv_configure_pbuf(0, DV_CFG_EP0_SIZE, DV_CFG_EP0_SIZE);
 	dv_usb.epr[0] = DV_USB_CONTROL | DV_USB_RX_VALID;
 
@@ -176,9 +209,36 @@ static void dv_stm32_usb_suspend(void)
 /* dv_stm32_usb_transfer() - handle a transfer interrupt
  *
  * The parameter contains the endpoint number and the direction flag in the lower bits
+ *
+ * Don't forget that some bits of the epr register are "write 1 to invert" so we write 0 to those.
+ * Also, the CTR_RX and CTR_TX are "write 0 to clear" so we write 1 to the one we don't want to clear.
 */
 static void dv_stm32_usb_transfer(dv_u32_t istr)
 {
+	dv_u16_t ep = istr & DV_USB_EP_ID;
+	dv_u16_t epstat = dv_usb.epr[ep];
+
+	dv_printf("dv_stm32_usb_transfer(): ep = %d, epstat = 0x%04x\n", ep, epstat);
+
+	if ( epstat & DV_USB_CTR_RX )
+	{
+		dv_usb.epr[ep] = (epstat & (DV_USB_SETUP | DV_USB_EP_TYPE | DV_USB_EP_KIND | DV_USB_EA)) | DV_USB_CTR_TX;
+		if ( ep < DV_CFG_USB_N_ENDPOINTS )
+		{
+			if ( (epstat & DV_USB_SETUP) != 0 )
+				dv_usb_dev.epstate[ep].setup_func(ep);
+			else
+				dv_usb_dev.epstate[ep].rx_func(ep);
+		}
+	}
+	if ( epstat & DV_USB_CTR_TX )
+	{
+		dv_usb.epr[ep] = (epstat & (DV_USB_SETUP | DV_USB_EP_TYPE | DV_USB_EP_KIND | DV_USB_EA )) | DV_USB_CTR_RX;
+		if ( ep < DV_CFG_USB_N_ENDPOINTS )
+		{
+			dv_usb_dev.epstate[ep].tx_func(ep);
+		}
+	}
 }
 
 /* dv_stm32_usb_wakeup() - handle a wakeup interrupt
@@ -198,6 +258,8 @@ void dv_stm32_usb_lp_isr(void)
 	/* Read the interrupt status
 	*/
 	istr = dv_usb.istr;
+
+	dv_usb_log(0xee, 0x01, (dv_u16_t)istr, 0x0000, 0x0000);
 
 	if ( (istr & DV_USB_RESETM)	!= 0 )
 	{
@@ -253,9 +315,9 @@ void dv_stm32_usb_lp_isr(void)
 
 	while ( (istr & DV_USB_CTRM) != 0 )
 	{
+		dv_usb.istr = ~DV_USB_CTRM;
 		dv_stm32_usb_transfer(istr);
 		events |= callout_usb_transfer(istr);
-		dv_usb.istr = ~DV_USB_CTRM;
 
 		/* Re-read the interrupt status to see if there are more EPs to process
 		*/
@@ -303,18 +365,25 @@ dv_i32_t dv_stm32_usb_write_ep(dv_i32_t ep, const dv_u8_t *src, dv_i32_t n)
 */
 dv_i32_t dv_stm32_usb_read_ep(dv_i32_t ep, dv_u8_t *dest, dv_i32_t max)
 {
+	dv_printf("dv_stm32_usb_read_ep(): ep = %d, dv_btable.ep[ep].buf[DV_USB_EPB_RX].addr = 0x%04x, count = 0x%04x\n",
+			ep, dv_btable.ep[ep].buf[DV_USB_EPB_RX].addr, dv_btable.ep[ep].buf[DV_USB_EPB_RX].count);
+
+	/* Calculate the address of the EP buffer in the dual-port SRAM
+	*/
+	dv_u16_t *buf = &((dv_u16_t *)DV_USB_SRAM_BASE)[dv_btable.ep[ep].buf[DV_USB_EPB_RX].addr/2];
+
 	/* Get the no. of bytes received
 	*/
 	dv_i32_t len = dv_btable.ep[ep].buf[DV_USB_EPB_RX].count & DV_USB_COUNT;
+
+	dv_printf("dv_stm32_usb_read_ep(): ep = %d, buf = 0x%08x\n", ep, (dv_u32_t)buf);
+	dv_printf("... buf[0] = 0x%04x, buf[1] = 0x%04x, buf[2] = 0x%04x, buf[3] = 0x%04x, len = %d\n",
+				buf[0], buf[1], buf[2], buf[3], len);
 
 	/* Ensure we don't write more than the destination buffer size
 	*/
 	if ( len > max )
 		len = max;
-
-	/* Calculate the address of the EP buffer in the dual-port SRAM
-	*/
-	dv_u16_t *buf = &((dv_u16_t *)DV_USB_SRAM_BASE)[dv_btable.ep[ep].buf[DV_USB_EPB_RX].addr/2];
 
 	dv_u32_t i, j;
 	dv_u16_t w = 0;		/* Initialisation here mutes a warning "w might be used uninitialised" in the else branch */
@@ -356,6 +425,7 @@ void dv_configure_pbuf(dv_i32_t ep, dv_u32_t tx_size, dv_u32_t rx_size)
 		{
 			dv_u16_t n_blocks = (tx_size+1) / 2;
 			dv_btable.ep[ep].buf[DV_USB_EPB_TX].addr = dv_alloc_pbuf(n_blocks * 2);
+			dv_btable.ep[ep].buf[DV_USB_EPB_TX].count = 0;
 		}
 
 		if ( rx_size <= 0 )

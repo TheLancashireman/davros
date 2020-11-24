@@ -29,11 +29,14 @@
 */
 typedef struct dv_usb_epstate_s
 {
-	const dv_u8_t *data;	/* Current data pointer */
-	dv_u16_t count;			/* No of bytes left to transmit */
-	dv_u16_t status;		/* Current status: HALT etc. */
-	dv_u16_t max_tx;		/* Biggest tx packet */
-	dv_u16_t max_rx;		/* Biggest rx packet */
+	const dv_u8_t *data;				/* Current data pointer */
+	dv_u16_t count;						/* No of bytes left to transmit */
+	dv_u16_t status;					/* Current status: HALT etc. */
+	dv_u16_t max_tx;					/* Biggest tx packet */
+	dv_u16_t max_rx;					/* Biggest rx packet */
+	void (*setup_func)(dv_u16_t ep);	/* Function to handle setup requests */
+	void (*rx_func)(dv_u16_t ep);		/* Function to handle received data (OUT) */
+	void (*tx_func)(dv_u16_t ep);		/* Function to handle transmit requests (IN) */
 } dv_usb_epstate_t;
 
 /* Bits in dv_usb_epstate_t.status
@@ -258,6 +261,10 @@ typedef struct dv_usb_setup_packet_s
 #define DV_USB_CLASS_STORAGE					0x08
 #define DV_USB_CLASS_HUB						0x09
 #define DV_USB_CLASS_VENDOR_SPECIFIC			0xff
+
+extern void dv_usb_init(void);
+extern void dv_usb_nullfunc(dv_u16_t);
+extern void dv_usb_ep0_ev_setup(dv_u16_t);
 
 /* Assorted inline functions
  * =========================

@@ -30,11 +30,12 @@
 
 void dv_rcc_init(void)
 {
+#if 1
 	/* Set up the PLL config
 	*/
 	dv_rcc.cfg = DV_RCC_PLLSRC		/* PLLSRC = 1 --> HSE */
 				 | (0x7<<18)		/* PLLMUL = 7 --> Multiply by 9 */
-				 | 0x0				/* SW = 0     --> System clock = HSI */
+				 | 0x1				/* SW = 1     --> System clock = HSE */
 				 | (0x4<<8);		/* PPRE1 = 4  --> APB1 = SYSCLK/2 */
 
 	dv_rcc.cc = DV_RCC_HSION		/* HSI on */
@@ -58,4 +59,28 @@ void dv_rcc_init(void)
 				 | (0x7<<18)		/* PLLMUL = 7 --> Multiply by 9 */
 				 | 0x2				/* SW = 2     --> System clock = PLL */
 				 | (0x4<<8);		/* PPRE1 = 4  --> APB1 = SYSCLK/2 */
+#else
+
+#define __RCC_CFGR_VAL	0x001d8402
+#define __RCC_CR_VAL	0x01010082
+
+  dv_rcc.cfg = __RCC_CFGR_VAL;                        // set clock configuration register
+  dv_rcc.cc   = __RCC_CR_VAL;                          // set clock control register
+
+  if (__RCC_CR_VAL & DV_RCC_HSION) {                 // if HSI enabled
+    while ((dv_rcc.cc & DV_RCC_HSIRDY) == 0);          // Wait for HSIRDY = 1 (HSI is ready)
+  }
+
+  if (__RCC_CR_VAL & DV_RCC_HSEON) {                 // if HSE enabled
+    while ((dv_rcc.cc & DV_RCC_HSERDY) == 0);          // Wait for HSERDY = 1 (HSE is ready)
+  }
+
+  if (__RCC_CR_VAL & DV_RCC_PLLON) {                 // if PLL enabled
+    while ((dv_rcc.cc & DV_RCC_PLLRDY) == 0);          // Wait for PLLRDY = 1 (PLL is ready)
+  }
+
+  /* Wait till SYSCLK is stabilized (depending on selected clock) */
+  while ((dv_rcc.cfg & DV_RCC_SWS) != ((__RCC_CFGR_VAL<<2) & DV_RCC_SWS));
+
+#endif
 }

@@ -20,6 +20,7 @@
 #include "dv-devices.h"
 #include DV_USB_CONFIG
 #include <dv-usb.h>
+#include <dv-usb-log.h>
 
 dv_i32_t dv_usb_setup_request_device_standard(dv_usb_setup_packet_t *pkt);
 dv_i32_t dv_usb_setup_request_interface_standard(dv_usb_setup_packet_t *pkt);
@@ -33,7 +34,7 @@ dv_i32_t dv_usb_GetStatus(dv_usb_setup_packet_t *pkt);
 
 /* dv_usb_ep0_ev_setup() - handle a setup event on EP0
 */
-void dv_usb_ep0_ev_setup(void)
+void dv_usb_ep0_ev_setup(dv_u16_t unused_ep)
 {
 	dv_usb_setup_packet_t setup_packet;
 	dv_i32_t ok = 0;
@@ -41,6 +42,19 @@ void dv_usb_ep0_ev_setup(void)
 	/* Read the setup packet from the endpoint
 	*/
 	dv_usbdrv_read_ep(0, &setup_packet.b[0], DV_USB_SETUPPKT_LEN);
+
+	dv_printf("dv_usb_ep0_ev_setup() : ep = %d, setup_packet = %02x, %02x, %04x %04x %04x\n", unused_ep,
+				setup_packet.b[DV_USB_SETUPPKT_bmRequestType],
+				setup_packet.b[DV_USB_SETUPPKT_bRequest],
+				dv_usb_load_16(&setup_packet.b[DV_USB_SETUPPKT_wValue]),
+				dv_usb_load_16(&setup_packet.b[DV_USB_SETUPPKT_wIndex]),
+				dv_usb_load_16(&setup_packet.b[DV_USB_SETUPPKT_wLength]) );
+
+	dv_usb_log(	setup_packet.b[DV_USB_SETUPPKT_bmRequestType],
+				setup_packet.b[DV_USB_SETUPPKT_bRequest],
+				dv_usb_load_16(&setup_packet.b[DV_USB_SETUPPKT_wValue]),
+				dv_usb_load_16(&setup_packet.b[DV_USB_SETUPPKT_wIndex]),
+				dv_usb_load_16(&setup_packet.b[DV_USB_SETUPPKT_wLength]) );
 
 	dv_usbdrv_set_ep_direction(setup_packet.b[DV_USB_SETUPPKT_bmRequestType] & DV_USB_SETUPPKT_DIR);
 
@@ -164,10 +178,11 @@ static dv_i32_t dv_usb_setup_request_device_get_descriptor(dv_u16_t rqlen, dv_u1
 dv_i32_t dv_usb_setup_request_device_standard(dv_usb_setup_packet_t *pkt)
 {
 	dv_i32_t ok = 0;
+	dv_u8_t rq = pkt->b[DV_USB_SETUPPKT_bRequest];
 	dv_u16_t rqlen = dv_usb_load_16(&pkt->b[DV_USB_SETUPPKT_wLength]); 	/* Requested data length */
 	dv_u16_t rqval = dv_usb_load_16(&pkt->b[DV_USB_SETUPPKT_wValue]);	/* Request value */
 
-	switch ( pkt->b[DV_USB_SETUPPKT_bRequest] )
+	switch ( rq )
 	{
 	case DV_USB_REQ_GetStatus:
 		if ( rqlen == 2 )
@@ -186,7 +201,7 @@ dv_i32_t dv_usb_setup_request_device_standard(dv_usb_setup_packet_t *pkt)
 			dv_usb_dev.device_status &= ~DV_USB_DEVSTATUS_REMOTE_WAKEUP;
 			ok = 1;
 #if DV_CFG_USB_FEATURE_EVENT
-			USB_Feature_Event();
+			callout_feature_event();
 #endif
 		}
 		break;
@@ -198,7 +213,7 @@ dv_i32_t dv_usb_setup_request_device_standard(dv_usb_setup_packet_t *pkt)
 			dv_usb_dev.device_status |= DV_USB_DEVSTATUS_REMOTE_WAKEUP;
 			ok = 1;
 #if DV_CFG_USB_FEATURE_EVENT
-			USB_Feature_Event();
+			callout_feature_event();
 #endif
 		}
 		break;
@@ -232,9 +247,11 @@ dv_i32_t dv_usb_setup_request_device_standard(dv_usb_setup_packet_t *pkt)
 		break;
 
 	case DV_USB_REQ_SetConfiguration:
+#if 0
 		ok = USB_SetConfiguration_Device();	/* TODO */
+#endif
 #if DV_CFG_USB_CONFIGURE_EVENT
-		USB_Configure_Event();
+		callout_configure_event();
 #endif
 		break;
 
@@ -252,16 +269,53 @@ dv_i32_t dv_usb_setup_request_device_standard(dv_usb_setup_packet_t *pkt)
 	return ok;
 }
 
+/* dv_usb_setup_request_interface_get_descriptor() - send the requested descriptor
+ *
+ * Descriptor can be one of DV_USB_DESCRIPTOR_DEVICE, DV_USB_DESCRIPTOR_CONFIGURATION, DV_USB_DESCRIPTOR_STRING.
+*/
+static dv_i32_t dv_usb_setup_request_interface_get_descriptor(dv_u16_t rqlen, dv_u16_t rqval, dv_u16_t rqidx)
+{
+	dv_i32_t ok = 0;
+	dv_u16_t dtype = rqval >> 8;
+	dv_u16_t dnum;
+	dv_u16_t i;
+	dv_u16_t idx;
+	dv_u16_t len;
+
+	switch ( dtype )
+	{
+#if 0	/* ToDo: have an interface request handler for each interface? */
+	case DV_USB_HID_DESCRIPTOR_CLASS:
+		ok = dv_usb_get_hid_class_descriptor(rqlen, rqidx);
+		break;
+
+	case DV_USB_HID_DESCRIPTOR_REPORT:
+		ok = dv_usb_get_hid_class_descriptor(rqlen, rqidx);
+		break;
+
+	case DV_USB_HID_DESCRIPTOR_PHYSICAL:
+		ok = dv_usb_get_hid_class_descriptor(rqlen, rqidx);
+		break;
+#endif
+
+	default:
+		break;
+	}
+
+	return ok;
+}
+
 /* dv_usb_setup_request_interface_standard() - handle a standard interface setup request
 */
 dv_i32_t dv_usb_setup_request_interface_standard(dv_usb_setup_packet_t *pkt)
 {
 	dv_i32_t ok = 0;
+	dv_u8_t rq = pkt->b[DV_USB_SETUPPKT_bRequest];
 	dv_u16_t rqlen = dv_usb_load_16(&pkt->b[DV_USB_SETUPPKT_wLength]); 	/* Requested data length */
 	dv_u16_t rqidx = dv_usb_load_16(&pkt->b[DV_USB_SETUPPKT_wIndex]);	/* Request index */
 	dv_u16_t rqval = dv_usb_load_16(&pkt->b[DV_USB_SETUPPKT_wValue]);	/* Request value */
 
-	switch ( pkt->b[DV_USB_SETUPPKT_bRequest] )
+	switch ( rq )
 	{
 	case DV_USB_REQ_GetStatus:
 		if ( ( rqlen == 2 ) && ( dv_usb_dev.configuration != 0 ) && ( rqidx < dv_usb_dev.n_interfaces ) )
@@ -274,7 +328,7 @@ dv_i32_t dv_usb_setup_request_interface_standard(dv_usb_setup_packet_t *pkt)
 		break;
 
 	case DV_USB_REQ_GetDescriptor:
-		ok = USB_GetDescriptor_Interface(); 	/* TODO */
+		ok = dv_usb_setup_request_interface_get_descriptor(rqlen, rqval, rqidx);
 		break;
 
 	case DV_USB_REQ_SetDescriptor:
@@ -294,10 +348,12 @@ dv_i32_t dv_usb_setup_request_interface_standard(dv_usb_setup_packet_t *pkt)
 		break;
 
 	case DV_USB_REQ_SetInterface:
+#if 0
 		ok = USB_SetInterface();	/* TODO */
+#endif
 #if DV_CFG_USB_INTERFACE_EVENT
 		if ( ok )
-			USB_Interface_Event();
+			callout_interface_event();
 #endif
 		break;
 
