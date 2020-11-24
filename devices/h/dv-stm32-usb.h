@@ -144,7 +144,10 @@ typedef struct dv_stm32usb_s dv_stm32usb_t;
  * endpoints are unidirectional.
  * For single-buffered endpoints the first buffer descriptor is for tx and the second is for rx.
  *
- * IMPORTANT! It looks like the addr and count "registers" are actually 32 bits wide.
+ * IMPORTANT! The view of the packet memory from the USB controller is an array of 256 x 16-bit words.
+ * The view from the CPU is an array of 256 x 32-bit words, of which only the lower 16 bits contain
+ * any information.
+ * 
 */
 #define DV_USB_SRAM_BASE	0x40006000
 #define DV_USB_SRAM_LENGTH	512
@@ -188,7 +191,7 @@ typedef struct dv_epbuffers_s
  * can be allocated starting from 0
 */
 #define DV_BTABLE_OFFSET	0
-#define DV_BTABLE_LEN		(DV_CFG_USB_N_ENDPOINTS*sizeof(dv_ep_descr_t))
+#define DV_BTABLE_LEN		(DV_CFG_USB_N_ENDPOINTS*8)
 #define dv_btable			((dv_epbuffers_t *)(DV_USB_SRAM_BASE+DV_BTABLE_OFFSET))[0]
 
 /* The startup delay. 1 us according to the data sheet. The sample program doesn't delay,

@@ -370,7 +370,7 @@ dv_i32_t dv_stm32_usb_read_ep(dv_i32_t ep, dv_u8_t *dest, dv_i32_t max)
 
 	/* Calculate the address of the EP buffer in the dual-port SRAM
 	*/
-	dv_u16_t *buf = &((dv_u16_t *)DV_USB_SRAM_BASE)[dv_btable.ep[ep].buf[DV_USB_EPB_RX].addr/2];
+	dv_u32_t *buf = &((dv_u32_t *)DV_USB_SRAM_BASE)[dv_btable.ep[ep].buf[DV_USB_EPB_RX].addr/2];
 
 	/* Get the no. of bytes received
 	*/
