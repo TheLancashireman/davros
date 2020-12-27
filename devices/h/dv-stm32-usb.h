@@ -331,5 +331,10 @@ static inline void dv_usbdrv_disable_wakeup(void)
 	/* Nothing to do */
 }
 
+static inline void dv_usbdrv_set_address(dv_u8_t a)
+{
+	dv_usb.daddr = DV_USB_EF | a;
+}
+
 #endif
 #endif

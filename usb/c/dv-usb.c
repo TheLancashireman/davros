@@ -35,6 +35,20 @@ void dv_usb_nullepfunc(dv_u16_t ep)
 	dv_usb_log(0xee, 0x02, ep, 0x0000, 0x0000);
 }
 
+/* dv_usb_init_ep() - initialize an endpoint
+*/
+void dv_usb_init_ep(dv_i32_t ep, dv_u16_t len, void (*sfn)(dv_u16_t), void (*rfn)(dv_u16_t), void (*tfn)(dv_u16_t))
+{
+	dv_usb_dev.epstate[ep].setup_func = sfn;
+	dv_usb_dev.epstate[ep].rx_func = rfn;
+	dv_usb_dev.epstate[ep].tx_func = tfn;
+	dv_usb_dev.epstate[ep].max_tx = len;
+	dv_usb_dev.epstate[ep].max_rx = len;
+	dv_usb_dev.epstate[ep].data = DV_NULL;
+	dv_usb_dev.epstate[ep].count = 0;
+	dv_usb_dev.epstate[ep].status = 0;
+}
+
 /* dv_usb_init() - initialise the USB stack
 */
 void dv_usb_init(void)
@@ -44,17 +58,10 @@ void dv_usb_init(void)
 	dv_usb_dev.device_address = 0;
 	dv_usb_dev.configuration = 0;
 	dv_usb_dev.n_interfaces = DV_CFG_USB_N_INTERFACES;
-	for ( i = 0; i < DV_CFG_USB_N_ENDPOINTS; i++ )
+	for ( i = 1; i < DV_CFG_USB_N_ENDPOINTS; i++ )
 	{
-		dv_usb_dev.epstate[i].data = DV_NULL;
-		dv_usb_dev.epstate[i].count = 0;
-		dv_usb_dev.epstate[i].status = 0;
-		dv_usb_dev.epstate[i].max_tx = 0;
-		dv_usb_dev.epstate[i].max_rx = 0;
-		dv_usb_dev.epstate[i].setup_func = dv_usb_nullepfunc;
-		dv_usb_dev.epstate[i].rx_func = dv_usb_nullepfunc;
-		dv_usb_dev.epstate[i].tx_func = dv_usb_nullepfunc;
+		dv_usb_init_ep(i, 0, &dv_usb_nullepfunc, &dv_usb_nullepfunc, &dv_usb_nullepfunc);
 	}
 
-	dv_usb_dev.epstate[0].setup_func = &dv_usb_ep0_ev_setup;
+	dv_usb_init_ep(0, DV_CFG_EP0_SIZE, &dv_usb_ep0_ev_setup, &dv_usb_ep0_ev_rx, &dv_usb_ep0_ev_tx);
 }

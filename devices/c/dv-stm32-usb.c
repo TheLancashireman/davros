@@ -83,8 +83,9 @@ void dv_stm32_usb_init(void)
 	dv_usb.cntr = (DV_USB_FRES | DV_USB_PDWN);
 
 	/* Set the SRAM to funny values
+	 * Don't forget the differing 16/32-bit views!
 	*/
-	dv_u16_t *p = (dv_u16_t *)DV_USB_SRAM_BASE;
+	dv_u32_t *p = (dv_u32_t *)DV_USB_SRAM_BASE;
 	for ( int i = 0; i < (DV_USB_SRAM_LENGTH/2); i++ )
 		*p++ = 0xdead;
 	
@@ -335,20 +336,34 @@ void dv_stm32_usb_lp_isr(void)
 */
 dv_i32_t dv_stm32_usb_write_ep(dv_i32_t ep, const dv_u8_t *src, dv_i32_t n)
 {
+	dv_printf("dv_stm32_usb_write_ep() : ep = %d, n = %d\n", ep, n);
+
 	/* Calculate the address of the EP buffer in the dual-port SRAM
 	*/
-	dv_u16_t *buf = &((dv_u16_t *)DV_USB_SRAM_BASE)[dv_btable.ep[ep].buf[DV_USB_EPB_RX].addr/2];
+	dv_u32_t *buf = &((dv_u32_t *)DV_USB_SRAM_BASE)[dv_btable.ep[ep].buf[DV_USB_EPB_TX].addr/2];
 
 	/* Write n/2 words (16 bit) to the SRAM
 	*/
 	int i, j;
+	dv_printf("... data =");
 	for ( i=0, j=0; i<(n/2); i++, j+=2 )
+	{
 		buf[i] = dv_usb_load_16(&src[j]);
+		dv_printf(" 0x%04x", buf[i]);
+	}
 
 	/* Write the final byte if the length is odd
 	*/
 	if ( n%2 != 0 )
+	{
 		buf[i] = src[j];
+		dv_printf(" 0x%04x", buf[i]);
+	}
+	dv_printf("\n");
+
+	/* Write the number of bytes to send
+	*/
+	dv_btable.ep[ep].buf[DV_USB_EPB_TX].count = n;
 
 	/* Set the STAT_TX bits of the EP register to TX_VALID.
 	*/

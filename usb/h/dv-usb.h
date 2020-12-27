@@ -56,11 +56,6 @@ typedef struct dv_usb_device_s
 	dv_usb_epstate_t epstate[DV_CFG_USB_N_ENDPOINTS];
 } dv_usb_device_t;
 
-extern dv_usb_device_t dv_usb_dev;
-extern dv_u8_t dv_ep0_buffer[DV_CFG_EP0_SIZE];
-
-#define dv_ep0_state	dv_usb_dev.epstate[0]
-
 /* USB address bits. The NEW_ADDRESS flag is specific to davros
 */
 #define DV_USB_ADDRESS			0x7f	/* Assigned device address 1..127. 0 --> not yet assigned */
@@ -134,6 +129,12 @@ typedef struct dv_usb_setup_packet_s
 {
 	dv_u8_t b[DV_USB_SETUPPKT_LEN];
 } dv_usb_setup_packet_t;
+
+extern dv_usb_device_t dv_usb_dev;
+extern dv_u8_t dv_ep0_buffer[DV_CFG_EP0_SIZE];
+extern dv_usb_setup_packet_t dv_setup_packet;
+
+#define dv_ep0_state	dv_usb_dev.epstate[0]
 
 /* Descriptors
  * ===========
@@ -263,8 +264,10 @@ typedef struct dv_usb_setup_packet_s
 #define DV_USB_CLASS_VENDOR_SPECIFIC			0xff
 
 extern void dv_usb_init(void);
-extern void dv_usb_nullfunc(dv_u16_t);
+extern void dv_usb_nullepfunc(dv_u16_t);
 extern void dv_usb_ep0_ev_setup(dv_u16_t);
+extern void dv_usb_ep0_ev_rx(dv_u16_t);
+extern void dv_usb_ep0_ev_tx(dv_u16_t);
 
 /* Assorted inline functions
  * =========================
@@ -278,6 +281,7 @@ static inline void dv_usb_stage_tx(dv_i32_t ep)
 {
 	dv_usb_epstate_t *eps = &dv_usb_dev.epstate[ep];
 	dv_u16_t n_tx = (eps->count > eps->max_tx) ? eps->max_tx : eps->count;
+	dv_printf("dv_usb_stage_tx(): ep = %d, count = %d max_tx = %d\n", ep, eps->count, eps->max_tx);
 
 	dv_usbdrv_write_ep(ep, eps->data, n_tx);
 	eps->data += n_tx;
