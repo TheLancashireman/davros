@@ -1,4 +1,4 @@
-/*  dv-cortex-m3.h
+/*  dv-cortex-m.h
  *
  *  Copyright David Haworth
  *
@@ -17,82 +17,46 @@
  *  You should have received a copy of the GNU General Public License
  *  along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef DV_CORTEX_M3_H
-#define DV_CORTEX_M3_H
+#ifndef DV_CORTEX_M_H
+#define DV_CORTEX_M_H
+
+/* This file covers all Cortex M variants, including the ARMv6-M-based M0 and M0+.
+ *
+ * Registers that are not present on the ARMv6-M variants are marked "not v6m".
+ *
+ * SysTick is optional on ARMv6-M.
+*/
 
 #include <dv-devices.h>
 
 /* Aux control registers
 */
-typedef struct dv_cortexm3acr_s dv_cortexm3acr_t;
+typedef struct dv_cortexm_acr_s dv_cortexm_acr_t;
 
-struct dv_cortexm3acr_s
+struct dv_cortexm_acr_s
 {
-	dv_reg32_t unknown;		/* What's this */
-	dv_reg32_t ictr;		/* Interrupt controller type */
-	dv_reg32_t actlr;		/* Aux control register */
+	dv_reg32_t unknown;		/* e000 - What's this */
+	dv_reg32_t ictr;		/* e004 - Interrupt controller type - not v6m */
+	dv_reg32_t actlr;		/* e008 - Aux control register */
 };
 
-#define DV_CORTEXM3ACR_BASE		0xe000e000
-#define dv_m3acr				((dv_cortexm3acr_t *)DV_CORTEXM3ACR_BASE)[0]
+#define DV_CORTEXM_ACR_BASE		0xe000e000
+#define dv_ctxm_acr				((dv_cortexm_acr_t *)DV_CORTEXM_ACR_BASE)[0]
 
 /* Systick registers
 */
-typedef struct dv_cortexm3systick_s dv_cortexm3systick_t;
+typedef struct dv_cortexm_systick_s dv_cortexm_systick_t;
 
-struct dv_cortexm3systick_s
+struct dv_cortexm_systick_s
 {
-	dv_reg32_t stcsr;		/* SysTick control/status */
-	dv_reg32_t strvr;		/* SysTick reload */
-	dv_reg32_t stcvr;		/* SysTick current value */
-	dv_reg32_t stcr;		/* SysTick calibration value */
+	dv_reg32_t stcsr;		/* e010 - SysTick control/status */
+	dv_reg32_t strvr;		/* e014 - SysTick reload */
+	dv_reg32_t stcvr;		/* e018 - SysTick current value */
+	dv_reg32_t stcr;		/* e01c - SysTick calibration value */
 };
 
-#define DV_CORTEXM3SYSTICK_BASE	0xe000e010
-#define dv_systick				((dv_cortexm3systick_t *)DV_CORTEXM3SYSTICK_BASE)[0]
-
-
-/* NVIC has its own header file, but the base address is defined here.
-*/
-#define DV_NVIC_BASE	0xe000e100
-
-/* System control registers
-*/
-typedef struct dv_cortexm3scr_s dv_cortexm3scr_t;
-
-struct dv_cortexm3scr_s
-{
-	dv_reg32_t cpuid;		/* RO - CPU identification */
-	dv_reg32_t icsr;		/* Interrupt control/state */
-	dv_reg32_t vtor;		/* Vector table offset */
-	dv_reg32_t aircr;		/* Application interrupt and reset control */
-	dv_reg32_t scr;			/* System control */
-	dv_reg32_t ccr;			/* Configuration and control */
-	dv_reg32_t shpr[3];		/* System handler priority */
-	dv_reg32_t shcsr;		/* System handler control and state */
-	dv_reg32_t cfsr;		/* Configurable fault status */
-	dv_reg32_t hfsr;		/* Hardfault status */
-	dv_reg32_t dfsr;		/* Debug fault status */
-	dv_reg32_t mmfar;		/* MemManage fault address */
-	dv_reg32_t bfar;		/* Bus fault address*/
-	dv_reg32_t afsr;		/* Auxiliary fault status */
-	dv_reg32_t id_pfr[2];	/* RO */
-	dv_reg32_t id_dfr0;		/* RO */
-	dv_reg32_t id_afr0;		/* RO */
-	dv_reg32_t id_mmfr[4];	/* RO */
-	dv_reg32_t id_isar[5];	/* RO */
-};
-
-#define DV_CORTEXM3SCR_BASE		0xe000ed00
-#define dv_m3scr				((dv_cortexm3scr_t *)DV_CORTEXM3SCR_BASE)[0]
-
-/* CPACR and STIR are well separated from the SCR
-*/
-#define DV_CORTEXM3_CPACR		0xe000ed88
-#define DV_m3cpacr				((dv_reg32_t *)DV_CORTEXM3_CPACR)[0]
-
-#define DV_CORTEXM3_STIR		0xe000ef00
-#define DV_m3stir				((dv_reg32_t *)DV_CORTEXM3_STIR)[0]
+#define DV_CORTEXM_SYSTICK_BASE	0xe000e010
+#define dv_systick				((dv_cortexm_systick_t *)DV_CORTEXM_SYSTICK_BASE)[0]
 
 #define DV_SYST_COUNTFLAG		0x00010000		/* 1 ==> counter has counted to zero (read-only, clear by reading) */
 #define DV_SYST_CLKSRC			0x00000004		/* 1 = CPU, 0 = ext. ref */
@@ -101,7 +65,48 @@ struct dv_cortexm3scr_s
 
 #define DV_SYST_MASK			0x00ffffff		/* Max value mask */
 
-#define DV_XPSR_IPSR			0x000001ff		/* Mask for IPSR in XPSR */
+
+/* NVIC has its own header file, but the base address is defined here.
+*/
+#define DV_NVIC_BASE	0xe000e100
+
+/* System control registers
+*/
+typedef struct dv_cortexm_scr_s dv_cortexm_scr_t;
+
+struct dv_cortexm_scr_s
+{
+	dv_reg32_t cpuid;		/* ed00 - RO - CPU identification */
+	dv_reg32_t icsr;		/* ed04 - Interrupt control/state */
+	dv_reg32_t vtor;		/* ed08 - Vector table offset */
+	dv_reg32_t aircr;		/* ed0c - Application interrupt and reset control */
+	dv_reg32_t scr;			/* ed10 - System control - not v6m */
+	dv_reg32_t ccr;			/* ed14 - Configuration and control */
+	dv_reg32_t shpr[3];		/* ed18 - System handler priority - element 0 (shpr1) not v6m */
+	dv_reg32_t shcsr;		/* ed24 - System handler control and state */
+	dv_reg32_t cfsr;		/* ed28 - Configurable fault status - not v6m */
+	dv_reg32_t hfsr;		/* ed2c - Hardfault status - not v6m */
+	dv_reg32_t dfsr;		/* ed30 - Debug fault status */
+	dv_reg32_t mmfar;		/* ed34 - MemManage fault address - not v6m */
+	dv_reg32_t bfar;		/* ed38 - Bus fault address - not v6m */
+	dv_reg32_t afsr;		/* ed3d - Auxiliary fault status - not v6m */
+	dv_reg32_t id_pfr[2];	/* ed40 - RO - not v6m */
+	dv_reg32_t id_dfr0;		/* ed48 - RO - not v6m */
+	dv_reg32_t id_afr0;		/* ed4c - RO - not v6m */
+	dv_reg32_t id_mmfr[4];	/* ed50 - RO - not v6m */
+	dv_reg32_t id_isar[8];	/* ed60 - RO - not v6m */
+};
+
+#define DV_CORTEXM_SCR_BASE		0xe000ed00
+#define dv_ctxm_scr				((dv_cortexm_scr_t *)DV_CORTEXM_SCR_BASE)[0]
+
+/* CPACR and STIR are well separated from the SCR
+*/
+#define DV_CORTEXM_CPACR		0xe000ed88
+#define DV_ctxm_cpacr			((dv_reg32_t *)DV_CORTEXM_CPACR)[0]		/* Not v6m */
+
+#define DV_CORTEXM_STIR			0xe000ef00
+#define DV_ctxm_stir			((dv_reg32_t *)DV_CORTEXM_STIR)[0]		/* Not v6m */
 
 /* dv_get_msp()/dv_set_msp() - get and set the MSP register (main SP)
  *
@@ -198,6 +203,8 @@ static inline void dv_set_xpsr(dv_u32_t xpsr)
 	__asm__ volatile ("msr XPSR, %[reg]" : : [reg] "r" (xpsr) : );
 }
 
+#define DV_XPSR_IPSR			0x000001ff		/* Mask for IPSR in XPSR */
+
 /* dv_get_ipsr() - get the IPSR register
  *
  * IPSR is part of XPSR (bits 0..8). During interrupt/exception handling it contains the vector number.
@@ -209,6 +216,7 @@ static inline dv_u32_t dv_get_ipsr(void)
 	__asm__ volatile("mrs %[reg], IPSR" : [reg] "=r" (ipsr) : : );
 	return ipsr;
 }
+
 /* dv_get_sp() - get the current stack pointer
  *
  * There is no "set" function for the sp. Changing the SP from C code would result in undefined behaviour.

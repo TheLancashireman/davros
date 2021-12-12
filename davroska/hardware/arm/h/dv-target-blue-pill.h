@@ -24,7 +24,7 @@
 #define dv_target_blue_pill_h	1
 
 #include <arm/h/dv-types-cortexm.h>
-#include <dv-cortex-m3.h>
+#include <dv-cortex-m.h>
 #include <dv-stdio.h>
 
 #define DV_INCLUDE_INTERRUPTCONTROLLER	<dv-nvic.h>

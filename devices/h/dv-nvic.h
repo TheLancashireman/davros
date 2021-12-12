@@ -21,7 +21,7 @@
 #define DV_NVIC_H
 
 #include "dv-devices.h"
-#include "dv-cortex-m3.h"
+#include "dv-cortex-m.h"
 
 /* NVIC registers.
  *

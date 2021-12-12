@@ -134,7 +134,7 @@ void dv_irq(void)
 			 * Trigger PENDSV to run higher-priority tasks that the ISR woke up.
 			 * Once triggered - no need to carry on looking.
 			*/
-			dv_m3scr.icsr = DV_PENDSVSET;
+			dv_ctxm_scr.icsr = DV_PENDSVSET;
 			break;
 		}
 		p--;
@@ -166,7 +166,7 @@ void dv_pendsvtrap(void)
 
 	/* Clear the pendsv request
 	*/
-	dv_m3scr.icsr = DV_PENDSVCLR;
+	dv_ctxm_scr.icsr = DV_PENDSVCLR;
 
 
 	dv_u32_t *psp = (dv_u32_t *)dv_get_psp();
