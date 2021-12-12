@@ -113,9 +113,9 @@ void dv_reset(void)
 
 	/* Initialise the exception priorities
 	*/
-	dv_m3scr.shpr[0] = 0x0;		/* UsageFault, BusFault, MemManage and [reserved]  all at highest priority */
-	dv_m3scr.shpr[1] = 0x0;		/* SVC and [reserved x 3] all at highest priority */
-	dv_m3scr.shpr[2] = 0xffff0000;	/* SysTick/PendSV at lowest priority, Debug and [reserved] at highest */
+	dv_ctxm_scr.shpr[0] = 0x0;			/* UsageFault, BusFault, MemManage and [reserved]  all at highest priority */
+	dv_ctxm_scr.shpr[1] = 0x0;			/* SVC and [reserved x 3] all at highest priority */
+	dv_ctxm_scr.shpr[2] = 0xffff0000;	/* SysTick/PendSV at lowest priority, Debug and [reserved] at highest */
 
 	/* Initialise the interrupt controller
 	*/
