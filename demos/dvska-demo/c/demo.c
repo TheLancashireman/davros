@@ -287,10 +287,8 @@ void callout_addtasks(dv_id_t mode)
 */
 void callout_addisrs(dv_id_t mode)
 {
-#if 0	/* TODO */
 	Uart = dv_addisr("Uart", &main_Uart, hw_UartInterruptId, 7);
 	Timer = dv_addisr("Timer", &main_Timer, hw_TimerInterruptId, 8);
-#endif
 }
 
 /* callout_addgroups() - configure the executable groups
@@ -361,13 +359,11 @@ void callout_autostart(dv_id_t mode)
 
 	/* Enable interrupts from the UART
 	*/
-#if 0	/* TODO */
 	hw_EnableUartRxInterrupt();
 	dv_enable_irq(hw_UartInterruptId);
 
 	hw_InitialiseMillisecondTicker();
 	dv_enable_irq(hw_TimerInterruptId);
-#endif
 }
 
 /* callout_reporterror() - called if an error is detected

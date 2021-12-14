@@ -141,21 +141,9 @@ void dv_reset(void)
 	dv_consoledriver.istx = uart1_istx;
 	dv_consoledriver.isrx = uart1_isrx;
 
-#if 0	/* TODO */
-	/* Initialise GPIO C for the on-board LED
-	 *
-	 * Pin 13 (LED_PIN) output, open-drain, 50 MHz, output to 1 (turn off)
+	/* Initialise GPIO pin for the on-board LED
 	*/
-	do {
-		dv_rcc.apb2en |= DV_RCC_IOPC;
-		int cr = LED_PIN / 8;
-		int shift = (LED_PIN % 8) * 4;
-		dv_u32_t mask = 0xf << shift;
-		dv_u32_t val = DV_GPIO_OUT_OD_50 << shift;
-		dv_gpio_c.cr[cr] = (dv_gpio_c.cr[cr] & mask) | val;
-		dv_gpio_c.bsrr = 0x1 << LED_PIN;
-	} while (0);
-#endif
+	dv_sio_pin_init(LED_PIN, 1);
 
 	/* Print the contents of the MPU_TYPE register
 	*/

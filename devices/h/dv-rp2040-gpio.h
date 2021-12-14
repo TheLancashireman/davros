@@ -145,4 +145,26 @@ typedef struct dv_rp2040_sio_s
 
 #define dv_rp2040_sio		(((dv_rp2040_sio_t *)DV_SIO_BASE)[0])
 
+/* dv_sio_pin_init() - initialise a GPIO pin for input
+*/
+static inline void dv_sio_pin_init(int pin, dv_boolean_t output)
+{
+	dv_u32_t pinmask = 0x1 << pin;
+
+	/* Disable the SIO output and turn off.
+	*/
+	dv_rp2040_sio.gpio_oe.w1c = pinmask;
+	dv_rp2040_sio.gpio_out.w1c = pinmask;
+
+	/* Select SIO function for the pin.
+	*/
+	dv_rp2040_iobank0.gpio[pin].ctrl = DV_FUNCSEL_SIO;
+
+	if ( output )
+	{
+		dv_rp2040_sio.gpio_oe.w1s = pinmask;
+	}
+}
+
+
 #endif

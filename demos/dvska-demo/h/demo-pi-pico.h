@@ -25,6 +25,7 @@
 
 #include <dv-rp2040-gpio.h>
 #include <dv-rp2040-uart.h>
+#include <dv-rp2040-interrupts.h>
 #include <dv-nvic.h>
 
 #define LED_PIN	25	/* On-board LED */
@@ -38,10 +39,8 @@ extern void dumpPstack(void);
 		dumpPstack();	\
 	} while (0)
 
-#if 0	/* TODO */
-#define hw_UartInterruptId		dv_irq_usart1
-#define hw_TimerInterruptId		dv_irq_tim2
-#endif
+#define hw_UartInterruptId		dv_irq_uart0
+#define hw_TimerInterruptId		dv_irq_timer0
 
 static inline void hw_ClearTimer(void)
 {
