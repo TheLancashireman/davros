@@ -137,6 +137,7 @@ DV_LD		?=	$(DV_GNU_D)/bin/arm-none-eabi-ld
 DV_OBJCOPY	?=	$(DV_GNU_D)/bin/arm-none-eabi-objcopy
 DV_LDLIB_D	?=	$(DV_GNU_D)/arm-none-eabi/lib/thumb/v7-m/nofp
 DV_LDEABI_D	?=	/data1/projects/OtherPeople/libaeabi-cortexm0
+DV_ELF2UF2	?=	elf2uf2
 
 DV_LDSCRIPT	?=	$(DVSK_ROOT)/hardware/arm/ld/dv-pi-pico-ram.ldscript
 
@@ -321,3 +322,8 @@ srec:			$(DV_OBJ_D) $(DV_BIN_D) $(SREC_FILE)
 
 $(SREC_FILE):	$(DV_BIN_D)/davroska.elf
 	$(DV_OBJCOPY) $(DV_BIN_D)/davroska.elf -O srec --srec-forceS3 /dev/stdout | dos2unix | egrep -v '^S3..........00*..$$' > $(SREC_FILE)
+
+uf2:			$(DV_OBJ_D) $(DV_BIN_D) $(UF2_FILE)
+
+$(UF2_FILE):	$(DV_BIN_D)/davroska.elf
+	$(DV_ELF2UF2) -v $(DV_BIN_D)/davroska.elf $(DV_BIN_D)/davroska.uf2

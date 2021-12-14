@@ -63,10 +63,8 @@ static inline void hw_SetLed(int i, dv_boolean_t state)
 
 static inline void hw_EnableUartRxInterrupt(void)
 {
-#if 0	/* TODO */
-	dv_uart1.cr[0] |= DV_UART_RXNEIE;
-	dv_enable_irq(dv_irq_usart1);
-#endif
+	dv_rp2040_uart0_w1s.imsc = DV_UART_RXIM;
+	dv_enable_irq(dv_irq_uart0);
 }
 
 static inline void hw_InitialiseMillisecondTicker(void)

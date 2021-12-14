@@ -99,6 +99,20 @@ typedef struct dv_rp2040_uart_s
 #define DV_UART_SIREN		0x0002		/* IrDA */
 #define DV_UART_UARTEN		0x0001		/* UART enable */
 
+/* Interrupt masks (imsc)
+*/
+#define DV_UART_OEIM		0x400		/* Overrun */
+#define DV_UART_BEIM		0x200		/* Line break */
+#define DV_UART_PEIM		0x100		/* Parity error */
+#define DV_UART_FEIM		0x080		/* Framing error */
+#define DV_UART_RTIM		0x040		/* Rx timeout*/
+#define DV_UART_TXIM		0x020		/* Tx */
+#define DV_UART_RXIM		0x010		/* Rx */
+#define DV_UART_DSRMIM		0x008		/* DSR */
+#define DV_UART_DCDMIM		0x004		/* DCD */
+#define DV_UART_CTSMIM		0x002		/* CTS */
+#define DV_UART_RIMIM		0x001		/* RI */
+
 /* dv_uart0_isrx() - returns true if there's a character to read.
 */
 static inline int dv_rp2040_uart_isrx(dv_rp2040_uart_t *uart)
