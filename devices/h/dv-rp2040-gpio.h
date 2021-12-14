@@ -21,6 +21,7 @@
 #define DV_RP2040_GPIO_H
 
 #include "dv-devices.h"
+#include "dv-rp2040.h"
 
 /* I/O user bank 0
  *

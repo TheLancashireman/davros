@@ -28,8 +28,10 @@
 #include <dv-stdio.h>
 
 #define DV_INCLUDE_INTERRUPTCONTROLLER	<dv-nvic.h>
+
 #define DV_MAX_INTLEVEL		15
-#define DV_LOCKALL_LEVEL	(FIXME)
-#define DV_NVECTOR			68
+#define DV_LOCKALL_LEVEL	0
+#define DV_NVECTOR			32
+#define DV_ARMv6_M			1
 
 #endif

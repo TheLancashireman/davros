@@ -21,6 +21,7 @@
 #define DV_RP2040_RESETS_H
 
 #include "dv-devices.h"
+#include "dv-rp2040.h"
 
 /* The resets registers control the power to the peripherals.
  * A peripheral whose reset bit is 1 is held in reset.

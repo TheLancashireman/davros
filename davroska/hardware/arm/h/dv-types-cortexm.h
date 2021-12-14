@@ -40,4 +40,9 @@ typedef jmp_buf dv_jmpbuf_t;
 typedef dv_u32_t dv_intstatus_t;
 typedef dv_u32_t dv_intlevel_t;
 
+/* Hardware vector table
+*/
+typedef void (*dv_vector_t)(void);
+extern const dv_vector_t dv_hwvectors[];
+
 #endif

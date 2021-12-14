@@ -136,6 +136,7 @@ DV_GCC		?=	$(DV_GNU_D)/bin/arm-none-eabi-gcc
 DV_LD		?=	$(DV_GNU_D)/bin/arm-none-eabi-ld
 DV_OBJCOPY	?=	$(DV_GNU_D)/bin/arm-none-eabi-objcopy
 DV_LDLIB_D	?=	$(DV_GNU_D)/arm-none-eabi/lib/thumb/v7-m/nofp
+DV_LDEABI_D	?=	/data1/projects/OtherPeople/libaeabi-cortexm0
 
 DV_LDSCRIPT	?=	$(DVSK_ROOT)/hardware/arm/ld/dv-pi-pico-ram.ldscript
 
@@ -178,7 +179,9 @@ CC_OPT		+= -O2
 LD_OPT		+= $(DV_ENTRY)
 LD_OPT		+= -T $(DV_LDSCRIPT)
 LD_OPT		+=	-L $(DV_LDLIB_D)
+LD_OPT		+=	-L $(DV_LDEABI_D)
 LD_OPT		+=	-lc
+LD_OPT		+=	-laeabi-cortexm0
 
 # The demo code
 DV_LD_OBJS	+= $(DV_OBJ_D)/demo.o
@@ -242,15 +245,17 @@ endif
 
 ifeq ($(DV_BOARD), blue-pill)
 
+DV_LD_OBJS	+= $(DV_OBJ_D)/davroska-cortexm.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-cortexm-vectors.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-switchcall.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-cortexm-ctxsw.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-nvic.o
+
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-stm32-rcc.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-stm32-uart.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-stm32-timx.o
-DV_LD_OBJS	+= $(DV_OBJ_D)/dv-nvic.o
+
 DV_LD_OBJS	+= $(DV_OBJ_D)/demo-blue-pill.o
-DV_LD_OBJS	+= $(DV_OBJ_D)/dv-switchcall.o
-DV_LD_OBJS	+= $(DV_OBJ_D)/davroska-cortexm.o
-DV_LD_OBJS	+= $(DV_OBJ_D)/dv-cortexm-ctxsw.o
 
 VPATH		+=	$(DVSK_ROOT)/hardware/arm/c
 VPATH		+=	$(DVSK_ROOT)/hardware/arm/s
@@ -259,11 +264,17 @@ endif
 
 ifeq ($(DV_BOARD), pi-pico)
 
-DV_LD_OBJS	+= $(DV_OBJ_D)/dv-cortexm-vectors.o
-DV_LD_OBJS	+= $(DV_OBJ_D)/dv-rp2040-uart.o
-DV_LD_OBJS	+= $(DV_OBJ_D)/dv-nvic.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/davroska-cortexm.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-cortexm-vectors.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-switchcall.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-cortexm-ctxsw.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-nvic.o
+
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-rp2040-uart.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-rp2040-clocks.o
+
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-pico-boot.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/demo-pi-pico.o
 
 VPATH		+=	$(DVSK_ROOT)/hardware/arm/c
 VPATH		+=	$(DVSK_ROOT)/hardware/arm/s

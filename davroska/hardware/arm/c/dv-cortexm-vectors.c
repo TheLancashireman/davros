@@ -17,13 +17,40 @@
  *  You should have received a copy of the GNU General Public License
  *  along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include "dv-devices.h"
+
+#ifndef DV_ARMv6_M
+#define DV_ARMv6_M	0
+#endif
+#ifndef DV_ARMv7_M
+#define DV_ARMv7_M	0
+#endif
+
+#ifndef DV_NVECTOR
+#error "DV_NVECTOR not defined"
+#elif DV_NVECTOR == 32 || DV_NVECTOR == 68
+/* All the above values are supported. */
+#else
+#error "Unsupported value of DV_NVECTOR"
+#endif
+
 extern void dv_stacktop(void);	/* This is a blatant lie! dv_stacktop is a symbol set in the linker script */
 extern void dv_reset(void);
 extern void dv_nmi(void);
 extern void dv_hardfault(void);
+
+#if DV_ARMv7_M
 extern void dv_memfault(void);
 extern void dv_busfault(void);
 extern void dv_usagefault(void);
+#elif DV_ARMv6_M
+#define dv_memfault		dv_unknowntrap
+#define dv_busfault		dv_unknowntrap
+#define dv_usagefault	dv_unknowntrap
+#else
+#error "Cortex-M architecture not defined"
+#endif
+
 extern void dv_svctrap(void);
 extern void dv_pendsvtrap(void);
 extern void dv_systickirq(void);
@@ -34,10 +61,10 @@ typedef void (*dv_vector_t)(void);
 
 /* The vector table is an array of addresses.
  * This table has 84 vectors:
- *	- 16 are the armv7m exception/reset vectors (including reset SP)
- *	- 68 are for the NVIC interrupts. They are all mappped to dv_irq
+ *	- 16 are the armvx-m exception/reset vectors (including reset SP)
+ *	- up to 68 are for the NVIC interrupts. They are all mappped to dv_irq
 */
-const dv_vector_t vectors[] =
+const dv_vector_t dv_hwvectors[16+DV_NVECTOR] =
 {	&dv_stacktop,
 	&dv_reset,
 	&dv_nmi,
@@ -86,6 +113,7 @@ const dv_vector_t vectors[] =
 	&dv_irq,	/* 29 */
 	&dv_irq,	/* 30 */
 	&dv_irq,	/* 31 */
+#if DV_NVECTOR > 32
 	&dv_irq,	/* 32 */
 	&dv_irq,	/* 33 */
 	&dv_irq,	/* 34 */
@@ -122,4 +150,5 @@ const dv_vector_t vectors[] =
 	&dv_irq,	/* 65 */
 	&dv_irq,	/* 66 */
 	&dv_irq,	/* 67 */
+#endif
 };

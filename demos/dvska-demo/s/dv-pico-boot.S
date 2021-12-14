@@ -1,4 +1,4 @@
-/*  dv-nvic.c
+/*	dv-pico-boot.S
  *
  *  Copyright David Haworth
  *
@@ -17,25 +17,12 @@
  *  You should have received a copy of the GNU General Public License
  *  along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "dv-nvic.h"
+	.extern		dv_stacktop
+	.extern		dv_reset
+	.globl		dv_boot
 
-/* Global variable that holds the "virtual" lock level.
- * 0 ==> All open
- * MAX ==> All locked
-*/
-dv_intlevel_t dv_currentlocklevel;
-
-/* dv_nvic_init() - initialize the nvic
-*/
-void dv_nvic_init(void)
-{
-	/* Disable all sources and clear any pending
-	*/
-	int nsets = (DV_NVECTOR+31)/32;
-
-	for ( int i = 0; i < nsets; i++ )
-	{
-		dv_nvic.icer[i] = 0xffffffff;	/* Disable all interrupts sources in the set */
-		dv_nvic.icpr[i] = 0xffffffff;	/* Clear all pending IRQa in the set */
-	}
-}
+dv_boot:
+    ldr		r0,=dv_stacktop
+    mov		sp,r0
+    bl		dv_reset
+    b .

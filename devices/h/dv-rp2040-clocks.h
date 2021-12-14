@@ -21,6 +21,7 @@
 #define DV_RP2040_CLOCKS_H
 
 #include "dv-devices.h"
+#include "dv-rp2040.h"
 
 /* Clocks
 */
@@ -152,5 +153,8 @@ typedef struct dv_rp2040_pll_s
 #define DV_PLL_FBDIV		0x00000fff	/* FBDIV_INT */
 #define DV_PLL_POSTDIV1		0x00070000	/* PRIM */
 #define DV_PLL_POSTDIV2		0x00007000	/* PRIM */
+
+extern void dv_clock_init(void);
+extern void dv_pll_init(void);
 
 #endif

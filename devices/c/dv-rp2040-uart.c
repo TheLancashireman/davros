@@ -22,7 +22,7 @@
 
 /* dv_rp2040_uart_getc() - wait until there's a character available then return it.
 */
-int dv_rp2040_uart_getc(dv_rp2040_uart_t *uart);
+int dv_rp2040_uart_getc(dv_rp2040_uart_t *uart)
 {
 	while ( !dv_rp2040_uart_isrx(uart) )
 	{
@@ -33,13 +33,13 @@ int dv_rp2040_uart_getc(dv_rp2040_uart_t *uart);
 
 /* dv_rp2040_uart_putc() - wait until there's room in the tx buffer, then put a character into it.
 */
-void dv_rp2040_uart_putc(dv_rp2040_uart_t *uart, int c);
+void dv_rp2040_uart_putc(dv_rp2040_uart_t *uart, int c)
 {
 	while ( !dv_rp2040_uart_istx(uart) )
 	{
 	}
 
-	return uart->dr = (dv_u32_t)c;
+	uart->dr = (dv_u32_t)c;
 }
 
 /* dv_rp2040_uart_init() - initialise uart for normal async use. Return 0 if OK.
@@ -102,15 +102,15 @@ static const br_lookup_t br_table[NBAUD] =
 };
 #endif
 
-int dv_rp2040_uart_init(dv_rp2040_uart_t *, unsigned baud, char *format)
+int dv_rp2040_uart_init(dv_rp2040_uart_t *uart, unsigned baud, char *fmt)
 {
 	dv_u32_t rst;
 
-	if ( uart == dv_rp2040_uart0 )
+	if ( uart == &dv_rp2040_uart0 )
 	{
 		rst = DV_RESETS_uart0;
 	}
-	else if ( uart == dv_rp2040_uart1 )
+	else if ( uart == &dv_rp2040_uart1 )
 	{
 		rst = DV_RESETS_uart1;
 	}
@@ -196,11 +196,7 @@ int dv_rp2040_uart_init(dv_rp2040_uart_t *, unsigned baud, char *format)
 
 	/* If the uart is in reset, release the reset and wait till ready.
 	*/
-	if ( (dv_rp2040_resets.reset & rst) != 0 )
-	{
-		dv_rp2040_resets_w1c.reset = rst;
-		do {	/* Wait	*/	} while ( (dv_rp2040_resets.done & rst) == 0 );
-	}
+	dv_rp2040_release(rst);
 
 	/* Set up the baud-rate generator. This requires a write to LCR_H to activate; we do that later
 	*/

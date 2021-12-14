@@ -21,6 +21,7 @@
 #define DV_RP2040_UART_H
 
 #include <dv-devices.h>
+#include "dv-rp2040.h"
 
 #define DV_RP2040_UART0_BASE		0x40034000
 #define DV_RP2040_UART1_BASE		0x40038000
@@ -107,13 +108,13 @@ static inline int dv_rp2040_uart_isrx(dv_rp2040_uart_t *uart)
 
 /* dv_uart0_istx() - returns true if there's room to send a character
 */
-static inline int dv_rp2040_uart0_istx(dv_rp2040_uart_t *uart)
+static inline int dv_rp2040_uart_istx(dv_rp2040_uart_t *uart)
 {
 	return ( (uart->fr & DV_UART_TXFF) == 0 );
 }
 
 extern int dv_rp2040_uart_getc(dv_rp2040_uart_t *);
 extern void dv_rp2040_uart_putc(dv_rp2040_uart_t *, int);
-extern int dv_rp2040_uart_init(ddv_rp2040_uart_t *, unsigned, char *);
+extern int dv_rp2040_uart_init(dv_rp2040_uart_t *, unsigned, char *);
 
 #endif

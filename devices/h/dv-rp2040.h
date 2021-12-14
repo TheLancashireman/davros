@@ -1,4 +1,4 @@
-/*  dv-nvic.c
+/* dv-rp2040.h
  *
  *  Copyright David Haworth
  *
@@ -17,25 +17,13 @@
  *  You should have received a copy of the GNU General Public License
  *  along with davros.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "dv-nvic.h"
+#ifndef DV_RP2040_H
+#define DV_RP2040_H
 
-/* Global variable that holds the "virtual" lock level.
- * 0 ==> All open
- * MAX ==> All locked
+/* The peripherals have "mirror" addresses that allow atomic access
 */
-dv_intlevel_t dv_currentlocklevel;
+#define	DV_OFFSET_XOR	0x1000		/* XOR (i.e. toggle) */
+#define	DV_OFFSET_W1S	0x2000		/* Write 1 to set */
+#define	DV_OFFSET_W1C	0x3000		/* Write 1 to clear */
 
-/* dv_nvic_init() - initialize the nvic
-*/
-void dv_nvic_init(void)
-{
-	/* Disable all sources and clear any pending
-	*/
-	int nsets = (DV_NVECTOR+31)/32;
-
-	for ( int i = 0; i < nsets; i++ )
-	{
-		dv_nvic.icer[i] = 0xffffffff;	/* Disable all interrupts sources in the set */
-		dv_nvic.icpr[i] = 0xffffffff;	/* Clear all pending IRQa in the set */
-	}
-}
+#endif
