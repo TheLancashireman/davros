@@ -74,11 +74,8 @@ typedef struct dv_rp2040_resets_s
 */
 static inline void dv_rp2040_release(dv_u32_t peri)
 {
-	if ( (dv_rp2040_resets.reset & peri) != 0 )		/* Only do this if the device is in reset */
-	{
-		dv_rp2040_resets_w1c.reset = peri;
-    	do {    /* Wait */  } while ( (dv_rp2040_resets.done & peri) == 0 );
-	}
+	dv_rp2040_resets_w1c.reset = peri;
+   	do {    /* Wait */  } while ( (dv_rp2040_resets.done & peri) == 0 );
 }
 
 /* dv_rp2040_reset() - reset a peripheral

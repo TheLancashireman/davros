@@ -31,6 +31,7 @@
 #include <dv-nvic.h>
 #include <dv-rp2040-uart.h>
 #include <dv-rp2040-gpio.h>
+#include <dv-rp2040-timer.h>
 
 #include <davroska-inline.h>
 
@@ -44,6 +45,28 @@ extern unsigned dv_stacktop;
 
 extern int main(int argc, char **argv);
 extern void dv_switchToPsp(unsigned *psp, unsigned *msp, unsigned control, void (*fp)(void));
+
+/* LED debugging
+*/
+void softdelay(unsigned ms)
+{
+	for ( volatile unsigned dly = 0; dly < 10000 * ms; dly++ )
+	{
+	}
+}
+void blink(int n)
+{
+	softdelay(3000);
+
+	for (int i = 0; i < n; i++)
+	{
+		hw_SetLed(3, 1);
+		softdelay(50);
+		hw_SetLed(3, 0);
+		softdelay(950);
+	}
+}
+
 
 /* dv_init_data() - initialise variables
  *
@@ -70,23 +93,23 @@ void dv_init_data(void)
 
 /* Mapping functions for console
 */
-int uart1_putc(int c)
+int uart0_putc(int c)
 {
 	dv_rp2040_uart_putc(&dv_rp2040_uart0, c);
 	return 1;
 }
 
-int uart1_getc(void)
+int uart0_getc(void)
 {
 	return dv_rp2040_uart_getc(&dv_rp2040_uart0);
 }
 
-int uart1_isrx(void)
+int uart0_isrx(void)
 {
 	return dv_rp2040_uart_isrx(&dv_rp2040_uart0);
 }
 
-int uart1_istx(void)
+int uart0_istx(void)
 {
 	return dv_rp2040_uart_istx(&dv_rp2040_uart0);
 }
@@ -113,37 +136,56 @@ void dv_reset(void)
 	/* Initialise the the XOSC clock and the PLL: 133 MHz
 	*/
 	dv_clock_init();
+#if 1
 	dv_pll_init();
+#endif
 
 	/* Initialise variables
 	*/
 	dv_init_data();
 
+#if 0
 	/* Initialise the exception priorities
 	*/
 	dv_ctxm_scr.shpr[1] = 0x0;			/* SVC and [reserved x 3] all at highest priority */
 	dv_ctxm_scr.shpr[2] = 0xffff0000;	/* SysTick/PendSV at lowest priority, Debug and [reserved] at highest */
-
-	/* Initialise the interrupt controller
-	*/
-	dv_nvic_init();
+#endif
 
 	/* Release IOBANK0 from reset.
 	 * We must do this before any pin functions can be selected.
 	*/
 	dv_rp2040_release(DV_RESETS_io_bank0);
 
-	/* Initialise uart1 and connect it to the stdio functions
-	*/
-	(void)dv_rp2040_uart_init(&dv_rp2040_uart0, 115200, "8N1");
-	dv_consoledriver.putc = uart1_putc;
-	dv_consoledriver.getc = uart1_getc;
-	dv_consoledriver.istx = uart1_istx;
-	dv_consoledriver.isrx = uart1_isrx;
-
 	/* Initialise GPIO pin for the on-board LED
 	*/
 	dv_sio_pin_init(LED_PIN, 1);
+	hw_SetLed(3, 0);
+
+	/* Initialise uart0 and connect it to the stdio functions
+	*/
+	(void)dv_rp2040_uart_init(&dv_rp2040_uart0, 115200, "8N1");
+
+	/* Set up the I/O function for UART0
+     * GPIO 0 = UART0 tx
+     * GPIO 1 = UART0 rx
+    */
+    dv_rp2040_iobank0.gpio[0].ctrl = DV_FUNCSEL_UART;
+    dv_rp2040_iobank0.gpio[1].ctrl = DV_FUNCSEL_UART;
+
+	dv_consoledriver.putc = uart0_putc;
+	dv_consoledriver.getc = uart0_getc;
+	dv_consoledriver.istx = uart0_istx;
+	dv_consoledriver.isrx = uart0_isrx;
+
+	dv_printf("\nHello, galaxy! RP2040 calling\n");
+
+	/* Release the timer from reset
+	*/
+	dv_rp2040_release(DV_RESETS_timer);
+	
+	/* Initialise the interrupt controller
+	*/
+	dv_nvic_init();
 
 	/* Print the contents of the MPU_TYPE register
 	*/

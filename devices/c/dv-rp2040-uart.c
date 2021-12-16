@@ -122,7 +122,7 @@ int dv_rp2040_uart_init(dv_rp2040_uart_t *uart, unsigned baud, char *fmt)
 	 * Differences: we treat 65535 as in-range. There's nothing in the refman to suggest otherwise.
 	 * If the calculated divisors are out of range, we return an error and don't configure the UART
 	*/
-	dv_u32_t bdiv = (8 * 133000000)/baud;
+	dv_u32_t bdiv = (8 * 12000000)/baud;
 	dv_u32_t ibrd = bdiv >> 7;
 	if ( ibrd == 0 || ibrd > 65535 )
 	{

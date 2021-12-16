@@ -123,7 +123,7 @@ DEMO_BOARD	?=	DEMO_PI_PICO
 ifeq (A, A)
 
 # Host arm-gcc
-DV_GNU_D	?=	/data1/gnu/gcc-arm-none-eabi-9-2019-q4-major
+DV_GNU_D	?=	/usr
 
 else
 
@@ -135,7 +135,7 @@ endif
 DV_GCC		?=	$(DV_GNU_D)/bin/arm-none-eabi-gcc
 DV_LD		?=	$(DV_GNU_D)/bin/arm-none-eabi-ld
 DV_OBJCOPY	?=	$(DV_GNU_D)/bin/arm-none-eabi-objcopy
-DV_LDLIB_D	?=	$(DV_GNU_D)/arm-none-eabi/lib/thumb/v7-m/nofp
+DV_LDLIB_D	?=	$(DV_GNU_D)/lib/arm-none-eabi/newlib/thumb/v6-m/nofp/
 DV_LDEABI_D	?=	/data1/projects/OtherPeople/libaeabi-cortexm0
 DV_ELF2UF2	?=	elf2uf2
 
@@ -148,6 +148,7 @@ SREC_FILE	?=	demo.srec
 UF2_FILE	?=	demo.uf2
 
 CC_OPT		+= -mcpu=cortex-m0plus
+CC_OPT		+= -mthumb
 
 endif
 
