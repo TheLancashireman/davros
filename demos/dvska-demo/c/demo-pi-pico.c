@@ -136,20 +136,16 @@ void dv_reset(void)
 	/* Initialise the the XOSC clock and the PLL: 133 MHz
 	*/
 	dv_clock_init();
-#if 1
 	dv_pll_init();
-#endif
 
 	/* Initialise variables
 	*/
 	dv_init_data();
 
-#if 0
 	/* Initialise the exception priorities
 	*/
 	dv_ctxm_scr.shpr[1] = 0x0;			/* SVC and [reserved x 3] all at highest priority */
 	dv_ctxm_scr.shpr[2] = 0xffff0000;	/* SysTick/PendSV at lowest priority, Debug and [reserved] at highest */
-#endif
 
 	/* Release IOBANK0 from reset.
 	 * We must do this before any pin functions can be selected.

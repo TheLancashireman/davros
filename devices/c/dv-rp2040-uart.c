@@ -207,6 +207,10 @@ int dv_rp2040_uart_init(dv_rp2040_uart_t *uart, unsigned baud, char *fmt)
 	*/
 	uart->lcr_h = lcr;
 
+	/* Disable all the interrupt sources
+	*/
+	uart->imsc = 0x0;
+
 	/* Enable the UART, enable rx and tx. Turn off all flow control etc.
 	*/
 	uart->cr = DV_UART_UARTEN | DV_UART_RXE | DV_UART_TXE;

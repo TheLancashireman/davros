@@ -25,6 +25,19 @@
 */
 dv_intlevel_t dv_currentlocklevel;
 
+#if DV_ARMv6_M
+
+/* Armv6-m doesn't provide a baseprio register so there's no way to selectively block interrupts below
+ * a certain priority.
+ *
+ * To fake that feature we selectively mask and unmask the registers using these variables to
+ * keep track of what we're doing
+*/
+dv_u32_t dv_nvic_enabled;		/* Which interrupts are enabled */
+dv_u32_t dv_nvic_levelmask[4];	/* Which interrupts are enabled at each level. 0 is always "all" */
+
+#endif
+
 /* dv_nvic_init() - initialize the nvic
 */
 void dv_nvic_init(void)
@@ -38,4 +51,13 @@ void dv_nvic_init(void)
 		dv_nvic.icer[i] = 0xffffffff;	/* Disable all interrupts sources in the set */
 		dv_nvic.icpr[i] = 0xffffffff;	/* Clear all pending IRQa in the set */
 	}
+
+#if DV_ARMv6_M
+	/* Initialise the fake interrupt level variables */
+	dv_nvic_enabled = 0;
+	dv_nvic_levelmask[0] = 0xffffffff;
+	dv_nvic_levelmask[1] = 0;
+	dv_nvic_levelmask[2] = 0;
+	dv_nvic_levelmask[3] = 0;
+#endif
 }

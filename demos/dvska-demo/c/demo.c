@@ -276,19 +276,25 @@ dv_u64_t af_FlickerDriver(dv_id_t a, dv_param_t unused_d)
 void callout_addtasks(dv_id_t mode)
 {
 	Init = dv_addtask("Init", &main_Init, 4, 1);
+	dv_printf("Init : %d\n", Init);
 	Led = dv_addextendedtask("Led", &main_Led, 1, 2048);
+	dv_printf("Led : %d\n", Led);
 	Bit0 = dv_addtask("Bit0", &main_Bit0, 2, 1);
+	dv_printf("Bit0 : %d\n", Bit0);
 	Bit1 = dv_addtask("Bit1", &main_Bit1, 2, 1);
+	dv_printf("Bit1 : %d\n", Bit1);
 	Bit2 = dv_addtask("Bit2", &main_Bit2, 2, 1);
+	dv_printf("Bit2 : %d\n", Bit2);
 	Bit3 = dv_addextendedtask("Bit3", &main_Bit3, 3, 2048);
+	dv_printf("Bit3 : %d\n", Bit3);
 }
 
 /* callout_addisrs() - configure the isrs
 */
 void callout_addisrs(dv_id_t mode)
 {
-	Uart = dv_addisr("Uart", &main_Uart, hw_UartInterruptId, 7);
-	Timer = dv_addisr("Timer", &main_Timer, hw_TimerInterruptId, 8);
+	Uart = dv_addisr("Uart", &main_Uart, hw_UartInterruptId, 5);
+	Timer = dv_addisr("Timer", &main_Timer, hw_TimerInterruptId, 6);
 }
 
 /* callout_addgroups() - configure the executable groups
@@ -394,7 +400,13 @@ void callout_shutdown(dv_statustype_t e)
 void callout_idle(void)
 {
 	dv_printf("Idle loop reached\n");
-	for (;;) {}
+	for (;;)
+	{
+#if 0
+		softdelay(1000);
+		dv_activatetask(Bit0);
+#endif
+	}
 }
 
 /* callout_panic() - called from dv_panic

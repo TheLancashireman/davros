@@ -47,6 +47,7 @@ extern void dumpPstack(void);
 
 static inline void hw_ClearTimer(void)
 {
+	dv_rp2040_timer.intr = 0x1 << ALARM_IDX;
 	dv_rp2040_timer.alarm[ALARM_IDX] += 1000;	/* No in-the-past check */
 }
 
@@ -63,8 +64,7 @@ static inline void hw_SetLed(int i, dv_boolean_t state)
 
 static inline void hw_EnableUartRxInterrupt(void)
 {
-	dv_rp2040_uart0_w1s.imsc = DV_UART_RXIM;
-	dv_enable_irq(dv_irq_uart0);
+	dv_rp2040_uart0.imsc |= DV_UART_RXIM;
 }
 
 static inline void hw_InitialiseMillisecondTicker(void)
@@ -76,7 +76,7 @@ static inline void hw_InitialiseMillisecondTicker(void)
 
 	/* Set and arm the alarm
 	*/
-	dv_rp2040_timer.alarm[ALARM_IDX] = dv_rp2040_timer.time_lraw + 1000;
+	dv_rp2040_timer.alarm[ALARM_IDX] = dv_rp2040_timer.time_lraw + 1000000;
 }
 
 #endif

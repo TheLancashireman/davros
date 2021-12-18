@@ -18,6 +18,14 @@ PICOMNT=/media/pico
 set -e
 
 if [ -z "$1" ] ; then
+	UF2FILE=bin/davroska.uf2
+else
+	UF2FILE=$1
+fi
+
+if [ -e ${UF2FILE} ]; then
+	echo "Uploading ${UF2FILE}"
+else
 	echo "Usage: to-pico.sh <UF2-file>"
 	exit 1
 fi
@@ -25,7 +33,7 @@ fi
 sudo mount -o uid=${USER} ${PICODEV} ${PICOMNT}
 if [ -e ${PICOMNT}/INFO_UF2.TXT ]; then
 	if diff ${PICOMNT}/INFO_UF2.TXT INFO_UF2.TXT ; then
-		cp $1 ${PICOMNT}
+		cp ${UF2FILE} ${PICOMNT}
 	else
 		echo "The mounted UF2 bootloader is not a Raspberry Pi pico"
 		exit 1
