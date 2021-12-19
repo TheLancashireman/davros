@@ -64,7 +64,11 @@ static inline void hw_SetLed(int i, dv_boolean_t state)
 
 static inline void hw_EnableUartRxInterrupt(void)
 {
-	dv_rp2040_uart0.imsc |= DV_UART_RXIM;
+	/* Get an interrupt when:
+	 * 		- fifo reaches watermark (default: half full), or
+	 *		- fifo is not empty and no characters received for 32 bit times
+	*/
+	dv_rp2040_uart0_w1s.imsc = (DV_UART_RXIM | DV_UART_RTIM);
 }
 
 static inline void hw_InitialiseMillisecondTicker(void)

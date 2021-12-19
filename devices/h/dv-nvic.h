@@ -256,6 +256,9 @@ static inline dv_intlevel_t dv_setirqlevel(dv_intlevel_t lvl)
 		dv_nvic.iser[0] = (dv_nvic_enabled & dv_nvic_levelmask[dv_currentlocklevel]);
 	else
 		dv_nvic.icer[0] = ~(dv_nvic_enabled & dv_nvic_levelmask[dv_currentlocklevel]);
+#if 0
+	dv_printf(" nvic enabled 0x%08x\n", dv_nvic.iser[0]);
+#endif
 #else
 	if ( lvl == 0 )
 		dv_set_basepri(0x0);

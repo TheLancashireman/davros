@@ -236,6 +236,9 @@ void main_Init(void)
 */
 void main_Uart(void)
 {
+#if 0
+	dv_printf("main_Uart() called\n");
+#endif
 	while ( dv_consoledriver.isrx() )
 	{
 		int c = dv_consoledriver.getc();
@@ -400,13 +403,7 @@ void callout_shutdown(dv_statustype_t e)
 void callout_idle(void)
 {
 	dv_printf("Idle loop reached\n");
-	for (;;)
-	{
-#if 0
-		softdelay(1000);
-		dv_activatetask(Bit0);
-#endif
-	}
+	for (;;) { }
 }
 
 /* callout_panic() - called from dv_panic
