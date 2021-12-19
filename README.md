@@ -71,12 +71,23 @@ Not supported.
 
 * STM32F103T8 microcontroller based on a Cortex M3 core
 
+### Raspberry Pi Pico
+
+* RP2040 microcontroller based on dual Cortex M0+ cores
+
+The Cortex M0 and M0+ are Armv6-M architecure and have significant differences to the Armv7-M cores.
+Among others:
+* No baseprio register
+* NVIC only has 32 IRQs
+* No differentiation of exceptions - everything is hardfault
+
 ## Links
 
 ### Compilers
 
 * <https://www.linaro.org/downloads/>
 * <https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads>
+* apt install gcc-arm-none-eabi binutils-arm-none-eabi
 
 For the Raspberry Pi, the Linaro builds of gcc are probably the best. Grab the bare metal build - aarch64
 for the Pi3 (in 64-bit mode), otherwise arm-eabi. You could probably use the linux build with a bit of tweaking.
@@ -84,6 +95,13 @@ for the Pi3 (in 64-bit mode), otherwise arm-eabi. You could probably use the lin
 For the Blue Pill (Cortex-M) the compiler from the arm-eabi build of linaro appears to work and the code
 runs until the first setjmp(). It seems that the libraries don't support the Cortex-M's thumb mode properly. So
 use the compiler from developer.arm.com. Unfortunately it seems to produce slightly bigger binaries.
+
+For the Raspberry Pi Pico I use the installed gcc-arm-none-eabi from devuan. This compiler doesn't come with
+a library that contains M0 versions of the low-level maths functions like __aeabi_uidiv. To supply the missing
+functions I grabbed this one: git@github.com:bobbl/libaeabi-cortexm0.git. Tip: The division functions call
+__aeabi_idiv0() if you try to divide by zero. The default version of that is in crt.S, which has a dependency
+to main(). If you don't have a main() function, provide your own void __aeabi_idiv0(void) function. It might
+be worthwhile to do that anyway and report an error rather than just return.
 
 ### Previous lives of davros
 
