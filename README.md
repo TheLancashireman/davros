@@ -16,6 +16,7 @@ Works on:
 * [Raspberry pi zero](#raspberry-pi-zero). Should also work on the old model A and B boards.
 * [Raspberry pi 3](#raspberry-pi-3) (64-bit)
 * [Blue Pill](#blue-pIll)
+* [Raspberry Pi Pico](#raspberry-pi-pico)
 
 For details, look in the [davroska](davroska/) directory.
 
