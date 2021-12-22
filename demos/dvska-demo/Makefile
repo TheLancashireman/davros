@@ -1,4 +1,4 @@
-#	Makefile - demo Makefile for testing parts of davroska on raspberry pi (zero, 3) or Blue Pill
+#	Makefile - demo Makefile for testing parts of davroska
 #
 #	Copyright David Haworth
 #
@@ -26,6 +26,7 @@
 #		default: compiles and links
 #		install: objcopy the ELF file to a binary (img) file IMAGE_FILE
 #		srec: objcopy the ELF to an S-record file in the bin directory
+#		uf2: create a UF2 file from the ELf file
 
 # Find out where we are :-)
 PRJ_ROOT	?= $(shell pwd)
@@ -150,6 +151,9 @@ UF2_FILE	?=	demo.uf2
 CC_OPT		+= -mcpu=cortex-m0plus
 CC_OPT		+= -mthumb
 
+LD_LIBDIR_ARCH	= -L $(DV_LDEABI_D)
+LD_LIB_ARCH		= -laeabi-cortexm0
+
 endif
 
 ifeq ($(DEMO_BOARD), )
@@ -181,9 +185,9 @@ CC_OPT		+= -O2
 LD_OPT		+= $(DV_ENTRY)
 LD_OPT		+= -T $(DV_LDSCRIPT)
 LD_OPT		+=	-L $(DV_LDLIB_D)
-LD_OPT		+=	-L $(DV_LDEABI_D)
+LD_OPT		+=	$(LD_LIBDIR_ARCH)
 LD_OPT		+=	-lc
-LD_OPT		+=	-laeabi-cortexm0
+LD_OPT		+=	$(LD_LIB_ARCH)
 
 # The demo code
 DV_LD_OBJS	+= $(DV_OBJ_D)/demo.o

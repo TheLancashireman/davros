@@ -23,6 +23,8 @@
 #ifndef dv_target_blue_pill_h
 #define dv_target_blue_pill_h	1
 
+#define DV_ARMv7_M		1
+
 #include <arm/h/dv-types-cortexm.h>
 #include <dv-cortex-m.h>
 #include <dv-stdio.h>
