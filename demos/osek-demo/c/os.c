@@ -23,6 +23,7 @@
 #define DV_ASM	0
 #include <dv-config.h>
 #include <davroska-osek.h>
+#include <os.h>
 
 #include DV_DEMO_TARGET
 
@@ -34,15 +35,6 @@ AlarmType BitDriver, FlickerDriver;				/* Alarms */
 dv_id_t Uart, Timer;							/* ISRs */
 dv_id_t Ticker;									/* Davroska counters */
 dv_id_t OsekCounter;							/* OSEK counters */
-
-extern TASK(Init);
-extern TASK(Led);
-extern TASK(Bit0);
-extern TASK(Bit1);
-extern TASK(Bit2);
-extern TASK(Bit3);
-extern ISR(Uart);
-extern ISR(Timer);
 
 const EventMaskType ev_Flicker = 0x01;
 const EventMaskType ev_Update = 0x08;

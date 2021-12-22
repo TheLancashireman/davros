@@ -97,12 +97,12 @@ TASK(Led)
 				cc[i] = ledstate[i] ? '*' : '-';
 			}
 
-#if DEMO_BOARD==DEMO_PI_ZERO
-			dv_printf("    %c %c %c %c\r", cc[3], cc[2], cc[1], cc[0]);
-#elif DEMO_BOARD==DEMO_PI3_ARM64
+#if DEMO_BOARD==DEMO_PI3_ARM64
 			extern volatile char core_state[];
 			dv_printf("    %c %c %c %c %c %c %c\r", cc[3], cc[2], cc[1], cc[0],
 													core_state[1], core_state[2], core_state[3]);
+#else
+			dv_printf("    %c %c %c %c\r", cc[3], cc[2], cc[1], cc[0]);
 #endif
 
 			if ( (ee = ReleaseResource(mx_Gpio)) != E_OK )
