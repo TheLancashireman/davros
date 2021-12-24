@@ -18,7 +18,7 @@
 #	along with davros.  If not, see <http://www.gnu.org/licenses/>.
 
 #	Usage:
-#		make [DV_BOARD=pi3-arm64|pi-zero] [DV_GNU_D=</path/to/gcc>] [IMAGE_FILE=</place/to/install/file.img>]
+#		make [DV_BOARD=pi3-arm64|pi-zero|...] [DV_GNU_D=</path/to/gcc>] [DV_IMAGE=</place/to/install/file.img>]
 #	Alternatively, you can set DV_BOARD DV_GNU_D and IMAGE_FILE as environment variables.
 #
 #	Targets:
