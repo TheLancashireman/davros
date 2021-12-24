@@ -53,6 +53,11 @@ typedef EventMaskType *	EventMaskRefType;
 typedef TickType *		TickRefType;
 typedef AlarmBaseType *	AlarmBaseRefType;
 
+/* AUTOSAR extensions
+*/
+typedef dv_id_t			ISRType;
+typedef dv_id_t			CounterType;
+
 enum dv_osekconst
 {
 	INVALID_TASK = -1,
