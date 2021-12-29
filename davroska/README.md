@@ -189,7 +189,7 @@ When dv_startos() is done, davroska will schedule the tasks and ISRs of your app
     * name is the name of the mutex
     * maxtake is the highest number of times the mutex can be taken (without dropping) by the same executable
   * dv_addmutex() returns the identifer for the mutex. (-1) indicates an error
-* void dv_addmutex(dv_id_t l, dv_id_t e)
+* void dv_addmutexuser(dv_id_t l, dv_id_t e)
   * adds an executable (e) as a "user" of the mutex (l).
     * all executables that are added to a mutex will be prevented from running when an executable occupies the mutex
     * the blocking is done by means of the "immediate priority ceiling protocol", so other executables might be blocked
@@ -276,7 +276,7 @@ When dv_startos() is done, davroska will schedule the tasks and ISRs of your app
   * called during dv_startos()
   * may call dv_addmutex() to create mutexes
     * one call per mutex
-  * should call dv_addmutex() at least once for each mutex created
+  * should call dv_addmutexuser() at least once for each mutex created
     * one call per user per mutex
     * can be "optimised" by adding just the highest-priority user
   * must not call any other API
