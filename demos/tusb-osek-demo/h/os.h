@@ -22,14 +22,16 @@
 */
 #ifndef os_h
 #define os_h
+
 #include <dv-config.h>
 #include <davroska-osek.h>
+#include DV_DEMO_TARGET
 
-/* Object identifiers
+/* Object identifiers for the application
 */
-extern dv_id_t Uart, Timer;		/* ISRs */
+extern ISRType Uart, Timer;		/* ISRs */
 extern dv_id_t Ticker;			/* Davroska counters */
-extern dv_id_t OsekCounter;		/* OSEK counters */
+extern CounterType OsekCounter;	/* OSEK counters */
 extern const EventMaskType ev_Flicker;
 extern const EventMaskType ev_Update;
 
@@ -41,5 +43,35 @@ extern TASK(Bit2);
 extern TASK(Bit3);
 extern ISR(Uart);
 extern ISR(Timer);
+
+/* TinyUSB objects
+*/
+extern ISRType tusb_Isr1;
+extern ISR(tusb_Isr1);
+#ifdef hw_UsbInterruptId2
+extern ISRType tusb_Isr2;
+extern ISR(tusb_Isr2);
+#endif
+#ifdef hw_UsbInterruptId3
+extern ISRType tusb_Isr3;
+extern ISR(tusb_Isr3);
+#endif
+
+extern ResourceType tusb_Mutex;
+extern const EventMaskType ev_Tusb_Timeout;
+extern const EventMaskType ev_Tusb_Notify;
+
+#if DV_TUSB_HOST
+#define OSAL_OPT_HOST	1
+extern TaskType tusb_HostTask;
+extern AlarmType tusb_HostAlarm;
+extern TASK(tusb_HostTask);
+#endif
+#if DV_TUSB_DEVICE
+#define OSAL_OPT_DEVICE	1
+extern TaskType tusb_DeviceTask;
+extern AlarmType tusb_DeviceAlarm;
+extern TASK(tusb_DeviceTask);
+#endif
 
 #endif

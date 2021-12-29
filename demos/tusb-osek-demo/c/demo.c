@@ -28,9 +28,13 @@
 */
 #define DV_ASM	0
 #include <os.h>
+#include <demo.h>
 
 #include <dv-stdio.h>
 #include <dv-string.h>
+
+#include <tusb.h>
+
 
 /* This include file selects the hardware type
 */
@@ -118,6 +122,20 @@ TASK(Bit0)
 	StatusType ee;
 
 	ledstate[0] = !ledstate[0];
+
+	if ( tud_suspended() )
+	{
+		/* Wake up host if we are in suspend mode
+		 * and REMOTE_WAKEUP feature is enabled by host
+		*/
+		tud_remote_wakeup();
+	}
+	else
+	{
+		/* Send the 1st of report chain, the rest will be sent by tud_hid_report_complete_cb()
+		*/
+		send_hid_report(REPORTID_KEYBOARD, ledstate[0]);
+	}
 
 	if ( ledstate[0] )
 	{
@@ -232,7 +250,33 @@ TASK(Init)
 		dv_printf("%d %s  b=%d r=%d c=%d %d\n", i, dv_exe[i].name, dv_exe[i].baseprio, dv_exe[i].runprio,
 													dv_exe[i].currprio, dv_exe[i].state);
 	}
+
+	tusb_init();
 }
+
+#if DV_TUSB_HOST
+/* TASK(tusb_HostTask) - task body function for the TinyUSB host finctionality
+*/
+TASK(tusb_HostTask)
+{
+	for (;;)
+	{
+		tuh_task();
+	}
+}
+#endif
+
+#if DV_TUSB_DEVICE
+/* TASK(tusb_DeviceTask) - task body function for the TinyUSB device finctionality
+*/
+TASK(tusb_DeviceTask)
+{
+	for (;;)
+	{
+		tud_task();
+	}
+}
+#endif
 
 /* ISR(Uart) - body of ISR to handle uart rx interrupt
 */
@@ -257,7 +301,27 @@ ISR(Timer)
 		ShutdownOS(ee);
 }
 
-#if 1
+/* USB ISR(s) as required by the hardware
+*/
+ISR(tusb_Isr1)
+{
+	hw_UsbIsr1();
+}
+
+#ifdef hw_UsbInterruptId2
+ISR(tusb_Isr2)
+{
+	hw_UsbIsr2();
+}
+#endif
+
+#ifdef hw_UsbInterruptId2
+ISR(tusb_Isr3)
+{
+	hw_UsbIsr3();
+}
+#endif
+
 /* ErrorHook() - called if an error is detected
 */
 void ErrorHook(StatusType e)
@@ -271,24 +335,6 @@ void ErrorHook(StatusType e)
 		dv_printf("    param[%d] = %d (0x%08x)\n", i, (dv_u32_t)dv_lasterror.p[i], (dv_u32_t)dv_lasterror.p[i]);
 	}
 }
-
-#else
-/* callout_reporterror() - called if an error is detected
-*/
-dv_statustype_t callout_reporterror(dv_sid_t sid, dv_statustype_t e, dv_qty_t nparam, dv_param_t *param)
-{
-	dv_printf("callout_reporterror(%d, %d, %d, ...) called.\n", sid, e, nparam);
-	for (int i = 0; i < nparam; i++ )
-	{
-		/* Only print the lower 32 bits of the parameters
-		*/
-		dv_printf("    param[%d] = %d (0x%08x)\n", i, (dv_u32_t)param[i], (dv_u32_t)param[i]);
-	}
-
-	for (;;) {} /* Temporary */
-	return e;
-}
-#endif
 
 /* callout_shutdown() - called on shutdown
 */

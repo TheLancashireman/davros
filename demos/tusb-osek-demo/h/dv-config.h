@@ -32,11 +32,13 @@
 
 #if DEMO_BOARD == DEMO_PI_ZERO
 
+#error "No tinyusb support for pi-zero"
 #define DV_TARGET			<arm/h/dv-target-pi-zero.h>
 #define DV_DEMO_TARGET		<demo-pi-zero.h>
 
 #elif DEMO_BOARD == DEMO_PI3_ARM64
 
+#error "No tinyusb support for pi3"
 #define DV_TARGET			<arm64/h/dv-target-pi3-arm64.h>
 #define DV_DEMO_TARGET		<demo-pi3-arm64.h>
 #define DV_TARGET_CORE		0
@@ -45,16 +47,23 @@
 
 #define DV_TARGET			<arm/h/dv-target-blue-pill.h>
 #define DV_DEMO_TARGET		<demo-blue-pill.h>
+#define CFG_TUSB_MCU		OPT_MCU_STM32F1
 
 #elif DEMO_BOARD == DEMO_PI_PICO
 
 #define DV_TARGET			<arm/h/dv-target-pi-pico.h>
 #define DV_DEMO_TARGET		<demo-pi-pico.h>
 #define DV_TARGET_CORE		0
+#define CFG_TUSB_MCU		OPT_MCU_RP2040
 
 #else
 #error "DEMO_BOARD not known"
 #endif
+
+#define CFG_TUSB_OS 		OPT_OS_CUSTOM
+
+#define DV_TUSB_HOST		0
+#define DV_TUSB_DEVICE		1
 
 /* DV_CFG_MAXEXE is the maximum number of executables (tasks + ISRs) that you can create.
 */
