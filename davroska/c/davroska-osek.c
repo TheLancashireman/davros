@@ -369,8 +369,8 @@ dv_id_t dv_addosekcounter(const char *name, dv_id_t c, dv_u64_t max, dv_u64_t mi
 	dv_id_t id = dv_nosekcounter++;
 
 	dv_osekcounter[id].name = name;
-	dv_osekcounter[id].maxvalue = min;
-	dv_osekcounter[id].mincycle = max;
+	dv_osekcounter[id].maxvalue = max;
+	dv_osekcounter[id].mincycle = min;
 	dv_osekcounter[id].counter = c;
 
 	return id;
