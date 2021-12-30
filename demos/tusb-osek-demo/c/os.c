@@ -184,4 +184,16 @@ void callout_autostart(dv_id_t mode)
 
 	hw_InitialiseMillisecondTicker();
 	dv_enable_irq(hw_TimerInterruptId);
+
+#if USE_USB
+	/* Enable USB interrupts
+	*/
+	dv_enable_irq(hw_UsbInterruptId1);
+#ifdef hw_UsbInterruptId2
+	dv_enable_irq(hw_UsbInterruptId2);
+#endif
+#ifdef hw_UsbInterruptId3
+	dv_enable_irq(hw_UsbInterruptId3);
+#endif
+#endif
 }

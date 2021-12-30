@@ -29,6 +29,8 @@
 #ifndef demo_h
 #define demo_h
 
+#define USE_USB		0
+
 #include "tusb.h"
 
 void send_hid_report(uint8_t report_id, uint32_t btn);

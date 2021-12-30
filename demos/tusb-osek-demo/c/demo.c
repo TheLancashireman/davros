@@ -35,7 +35,6 @@
 
 #include <tusb.h>
 
-
 /* This include file selects the hardware type
 */
 #include DV_DEMO_TARGET
@@ -250,8 +249,9 @@ TASK(Init)
 		dv_printf("%d %s  b=%d r=%d c=%d %d\n", i, dv_exe[i].name, dv_exe[i].baseprio, dv_exe[i].runprio,
 													dv_exe[i].currprio, dv_exe[i].state);
 	}
-
+#if USE_USB
 	tusb_init();
+#endif
 }
 
 #if DV_TUSB_HOST
@@ -259,6 +259,9 @@ TASK(Init)
 */
 TASK(tusb_HostTask)
 {
+#if !USE_USB
+	TerminateTask();
+#endif
 	for (;;)
 	{
 		tuh_task();
@@ -271,6 +274,9 @@ TASK(tusb_HostTask)
 */
 TASK(tusb_DeviceTask)
 {
+#if !USE_USB
+	TerminateTask();
+#endif
 	for (;;)
 	{
 		tud_task();
