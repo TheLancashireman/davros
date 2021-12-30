@@ -1,1 +1,1 @@
-target remote tcp:localhost:3333
+target extended-remote tcp:localhost:3333
