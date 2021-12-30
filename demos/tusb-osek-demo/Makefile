@@ -31,6 +31,7 @@
 DEMO_D		?= $(shell pwd)
 DV_D		?= $(shell (cd $(DEMO_D)/../../ ; pwd))
 PRJ_D		?= $(shell (cd $(DEMO_D)/../../../ ; pwd))
+GNU_D		?= $(shell (cd $(DEMO_D)/../../../../gnu ; pwd))
 
 DAVROSKA_D	= $(DV_D)/davroska
 
@@ -74,17 +75,19 @@ endif
 
 ifeq ($(DV_BOARD), blue-pill)
 DEMO_BOARD		?=	DEMO_BLUE_PILL
-DV_COMPILER		?=	host-arm
+DV_COMPILER		?=	arm-gcc
 DV_LDSCRIPT		?=	$(DAVROSKA_D)/hardware/arm/ld/dv-blue-pill.ldscript
 DV_ENTRY		?=	--thumb-entry dv_reset
-LD_OPT			+=	-L $(DV_GNU_D)/lib/gcc/arm-none-eabi/10.3.1/thumb/v7-m/nofp
-LD_OPT			+=	-L /usr/lib/arm-none-eabi/newlib/thumb/v7-m/nofp/
+#LD_OPT			+=	-L $(DV_GNU_D)/lib/gcc/arm-none-eabi/10.3.1/thumb/v7-m/nofp
+#LD_OPT			+=	-L /usr/lib/arm-none-eabi/newlib/thumb/v7-m/nofp/
+LD_OPT			+=	-L $(DV_GNU_D)/arm-none-eabi/lib/thumb/v7-m/nofp
+LD_OPT			+=	-L $(DV_GNU_D)/lib/gcc/arm-none-eabi/9.2.1/thumb/v7-m/nofp
 CC_OPT			+=	-mcpu=cortex-m3
 CC_OPT			+=	-mthumb
 CC_OPT			+=	-I $(STM32CUBE)/Drivers/CMSIS/Device/ST/STM32F1xx/Include
 CC_OPT			+=	-I $(STM32CUBE)/Drivers/CMSIS/Core/Include
 
-default:		install
+default:		openocd
 
 endif
 
@@ -108,7 +111,7 @@ endif
 
 ifeq ($(DV_COMPILER), arm-gcc)
 # gcc from arm.com
-DV_GNU_D		?=	$(PRJ_D)/gcc-arm-none-eabi-9-2019-q4-major
+DV_GNU_D		?=	$(GNU_D)/gcc-arm-none-eabi-9-2019-q4-major
 DV_GNU_INFIX	?=	arm-none-eabi
 endif
 
@@ -119,14 +122,14 @@ DV_GNU_INFIX	?=	arm-none-eabi
 endif
 
 ifeq ($(DV_COMPILER), linaro-arm)
-DV_GNU_D		?=	$(PRJ_D)/gcc-linaro-7.5.0-2019.12-x86_64_arm-eabi
-#DV_GNU_D		?=	$(PRJ_D)/gcc-linaro-6.3.1-2017.02-x86_64_arm-eabi
+DV_GNU_D		?=	$(GNU_D)/gcc-linaro-7.5.0-2019.12-x86_64_arm-eabi
+#DV_GNU_D		?=	$(GNU_D)/gcc-linaro-6.3.1-2017.02-x86_64_arm-eabi
 DV_GNU_INFIX	?=	arm-eabi
 endif
 
 ifeq ($(DV_COMPILER), linaro-aarch64)
-DV_GNU_D		?=	$(PRJ_D)/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-elf
-#DV_GNU_D		?=	$(PRJ_D)/gcc-linaro-6.3.1-2017.02-x86_64_aarch64-elf
+DV_GNU_D		?=	$(GNU_D)/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-elf
+#DV_GNU_D		?=	$(GNU_D)/gcc-linaro-6.3.1-2017.02-x86_64_aarch64-elf
 DV_GNU_INFIX	?=	aarch64-elf
 endif
 
@@ -285,7 +288,7 @@ VPATH		+=	$(DV_D)/devices/s
 # TinyUSB
 LIBUSB_OBJS	= $(shell ./tusb-list.sh $(TINYUSB_D) $(DV_OBJ_D))
 
-.PHONY:		default all help clean install srec uf2 libusb
+.PHONY:		default all help clean install srec uf2 libusb openocd
 
 clean:
 	-rm -rf $(DV_OBJ_D) $(DV_BIN_D)
@@ -314,6 +317,10 @@ install:		$(IMAGE_FILE)
 
 $(IMAGE_FILE):	elf
 	$(DV_OBJCOPY) $(ELF_FILE) -O binary $@
+
+openocd:		install
+	@echo "Use these commands in openocd:"
+	@echo "reset halt"
 	@echo "flash write_image erase $(IMAGE_FILE) 0x08000000"
 
 srec:			$(SREC_FILE)
