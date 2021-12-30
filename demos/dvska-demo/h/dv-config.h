@@ -87,6 +87,14 @@
 */
 #define DV_CFG_MAXALARM		10
 
+/* DV_CFG_MAXALARM_OSEK is the maximum number of OSEK alarms that you can create
+*/
+#define DV_CFG_MAXALARM_OSEK	5
+
+/* DV_CFG_MAXCOUNTER_OSEK is the maximum number of OSEK counters that you can create
+*/
+#define DV_CFG_MAXCOUNTER_OSEK	5
+
 /* Inline versions of the empty callout functions
 */
 static inline void callout_preexe(void)
