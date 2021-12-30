@@ -68,7 +68,7 @@ dv_statustype_t callout_reporterror(dv_sid_t sid, dv_statustype_t e, dv_qty_t nP
 */
 static inline StatusType dv_checkalarmparams(AlarmType a, TickType t, TickType c, dv_sid_t sid)
 {
-	if ( (a < 0) && (a > dv_nalarm) )
+	if ( (a < 0) || (a >= dv_nosekalarm) )
 	{
 		/* Alarm does not exist
 		*/
@@ -112,7 +112,7 @@ static inline StatusType dv_checkalarmparams(AlarmType a, TickType t, TickType c
 		}
 	}
 
-	if ( dv_getexpirytime(a) != 0 )
+	if ( dv_getexpirytime(dv_osekalarm[a].alarm) != 0 )
 	{
 		/* Alarm is already in use
 		*/
@@ -154,7 +154,7 @@ StatusType SetRelAlarm(AlarmType a, TickType tim, TickType cyc)
 	}
 
 	dv_osekalarm[a].cycle = cyc;
-	dv_setalarm(c, a, absval);
+	dv_setalarm(c, dv_osekalarm[a].alarm, absval);
 
 	dv_restore(is);
 
@@ -196,7 +196,7 @@ StatusType SetAbsAlarm(AlarmType a, TickType tim, TickType cyc)
 	}
 
 	dv_osekalarm[a].cycle = cyc;
-	dv_setalarm(c, a, absval);
+	dv_setalarm(c, dv_osekalarm[a].alarm, absval);
 
 	dv_restore(is);
 
@@ -333,7 +333,7 @@ dv_id_t dv_addosekalarm_counter(const char *name, dv_id_t c, dv_id_t c2incr)
 */
 dv_id_t dv_addosekcounter(const char *name, dv_id_t c, dv_u64_t max, dv_u64_t min)
 {
-	if ( (dv_configstate == DV_NULL) || (dv_configstate->phase != ph_addosekcounters) )
+	if ( (dv_configstate == DV_NULL) || (dv_configstate->phase != ph_addcounters) )
 	{
 		dv_param_t p[4];
 		p[0] = (dv_param_t)(dv_address_t)name;
@@ -405,6 +405,7 @@ static dv_id_t dv_addosekalarm(const char *name, dv_id_t c, dv_u64_t (*af)(dv_id
 
 	dv_osekalarm[id].name = name;
 	dv_osekalarm[id].osekcounter = c;
+	dv_osekalarm[id].alarm = alarm_id;
 
 	return id;
 }

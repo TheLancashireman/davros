@@ -1,4 +1,4 @@
-/* davroska-time.c - time-triggereing (counters, alarms etc.) for davroska
+/* davroska-time.c - time-triggering (counters, alarms etc.) for davroska
  *
  * Copyright David Haworth
  *

@@ -261,6 +261,7 @@ struct dv_osekalarm_s
 		void (*acb)(void);
 	} more;
 	dv_u64_t cycle;				/* Alarm cycle time */
+	dv_id_t alarm;				/* The davroska alarm associated with this osek alarm */
 };
 
 struct dv_osekcounter_s

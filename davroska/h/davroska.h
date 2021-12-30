@@ -240,8 +240,8 @@ typedef enum
 	ph_addmutexes,
 	ph_addcounters,
 	ph_addalarms,
-	ph_addosekcounters,
-	ph_addosekalarms
+	ph_addosekcounters,		/* Not used */
+	ph_addosekalarms		/* Not used */
 } dv_cfgphase_t;
 
 typedef struct dv_configstate_s
