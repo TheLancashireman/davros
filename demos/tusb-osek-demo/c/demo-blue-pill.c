@@ -31,9 +31,6 @@
 #include <dv-stm32-uart.h>
 #include <dv-stm32-gpio.h>
 
-#include "demo-stm32-usb.h"
-
-
 #include <davroska-inline.h>
 
 #include <demo-blue-pill.h>
@@ -262,17 +259,4 @@ void dv_stm32_usb_init(void)
 	/* Deassert the reset signal
 	*/
 	dv_rcc.apb1rst &= ~DV_RCC_USB;
-
-	/* Ensure that both FRES and PDWN are set
-	 * This also clears all the interrupt enable flags
-	*/
-	dv_usb.cntr = (DV_USB_FRES | DV_USB_PDWN);
-
-	/* Set the SRAM to funny values
-	 * Don't forget the differing 16/32-bit views!
-	*/
-	dv_u32_t *p = (dv_u32_t *)DV_USB_SRAM_BASE;
-	for ( int i = 0; i < (DV_USB_SRAM_LENGTH/2); i++ )
-		*p++ = 0xdead;
 }
-
