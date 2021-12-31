@@ -265,6 +265,7 @@ TASK(tusb_HostTask)
 	for (;;)
 	{
 		tuh_task();
+		osal_delay(1, 5);	/* Might happen during startup. Avoids busy-wait. */
 	}
 }
 #endif
@@ -280,6 +281,7 @@ TASK(tusb_DeviceTask)
 	for (;;)
 	{
 		tud_task();
+		osal_delay(0, 5);	/* Might happen during startup. Avoids busy-wait. */
 	}
 }
 #endif
