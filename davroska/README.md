@@ -20,9 +20,11 @@ That was for the davroska kernel. The OSEK compatibility layer came later.
 
 * tested on a raspberry pi zero - uart and timer interrupts working. MMU and caches enabled
 * tested on a raspberry pi 3 (aarch64) - uart and timer interrupts working. MMU and caches enabled
-* tested on a "blue pill" (STM32, Cortex-M) - uart and timer interrupts working.
+* tested on a "blue pill" (STM32, cortex-m3) - uart and timer interrupts working.
+* tested on a raspberry pi pico (RP2040, cortex-m0+) - uart and timer interrupts working.
 
-Note: the kernel only runs on one core of the pi3. I'm using this kernel in a real project.
+Note: the kernel only runs on one core of multi-core hardware.
+I'm using this kernel on a pi3 in a real project.
 
 ## Quick user's guide
 
@@ -91,7 +93,7 @@ Also beware that the current value of the counter might be stale. Before setting
 wise to advance the counter by the number of timer ticks that have elapsed since the last advance.
 
 Hook functions as specified in by OSEK are not implemented, However, there are several callout functions
-that serve a simiar purpose.
+that serve a similar purpose.
 
 The OSEK Schedule(), GetTaskID(), GetTaskState() and GetAlarmBase() APIs are not implemented yet.
 
