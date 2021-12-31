@@ -60,6 +60,8 @@
 #define OSAL_OPT_DEVICE	0
 #endif
 
+#define OSAL_DEBUG	0
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -116,13 +118,29 @@ static inline bool osal_wgcevent(bool is_host, uint32_t msec)
 // This implementation assumes a counter tick rate of 1 kHz
 // osal_task_delay() appears to be used in host only.
 //--------------------------------------------------------------------+
-static inline void osal_task_delay(uint32_t msec)
+static inline void osal_delay(bool is_host, uint32_t msec)
 {
 #if OSAL_OPT_HOST
-	(void)SetRelAlarm(tusb_HostAlarm, msec, 0);
-	(void)WaitEvent(ev_Tusb_Timeout);
-	(void)ClearEvent(ev_Tusb_Timeout);
+	if ( is_host )
+	{
+		(void)SetRelAlarm(tusb_HostAlarm, msec, 0);
+		(void)WaitEvent(ev_Tusb_Timeout);
+		(void)ClearEvent(ev_Tusb_Timeout);
+	}
 #endif
+#if OSAL_OPT_DEVICE
+	if ( !is_host )
+	{
+		(void)SetRelAlarm(tusb_DeviceAlarm, msec, 0);
+		(void)WaitEvent(ev_Tusb_Timeout);
+		(void)ClearEvent(ev_Tusb_Timeout);
+	}
+#endif
+}
+
+static inline void osal_task_delay(uint32_t msec)
+{
+	osal_delay(1, msec);
 }
 
 //--------------------------------------------------------------------+
@@ -219,18 +237,23 @@ static inline osal_queue_t osal_queue_create(osal_queue_def_t* qdef)
 	return qdef;
 }
 
-static inline bool osal_queue_receive(osal_queue_t qhdl, void* data)
+#if OSAL_DEBUG
+extern bool extern_queue_receive(osal_queue_t qhdl, void* data);
+extern bool extern_queue_send(osal_queue_t qhdl, void const * data, bool in_isr);
+#endif
+
+static inline bool inline_queue_receive(osal_queue_t qhdl, void* data)
 {
 	if ( qhdl->r_index == qhdl->w_index )
 	{
 		(void)WaitEvent(ev_Tusb_Notify);
 		(void)ClearEvent(ev_Tusb_Notify);
+
+		if ( qhdl->r_index == qhdl->w_index )
+			return 0;				// Should never happen
 	}
 
-	if ( qhdl->r_index == qhdl->w_index )
-		return 0;
-
-	volatile uint8_t *src = (volatile uint8_t *)&qhdl->buf[qhdl->r_index * qhdl->blocksize];
+	const uint8_t *src = (const uint8_t *)&qhdl->buf[qhdl->r_index * qhdl->blocksize];
 	volatile uint8_t *dest = (volatile uint8_t *)data;
 
 	for ( int i = 0; i < qhdl->blocksize; i++ )
@@ -243,8 +266,16 @@ static inline bool osal_queue_receive(osal_queue_t qhdl, void* data)
 
 	return 1;
 }
+static inline bool osal_queue_receive(osal_queue_t qhdl, void* data)
+{
+#if OSAL_DEBUG
+	return extern_queue_receive(qhdl, data);
+#else
+	return inline_queue_receive(qhdl, data);
+#endif
+}
 
-static inline bool osal_queue_send(osal_queue_t qhdl, void const * data, bool in_isr)
+static inline bool inline_queue_send(osal_queue_t qhdl, void const * data, bool in_isr)
 {
 	uint16_t newidx = qhdl->w_index + 1;
 	if ( newidx >= qhdl->len )
@@ -254,7 +285,7 @@ static inline bool osal_queue_send(osal_queue_t qhdl, void const * data, bool in
 		return 0;					// Queue full
 
 	volatile uint8_t *src = (volatile uint8_t *)data;
-	volatile uint8_t *dest = (volatile uint8_t *)&qhdl->buf[newidx * qhdl->blocksize];
+	volatile uint8_t *dest = (volatile uint8_t *)&qhdl->buf[qhdl->w_index * qhdl->blocksize];
 
 	for ( int i = 0; i < qhdl->blocksize; i++ )
 		*dest++ = *src++;
@@ -280,6 +311,15 @@ static inline bool osal_queue_send(osal_queue_t qhdl, void const * data, bool in
 	}
 
 	return 1;
+}
+
+static inline bool osal_queue_send(osal_queue_t qhdl, void const * data, bool in_isr)
+{
+#if OSAL_DEBUG
+	return extern_queue_send(qhdl, data, in_isr);
+#else
+	return inline_queue_send(qhdl, data, in_isr);
+#endif
 }
 
 static inline bool osal_queue_empty(osal_queue_t qhdl)
