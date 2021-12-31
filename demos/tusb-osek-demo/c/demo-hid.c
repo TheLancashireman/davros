@@ -24,12 +24,17 @@
 #include "demo.h"
 #include "tusb.h"
 
+const struct
+{	dv_u8_t mods;
+	dv_u8_t code;
+} ascii2keys[128] = { HID_ASCII_TO_KEYCODE };
+
 /* send_hid_report() - the application calls this function to send an event (keypress, etc.) to the host
  *
  * Parameters:	report_id - keyboard/mouse/etc.
- *				btn - key pressed/released
+ *				c - character to send. '\0' to release
 */
-void send_hid_report(uint8_t report_id, uint32_t btn)
+void send_hid_report(uint8_t report_id, unsigned char c)
 {
 	/* Ignore if USB device isn't ready.
 	*/
@@ -38,16 +43,20 @@ void send_hid_report(uint8_t report_id, uint32_t btn)
 	switch(report_id)
 	{
 		case REPORTID_KEYBOARD:
-			if ( btn )
+			if ( c == '\0' )
 			{
-				uint8_t keycode[6] = { 0 };
-				keycode[0] = HID_KEY_A;
-
-				tud_hid_keyboard_report(REPORTID_KEYBOARD, 0, keycode);
+				// Key release
+				tud_hid_keyboard_report(REPORTID_KEYBOARD, 0, NULL);
 			}
 			else
+			if ( c < 0x80 )
 			{
-				tud_hid_keyboard_report(REPORTID_KEYBOARD, 0, NULL);
+				uint8_t keycode[6] = { 0 };
+				keycode[0] = ascii2keys[c].code;
+				uint8_t mod = ascii2keys[c].mods == 0 ? 0 : KEYBOARD_MODIFIER_LEFTSHIFT;
+				
+
+				tud_hid_keyboard_report(REPORTID_KEYBOARD, mod, keycode);
 			}
 			break;
 

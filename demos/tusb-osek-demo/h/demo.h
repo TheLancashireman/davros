@@ -33,7 +33,7 @@
 
 #include "tusb.h"
 
-void send_hid_report(uint8_t report_id, uint32_t btn);
+void send_hid_report(uint8_t report_id, unsigned char c);
 
 #define REPORTID_KEYBOARD			1
 #if 0
