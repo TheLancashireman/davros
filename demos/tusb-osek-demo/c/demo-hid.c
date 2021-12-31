@@ -385,3 +385,16 @@ uint16_t const* tud_descriptor_string_cb(uint8_t index, uint16_t langid)
 
 	return utf16_buf;
 }
+
+/* Debuggable versions of queue send/receive
+*/
+#if OSAL_DEBUG
+bool extern_queue_receive(osal_queue_t qhdl, void* data)
+{
+	return inline_queue_receive(qhdl, data);
+}
+bool extern_queue_send(osal_queue_t qhdl, void const * data, bool in_isr)
+{
+	return inline_queue_send(qhdl, data, in_isr);
+}
+#endif
