@@ -29,18 +29,16 @@
 #ifndef demo_h
 #define demo_h
 
-#define USE_USB		0
+#define USE_USB		1
 
 #include "tusb.h"
 
 void send_hid_report(uint8_t report_id, uint32_t btn);
 
 #define REPORTID_KEYBOARD			1
-#if 0
 #define REPORTID_MOUSE				2
 #define REPORTID_CONSUMER_CONTROL	3
 #define REPORTID_GAMEPAD			4
-#endif
-#define REPORTID_LAST				1
+#define REPORTID_LAST				4
 
 #endif
