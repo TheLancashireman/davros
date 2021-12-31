@@ -36,9 +36,11 @@
 void send_hid_report(uint8_t report_id, uint32_t btn);
 
 #define REPORTID_KEYBOARD			1
+#if 0
 #define REPORTID_MOUSE				2
 #define REPORTID_CONSUMER_CONTROL	3
 #define REPORTID_GAMEPAD			4
-#define REPORTID_LAST				4
+#endif
+#define REPORTID_LAST				1
 
 #endif
