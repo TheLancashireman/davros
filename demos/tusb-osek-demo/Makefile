@@ -286,7 +286,7 @@ VPATH		+=	$(DV_D)/devices/c
 VPATH		+=	$(DV_D)/devices/s
 
 # TinyUSB
-LIBUSB_OBJS	= $(shell ./tusb-list.sh $(TINYUSB_D) $(DV_OBJ_D))
+LIBUSB_OBJS	= $(shell $(DV_D)/scripts/tusb-list.sh $(TINYUSB_D) $(DV_OBJ_D))
 
 .PHONY:		default all help clean install srec uf2 libusb openocd
 
