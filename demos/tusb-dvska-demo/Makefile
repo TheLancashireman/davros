@@ -290,12 +290,10 @@ LIBUSB_OBJS	= $(shell $(DV_D)/scripts/tusb-list.sh $(TINYUSB_D) $(DV_OBJ_D))
 clean:
 	-rm -rf $(DV_OBJ_D) $(DV_BIN_D)
 
-elf:			$(DV_OBJ_D) $(DV_BIN_D) $(ELF_FILE) 
-#x elf:			$(DV_OBJ_D) $(DV_BIN_D) libusb $(ELF_FILE) 
+elf:			$(DV_OBJ_D) $(DV_BIN_D) libusb $(ELF_FILE) 
 
 $(ELF_FILE):	$(DV_LD_OBJS)
-	$(DV_LD) -o $@ $(DV_LD_OBJS) $(LD_OPT) $(DV_LDLIB)
-#x	$(DV_LD) -o $@ $(DV_LD_OBJS) $(LD_OPT) -ltusb $(DV_LDLIB)
+	$(DV_LD) -o $@ $(DV_LD_OBJS) $(LD_OPT) -ltusb $(DV_LDLIB)
 
 $(DV_OBJ_D)/%.o:  %.c
 	$(DV_GCC) $(CC_OPT) -o $@ -c $<
