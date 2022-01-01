@@ -22,6 +22,12 @@
 #ifndef tusb_os_custom_h
 #define tusb_os_custom_h
 
-#include <tusb_os_osek.h>
+#include "dv-config.h"
+
+#ifdef DV_TUSB_OS_HDR
+#include DV_TUSB_OS_HDR
+#else
+#error "DV_TUSB_OS_HDR is not defined"
+#endif
 
 #endif

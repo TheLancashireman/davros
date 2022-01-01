@@ -61,6 +61,7 @@
 #endif
 
 #define CFG_TUSB_OS 		OPT_OS_CUSTOM
+#define DV_TUSB_OS_HDR		<tusb_os_osek.h>
 
 #define DV_TUSB_HOST		0
 #define DV_TUSB_DEVICE		1
