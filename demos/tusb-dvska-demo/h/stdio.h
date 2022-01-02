@@ -27,4 +27,12 @@
 #include <davroska-osek.h>
 #include <dv-stdio.h>
 
+/* Avoid a warning in midi_device.c and elsewhere.
+ * It isn't clear where the pointer definition of NULL comes from
+*/
+#ifdef NULL
+#undef NULL
+#endif
+#define NULL	0
+
 #endif
