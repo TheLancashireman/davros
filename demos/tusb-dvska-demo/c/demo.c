@@ -29,6 +29,7 @@
 #include <davroska.h>
 #include <dv-stdio.h>
 #include <dv-string.h>
+#include <dv-ringbuf.h>
 
 /* This include file selects the hardware type
 */
@@ -37,6 +38,19 @@
 /* This includes the USB functionality
 */
 #include "usb-midi.h"
+
+/* The UsbWrite task creates a mini monophonic organ keyboard (single octave)
+ * from your PC keyboard via the uart. Use a terminal program like minicom.
+ *
+ * The keys are:
+ *
+ * Black notes:    w e   t y u
+ * White notes:   a s d f g h j
+ *
+ * a is middle C, but you can change it by defining NOTE_BASE differently.
+ * You can go an ocatve higher by holding down the shift key.
+ * Any other character stops the current note.
+*/
 
 /* Task main functions, along with a description of how they interact.
  *
@@ -49,13 +63,21 @@
 */
 /* Object identifiers
 */
-dv_id_t Init, Led;						/* Tasks */
+dv_id_t Init, Led, UsbWrite, UsbRead;	/* Tasks */
 dv_id_t Uart, Timer;					/* ISRs */
 dv_id_t mx_Gpio;						/* Mutexes */
 dv_id_t Ticker;							/* Counters */
 dv_id_t LedDriver;						/* Alarms */
 
+#define ev_uart1_rx		0x01
+
 dv_boolean_t ledstate;
+
+/* Ringbuffer for UART1 rx
+*/
+#define UART1_RX_RBLEN	128
+dv_rbm_t uart1_rx_rbm;
+dv_u8_t uart1_rx_ringbuf[UART1_RX_RBLEN];
 
 /* main_Led() - task body function for the Led task
 */
@@ -81,6 +103,92 @@ void main_Init(void)
 	tusb_init();
 }
 
+/* main_UsbRead() - task body function for the UsbRead task
+*/
+void main_UsbRead(void)
+{
+	dv_u8_t packet[4];
+	while ( tud_midi_available() )
+	{
+		tud_midi_packet_read(packet);
+	}
+}
+
+/* main_UsbWrite() - task body function for the UsbWrite task
+*/
+#define NOTE_C1		24
+#define NOTE_C2		36
+#define NOTE_C3		48
+#define NOTE_C4		60		/* Middle C */
+#define NOTE_C5		72
+#define NOTE_BASE	NOTE_C4
+
+#define MIDI_PORT		0
+#define MIDI_CHANNEL	0
+
+void main_UsbWrite(void)
+{
+	dv_u8_t note_on[3];
+	dv_u8_t note_off[3];
+
+	note_off[0] = 0x80 + MIDI_CHANNEL;
+	note_off[2] = 0;
+
+	note_on[0] = 0x90 + MIDI_CHANNEL;
+	note_on[2] = 127;
+
+	for (;;)
+	{
+		dv_waitevent(ev_uart1_rx);
+		dv_clearevent(ev_uart1_rx);
+
+		while ( !dv_rb_empty(&uart1_rx_rbm) )
+		{
+			dv_u8_t c = uart1_rx_ringbuf[uart1_rx_rbm.head];
+			uart1_rx_rbm.head = dv_rb_add1(&uart1_rx_rbm, uart1_rx_rbm.head);
+
+			if ( note_on[1] != 0 )
+			{
+				/* Send note-off
+				*/
+				note_off[1] = note_on[1];
+				tud_midi_stream_write(MIDI_PORT, note_off, 3);
+			}
+
+			note_on[1] = NOTE_BASE;
+			if ( c >= 0x41 && c <= 0x5a )
+			{
+				c += 0x20;
+				note_on[1] += 12;
+			}
+
+			switch (c)
+			{
+			case 'a':	note_on[1] += 0;	break;	/* C */
+			case 'w':	note_on[1] += 1;	break;	/* C# */
+			case 's':	note_on[1] += 2;	break;	/* D */
+			case 'e':	note_on[1] += 3;	break;	/* Eb */
+			case 'd':	note_on[1] += 4;	break;	/* E */
+			case 'f':	note_on[1] += 5;	break;	/* F */
+			case 't':	note_on[1] += 6;	break;	/* F#*/
+			case 'g':	note_on[1] += 7;	break;	/* G */
+			case 'y':	note_on[1] += 8;	break;	/* Ab*/
+			case 'h':	note_on[1] += 9;	break;	/* A */
+			case 'u':	note_on[1] += 10;	break;	/* Bb */
+			case 'j':	note_on[1] += 11;	break;	/* B */
+			default:	note_on[1] = 0;		break;	/* Nothing */
+			}
+
+			if ( note_on[1] != 0 )
+			{
+				tud_midi_stream_write(MIDI_PORT, note_on, 3);
+				dv_printf("UsbWrite: note = %u\n", note_on[1]);
+			}
+
+		}
+	}
+}
+
 /* main_Uart() - body of ISR to handle uart rx interrupt
 */
 void main_Uart(void)
@@ -91,9 +199,19 @@ void main_Uart(void)
 	while ( dv_consoledriver.isrx() )
 	{
 		int c = dv_consoledriver.getc();
-
+#if 0
 		dv_printf("uart rx : 0x%02x\n", c);
+#endif
+
+		if ( !dv_rb_full(&uart1_rx_rbm) )
+		{
+			uart1_rx_ringbuf[uart1_rx_rbm.tail] = (dv_u8_t)c;
+			uart1_rx_rbm.tail = dv_rb_add1(&uart1_rx_rbm, uart1_rx_rbm.tail);
+		}
 	}
+
+	if ( !dv_rb_empty(&uart1_rx_rbm) )
+		dv_setevent(UsbWrite, ev_uart1_rx);
 }
 
 /* main_Timer() - body of ISR to handle interval timer interrupt
@@ -123,8 +241,12 @@ void callout_addtasks(dv_id_t mode)
 	dv_printf("Init : %d\n", Init);
 	Led = dv_addtask("Led", &main_Led, 1, 1);
 	dv_printf("Led : %d\n", Led);
-	tusb_DeviceTask = dv_addextendedtask("tusb_DeviceTask", &main_tusb_DeviceTask, 3, 2048);
+	tusb_DeviceTask = dv_addextendedtask("tusb_DeviceTask", &main_tusb_DeviceTask, 3, 1024);
 	dv_printf("tusb_DeviceTask : %d\n", tusb_DeviceTask);
+	UsbWrite = dv_addextendedtask("UsbWrite", &main_UsbWrite, 2, 1024);
+	dv_printf("UsbWrite : %d\n", UsbWrite);
+	UsbRead = dv_addtask("UsbRead", &main_UsbRead, 2, 1);
+	dv_printf("UsbRead : %d\n", UsbRead);
 }
 
 /* callout_addisrs() - configure the isrs
@@ -194,6 +316,7 @@ void callout_autostart(dv_id_t mode)
 {
 	dv_activatetask(Init);
 	dv_activatetask(tusb_DeviceTask);
+	dv_activatetask(UsbWrite);
 	dv_setalarm_rel(Ticker, LedDriver, 2000);
 
 	/* Enable interrupts from the UART
@@ -262,6 +385,8 @@ void callout_panic(dv_panic_t p, dv_sid_t sid, char *fault)
 int main(int argc, char **argv)
 {
 	dv_printf("davroska starting ...\n");
+
+	uart1_rx_rbm.length = UART1_RX_RBLEN;
 
 	sysinfo();
 
