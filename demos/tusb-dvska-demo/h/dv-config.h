@@ -65,6 +65,9 @@
 
 #define DV_TUSB_HOST		0
 #define DV_TUSB_DEVICE		1
+#define OSAL_OPT_HOST		0
+#define OSAL_OPT_DEVICE		1
+#define TUSB_COUNTERID		Ticker
 
 /* DV_CFG_MAXEXE is the maximum number of executables (tasks + ISRs) that you can create.
 */
