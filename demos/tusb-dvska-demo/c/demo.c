@@ -67,7 +67,7 @@ dv_id_t Init, Led, UsbWrite, UsbRead;	/* Tasks */
 dv_id_t Uart, Timer;					/* ISRs */
 dv_id_t mx_Gpio;						/* Mutexes */
 dv_id_t Ticker;							/* Counters */
-dv_id_t LedDriver;						/* Alarms */
+dv_id_t LedDriver, UsbReadAlarm;		/* Alarms */
 
 #define ev_uart1_rx		0x01
 
@@ -103,6 +103,9 @@ void main_Init(void)
 	tusb_init();
 }
 
+#define MIDI_CABLE		0
+#define MIDI_CHANNEL	0
+
 /* main_UsbRead() - task body function for the UsbRead task
 */
 void main_UsbRead(void)
@@ -111,6 +114,8 @@ void main_UsbRead(void)
 	while ( tud_midi_available() )
 	{
 		tud_midi_packet_read(packet);
+
+		dv_printf("UsbRead: packet = %02x %02x %02x %02x\n", packet[0], packet[1], packet[2], packet[3]);
 	}
 }
 
@@ -123,14 +128,15 @@ void main_UsbRead(void)
 #define NOTE_C5		72
 #define NOTE_BASE	NOTE_C4
 
-#define MIDI_PORT		0
-#define MIDI_CHANNEL	0
 
 void main_UsbWrite(void)
 {
 	dv_u8_t note_on[3];
 	dv_u8_t note_off[3];
 
+	/* The buffers must be valid for a while after calling tud_midi_stream_write(), so
+	 * we can't use the same buffer for note-on and note-off
+	*/
 	note_off[0] = 0x80 + MIDI_CHANNEL;
 	note_off[2] = 0;
 
@@ -152,7 +158,7 @@ void main_UsbWrite(void)
 				/* Send note-off
 				*/
 				note_off[1] = note_on[1];
-				tud_midi_stream_write(MIDI_PORT, note_off, 3);
+				tud_midi_stream_write(MIDI_CABLE, note_off, 3);
 			}
 
 			note_on[1] = NOTE_BASE;
@@ -181,7 +187,7 @@ void main_UsbWrite(void)
 
 			if ( note_on[1] != 0 )
 			{
-				tud_midi_stream_write(MIDI_PORT, note_on, 3);
+				tud_midi_stream_write(MIDI_CABLE, note_on, 3);
 				dv_printf("UsbWrite: note = %u\n", note_on[1]);
 			}
 
@@ -231,6 +237,14 @@ dv_u64_t af_LedDriver(dv_id_t unused_a, dv_param_t unused_d)
 {
 	dv_activatetask(Led);
 	return 0;
+}
+
+/* af_UsbRead() - alarm function to activate the UsbRead task
+*/
+dv_u64_t af_UsbRead(dv_id_t unused_a, dv_param_t unused_d)
+{
+	dv_activatetask(UsbRead);
+	return 5;
 }
 
 /* callout_addtasks() - configure the tasks
@@ -308,6 +322,7 @@ void callout_addalarms(dv_id_t mode)
 {
 	LedDriver = dv_addalarm("LedDriver", &af_LedDriver, 0);
 	tusb_DeviceAlarm = dv_addalarm("tusb_DeviceAlarm", &tusb_Expiry, (dv_param_t)tusb_DeviceTask);
+	UsbReadAlarm = dv_addalarm("UsbReadAlarm", &af_UsbRead, 0);
 }
 
 /* callout_autostart() - start the objects that need to be running after dv_startos()
@@ -318,6 +333,7 @@ void callout_autostart(dv_id_t mode)
 	dv_activatetask(tusb_DeviceTask);
 	dv_activatetask(UsbWrite);
 	dv_setalarm_rel(Ticker, LedDriver, 2000);
+	dv_setalarm_rel(Ticker, UsbReadAlarm, 2000);
 
 	/* Enable interrupts from the UART
 	*/
