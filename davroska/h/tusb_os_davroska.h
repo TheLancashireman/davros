@@ -122,7 +122,7 @@ static inline void osal_delay(bool is_host, uint32_t msec)
 #if OSAL_OPT_HOST
 	if ( is_host )
 	{
-		(void)dv_setalarm_rel(TUSB_COUNTERID, tusb_HostAlarm, msec, 0);
+		(void)dv_setalarm_rel(TUSB_COUNTERID, tusb_HostAlarm, msec);
 		(void)dv_waitevent(tusb_EvTimeout);
 		(void)dv_clearevent(tusb_EvTimeout);
 	}
@@ -130,7 +130,7 @@ static inline void osal_delay(bool is_host, uint32_t msec)
 #if OSAL_OPT_DEVICE
 	if ( !is_host )
 	{
-		(void)dv_setalarm_rel(TUSB_COUNTERID, tusb_DeviceAlarm, msec, 0);
+		(void)dv_setalarm_rel(TUSB_COUNTERID, tusb_DeviceAlarm, msec);
 		(void)dv_waitevent(tusb_EvTimeout);
 		(void)dv_clearevent(tusb_EvTimeout);
 	}
