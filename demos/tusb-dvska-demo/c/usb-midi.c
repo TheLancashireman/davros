@@ -24,6 +24,7 @@
 #include DV_DEMO_TARGET
 #include <tusb.h>
 
+extern dv_id_t UsbRead;
 dv_id_t tusb_Mutex;
 dv_id_t tusb_DeviceTask;
 dv_id_t tusb_DeviceAlarm;
@@ -236,4 +237,11 @@ uint16_t const* tud_descriptor_string_cb(uint8_t index, uint16_t unused_langid)
 	_desc_array[0] = (TUSB_DESC_STRING << 8 ) | (2*chr_count + 2);
 
 	return _desc_array;
+}
+
+/* tud_midi_rx_cb() - called whenever MIDI is received
+*/
+void tud_midi_rx_cb(uint8_t itf)
+{
+	dv_activatetask(UsbRead);
 }

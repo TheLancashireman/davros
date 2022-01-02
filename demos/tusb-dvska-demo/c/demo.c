@@ -67,7 +67,7 @@ dv_id_t Init, Led, UsbWrite, UsbRead;	/* Tasks */
 dv_id_t Uart, Timer;					/* ISRs */
 dv_id_t mx_Gpio;						/* Mutexes */
 dv_id_t Ticker;							/* Counters */
-dv_id_t LedDriver, UsbReadAlarm;		/* Alarms */
+dv_id_t LedDriver;						/* Alarms */
 
 #define ev_uart1_rx		0x01
 
@@ -239,14 +239,6 @@ dv_u64_t af_LedDriver(dv_id_t unused_a, dv_param_t unused_d)
 	return 0;
 }
 
-/* af_UsbRead() - alarm function to activate the UsbRead task
-*/
-dv_u64_t af_UsbRead(dv_id_t unused_a, dv_param_t unused_d)
-{
-	dv_activatetask(UsbRead);
-	return 5;
-}
-
 /* callout_addtasks() - configure the tasks
 */
 void callout_addtasks(dv_id_t mode)
@@ -322,7 +314,6 @@ void callout_addalarms(dv_id_t mode)
 {
 	LedDriver = dv_addalarm("LedDriver", &af_LedDriver, 0);
 	tusb_DeviceAlarm = dv_addalarm("tusb_DeviceAlarm", &tusb_Expiry, (dv_param_t)tusb_DeviceTask);
-	UsbReadAlarm = dv_addalarm("UsbReadAlarm", &af_UsbRead, 0);
 }
 
 /* callout_autostart() - start the objects that need to be running after dv_startos()
@@ -333,7 +324,6 @@ void callout_autostart(dv_id_t mode)
 	dv_activatetask(tusb_DeviceTask);
 	dv_activatetask(UsbWrite);
 	dv_setalarm_rel(Ticker, LedDriver, 2000);
-	dv_setalarm_rel(Ticker, UsbReadAlarm, 2000);
 
 	/* Enable interrupts from the UART
 	*/
