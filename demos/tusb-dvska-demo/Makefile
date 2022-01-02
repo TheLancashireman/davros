@@ -178,6 +178,7 @@ LD_OPT		+= -L $(DV_LIB_D)
 
 # The demo code
 DV_LD_OBJS	+= $(DV_OBJ_D)/demo.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/usb-midi.o
 
 # davroska and associated library files
 DV_LD_OBJS	+= $(DV_OBJ_D)/davroska.o
