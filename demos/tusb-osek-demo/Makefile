@@ -192,6 +192,8 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/os.o
 
 VPATH 		+=	c
 VPATH 		+=	s
+VPATH		+=	../davroska-common/c
+VPATH		+=	../davroska-common/s
 VPATH		+=	$(DAVROSKA_D)/c
 
 # TinyUSB: src and all subdirectories
@@ -291,7 +293,7 @@ LIBUSB_OBJS	= $(shell $(DV_D)/scripts/tusb-list.sh $(TINYUSB_D) $(DV_OBJ_D))
 .PHONY:		default all help clean install srec uf2 libusb openocd
 
 clean:
-	-rm -rf $(DV_OBJ_D) $(DV_BIN_D)
+	-rm -rf $(DV_OBJ_D) $(DV_BIN_D) $(DV_LIB_D)
 
 elf:			$(DV_OBJ_D) $(DV_BIN_D) libusb $(ELF_FILE) 
 
