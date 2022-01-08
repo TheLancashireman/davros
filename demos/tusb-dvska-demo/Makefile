@@ -60,7 +60,7 @@ default:		srec
 endif
 
 ifeq ($(DV_BOARD), pi-zero)
-$(error  No TinyUSB support for pi zeo)
+$(error  No TinyUSB support for pi zero)
 DEMO_BOARD		?=	DEMO_PI_ZERO
 DV_COMPILER		?=	linaro-arm
 DV_LDSCRIPT		?=	$(DAVROSKA_D)/hardware/arm/ld/dv-pi-zero.ldscript
@@ -190,6 +190,8 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/dv-memset32.o
 
 VPATH 		+=	c
 VPATH 		+=	s
+VPATH 		+=	../davroska-common/c
+VPATH 		+=	../davroska-common/s
 VPATH		+=	$(DAVROSKA_D)/c
 
 # TinyUSB: src and all subdirectories
@@ -289,7 +291,7 @@ LIBUSB_OBJS	= $(shell $(DV_D)/scripts/tusb-list.sh $(TINYUSB_D) $(DV_OBJ_D))
 .PHONY:		default all help clean install srec uf2 libusb openocd
 
 clean:
-	-rm -rf $(DV_OBJ_D) $(DV_BIN_D)
+	-rm -rf $(DV_OBJ_D) $(DV_BIN_D) $(DV_LIB_D)
 
 elf:			$(DV_OBJ_D) $(DV_BIN_D) libusb $(ELF_FILE) 
 
