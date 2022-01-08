@@ -160,6 +160,7 @@ LIBUSB_FILE	?=	$(DV_LIB_D)/libtusb.a
 CC_OPT		+=	-D DV_DAVROSKA=1
 CC_OPT		+=	-D DEMO_BOARD=$(DEMO_BOARD)
 CC_OPT		+= -I h
+CC_OPT		+= -I ../davroska-common/h
 CC_OPT		+= -I $(DAVROSKA_D)/h
 CC_OPT		+= -I $(DAVROSKA_D)/hardware
 CC_OPT		+= -I $(DV_D)/devices/h
