@@ -49,7 +49,7 @@ DV_GNU_D	?=	/data1/gnu/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-elf
 DV_GCC		?=	$(DV_GNU_D)/bin/aarch64-elf-gcc
 DV_LD		?=	$(DV_GNU_D)/bin/aarch64-elf-ld
 DV_OBJCOPY	?=	$(DV_GNU_D)/bin/aarch64-elf-objcopy
-DV_LDLIB_D	?=	$(DV_GNU_D)/aarch64-elf/libc/usr/lib/
+DV_LDLIB_D	?=	-L $(DV_GNU_D)/aarch64-elf/libc/usr/lib/
 DV_LDSCRIPT	?=	$(DVSK_ROOT)/hardware/arm64/ld/dv-pi3.ldscript
 
 DV_ENTRY	?=	-e dv_reset
@@ -69,9 +69,8 @@ DV_GNU_D	?=	/data1/gnu/gcc-linaro-7.5.0-2019.12-x86_64_arm-eabi
 DV_GCC		?=	$(DV_GNU_D)/bin/arm-eabi-gcc
 DV_LD		?=	$(DV_GNU_D)/bin/arm-eabi-ld
 DV_OBJCOPY	?=	$(DV_GNU_D)/bin/arm-eabi-objcopy
-DV_LDLIB_D	?=	$(DV_GNU_D)/arm-eabi/libc/usr/lib/
+DV_LDLIB_D	?=	-L $(DV_GNU_D)/arm-eabi/libc/usr/lib/
 DV_LDSCRIPT	?=	$(DVSK_ROOT)/hardware/arm/ld/dv-pi-zero.ldscript
-LD_LIB_ARCH	?=	-lgcc
 
 DV_ENTRY	?=	-e dv_trap_reset
 
@@ -93,7 +92,9 @@ DV_GNU_D	?=	/data1/gnu/gcc-arm-none-eabi-9-2019-q4-major
 DV_GCC		?=	$(DV_GNU_D)/bin/arm-none-eabi-gcc
 DV_LD		?=	$(DV_GNU_D)/bin/arm-none-eabi-ld
 DV_OBJCOPY	?=	$(DV_GNU_D)/bin/arm-none-eabi-objcopy
-DV_LDLIB_D	?=	$(DV_GNU_D)/arm-none-eabi/lib/thumb/v7-m/nofp
+
+DV_LDLIB_D	+=	-L $(DV_GNU_D)/arm-none-eabi/lib/thumb/v7-m/nofp
+DV_LDLIB_D	+=	-L $(DV_GNU_D)/lib/gcc/arm-none-eabi/9.2.1/thumb/v7-m/nofp
 
 else
 
@@ -103,11 +104,9 @@ DV_GNU_D	?=	/data1/gnu/gcc-linaro-7.5.0-2019.12-x86_64_arm-eabi
 DV_GCC		?=	$(DV_GNU_D)/bin/arm-eabi-gcc
 DV_LD		?=	$(DV_GNU_D)/bin/arm-eabi-ld
 DV_OBJCOPY	?=	$(DV_GNU_D)/bin/arm-eabi-objcopy
-DV_LDLIB_D	?=	$(DV_GNU_D)/arm-eabi/libc/usr/lib/thumb
+DV_LDLIB_D	?=	-L $(DV_GNU_D)/arm-eabi/libc/usr/lib/thumb
 
 endif
-
-LD_LIB_ARCH	?=	-lg
 
 DV_LDSCRIPT	?=	$(DVSK_ROOT)/hardware/arm/ld/dv-blue-pill.ldscript
 
@@ -139,8 +138,8 @@ endif
 DV_GCC		?=	$(DV_GNU_D)/bin/arm-none-eabi-gcc
 DV_LD		?=	$(DV_GNU_D)/bin/arm-none-eabi-ld
 DV_OBJCOPY	?=	$(DV_GNU_D)/bin/arm-none-eabi-objcopy
-DV_LDLIB_D	?=	$(DV_GNU_D)/lib/arm-none-eabi/newlib/thumb/v6-m/nofp/
-DV_LDEABI_D	?=	/data1/projects/OtherPeople/libaeabi-cortexm0
+DV_LDLIB_D	+=	-L $(DV_GNU_D)/lib/arm-none-eabi/newlib/thumb/v6-m/nofp/
+DV_LDLIB_D	+=	-L /data1/projects/OtherPeople/libaeabi-cortexm0
 DV_ELF2UF2	?=	elf2uf2
 
 DV_LDSCRIPT	?=	$(DVSK_ROOT)/hardware/arm/ld/dv-pi-pico-ram.ldscript
@@ -154,8 +153,7 @@ UF2_FILE	?=	demo.uf2
 CC_OPT		+= -mcpu=cortex-m0plus
 CC_OPT		+= -mthumb
 
-LD_LIBDIR_ARCH	= -L $(DV_LDEABI_D)
-LD_LIB_ARCH		= -laeabi-cortexm0
+LD_LIB_ARCH	= -laeabi-cortexm0
 
 endif
 
@@ -185,9 +183,11 @@ CC_OPT		+= -O2
 #CC_OPT		+= -mfloat-abi=hard
 #CC_OPT		+= -mfpu=vfp
 
+LD_LIB_ARCH ?=	-lgcc
+
 LD_OPT		+= $(DV_ENTRY)
 LD_OPT		+= -T $(DV_LDSCRIPT)
-LD_OPT		+=	-L $(DV_LDLIB_D)
+LD_OPT		+=	$(DV_LDLIB_D)
 LD_OPT		+=	$(LD_LIBDIR_ARCH)
 LD_OPT		+=	-lc
 LD_OPT		+=	$(LD_LIB_ARCH)
@@ -207,6 +207,8 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/os.o
 
 VPATH 		+=	c
 VPATH 		+=	s
+VPATH		+=	../davroska-common/c
+VPATH		+=	../davroska-common/s
 VPATH		+=	$(DVSK_ROOT)/c
 
 # Hardware-specific files and paths

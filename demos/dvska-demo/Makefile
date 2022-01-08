@@ -202,6 +202,8 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/dv-memset32.o
 
 VPATH 		+=	c
 VPATH 		+=	s
+VPATH		+=	../davroska-common/c
+VPATH		+=	../davroska-common/s
 VPATH		+=	$(DVSK_ROOT)/c
 
 # Hardware-specific files and paths
