@@ -24,7 +24,7 @@
 #define stdio_h
 
 #include <dv-config.h>
-#include <davroska-osek.h>
+#include <davroska.h>
 #include <dv-stdio.h>
 
 /* Avoid a warning in midi_device.c and elsewhere.
