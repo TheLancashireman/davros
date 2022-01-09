@@ -2,6 +2,12 @@
 
 This demo is inspired by the hid_composite_freertos example from the TinyUSB repository.
 
+## Hardware
+
+* Blue-pill STM32F103 - working
+* Raspberry Pi (zero, 1, 2, 3, ...) - no support
+* Raspberry pico - work in progress, made difficult by the labrynthine nature of the Pico SDK :-(
+
 ## Prerequisites
 
 * TinyUSB - git@github.com:/hathach/tinyusb.git
