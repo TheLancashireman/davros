@@ -44,6 +44,11 @@ extern void dumpPstack(void);
 
 #define hw_UartInterruptId		dv_irq_uart0
 #define hw_TimerInterruptId		dv_irq_timer0
+#define hw_UsbInterruptId1		dv_irq_usbctrl
+
+/* ISR bodies defined as macros to avoid having to include tinyusb header here.
+*/
+#define hw_UsbIsr1()	tud_int_handler(0)
 
 static inline void hw_ClearTimer(void)
 {
