@@ -41,8 +41,8 @@ TINYUSB_D	?= $(PRJ_D)/OtherPeople/tinyusb
 AEABI_V6M_D	?= $(PRJ_D)/libaeabi-cortexm0
 
 # Select your hardware here. TinyUSB has no support for pi-zero or pi3
-DV_BOARD	?= blue-pill
-#DV_BOARD	?= pi-pico
+#DV_BOARD	?= blue-pill
+DV_BOARD	?= pi-pico
 #DV_BOARD	?= pi3-arm64
 #DV_BOARD	?= pi-zero
 
@@ -98,7 +98,11 @@ DV_LDSCRIPT		?=	$(DAVROSKA_D)/hardware/arm/ld/dv-pi-pico-ram.ldscript
 DV_ENTRY		?=	--thumb-entry dv_boot
 CC_OPT			+=	-mcpu=cortex-m0plus
 CC_OPT			+=	-mthumb
-DV_LDLIB		?=	-lc -lgcc -laeabi-cortexm0
+# A compatibility gasket for tinyusb to avoid pulling in the entire pico-sdk
+CC_OPT			+=	-I $(DV_D)/lib/h/tinyusb-picosdk-gasket
+CC_OPT			+=	-I $(PRJ_D)/pico/pico-sdk/src
+
+DV_LDLIB		?=	-lc -laeabi-cortexm0
 LD_OPT			?=	-L $(DV_GNU_D)/lib/arm-none-eabi/newlib/thumb/v6-m/nofp/ -L $(PRJ_D)/OtherPeople/libaeabi-cortexm0
 
 default:		uf2
