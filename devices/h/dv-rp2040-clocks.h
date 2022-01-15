@@ -69,6 +69,7 @@ typedef struct dv_rp2040_clocks_s
 
 #define DV_CLK_ENABLE	0x00000800
 #define DV_CLK_KILL		0x00000400
+#define DV_CLK_DIVBY1	0x00000100
 
 #define DV_CLKSRC_REF_ROSC		0x00
 #define DV_CLKSRC_REF_AUX		0x01
@@ -84,6 +85,13 @@ typedef struct dv_rp2040_clocks_s
 #define DV_CLKSRC_PERI_UPLL		0x40
 #define DV_CLKSRC_PERI_ROSC		0x60
 #define DV_CLKSRC_PERI_XOSC		0x80
+#define DV_CLKSRC_USB_SYS		0x00
+#define DV_CLKSRC_USB_PLL_SYS	0x20
+#define DV_CLKSRC_USB_PLL_USB	0x40
+#define DV_CLKSRC_USB_ROSC_PH	0x60
+#define DV_CLKSRC_USB_XOSC		0x80
+#define DV_CLKSRC_USB_GPIN0		0xa0
+#define DV_CLKSRC_USB_GPIN1		0xc0
 
 /* Xosc
 */
@@ -156,5 +164,6 @@ typedef struct dv_rp2040_pll_s
 
 extern void dv_clock_init(void);
 extern void dv_pll_init(void);
+extern void dv_usbpll_init(void);
 
 #endif
