@@ -25,6 +25,7 @@
 
 #include <dv-config.h>
 #include <davroska.h>
+#include <dv-rp2040-interrupts.h>
 
 #define static_assert(x, y) extern void *xxxxxxxx
 #define assert(x)			do {} while (0)
@@ -67,9 +68,9 @@ do {						\
 #define USBCTRL_REGS_BASE	0x50110000
 #define RESETS_BASE			0x4000c000
 
-/* ToDo: map to davroska/davros functions?
-*/
-#define irq_set_enabled(irq, en)			do {} while (0)
-#define irq_set_exclusive_handler(irq, fn)	do {} while (0)
+#define USBCTRL_IRQ			dv_irq_usbctrl
+
+extern void irq_set_exclusive_handler(dv_irqid_t irq, void (*fn)(void));
+extern void irq_set_enabled(dv_irqid_t irq, int en);
 
 #endif

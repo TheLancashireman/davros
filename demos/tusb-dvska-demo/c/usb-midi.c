@@ -41,11 +41,13 @@ dv_id_t tusb_Isr3;
 
 void main_tusb_DeviceTask(void)
 {
+#if USE_USB
 	for (;;)
 	{
 		tud_task();
 		osal_delay(0, 5);	/* Might happen during startup. Avoids busy-wait. */
 	}
+#endif
 }
 
 #ifdef hw_UsbInterruptId1

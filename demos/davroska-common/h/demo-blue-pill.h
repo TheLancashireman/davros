@@ -53,6 +53,13 @@ extern void dumpPstack(void);
 #define hw_UsbIsr2()	tud_int_handler(0)
 #define hw_UsbIsr3()	tud_int_handler(0)
 
+#define	hw_EnableUsbIrqs() \
+	do {									\
+		dv_enable_irq(hw_UsbInterruptId1);	\
+		dv_enable_irq(hw_UsbInterruptId2);	\
+		dv_enable_irq(hw_UsbInterruptId3);	\
+	} while (0)
+
 static inline void hw_ClearTimer(void)
 {
 	dv_tim2.ccr[3] += 1000;			/* No in-the-past check */

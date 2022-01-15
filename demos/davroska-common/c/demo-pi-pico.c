@@ -30,6 +30,7 @@
 #include <dv-rp2040-resets.h>
 #include <dv-nvic.h>
 #include <dv-rp2040-uart.h>
+#include <dv-rp2040-usb.h>
 #include <dv-rp2040-gpio.h>
 #include <dv-rp2040-timer.h>
 
@@ -137,6 +138,10 @@ void dv_reset(void)
 	*/
 	dv_clock_init();
 	dv_pll_init();
+#if USE_USB
+	dv_usbpll_init();
+#endif
+
 
 	/* Initialise variables
 	*/
@@ -187,7 +192,19 @@ void dv_reset(void)
 	*/
 	dv_printf("MPU_TYPE = 0x%08x\n", *(unsigned *)0xE000ED90);
 
+#if USE_USB
+	/* Initialise the USB controller
+	*/
+	(void)dv_rp2040_usb_init();
+#endif
+
 	sysinfo();
+
+#if 0
+	/* TEMPORARY: switch timer clock to USB PLL to check speed
+	*/
+	dv_rp2040_clocks.ref.ctrl = DV_CLKSRC_REF_AUX; 	/* Aux_src = 0 ==> usb_pll */
+#endif
 
 	/* It would be possible to pass main() as the function pointer here,
 	 * but for the time being we'll use an intermediate function so that we can find out
@@ -243,3 +260,42 @@ void dumpPstack(void)
 	}
 }
 
+#if USE_USB
+/* pico-sdk gasket for tinyusb
+*/
+void (*tusb_isr_func)(void);
+
+void irq_set_exclusive_handler(dv_irqid_t irq, void (*fn)(void))
+{
+	if ( irq == hw_UsbInterruptId1 )
+	{
+		dv_printf("irq_set_exclusive_handler() called : setting handler to 0x%08x\n", (unsigned)fn);
+		tusb_isr_func = fn;
+	}
+	else
+	{
+		dv_printf("irq_set_exclusive_handler() called : irq != dv_irq_usbctrl\n");
+	}
+}
+
+void irq_set_enabled(dv_irqid_t irq, int en)
+{
+	if ( irq == hw_UsbInterruptId1 )
+	{
+		if ( en )
+		{
+			dv_printf("irq_set_enabled() called : enabling USB IRQ\n");
+			dv_enable_irq(hw_UsbInterruptId1);
+		}
+		else
+		{
+			dv_printf("irq_set_enabled() called : disabling USB IRQ\n");
+			dv_disable_irq(hw_UsbInterruptId1);
+		}
+	}
+	else
+	{
+		dv_printf("irq_set_enabled() called : irq != dv_irq_usbctrl\n");
+	}
+}
+#endif

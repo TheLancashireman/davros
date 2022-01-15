@@ -274,8 +274,9 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/dv-switchcall.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-cortexm-ctxsw.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-nvic.o
 
-DV_LD_OBJS	+= $(DV_OBJ_D)/dv-rp2040-uart.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-rp2040-clocks.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-rp2040-uart.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-rp2040-usb.o
 
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-pico-boot.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/demo-pi-pico.o

@@ -30,6 +30,8 @@
 #define DEMO_BLUE_PILL	3
 #define DEMO_PI_PICO	4
 
+#define USE_USB			1
+
 #if DEMO_BOARD == DEMO_PI_ZERO
 
 #error "No tinyusb support for pi-zero"

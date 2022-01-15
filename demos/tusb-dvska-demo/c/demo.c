@@ -83,6 +83,7 @@ dv_u8_t uart1_rx_ringbuf[UART1_RX_RBLEN];
 */
 void main_Led(void)
 {
+	dv_putc('*');		/* FIXME: temp */
 	ledstate = !ledstate;
 	hw_SetLed(3, ledstate);
 	dv_setalarm_rel(Ticker, LedDriver, ledstate ? 20 : 1980);
@@ -100,7 +101,9 @@ void main_Init(void)
 													dv_exe[i].currprio, dv_exe[i].state);
 	}
 
+#if USE_USB
 	tusb_init();
+#endif
 }
 
 #define MIDI_CABLE		0
@@ -110,6 +113,7 @@ void main_Init(void)
 */
 void main_UsbRead(void)
 {
+#if USE_USB
 	dv_u8_t packet[4];
 	while ( tud_midi_available() )
 	{
@@ -117,6 +121,7 @@ void main_UsbRead(void)
 
 		dv_printf("UsbRead: packet = %02x %02x %02x %02x\n", packet[0], packet[1], packet[2], packet[3]);
 	}
+#endif
 }
 
 /* main_UsbWrite() - task body function for the UsbWrite task
@@ -158,7 +163,9 @@ void main_UsbWrite(void)
 				/* Send note-off
 				*/
 				note_off[1] = note_on[1];
+#if USE_USB
 				tud_midi_stream_write(MIDI_CABLE, note_off, 3);
+#endif
 			}
 
 			note_on[1] = NOTE_BASE;
@@ -187,7 +194,9 @@ void main_UsbWrite(void)
 
 			if ( note_on[1] != 0 )
 			{
+#if USE_USB
 				tud_midi_stream_write(MIDI_CABLE, note_on, 3);
+#endif
 				dv_printf("UsbWrite: note = %u\n", note_on[1]);
 			}
 
@@ -335,13 +344,7 @@ void callout_autostart(dv_id_t mode)
 
 	/* Enable USB interrupts
 	*/
-	dv_enable_irq(hw_UsbInterruptId1);
-#ifdef hw_UsbInterruptId2
-	dv_enable_irq(hw_UsbInterruptId2);
-#endif
-#ifdef hw_UsbInterruptId3
-	dv_enable_irq(hw_UsbInterruptId3);
-#endif
+	hw_EnableUsbIrqs();
 }
 
 /* callout_reporterror() - called if an error is detected

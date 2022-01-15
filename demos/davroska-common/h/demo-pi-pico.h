@@ -28,6 +28,7 @@
 #include <dv-rp2040-interrupts.h>
 #include <dv-rp2040-timer.h>
 #include <dv-nvic.h>
+#include <dv-stdio.h>
 
 #define LED_PIN	25	/* On-board LED */
 
@@ -46,9 +47,25 @@ extern void dumpPstack(void);
 #define hw_TimerInterruptId		dv_irq_timer0
 #define hw_UsbInterruptId1		dv_irq_usbctrl
 
-/* ISR bodies defined as macros to avoid having to include tinyusb header here.
+extern void (*tusb_isr_func)(void);
+
+/* ISR body.
 */
-#define hw_UsbIsr1()	tud_int_handler(0)
+static inline void hw_UsbIsr1(void)
+{
+	if ( tusb_isr_func == 0 )
+	{
+		dv_printf("hw_UsbIsr1() called before handler configured\n");
+	}
+	else
+	{
+		(*tusb_isr_func)();
+	}
+}
+
+/* Let tinyusb handle enabling and disabling the interrupt
+*/
+#define	hw_EnableUsbIrqs()	do {} while (0)
 
 static inline void hw_ClearTimer(void)
 {

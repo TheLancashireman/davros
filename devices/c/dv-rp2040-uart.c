@@ -46,7 +46,7 @@ void dv_rp2040_uart_putc(dv_rp2040_uart_t *uart, int c)
  *
  * Returns nonzero if the parameters aren't supported.
  *
- * Assumes peripheral clock of 133 MHz
+ * Assumes peripheral clock of 12 MHz
  *
  * fmt has 3 characters:  nps (any extra characters are ignored)
  *	n = no of bits (5..8)
