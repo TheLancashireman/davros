@@ -45,7 +45,7 @@
 #error "DEMO_BOARD not known"
 #endif
 
-#define CFG_TUSB_OS 				OPT_OS_CUSTOM
+#define CFG_TUSB_OS 			OPT_OS_CUSTOM
 
 //--------------------------------------------------------------------
 // COMMON CONFIGURATION
