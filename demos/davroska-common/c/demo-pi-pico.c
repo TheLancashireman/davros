@@ -119,7 +119,11 @@ int uart0_istx(void)
 */
 void dv_reset2(void)
 {
+#if 0
 	sysinfo();
+#endif
+
+	dv_printf("RP2040 chip ID: 0x%08x\n", dv_rp2040_sysinfo.chip_id);
 
 	(void)main(0, DV_NULL);
 }
@@ -263,14 +267,18 @@ void dumpPstack(void)
 #if USE_USB
 /* pico-sdk gasket for tinyusb
 */
+#if 0
 void (*tusb_isr_func)(void);
+#endif
 
 void irq_set_exclusive_handler(dv_irqid_t irq, void (*fn)(void))
 {
 	if ( irq == hw_UsbInterruptId1 )
 	{
 		dv_printf("irq_set_exclusive_handler() called : setting handler to 0x%08x\n", (unsigned)fn);
+#if 0
 		tusb_isr_func = fn;
+#endif
 	}
 	else
 	{
