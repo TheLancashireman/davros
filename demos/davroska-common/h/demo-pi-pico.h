@@ -47,6 +47,9 @@ extern void dumpPstack(void);
 #define hw_TimerInterruptId		dv_irq_timer0
 #define hw_UsbInterruptId1		dv_irq_usbctrl
 
+#if 1
+#define hw_UsbIsr1()			dcd_int_handler(0)
+#else
 extern void (*tusb_isr_func)(void);
 
 /* ISR body.
@@ -62,6 +65,7 @@ static inline void hw_UsbIsr1(void)
 		(*tusb_isr_func)();
 	}
 }
+#endif
 
 /* Let tinyusb handle enabling and disabling the interrupt
 */
