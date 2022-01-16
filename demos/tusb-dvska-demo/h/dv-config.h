@@ -70,6 +70,9 @@
 #define OSAL_OPT_HOST		0
 #define OSAL_OPT_DEVICE		1
 #define TUSB_COUNTERID		Ticker
+#if 0
+#define TUD_OPT_RP2040_USB_DEVICE_ENUMERATION_FIX	1
+#endif
 
 /* DV_CFG_MAXEXE is the maximum number of executables (tasks + ISRs) that you can create.
 */
