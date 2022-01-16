@@ -6,7 +6,9 @@ This demo implements a midi device.
 
 * Blue-pill STM32F103 - working
 * Raspberry Pi (zero, 1, 2, 3, ...) - no support
-* Raspberry pico - work in progress, made difficult by the labrynthine nature of the Pico SDK :-(
+* Raspberry pico
+** work in progress, made difficult by the labrynthine nature of the Pico SDK :-(
+** compiles and runs but doesn't register with host.
 
 ## Prerequisites
 
