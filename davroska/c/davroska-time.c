@@ -129,7 +129,13 @@ dv_statustype_t dv_advancecounter(dv_id_t c, dv_u64_t n)
 		dv_counter[c].head = dv_alarm[a].nextalarm;
 		dv_u64_t inc = dv_alarm[a].expiryfunction(a,  dv_alarm[a].expiryfunctiondata);
 		if ( (dv_alarm[a].expirytime + inc) <= dv_alarm[a].expirytime )
-			dv_alarm[a].expirytime = 0;		/* Occurs when inc is 0 and when addition overflows */
+		{
+			/* Occurs when inc is 0 and when addition overflows. Alarm repetition stops
+			*/
+			dv_alarm[a].expirytime = 0;
+			dv_alarm[a].counter = -1;
+			dv_alarm[a].nextalarm = -1;
+		}
 		else
 			dv_setalarm(c, a, dv_alarm[a].expirytime + inc);
 		a = dv_counter[c].head;
@@ -356,4 +362,73 @@ void dv_setalarm(dv_id_t c, dv_id_t a, dv_u64_t v)
 	dv_alarm[pred].nextalarm = a;
 
 	dv_restore(is);
+}
+
+/* dv_stopalarm() - stop an alarm; remove it from the queue
+*/
+dv_statustype_t dv_stopalarm(dv_id_t a)
+{
+	if ( (a < 0) || (a >= dv_nalarm) )
+	{
+		/* Alarm out of range
+		*/
+		dv_param_t p = (dv_param_t)a;
+		return callout_reporterror(dv_sid_stopalarm, dv_e_id, 1, &p);
+	}
+
+	dv_intstatus_t is = dv_disable();
+
+	dv_id_t c = dv_alarm[a].counter;
+
+	if ( c < 0 )
+	{
+		/* Alarm is not active. Ignore silently.
+		 * This would be an annoying error in a conformant OSEK.
+		*/
+		dv_alarm[a].expirytime = 0;
+		dv_alarm[a].nextalarm = -1;
+		dv_restore(is);
+		return dv_e_ok;
+	}
+
+	if ( c >= dv_ncounter )
+		dv_panic(dv_panic_AlarmCorrupt, dv_sid_stopalarm, "Counter ID out of range");
+
+	dv_id_t pred = dv_counter[c].head;
+
+	if ( pred == a )
+	{
+		/* Head of queue. Remove it and return
+		*/
+		dv_counter[c].head = dv_alarm[a].nextalarm;
+		dv_alarm[a].expirytime = 0;
+		dv_alarm[a].counter = -1;
+		dv_alarm[a].nextalarm = -1;
+		dv_restore(is);
+		return dv_e_ok;
+	}
+
+	/* Walk the alarm queue looking for the alarm
+	*/
+	while ( pred >= 0  && pred < dv_nalarm )
+	{
+		if ( dv_alarm[pred].nextalarm == a )
+		{
+			/* Found the alarm. Remove from queue and return
+			*/
+			dv_alarm[pred].nextalarm = dv_alarm[a].nextalarm;
+			dv_alarm[a].expirytime = 0;
+			dv_alarm[a].counter = -1;
+			dv_alarm[a].nextalarm = -1;
+			dv_restore(is);
+			return dv_e_ok;
+		}
+
+		pred = dv_alarm[pred].nextalarm;
+	}
+
+	/* Alarm not found in queue
+	*/
+	dv_panic(dv_panic_AlarmCorrupt, dv_sid_stopalarm, "Alarm is not in counter list");
+	return dv_e_reported;	/* Never happens */
 }
