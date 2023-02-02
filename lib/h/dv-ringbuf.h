@@ -24,6 +24,7 @@
  * 	The functions deal only with the managment of the current positions, which are indexes into
  *	the buffer.
  *	This means that this file can be used for ringbuffers with elements of any data type.
+ *	Functions are provided here to manage ringbuffers of characters.
 */
 
 #ifndef dv_ringbuf_h
@@ -66,6 +67,32 @@ static inline dv_boolean_t dv_rb_empty(dv_rbm_t *rb)
 static inline dv_boolean_t dv_rb_full(dv_rbm_t *rb)
 {
 	return ( dv_rb_add1(rb, rb->tail) == rb->head );
+}
+
+/*	dv_rb_u8_put() - append a byte to a ringbuffer and return 1 if successful.
+ *
+ *	If the buffer is full the character is discarded and dv_rb_u8_put() returns 0
+*/
+static inline dv_boolean_t dv_rb_u8_put(dv_rbm_t *rbm, dv_u8_t buf[], dv_u8_t c)
+{
+	if ( dv_rb_full(rbm) )
+		return 0;
+	buf[rbm->tail] = c;
+	rbm->tail = dv_rb_add1(rbm, rbm->tail);
+	return 1;
+}
+
+/*	dv_rb_u8_get() - append a byte to a ringbuffer and return 1 if successful.
+ *
+ *	If the buffer is empty the dv_rb_u8_get() returns -1
+*/
+static inline int dv_rb_u8_get(dv_rbm_t *rbm, dv_u8_t buf[])
+{
+	if ( dv_rb_empty(rbm) )
+		return -1;
+	int c = (int)buf[rbm->head];
+	rbm->head = dv_rb_add1(rbm, rbm->head);
+	return c;
 }
 
 #endif
