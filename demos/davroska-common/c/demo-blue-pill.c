@@ -137,7 +137,7 @@ void dv_reset(void)
 
 	/* Initialise uart1 and connect it to the stdio functions
 	*/
-	(void)dv_stm32_uart_init(&dv_uart1, 115200, "8N1");
+	(void)dv_stm32_uart_init(1, 115200, "8N1");
 	dv_consoledriver.putc = uart1_putc;
 	dv_consoledriver.getc = uart1_getc;
 	dv_consoledriver.istx = uart1_istx;

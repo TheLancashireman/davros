@@ -133,6 +133,6 @@ static inline int dv_stm32_uart_istx(dv_uart_t *uart)
 
 extern int dv_stm32_uart_getc(dv_uart_t *uart);
 extern void dv_stm32_uart_putc(dv_uart_t *uart, int);
-extern int dv_stm32_uart_init(dv_uart_t *uart, unsigned baud, char *format);
+extern int dv_stm32_uart_init(int uart_no, unsigned baud, char *format);
 
 #endif

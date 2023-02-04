@@ -59,10 +59,14 @@ void dv_stm32_uart_putc(dv_uart_t *uart, int c)
 
 #define MAKE_FRAC(w,f)	((dv_u32_t)((w)*16+(f)))
 
-int dv_stm32_uart_init(dv_uart_t *uart, unsigned baud, char *fmt)
+int dv_stm32_uart_init(int uart_no, unsigned baud, char *fmt)
 {
 	dv_u32_t div;
 	char bits;
+	dv_uart_t *uart;
+	int txpin;
+	int rxpin;
+	dv_gpio_t *gpio;
 
 	/* See table 192 in STM ref manual
 	*/
@@ -70,6 +74,10 @@ int dv_stm32_uart_init(dv_uart_t *uart, unsigned baud, char *fmt)
 	{
 	case 115200:		/* 39.0625 */
 		div = MAKE_FRAC(39, FRAC_0_0625);
+		break;
+
+	case 9600:			/* 468.75 */
+		div = MAKE_FRAC(468, (FRAC_0_5+FRAC_0_25));
 		break;
 
 	/* Todo: other baud rates */
@@ -107,33 +115,63 @@ int dv_stm32_uart_init(dv_uart_t *uart, unsigned baud, char *fmt)
 	if ( bits < 8 || bits > 9 )
 		return 5;
 
+	switch ( uart_no )
+	{
+	case 1:		/* uart1 is on GPIO-A pins 9 and 10 */
+		uart = &dv_uart1;
+		gpio = &dv_gpio_a;
+		txpin = 9;
+		rxpin = 10;
+		dv_rcc.apb2en |= (DV_RCC_IOPA | DV_RCC_USART1);		/* Turn on GPIO A and USART1 */
+		break;
+
+	case 2:		/* uart2 is on GPIO-A pins 2 and 3 */
+		uart = &dv_uart2;
+		gpio = &dv_gpio_a;
+		txpin = 2;
+		rxpin = 3;
+		dv_rcc.apb1en |= DV_RCC_USART2;		/* Turn on USART1 */
+		dv_rcc.apb2en |= DV_RCC_IOPA;		/* Turn on GPIO A */
+		div = div >> 1;		/* uart2 runs on 36 MHz clock */
+		break;
+
+	case 3:		/* uart3 is on GPIO-B pins 10 and 11 */
+		uart = &dv_uart3;
+		gpio = &dv_gpio_b;
+		txpin = 10;
+		rxpin = 11;
+		dv_rcc.apb1en |= DV_RCC_USART3;		/* Turn on USART3 */
+		dv_rcc.apb2en |= DV_RCC_IOPB;		/* Turn on GPIO B */
+		div = div >> 1;		/* uart3 runs on 36 MHz clock */
+		break;
+
+	default:
+		return 6;
+	}
+
 	/* Parameters are OK.
 	*/
 
-	/* Turn on GPIO A and USART1.
-	 * TODO: Generalise; this code enables USART1.
-	*/
-	dv_rcc.apb2en |= (DV_RCC_IOPA | DV_RCC_USART1);
-
-	/* Turn on GPIO A and enable alt functions. Assumes no remapping i.e. Tx on PA9, Rx on PA10
+	/* Turn on GPIO A and enable alt functions.
+	 * Assumes no remapping i.e. Uart1-Tx on PA9, Uart2-Rx on PA10 etc.
 	*/
 
-	/* Select alt output/open drain/50 MHz on PA9
+	/* Select alt output/open drain/50 MHz on txpin
 	*/
-	int cr = 9 / 8;
-	int shift = (9 % 8) * 4;
+	int cr = txpin / 8;
+	int shift = (txpin % 8) * 4;
 	dv_u32_t mask = 0xf << shift;
 	dv_u32_t val = DV_GPIO_ALT_PP_50 << shift;
-	dv_gpio_a.cr[cr] = (dv_gpio_a.cr[cr] & ~mask) | val;
+	gpio->cr[cr] = (gpio->cr[cr] & ~mask) | val;
 
-	/* Select input/pullup on PA10
+	/* Select input/pullup on rxpin
 	*/
-	cr = 10 / 8;
-	shift = (10 % 8) * 4;
+	cr = rxpin / 8;
+	shift = (rxpin % 8) * 4;
 	mask = 0xf << shift;
 	val = DV_GPIO_IN_PUD << shift;
-	dv_gpio_a.cr[cr] = (dv_gpio_a.cr[cr] & ~mask) | val;
-	dv_gpio_a.odr |= (0x1<<10);
+	gpio->cr[cr] = (gpio->cr[cr] & ~mask) | val;
+	gpio->odr |= (0x1<<rxpin);
 
 	/* Enable the UART but keep the transmitter and receiver off.
 	*/
