@@ -66,7 +66,7 @@ int dv_stm32_uart_init(int uart_no, unsigned baud, char *fmt)
 	dv_uart_t *uart;
 	int txpin;
 	int rxpin;
-	dv_gpio_t *gpio;
+	char gpio;
 
 	/* See table 192 in STM ref manual
 	*/
@@ -115,34 +115,34 @@ int dv_stm32_uart_init(int uart_no, unsigned baud, char *fmt)
 	if ( bits < 8 || bits > 9 )
 		return 5;
 
+	/* GPIO selection assumes no remapping i.e. Uart1-Tx on PA9, Uart2-Rx on PA10 etc.
+	*/
 	switch ( uart_no )
 	{
 	case 1:		/* uart1 is on GPIO-A pins 9 and 10 */
 		uart = &dv_uart1;
-		gpio = &dv_gpio_a;
+		gpio = 'a';
 		txpin = 9;
 		rxpin = 10;
-		dv_rcc.apb2en |= (DV_RCC_IOPA | DV_RCC_USART1);		/* Turn on GPIO A and USART1 */
+		dv_rcc.apb2en |= DV_RCC_USART1;		/* Turn on USART1 */
 		break;
 
 	case 2:		/* uart2 is on GPIO-A pins 2 and 3 */
 		uart = &dv_uart2;
-		gpio = &dv_gpio_a;
+		gpio = 'a';
 		txpin = 2;
 		rxpin = 3;
-		dv_rcc.apb1en |= DV_RCC_USART2;		/* Turn on USART1 */
-		dv_rcc.apb2en |= DV_RCC_IOPA;		/* Turn on GPIO A */
-		div = div >> 1;		/* uart2 runs on 36 MHz clock */
+		dv_rcc.apb1en |= DV_RCC_USART2;		/* Turn on USART2 */
+		div = div >> 1;						/* uart2 runs on 36 MHz clock */
 		break;
 
 	case 3:		/* uart3 is on GPIO-B pins 10 and 11 */
 		uart = &dv_uart3;
-		gpio = &dv_gpio_b;
+		gpio = 'b';
 		txpin = 10;
 		rxpin = 11;
 		dv_rcc.apb1en |= DV_RCC_USART3;		/* Turn on USART3 */
-		dv_rcc.apb2en |= DV_RCC_IOPB;		/* Turn on GPIO B */
-		div = div >> 1;		/* uart3 runs on 36 MHz clock */
+		div = div >> 1;						/* uart3 runs on 36 MHz clock */
 		break;
 
 	default:
@@ -152,26 +152,13 @@ int dv_stm32_uart_init(int uart_no, unsigned baud, char *fmt)
 	/* Parameters are OK.
 	*/
 
-	/* Turn on GPIO A and enable alt functions.
-	 * Assumes no remapping i.e. Uart1-Tx on PA9, Uart2-Rx on PA10 etc.
-	*/
-
 	/* Select alt output/open drain/50 MHz on txpin
 	*/
-	int cr = txpin / 8;
-	int shift = (txpin % 8) * 4;
-	dv_u32_t mask = 0xf << shift;
-	dv_u32_t val = DV_GPIO_ALT_PP_50 << shift;
-	gpio->cr[cr] = (gpio->cr[cr] & ~mask) | val;
+	dv_stm32_gpio_pinmode(gpio, txpin, DV_GPIO_ALT_PP_50);
 
 	/* Select input/pullup on rxpin
 	*/
-	cr = rxpin / 8;
-	shift = (rxpin % 8) * 4;
-	mask = 0xf << shift;
-	val = DV_GPIO_IN_PUD << shift;
-	gpio->cr[cr] = (gpio->cr[cr] & ~mask) | val;
-	gpio->odr |= (0x1<<rxpin);
+	dv_stm32_gpio_pinmode(gpio, rxpin, DV_GPIO_IN_PUD);
 
 	/* Enable the UART but keep the transmitter and receiver off.
 	*/

@@ -117,14 +117,14 @@ struct dv_uart_s
 #define DV_UART_GT			0xff00			/* Guard time */
 #define DV_UART_PSC			0x00ff			/* Prescaler for LPIrDA/SmartCard */
 
-/* dv_uart_isrx() - returns true if there's a character to read.
+/* dv_stm32_uart_isrx() - returns true if there's a character to read.
 */
 static inline int dv_stm32_uart_isrx(dv_uart_t *uart)
 {
 	return ( (uart->sr & DV_UART_RXNE) != 0 );
 }
 
-/* dv_uart1_istx() - returns true if there's room to send a character
+/* dv_stm32_uart_istx() - returns true if there's room to send a character
 */
 static inline int dv_stm32_uart_istx(dv_uart_t *uart)
 {

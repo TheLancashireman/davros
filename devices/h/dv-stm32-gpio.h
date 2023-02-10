@@ -112,4 +112,8 @@ struct dv_afio_s
 #define DV_MAP_I2C1				0x00000002	/* 0 -> PB6/7;		1 -> PB8/9 */
 #define DV_MAP_SPI1				0x00000001	/* 0 -> PA4-7;		1 -> PA15/PB3-5 */
 
+/* Functions
+*/
+extern void dv_stm32_gpio_pinmode(char iop, int pin, dv_u32_t mode);
+
 #endif
