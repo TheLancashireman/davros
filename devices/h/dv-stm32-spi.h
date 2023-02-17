@@ -82,14 +82,51 @@ struct dv_spi_s
 #define DV_SPI_TXE			0x0002
 #define DV_SPI_RXNE			0x0001
 
-/* is2cfg and i2sp : ToDo
+/* is2cfg and i2sp : out of scope for this file
 */
+
+/* Table of SPI peripherals.
+*/
+extern dv_spi_t * const dv_spi_tbl[2];
+
+/* dv_stm32_get_spi() - return address of SPI peripheral
+*/
+static inline dv_spi_t *dv_stm32_get_spi(int spi_no)
+{
+	if ( (spi_no < 1) || (spi_no > 2) )
+		return DV_NULL;
+	return dv_spi_tbl[spi_no];
+}
 
 /* dv_stm32_spi_isrx() - returns true if there's a character to read.
 */
 static inline int dv_stm32_spi_isrx(dv_spi_t *spi)
 {
 	return ( (spi->sr & DV_SPI_RXNE) != 0 );
+}
+
+/* dv_stm32_spi_waitrx() - wait until there's a character to read.
+*/
+static inline void dv_stm32_spi_waitrx(dv_spi_t *spi)
+{
+	while ( !dv_stm32_spi_isrx(spi) )
+	{
+	}
+}
+
+/* dv_stm32_spi_read_dr() - read and return the data register
+*/
+static inline dv_u16_t dv_stm32_spi_read_dr(dv_spi_t *spi)
+{
+	return (dv_u16_t)spi->dr;
+}
+
+/* dv_stm32_spi_get() - wait for data and return it
+*/
+static inline dv_u16_t dv_stm32_spi_get(dv_spi_t *spi)
+{
+	dv_stm32_spi_waitrx(spi);
+	return dv_stm32_spi_read_dr(spi);
 }
 
 /* dv_stm32_spi_istx() - returns true if there's room to send a character
@@ -99,8 +136,31 @@ static inline int dv_stm32_spi_istx(dv_spi_t *spi)
 	return ( (spi->sr & DV_SPI_TXE) != 0 );
 }
 
-extern int dv_stm32_spi_getc(dv_spi_t *spi);
-extern void dv_stm32_spi_putc(dv_spi_t *spi, int);
-extern int dv_stm32_spi_init(int spi_no, unsigned baud);
+/* dv_stm32_spi_waittx() - wait until there's room to send a character
+*/
+static inline void dv_stm32_spi_waittx(dv_spi_t *spi)
+{
+	while ( !dv_stm32_spi_istx(spi) )
+	{
+	}
+}
+
+/* dv_stm32_spi_write_dr() - write data to the data register
+*/
+static inline void dv_stm32_spi_write_dr(dv_spi_t *spi, dv_u16_t d)
+{
+	spi->dr = d;
+}
+
+/* dv_stm32_spi_put() - wait for space in tx then write data
+*/
+static inline void dv_stm32_spi_put(dv_spi_t *spi, dv_u16_t d)
+{
+	dv_stm32_spi_waittx(spi);
+	dv_stm32_spi_write_dr(spi, d);
+}
+
+extern int dv_stm32_spi_init(int spi_no, unsigned max_baud, unsigned mode);
+extern void dv_stm32_spi_disable(int spi_no);
 
 #endif
