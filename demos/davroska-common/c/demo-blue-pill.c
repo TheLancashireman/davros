@@ -135,8 +135,23 @@ void dv_reset(void)
 	*/
 	dv_nvic_init();
 
-	/* Initialise uart1 and connect it to the stdio functions
+	/* GPIO selection for uart, assuming no remapping i.e. Uart1-Tx on PA9, Uart2-Rx on PA10 etc.
+	 *
+	 *	uart1 :	gpio a	tx pin = 9		rx pin = 10
+	 *	uart2 :	gpio a	tx pin = 2		rx pin = 3
+	 *	uart3 :	gpio b	tx pin = 10		rx pin = 11
 	*/
+
+	/* Select alt output/open drain/50 MHz on txpin
+	*/
+	dv_stm32_gpio_pinmode('a', 9, DV_GPIO_ALT_PP_50);
+
+	/* Select input/pullup on rxpin
+	*/
+	dv_stm32_gpio_pinmode('a', 10, DV_GPIO_IN_PUD);
+
+	/* Initialise uart1 and connect it to the stdio functions
+    */
 	(void)dv_stm32_uart_init(1, 115200, "8N1");
 	dv_consoledriver.putc = uart1_putc;
 	dv_consoledriver.getc = uart1_getc;
