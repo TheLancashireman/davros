@@ -95,7 +95,7 @@ static inline dv_spi_t *dv_stm32_get_spi(int spi_no)
 {
 	if ( (spi_no < 1) || (spi_no > 2) )
 		return DV_NULL;
-	return dv_spi_tbl[spi_no];
+	return dv_spi_tbl[spi_no-1];
 }
 
 /* dv_stm32_spi_isrx() - returns true if there's a character to read.
