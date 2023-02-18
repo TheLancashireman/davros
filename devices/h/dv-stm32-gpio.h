@@ -116,4 +116,35 @@ struct dv_afio_s
 */
 extern void dv_stm32_gpio_pinmode(char iop, int pin, dv_u32_t mode);
 
+static inline void dv_stm32_gpio_pinset(char iop, int pin, int state)
+{
+	switch ( iop )
+	{
+	case 'a':
+		if ( state )
+			dv_gpio_a.bsrr = 0x1 << pin;
+		else
+			dv_gpio_a.brr = 0x1 << pin;
+		break;
+
+	case 'b':
+		if ( state )
+			dv_gpio_b.bsrr = 0x1 << pin;
+		else
+			dv_gpio_b.brr = 0x1 << pin;
+		break;
+
+	case 'c':
+		if ( state )
+			dv_gpio_c.bsrr = 0x1 << pin;
+		else
+			dv_gpio_c.brr = 0x1 << pin;
+		break;
+
+	default:
+		/* Do nothing */
+		break;
+	}
+}
+
 #endif
