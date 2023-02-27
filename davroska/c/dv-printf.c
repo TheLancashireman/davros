@@ -25,25 +25,35 @@
 #include <dv-config.h>
 #include <dv-xstdio.h>
 #include <dv-stdio.h>
+#include <davroska.h>
 
 #include DV_TARGET
 
 #include "stdarg.h"
 
 dv_uartdriver_t dv_consoledriver;		/* Must be set up by the board init. */
+short dv_printf_mutex = -1;
 
 int dv_printf(const char *fmt, ...)
 {
 	int nprinted;
 	va_list ap;
+	dv_intstatus_t is = 0;
 
-	dv_intstatus_t is = dv_disable();
+	if ( dv_printf_mutex < 0 )
+		is = dv_disable();
+	else
+	if ( dv_takemutex(dv_printf_mutex) != dv_e_ok )
+		return -1;
 
 	va_start(ap, fmt);
 	nprinted = dv_xprintf(dv_putc, fmt, ap);
 	va_end(ap);
 
-	dv_restore(is);
+	if ( dv_printf_mutex < 0 )
+		dv_restore(is);
+	else
+		(void)dv_dropmutex(dv_printf_mutex);
 
 	return(nprinted);
 }

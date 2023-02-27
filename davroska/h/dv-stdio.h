@@ -26,6 +26,7 @@
 
 #if !DV_ASM
 
+#include <davroska.h>
 #include <dv-xstdio.h>
 
 typedef struct dv_uartdriver_s dv_uartdriver_t;
@@ -39,6 +40,8 @@ struct dv_uartdriver_s
 };
 
 extern dv_uartdriver_t dv_consoledriver;		/* Must be set up by the board init. */
+extern short dv_printf_mutex;					/* Can be set to a mutex id. -1 ==> interrupt lock */
+
 
 /*	Functions for dv_printf.
 */
