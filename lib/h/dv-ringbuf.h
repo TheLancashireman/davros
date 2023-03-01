@@ -34,9 +34,9 @@ typedef struct dv_rbm_s dv_rbm_t;
 
 struct dv_rbm_s
 {
-	dv_i32_t head;		/* The index into which the next "write" will occur */
-	dv_i32_t tail;		/* The index from which the next "read" will occur */
-	dv_i32_t length;	/* The length of the associated buffer */
+	volatile dv_i32_t head;		/* The index into which the next "write" will occur */
+	volatile dv_i32_t tail;		/* The index from which the next "read" will occur */
+	dv_i32_t length;			/* The length of the associated buffer */
 };
 
 /* Rules:
@@ -59,14 +59,18 @@ static inline dv_i32_t dv_rb_add1(dv_rbm_t *rb, dv_i32_t i)
 */
 static inline dv_boolean_t dv_rb_empty(dv_rbm_t *rb)
 {
-	return ( rb->head == rb->tail );
+	if ( rb->head == rb->tail )
+		return 1;
+	return 0;
 }
 
 /*  dv_rb_full() - returns true if rb is full, false otherwise
 */
 static inline dv_boolean_t dv_rb_full(dv_rbm_t *rb)
 {
-	return ( dv_rb_add1(rb, rb->tail) == rb->head );
+	if ( dv_rb_add1(rb, rb->tail) == rb->head )
+		return 1;
+	return 0;
 }
 
 /*	dv_rb_u8_put() - append a byte to a ringbuffer and return 1 if successful.
