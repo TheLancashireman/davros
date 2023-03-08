@@ -207,15 +207,13 @@ static inline bool osal_mutex_unlock(osal_mutex_t mutex_hdl)
 // QUEUE API
 //--------------------------------------------------------------------+
 
-// role device/host is used by OS NONE for mutex (disable usb isr) only
-// role device/host is used by OSEK for identifying task to send events to.
-#define OSAL_QUEUE_DEF(_role, _name, _depth, _type) \
+// _int_set is not used in davroska
+#define OSAL_QUEUE_DEF(_int_set, _name, _depth, _type) \
 	static _type _name##_##buf[_depth+1];	\
 	osal_queue_def_t _name =				\
 	{	.len = (_depth+1),					\
 		.blocksize = sizeof(_type),			\
-		.buf = (uint8_t*)_name##_##buf,		\
-		.role = _role						\
+		.buf = (uint8_t*)_name##_##buf		\
 	};
 
 typedef struct
@@ -223,7 +221,6 @@ typedef struct
 	uint16_t			len;		// No of data blocks = depth+1 (see below)
 	uint16_t			blocksize;	// Size of each data block
 	uint8_t*			buf;		// Buffer area
-	uint8_t				role;		// OPT_MODE_NONE, OPT_MODE_DEVICE or OPT_MODE_HOST
 
 	volatile uint16_t	w_index;	// Writer index.	Queue is empty when w_index == r_index
 	volatile uint16_t	r_index;	// Reader index.    Queue is full when (w_index+1) mod len == r_index
@@ -265,8 +262,9 @@ static inline bool inline_queue_receive(osal_queue_t qhdl, void* data)
 
 	return 1;
 }
-static inline bool osal_queue_receive(osal_queue_t qhdl, void* data)
+static inline bool osal_queue_receive(osal_queue_t qhdl, void* data, uint32_t msec)
 {
+	(void)msec;		/* For now: always wait forever */
 #if OSAL_DEBUG
 	return extern_queue_receive(qhdl, data);
 #else
@@ -291,23 +289,13 @@ static inline bool inline_queue_send(osal_queue_t qhdl, void const * data, bool 
 
 	qhdl->w_index = newidx;
 
-	switch ( qhdl->role )
-	{
 #if OSAL_OPT_DEVICE
-	case OPT_MODE_DEVICE:
-		(void)dv_setevent(tusb_DeviceTask, tusb_EvNotify);
-		break;
+	(void)dv_setevent(tusb_DeviceTask, tusb_EvNotify);
 #endif
 
 #if OSAL_OPT_HOST
-	case OPT_MODE_HOST:
 		(void)dv_setevent(tusb_HostTask, tusb_EvNotify);
-		break;
 #endif
-
-	default:
-		break;
-	}
 
 	return 1;
 }
