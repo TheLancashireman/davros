@@ -1,4 +1,4 @@
-/* usb-midi.c - source file for davroska USB-midi executables
+/* usb-midi.c - source file for davroska USB-MIDI executables
  *
  * Copyright David Haworth
  *
@@ -25,57 +25,6 @@
 #include <tusb.h>
 
 extern dv_id_t UsbRead;
-dv_id_t tusb_Mutex;
-dv_id_t tusb_DeviceTask;
-dv_id_t tusb_DeviceAlarm;
-
-#ifdef hw_UsbInterruptId1
-dv_id_t tusb_Isr1;
-#endif
-#ifdef hw_UsbInterruptId2
-dv_id_t tusb_Isr2;
-#endif
-#ifdef hw_UsbInterruptId3
-dv_id_t tusb_Isr3;
-#endif
-
-void main_tusb_DeviceTask(void)
-{
-#if USE_USB
-	for (;;)
-	{
-		tud_task();
-		osal_delay(0, 5);	/* Might happen during startup. Avoids busy-wait. */
-	}
-#endif
-}
-
-#ifdef hw_UsbInterruptId1
-void main_tusb_Isr1(void)
-{
-	hw_UsbIsr1();
-}
-#endif
-
-#ifdef hw_UsbInterruptId2
-void main_tusb_Isr2(void)
-{
-	hw_UsbIsr2();
-}
-#endif
-
-#ifdef hw_UsbInterruptId3
-void main_tusb_Isr3(void)
-{
-	hw_UsbIsr3();
-}
-#endif
-
-dv_u64_t tusb_Expiry(dv_id_t a, dv_param_t p)
-{
-	(void)dv_setevent((dv_id_t)p, tusb_EvTimeout);
-	return 0;
-}
 
 /* A combination of interfaces must have a unique product id, since PC will save device driver after the first plug.
  * Same VID/PID with different interface e.g MSC (first), then CDC (later) will possibly cause system error on PC.
