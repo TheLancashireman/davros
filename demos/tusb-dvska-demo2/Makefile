@@ -1,4 +1,4 @@
-#	Makefile - demo Makefile for a USB-MIDI device using tinyusb with davroska
+#	Makefile - demo Makefile for a USB-serial device using tinyusb with davroska
 #
 #	Copyright David Haworth
 #
@@ -183,7 +183,7 @@ LD_OPT		+= -L $(DV_LIB_D)
 
 # The demo code
 DV_LD_OBJS	+= $(DV_OBJ_D)/demo.o
-DV_LD_OBJS	+= $(DV_OBJ_D)/usb-midi.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/usb-serial.o
 
 # davroska and associated library files
 DV_LD_OBJS	+= $(DV_OBJ_D)/davroska.o
@@ -192,6 +192,7 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/davroska-extended.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-printf.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-xprintf.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-memset32.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-tusb-device.o
 
 VPATH 		+=	c
 VPATH 		+=	s

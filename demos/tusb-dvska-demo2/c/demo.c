@@ -1,4 +1,4 @@
-/* demo.c - USB-midi demo for davroska
+/* demo.c - USB-serial demo for davroska
  *
  * This file contains all the target-independent stuff - tasks, ISRs etc.
  * The target-dependent stuff (startup, main, timer & uart functions) can be found in
@@ -30,6 +30,7 @@
 #include <dv-stdio.h>
 #include <dv-string.h>
 #include <dv-ringbuf.h>
+#include <dv-tusb-device.h>
 
 /* This include file selects the hardware type
 */
@@ -37,7 +38,7 @@
 
 /* This includes the USB functionality
 */
-#include "usb-midi.h"
+#include "usb-serial.h"
 
 /* The UsbWrite task creates a mini monophonic organ keyboard (single octave)
  * from your PC keyboard via the uart. Use a terminal program like minicom.
@@ -57,9 +58,6 @@
  * The hardware is assumed to have an LED that can be driven by an output port.
  *
  * The task Led is responsible for blinking the LED at a steady rate of 20ms on every 2 seconds.
- *
- * The task tusb_DeviceTask handles the USB device port, if there is one.
- * Up to three ISRs are responsible for handling the USB device interrupts
 */
 /* Object identifiers
 */
@@ -101,9 +99,9 @@ void main_Init(void)
 													dv_exe[i].currprio, dv_exe[i].state);
 	}
 
-#if USE_USB
+	callout_tusbd_activate();
+	dv_tusbd_enableirqs();
 	tusb_init();
-#endif
 }
 
 #define MIDI_CABLE		0
@@ -113,7 +111,6 @@ void main_Init(void)
 */
 void main_UsbRead(void)
 {
-#if USE_USB
 	dv_u8_t packet[4];
 	while ( tud_midi_available() )
 	{
@@ -121,7 +118,6 @@ void main_UsbRead(void)
 
 		dv_printf("UsbRead: packet = %02x %02x %02x %02x\n", packet[0], packet[1], packet[2], packet[3]);
 	}
-#endif
 }
 
 /* main_UsbWrite() - task body function for the UsbWrite task
@@ -163,9 +159,7 @@ void main_UsbWrite(void)
 				/* Send note-off
 				*/
 				note_off[1] = note_on[1];
-#if USE_USB
 				tud_midi_stream_write(MIDI_CABLE, note_off, 3);
-#endif
 			}
 
 			note_on[1] = NOTE_BASE;
@@ -194,9 +188,7 @@ void main_UsbWrite(void)
 
 			if ( note_on[1] != 0 )
 			{
-#if USE_USB
 				tud_midi_stream_write(MIDI_CABLE, note_on, 3);
-#endif
 				dv_printf("UsbWrite: note = %u\n", note_on[1]);
 			}
 
@@ -256,12 +248,12 @@ void callout_addtasks(dv_id_t mode)
 	dv_printf("Init : %d\n", Init);
 	Led = dv_addtask("Led", &main_Led, 1, 1);
 	dv_printf("Led : %d\n", Led);
-	tusb_DeviceTask = dv_addextendedtask("tusb_DeviceTask", &main_tusb_DeviceTask, 3, 1024);
-	dv_printf("tusb_DeviceTask : %d\n", tusb_DeviceTask);
 	UsbWrite = dv_addextendedtask("UsbWrite", &main_UsbWrite, 2, 1024);
 	dv_printf("UsbWrite : %d\n", UsbWrite);
 	UsbRead = dv_addtask("UsbRead", &main_UsbRead, 2, 1);
 	dv_printf("UsbRead : %d\n", UsbRead);
+
+	callout_tusbd_addtasks();
 }
 
 /* callout_addisrs() - configure the isrs
@@ -271,13 +263,7 @@ void callout_addisrs(dv_id_t mode)
 	Uart = dv_addisr("Uart", &main_Uart, hw_UartInterruptId, 5);
 	Timer = dv_addisr("Timer", &main_Timer, hw_TimerInterruptId, 6);
 
-	tusb_Isr1 = dv_addisr("tusb_Isr1", &main_tusb_Isr1, hw_UsbInterruptId1, 8);
-#ifdef hw_UsbInterruptId2
-	tusb_Isr2 = dv_addisr("tusb_Isr2", &main_tusb_Isr2, hw_UsbInterruptId2, 8);
-#endif
-#ifdef hw_UsbInterruptId3
-	tusb_Isr3 = dv_addisr("tusb_Isr3", &main_tusb_Isr3, hw_UsbInterruptId3, 8);
-#endif
+	callout_tusbd_addisrs();
 }
 
 /* callout_addgroups() - configure the executable groups
@@ -293,21 +279,9 @@ void callout_addgroups(dv_id_t mode)
 void callout_addmutexes(dv_id_t mode)
 {
 	mx_Gpio = dv_addmutex("mx_Gpio", 1);
-	{
 		dv_addmutexuser(mx_Gpio, Led);
-	}
 
-	tusb_Mutex = dv_addmutex("tusb_Mutex", 1);
-	{
-		dv_addmutexuser(tusb_Mutex, tusb_DeviceTask);
-		dv_addmutexuser(tusb_Mutex, tusb_Isr1);
-#ifdef hw_UsbInterruptId2
-		dv_addmutexuser(tusb_Mutex, tusb_Isr2);
-#endif
-#ifdef hw_UsbInterruptId3
-		dv_addmutexuser(tusb_Mutex, tusb_Isr3);
-#endif
-	}
+	callout_tusbd_addmutexes();
 }
 
 /* callout_addcounters() - configure the counters
@@ -322,7 +296,8 @@ void callout_addcounters(dv_id_t mode)
 void callout_addalarms(dv_id_t mode)
 {
 	LedDriver = dv_addalarm("LedDriver", &af_LedDriver, 0);
-	tusb_DeviceAlarm = dv_addalarm("tusb_DeviceAlarm", &tusb_Expiry, (dv_param_t)tusb_DeviceTask);
+
+	callout_tusbd_addalarms();
 }
 
 /* callout_autostart() - start the objects that need to be running after dv_startos()
@@ -330,7 +305,6 @@ void callout_addalarms(dv_id_t mode)
 void callout_autostart(dv_id_t mode)
 {
 	dv_activatetask(Init);
-	dv_activatetask(tusb_DeviceTask);
 	dv_activatetask(UsbWrite);
 	dv_setalarm_rel(Ticker, LedDriver, 2000);
 
@@ -341,10 +315,6 @@ void callout_autostart(dv_id_t mode)
 
 	hw_InitialiseMillisecondTicker();
 	dv_enable_irq(hw_TimerInterruptId);
-
-	/* Enable USB interrupts
-	*/
-	hw_EnableUsbIrqs();
 }
 
 /* callout_reporterror() - called if an error is detected

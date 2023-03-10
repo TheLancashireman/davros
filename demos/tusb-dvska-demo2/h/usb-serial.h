@@ -1,4 +1,4 @@
-/* usb-midi.h - header file for a USB-midi devicb_midi_h
+/* usb-serial.h - header file for a USB-serial device
  *
  * Copyright David Haworth
  *
@@ -20,21 +20,12 @@
  *
  *
 */
-#ifndef usb_midi_h
-#define usb_midi_h	1
+#ifndef usb_serial_h
+#define usb_serial_h	1
 
 #include <dv-config.h>
 #include <davroska.h>
 #include <tusb.h>
-
-extern dv_id_t tusb_Mutex, tusb_DeviceTask;
-extern dv_id_t tusb_Isr1, tusb_Isr2, tusb_Isr3;
-extern dv_id_t tusb_DeviceAlarm;
-
-extern void main_tusb_DeviceTask(void);
-extern void main_tusb_Isr1(void);
-extern void main_tusb_Isr2(void);
-extern void main_tusb_Isr3(void);
-extern dv_u64_t tusb_Expiry(dv_id_t, dv_param_t);
+#include <dv-tusb-device.h>
 
 #endif
