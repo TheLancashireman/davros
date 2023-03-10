@@ -27,11 +27,25 @@
 
 #include <arm/h/dv-types-cortexm.h>
 #include <dv-cortex-m.h>
+#include <dv-stm32-interrupts.h>
 #include <dv-stdio.h>
 
 #define DV_INCLUDE_INTERRUPTCONTROLLER	<dv-nvic.h>
 #define DV_MAX_INTLEVEL		15
 #define DV_LOCKALL_LEVEL	(DV_MAX_INTLEVEL)
 #define DV_NVECTOR			68
+
+/* USB interrupts
+*/
+#define hw_UsbInterruptId1		dv_irq_usb_lp_can_rx0
+#define hw_UsbInterruptId2		dv_irq_usb_hp_can_tx
+#define hw_UsbInterruptId3		dv_irq_usbwakeup
+
+/* ISR bodies for USB interrupts, defined as macros to avoid having to include tinyusb header here.
+*/
+#define hw_UsbIsr1()	tud_int_handler(0)
+#define hw_UsbIsr2()	tud_int_handler(0)
+#define hw_UsbIsr3()	tud_int_handler(0)
+
 
 #endif
