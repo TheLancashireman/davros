@@ -1,4 +1,4 @@
-/* usb-midi.h - header file for a USB-midi devicb_midi_h
+/* usb-midi.h - header file for a USB-midi device
  *
  * Copyright David Haworth
  *
