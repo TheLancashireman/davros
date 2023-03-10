@@ -41,8 +41,8 @@ TINYUSB_D	?= $(PRJ_D)/OtherPeople/tinyusb
 AEABI_V6M_D	?= $(PRJ_D)/libaeabi-cortexm0
 
 # Select your hardware here. TinyUSB has no support for pi-zero or pi3
-#DV_BOARD	?= blue-pill
-DV_BOARD	?= pi-pico
+DV_BOARD	?= blue-pill
+#DV_BOARD	?= pi-pico
 #DV_BOARD	?= pi3-arm64
 #DV_BOARD	?= pi-zero
 
@@ -192,6 +192,7 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/davroska-extended.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-printf.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-xprintf.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-memset32.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-tusb-device.o
 
 VPATH 		+=	c
 VPATH 		+=	s

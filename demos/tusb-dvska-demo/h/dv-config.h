@@ -127,5 +127,4 @@ static inline void callout_startup(void)
 {
 }
 
-
 #endif
