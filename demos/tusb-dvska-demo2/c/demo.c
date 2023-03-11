@@ -40,19 +40,6 @@
 */
 #include "usb-serial.h"
 
-/* The UsbWrite task creates a mini monophonic organ keyboard (single octave)
- * from your PC keyboard via the uart. Use a terminal program like minicom.
- *
- * The keys are:
- *
- * Black notes:    w e   t y u
- * White notes:   a s d f g h j
- *
- * a is middle C, but you can change it by defining NOTE_BASE differently.
- * You can go an ocatve higher by holding down the shift key.
- * Any other character stops the current note.
-*/
-
 /* Task main functions, along with a description of how they interact.
  *
  * The hardware is assumed to have an LED that can be driven by an output port.
@@ -61,7 +48,7 @@
 */
 /* Object identifiers
 */
-dv_id_t Init, Led, UsbWrite, UsbRead;	/* Tasks */
+dv_id_t Init, Led, UsbRead0, UsbRead1;	/* Tasks */
 dv_id_t Uart, Timer;					/* ISRs */
 dv_id_t mx_Gpio;						/* Mutexes */
 dv_id_t Ticker;							/* Counters */
@@ -100,100 +87,48 @@ void main_Init(void)
 	}
 
 	callout_tusbd_activate();
-	dv_tusbd_enableirqs();
-	tusb_init();
 }
 
-#define MIDI_CABLE		0
-#define MIDI_CHANNEL	0
-
-/* main_UsbRead() - task body function for the UsbRead task
+/* main_UsbRead0() - task body function for the UsbRead0 task
+ * Activated when there's data to read from CDC0
 */
-void main_UsbRead(void)
+void main_UsbRead0(void)
 {
-	dv_u8_t packet[4];
-	while ( tud_midi_available() )
-	{
-		tud_midi_packet_read(packet);
+	dv_printf("UsbRead0\n");
 
-		dv_printf("UsbRead: packet = %02x %02x %02x %02x\n", packet[0], packet[1], packet[2], packet[3]);
+	while ( tud_cdc_n_available(0) )
+	{
+		dv_u8_t buf[64];
+		dv_u32_t count = tud_cdc_n_read(0, buf, sizeof(buf));
+		tud_cdc_n_write(1, buf, count);
 	}
+	tud_cdc_n_write_flush(1);
 }
 
-/* main_UsbWrite() - task body function for the UsbWrite task
+/* main_UsbRead1() - task body function for the UsbRead1 task
+ * Activated when there's data to read from CDC1
 */
-#define NOTE_C1		24
-#define NOTE_C2		36
-#define NOTE_C3		48
-#define NOTE_C4		60		/* Middle C */
-#define NOTE_C5		72
-#define NOTE_BASE	NOTE_C4
-
-
-void main_UsbWrite(void)
+void main_UsbRead1(void)
 {
-	dv_u8_t note_on[3];
-	dv_u8_t note_off[3];
+	dv_printf("UsbRead1\n");
 
-	/* The buffers must be valid for a while after calling tud_midi_stream_write(), so
-	 * we can't use the same buffer for note-on and note-off
-	*/
-	note_off[0] = 0x80 + MIDI_CHANNEL;
-	note_off[2] = 0;
-
-	note_on[0] = 0x90 + MIDI_CHANNEL;
-	note_on[2] = 127;
-
-	for (;;)
+	while ( tud_cdc_n_available(1) )
 	{
-		dv_waitevent(ev_uart1_rx);
-		dv_clearevent(ev_uart1_rx);
-
-		while ( !dv_rb_empty(&uart1_rx_rbm) )
-		{
-			dv_u8_t c = uart1_rx_ringbuf[uart1_rx_rbm.head];
-			uart1_rx_rbm.head = dv_rb_add1(&uart1_rx_rbm, uart1_rx_rbm.head);
-
-			if ( note_on[1] != 0 )
-			{
-				/* Send note-off
-				*/
-				note_off[1] = note_on[1];
-				tud_midi_stream_write(MIDI_CABLE, note_off, 3);
-			}
-
-			note_on[1] = NOTE_BASE;
-			if ( c >= 0x41 && c <= 0x5a )
-			{
-				c += 0x20;
-				note_on[1] += 12;
-			}
-
-			switch (c)
-			{
-			case 'a':	note_on[1] += 0;	break;	/* C */
-			case 'w':	note_on[1] += 1;	break;	/* C# */
-			case 's':	note_on[1] += 2;	break;	/* D */
-			case 'e':	note_on[1] += 3;	break;	/* Eb */
-			case 'd':	note_on[1] += 4;	break;	/* E */
-			case 'f':	note_on[1] += 5;	break;	/* F */
-			case 't':	note_on[1] += 6;	break;	/* F#*/
-			case 'g':	note_on[1] += 7;	break;	/* G */
-			case 'y':	note_on[1] += 8;	break;	/* Ab*/
-			case 'h':	note_on[1] += 9;	break;	/* A */
-			case 'u':	note_on[1] += 10;	break;	/* Bb */
-			case 'j':	note_on[1] += 11;	break;	/* B */
-			default:	note_on[1] = 0;		break;	/* Nothing */
-			}
-
-			if ( note_on[1] != 0 )
-			{
-				tud_midi_stream_write(MIDI_CABLE, note_on, 3);
-				dv_printf("UsbWrite: note = %u\n", note_on[1]);
-			}
-
-		}
+		dv_u8_t buf[64];
+		dv_u32_t count = tud_cdc_n_read(1, buf, sizeof(buf));
+		tud_cdc_n_write(0, buf, count);
 	}
+	tud_cdc_n_write_flush(0);
+}
+
+/* tud_cdc_rx_cb() - called when there's data on a CDC interface
+*/
+void tud_cdc_rx_cb(dv_u8_t itf)
+{
+	if ( itf == 0 )
+		dv_activatetask(UsbRead0);
+	else
+		dv_activatetask(UsbRead1);
 }
 
 /* main_Uart() - body of ISR to handle uart rx interrupt
@@ -216,9 +151,6 @@ void main_Uart(void)
 			uart1_rx_rbm.tail = dv_rb_add1(&uart1_rx_rbm, uart1_rx_rbm.tail);
 		}
 	}
-
-	if ( !dv_rb_empty(&uart1_rx_rbm) )
-		dv_setevent(UsbWrite, ev_uart1_rx);
 }
 
 /* main_Timer() - body of ISR to handle interval timer interrupt
@@ -248,10 +180,10 @@ void callout_addtasks(dv_id_t mode)
 	dv_printf("Init : %d\n", Init);
 	Led = dv_addtask("Led", &main_Led, 1, 1);
 	dv_printf("Led : %d\n", Led);
-	UsbWrite = dv_addextendedtask("UsbWrite", &main_UsbWrite, 2, 1024);
-	dv_printf("UsbWrite : %d\n", UsbWrite);
-	UsbRead = dv_addtask("UsbRead", &main_UsbRead, 2, 1);
-	dv_printf("UsbRead : %d\n", UsbRead);
+	UsbRead0 = dv_addtask("UsbRead0", &main_UsbRead0, 2, 1);
+	dv_printf("UsbRead0 : %d\n", UsbRead0);
+	UsbRead1 = dv_addtask("UsbRead1", &main_UsbRead1, 2, 1);
+	dv_printf("UsbRead1 : %d\n", UsbRead1);
 
 	callout_tusbd_addtasks();
 }
@@ -305,7 +237,6 @@ void callout_addalarms(dv_id_t mode)
 void callout_autostart(dv_id_t mode)
 {
 	dv_activatetask(Init);
-	dv_activatetask(UsbWrite);
 	dv_setalarm_rel(Ticker, LedDriver, 2000);
 
 	/* Enable interrupts from the UART
@@ -313,8 +244,14 @@ void callout_autostart(dv_id_t mode)
 	hw_EnableUartRxInterrupt();
 	dv_enable_irq(hw_UartInterruptId);
 
+	/* Initialise timer and enable interrupts
+	*/
 	hw_InitialiseMillisecondTicker();
 	dv_enable_irq(hw_TimerInterruptId);
+
+	/* Enable USB interrupts
+	*/
+	dv_tusbd_enableirqs();
 }
 
 /* callout_reporterror() - called if an error is detected
@@ -373,3 +310,4 @@ int main(int argc, char **argv)
 
 	return 0;
 }
+

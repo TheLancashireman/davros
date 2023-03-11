@@ -21,6 +21,7 @@
 #include <dv-config.h>
 #include <davroska.h>
 #include <tusb.h>
+#include <dv-tusb-device.h>
 
 /* Object identifiers for tasks, ISRs etc.
  *
@@ -49,6 +50,7 @@ dv_id_t tusb_Isr3;
 */
 void main_tusb_DeviceTask(void)
 {
+	tud_init(BOARD_TUD_RHPORT);
 	for (;;)
 	{
 		tud_task();

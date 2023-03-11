@@ -27,7 +27,7 @@
 #include <davroska.h>
 #include <dv-stdio.h>
 
-/* Avoid a warning in midi_device.c and elsewhere.
+/* Avoid warnings in tinyusb.
  * It isn't clear where the pointer definition of NULL comes from
 */
 #ifdef NULL

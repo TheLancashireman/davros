@@ -1,6 +1,6 @@
 # TinyUSB + plain davroska demo
 
-This demo implements a midi device.
+This demo implements a USB communications device.
 
 ## Hardware
 
@@ -18,7 +18,8 @@ This demo implements a midi device.
 
 ## What it does
 
-The USB port is configured as a MIDI device.
-
-Characters received from the serial port are translated to note commands and sent to the host.
-Commands received from the host are displayed via the serial port.
+The USB port is configured as a dual communications device. When conntect to a linux host,
+it registers as two tty devices; e.g. /dev/ttyACMn
+Open a minicom session on each of the devices. Whatever you type in one minicom session
+appears in the other.
+Note: the data transfer is raw, so to get a new line press CTRL-J

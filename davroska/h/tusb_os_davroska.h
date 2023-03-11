@@ -262,6 +262,7 @@ static inline bool inline_queue_receive(osal_queue_t qhdl, void* data)
 
 	return 1;
 }
+
 static inline bool osal_queue_receive(osal_queue_t qhdl, void* data, uint32_t msec)
 {
 	(void)msec;		/* For now: always wait forever */
@@ -294,7 +295,7 @@ static inline bool inline_queue_send(osal_queue_t qhdl, void const * data, bool 
 #endif
 
 #if OSAL_OPT_HOST
-		(void)dv_setevent(tusb_HostTask, tusb_EvNotify);
+	(void)dv_setevent(tusb_HostTask, tusb_EvNotify);
 #endif
 
 	return 1;
