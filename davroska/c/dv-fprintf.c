@@ -1,4 +1,4 @@
-/*	dv-printf.c - davroska: formatted output to "console"
+/*	dv-fprintf.c - davroska: formatted output to "file" (actually, a selected driver)
  *
  *	Copyright David Haworth
  *
@@ -31,12 +31,12 @@
 
 #include "stdarg.h"
 
-dv_uartdriver_t dv_consoledriver;		/* Must be set up by the board init. */
-short dv_printf_mutex = -1;
-const dv_uartdriver_t *drv = &dv_consoledriver;
+extern short dv_printf_mutex;
+extern const dv_uartdriver_t *drv;
 
-int dv_printf(const char *fmt, ...)
+int dv_fprintf(const dv_uartdriver_t *f, const char *fmt, ...)
 {
+	const dv_uartdriver_t *savedrv;
 	int nprinted;
 	va_list ap;
 	dv_intstatus_t is = 0;
@@ -47,9 +47,14 @@ int dv_printf(const char *fmt, ...)
 	if ( dv_takemutex(dv_printf_mutex) != dv_e_ok )
 		return -1;
 
+	savedrv = drv;
+	drv = f;
+
 	va_start(ap, fmt);
 	nprinted = dv_xprintf(dv_putc, fmt, ap);
 	va_end(ap);
+
+	drv = savedrv;
 
 	if ( dv_printf_mutex < 0 )
 		dv_restore(is);
@@ -57,11 +62,4 @@ int dv_printf(const char *fmt, ...)
 		(void)dv_dropmutex(dv_printf_mutex);
 
 	return(nprinted);
-}
-
-int dv_putc(int c)
-{
-	if ( c == '\n' )
-		drv->putc('\r');
-	return drv->putc(c);
 }

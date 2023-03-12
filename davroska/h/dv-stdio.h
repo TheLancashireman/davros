@@ -46,6 +46,7 @@ extern short dv_printf_mutex;					/* Can be set to a mutex id. -1 ==> interrupt 
 /*	Functions for dv_printf.
 */
 int dv_printf(const char *fmt, ...);
+int dv_fprintf(const dv_uartdriver_t *f, const char *fmt, ...);
 int dv_putc(int c);
 
 #endif
