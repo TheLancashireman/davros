@@ -52,7 +52,9 @@
 #define OSAL_OPT_DEVICE	0
 #endif
 
+#ifndef OSAL_DEBUG
 #define OSAL_DEBUG	0
+#endif
 
 #ifdef __cplusplus
 extern "C"
