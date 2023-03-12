@@ -257,6 +257,7 @@ DV_LD_OBJS	+= $(DV_OBJ_D)/dv-stm32-rcc.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-stm32-gpio.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-stm32-uart.o
 DV_LD_OBJS	+= $(DV_OBJ_D)/dv-stm32-timx.o
+DV_LD_OBJS	+= $(DV_OBJ_D)/dv-stm32-usb.o
 
 DV_LD_OBJS	+= $(DV_OBJ_D)/demo-blue-pill.o
 

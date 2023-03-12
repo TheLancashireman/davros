@@ -45,6 +45,10 @@
 #error "DEMO_BOARD not known"
 #endif
 
+#ifndef BOARD_TUD_RHPORT
+#define BOARD_TUD_RHPORT	0
+#endif
+
 #define CFG_TUSB_OS 			OPT_OS_CUSTOM
 
 //--------------------------------------------------------------------

@@ -30,6 +30,7 @@
 #include <dv-nvic.h>
 #include <dv-stm32-uart.h>
 #include <dv-stm32-gpio.h>
+#include <dv-stm32-usb.h>
 
 #include <davroska-inline.h>
 
@@ -47,10 +48,6 @@ extern unsigned dv_stacktop;
 
 extern int main(int argc, char **argv);
 extern void dv_switchToPsp(unsigned *psp, unsigned *msp, unsigned control, void (*fp)(void));
-
-#if USE_USB
-void dv_stm32_usb_init(void);
-#endif
 
 /* dv_init_data() - initialise variables
  *
@@ -246,42 +243,3 @@ void dumpPstack(void)
 		dv_printf("psp[%02d] (0x%08x) = 0x%08x\n", i, (dv_u32_t)&psp[i], psp[i]);
 	}
 }
-
-#if USE_USB
-/* dv_stm32_usb_init() - initialise the usb controller
- *
- * See also dv_stm32_usb_connect()
- *
- * Initialisation sequence (from sect. 23.4.2 of STM32F10x reference manual):
- *  - provide clock signals to USB controller (rcc?)
- *  - de-assert reset signal (rcc?)
- *  - turn on analog circuitry (de-assert PDWN)
- *  - wait Tstartup (see data sheet)
- *  - de-assert controller reset (FRES)
- *  - clear spurious interrupts (ISTR)
- *  - initialise the packet buffer table (probably before removing PDWN?)
- *
- * From data sheet:
- *  - Tstartup is Max 1 us !!!  So only have to wait 1us :-)
- *  - HSE aand PLL mustr be enabled, USBCLK = 48 MHz
- *  - USB pins USB_DP and USB_DM are  PA12 and PA11 resp. Automatically configured when USB enabled.
-*/
-void dv_stm32_usb_init(void)
-{
-	/* Assert the reset signal
-	*/
-	dv_rcc.apb1rst |= DV_RCC_USB;
-
-	/* Ensure a 1.5 prescaler to divide the 72 MHz down to 48 MHz for the USB port
-	*/
-	dv_rcc.cfg &= ~DV_RCC_USBPRE;
-
-	/* Enable the clock to the USB peripheral
-	*/
-	dv_rcc.apb1en |= DV_RCC_USB;
-
-	/* Deassert the reset signal
-	*/
-	dv_rcc.apb1rst &= ~DV_RCC_USB;
-}
-#endif
