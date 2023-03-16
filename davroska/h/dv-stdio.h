@@ -1,4 +1,4 @@
-/*	dv_stdio.h - davroska stdio
+/*	dv-stdio.h - davroska stdio
  *
  *	Copyright David Haworth
  *
