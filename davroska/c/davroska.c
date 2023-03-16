@@ -270,6 +270,7 @@ dv_statustype_t dv_dropmutex(dv_id_t mutex)
 
 	if ( low < high )
 	{
+		dv_setirqlevel(dv_queue[low].level);
 		if ( dv_dequeue(high) != dv_currentexe )
 			dv_panic(dv_panic_QueueCorrupt, dv_sid_dropmutex, "mutex owner is not at head of ceiling priority queue");
 
