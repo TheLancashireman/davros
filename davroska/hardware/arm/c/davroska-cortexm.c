@@ -185,13 +185,14 @@ void dv_pendsvtrap(void)
 	}
 }
 
-/* dv_preempt() - execute all tasks that were awoke dugint interrupt handling
+/* dv_preempt() - execute all tasks that were awakened during interrupt handling
  *
  * This function is called from the stackframe that gets pushed onto
 */
 void dv_preempt(void)
 {
 	(void)dv_disable();
+
 	/* Run all queued executables down to the priority of the current executable.
 	*/
 	dv_runqueued_onkernelstack(dv_maxtaskprio, dv_exe[dv_currentexe].currprio, DV_INTENABLED);
@@ -201,7 +202,7 @@ void dv_preempt(void)
 	 * the simplest way is to use another exception - i.e. svc
 	 * The svc is triggered from the assembly-language stub dv_preempt_frame
 	*/
-	dv_setirqlevel(15);
+	dv_setirqlevel(DV_LOCKALL_LEVEL);
 	(void)dv_restore(DV_INTENABLED);
 }
 
