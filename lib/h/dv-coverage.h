@@ -34,12 +34,12 @@
 
 #include <dv-coverage-gen.h>
 
-/* Coverage disabled:
+/* Coverage enabled:
  *	dv_sc() expands to dv_scov_f()
  *	dv_cc() expands to dv_ccov_f()
 */
 #define dv_sc(n)		dv_scov_f(DV_COV_BASE+n)
-#define dv_cc(c, t, f)	dv_ccov_f((c), (DV_COV_BASE+t), (DV_COV_BASE+f))
+#define dv_cc(c, n)		dv_ccov_f((c), (DV_COV_BASE+n))
 
 #else
 
@@ -54,21 +54,28 @@
 
 #if DV_COVERAGE
 
+/* dv_cov_f() - abstract coverage function; sets a bit in the coverage array
+*/
+static inline void dv_cov_f(unsigned n)
+{
+	dv_coverage[n>>5] |= (1 << (n & 31));
+}
+
 /* dv_scov_f() - statement/branch coverage
 */
 static inline void dv_scov_f(unsigned n)
 {
-	dv_coverage[n>>5] |= 1 << (n & 31);
+	dv_cov_f(n);
 }
 
 /* dv_ccov_f() - condition coverage
 */
-static inline dv_boolean_t dv_ccov_f(dv_boolean_t c, unsigned t, unsigned f)
+static inline dv_boolean_t dv_ccov_f(dv_boolean_t c, unsigned t)
 {
 	if ( c )
-		dv_scov_f(t);
+		dv_cov_f(t);
 	else
-		dv_scov_f(f);
+		dv_cov_f(t+1);
 	return c;
 }
 
